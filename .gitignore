@@ -1,0 +1,7 @@
+.DS_Store
+*.swp
+*.swo
+config/database.yml
+config/settings.yml
+*~
+nbproject
