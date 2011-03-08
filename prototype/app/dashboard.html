@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+      Patients Show
+    <script language="javascript">
+      tstUsername = "eds";
+      tstCurrentDate = "2011/02/21";
+      var tt_cancel_destination = null;
+    </script>
+    <link href="../stylesheets/mateme.css?1292835428" media="screen" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/graph.css?1292835428" media="screen" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/touch-fancy.css?1296479519" media="screen" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/tabs.css?1298215445" media="screen" rel="stylesheet" type="text/css" />
+    <link href="../stylesheets/miscellaneous.css?1292835428" media="screen" rel="stylesheet" type="text/css" />
+    <script src="../javascripts/preload.js?1283773302" type="text/javascript"></script>
+    <script type="text/javascript" language="javascript" src="../javascripts/utils.js"></script>
+    </head>
+
+  <body id="mateme">
+    <div id="container">
+      <div id="content">
+        <div id="description" style="color:#777;position:absolute;margin-top:-70px;"> </div>
+        <div style="padding-left: 15px;font-size:1.2em;"> </div>
+        <script type="text/javascript">
+        tt_cancel_destination = 'registration.html';
+        var plot;
+
+        </script>
+        <script src="../javascripts/utils.js?1298215445" type="text/javascript"></script>
+        <div style="margin:10px;">
+          <div id="details" style="float:left">
+            <div id="health-facility-info" class="gadget">
+              <div class="gadget-row">
+                <div id="Sytem-info" class="gadget-cell">
+                  <h2>Hotline System</h2>
+                  <h3>Chilambe Health Center - <i>Hotline</i></h3>
+                </div>
+
+                <div id="username" class="gadget-cell" style="float: right">
+                  Logged as: <i>ceekays</i>
+                </div>
+              </div>
+            </div>
+
+            <div id="personal-info" class="gadget">
+              <div class="gadget-row">
+                <div id="personalinfo" class="gadget-cell">
+                  <h3>Tisunge Milimbo</h3>
+
+                  <table cellpadding="2" cellspacing="0">
+                  <!-- <tr> <td> <span class='title'> National id: </span> </td> <td> P1582-0000-0024<br/></td></tr> -->
+                  <tr> <td> <span class='title'> Birthdate: </span> </td> <td> 11-Sep-1986<br/></td></tr>
+                  <tr> <td> <span class='title'> Gender: </span> </td> <td> Female<br/></td></tr>
+                  <tr> <td> <span class='title'> Current Village: </span> </td> <td> Sangala<br/> </td></tr>
+                  <tr> <td> <span class='title'> Phone Number: </span> </td> <td> +2659991234578<br/> </td></tr>
+                  </table>
+                  </div>
+
+                  <script language="javascript" type="text/javascript" src="../javascripts/jquery.js"></script>
+                  <script language="javascript" type="text/javascript" src="../javascripts/jquery.flot.js"></script>
+
+                  <div id="graph">
+                    <div id="choices" style="padding-left:5px; padding-top:5px;">
+                  <div id="graph0" class="graph-button"  onmousedown="plotAccordingToChoices(0);">Sample Graph 1</div>
+                  <div id="graph1" class="graph-button" onmousedown="plotAccordingToChoices(1);">Sample Graph 2</div>
+                  </div>
+                    <div id="simplegraphholder" class="gadget-cell"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="summaries" class="gadget">
+              <script language="javascript" type="text/javascript" src='../javascripts/sample_graph.js'></script>
+
+              <div id ="tabbedcontent" style="float:left;">
+
+              <div id="tabmenu">
+              <ul>
+              <li id = "visit_summary_tab" onclick="javascript:displayTab(this, 'visit_summary','tabmenu','tabbedbody');" class="activated">Call Summary</li>
+              <li id = "current_medication_tab" onclick="javascript:displayTab(this, 'current_medication','tabmenu','tabbedbody');">Medication</li>
+              </ul>
+              </div>
+
+              <div id="tabbedbody">
+              <div id="visit_summary" class="activated" style="overflow:auto">
+
+              <table width="90%">
+              </table>
+
+              </div>
+
+              <div id="current_medication" style="overflow:auto">
+              <table cellpadding="5" width="100%" cellspacing="2" class='tablet'>
+              <tr>
+              <th class="tableHeader"> Date Started</th>
+              <th class="tableHeader"> Drug</th>
+
+              <th class="tableHeader"> Formulation</th>
+              <th class="tableHeader"> Duration</th>
+              </tr>
+
+
+              <tr>
+
+              <td style="font-size: 1em;">08-Jan-2011</td>
+              <td style="font-size: 1em;">Aspirin</td>
+              <td style="font-size: 1em;">150 mg</td>
+              <td style="font-size: 1em;">1 month</td>
+              </tr>
+
+
+              <tr>
+              <td style="font-size: 1em;">13-Dec-2010</td>
+              <td style="font-size: 1em;">Insulin, Lente</td>
+              <td style="font-size: 1em;">78 unit(s)</td>
+              <td style="font-size: 1em;">2 months</td>
+
+              </tr>
+
+              </table>
+
+
+
+
+              </div>
+
+              <div id="recent_complications"  style="overflow:auto">
+              <table cellpadding="5" width="100%" cellspacing="1">
+
+              <tr>
+              <th class="tableHeader">Name</th>
+
+              <th class="tableHeader">Test</th>
+              <th class="tableHeader">Date</th>
+              </tr>
+              <tr>
+              <td bgcolor="#FFFFFF">
+              <a href='/encounters/new/diabetes_test?patient_id=17 &diabetes_test_type=FOOT CHECK'>Foot Check</a>
+              </td>
+
+              <td bgcolor="#FFFFFF">
+              Left Foot/Leg: Amputation
+              </td>
+              <td bgcolor="#FFFFFF">
+              Apr, 2010
+              </td>
+              </tr>
+
+              <tr>
+              <td bgcolor="#FFFFFF">
+
+              <a href='/encounters/new/diabetes_test?patient_id=17 &diabetes_test_type=VISUAL+ACUITY'>Visual Acuity</a>
+              </td>
+              <td bgcolor="#FFFFFF">
+              Left Eye Visual Acuity: 6/18
+              </td>
+              <td bgcolor="#FFFFFF">
+              May, 2010
+              </td>
+              </tr>
+
+              <tr>
+              <td bgcolor="#FFFFFF" >
+              <a href='/encounters/new/diabetes_test?patient_id=17 &diabetes_test_type=URINE+PROTEIN'>Urine Protein</a>
+              </td>
+              <td bgcolor="#FFFFFF">
+              Urine Protein: ++
+              </td>
+              <td bgcolor="#FFFFFF">
+
+              Dec, 2010
+              </td>
+              </tr>
+
+              <tr>
+              <td bgcolor="#FFFFFF">
+              <a href='/encounters/new/diabetes_test?patient_id=17 &diabetes_test_type=FUNDOSCOPY'>Fundoscopy</a>
+              </td>
+              <td bgcolor="#FFFFFF">
+
+              Left Eye Fundoscopy: Normal
+              </td>
+              <td bgcolor="#FFFFFF">
+              Jan, 2011
+              </td>
+              </tr>
+
+              <tr>
+              <td bgcolor="#FFFFFF">
+              <a href='/encounters/new/diabetes_test?patient_id=17 &diabetes_test_type=UREA'>Urea</a>
+
+              </td>
+              <td bgcolor="#FFFFFF">
+              Blood Urea Nitrogen: 2
+              </td>
+              <td bgcolor="#FFFFFF">
+              May, 2010
+              </td>
+              </tr>
+
+              </table>
+
+              <script type="text/javascript">
+              var new_tab_color =  false
+              /* set recent complications tab to red if there are outstanding tests to be done */
+              if (new_tab_color){
+              colorolizeTab('tabmenu', 'recent_complications_tab', '#FF0000');
+              }
+              </script>
+
+              </div>
+
+              <div id="medical_history"  style="overflow:auto">
+              <style type="text/css" >
+              </style>
+
+              <table cellpadding="2" cellspacing="1"  cellpadding="1" width="100%">
+              <tr>
+
+              <th class="tableHeader">Medical History</th>
+              <th class="tableHeader">Result</th>
+              </tr>
+              <tr>
+              <td>Diabetes Diagnosis Date:</td><td>Unknown</td>
+              </tr>
+              <tr>
+
+              <td>Ever had a Stroke:</td><td>No</td>
+              </tr>
+              <tr>
+              <td>Serious Cardiac Problem:</td><td>No</td>
+              </tr>
+
+              <tr>
+              <td>Hypertension:</td><td>No</td>
+
+              </tr>
+              <tr>
+              <td>Ever had TB:</td><td>No</td>
+              </tr>
+              <tr>
+              <td>Smoking:</td><td>No</td>
+              </tr>
+
+              <tr>
+              <td>Current Cholesterol:</td><td>Yes</td>
+              </tr>
+              </table>
+
+              </div>
+
+              <div id="hiv_status"  style="overflow:auto">
+              <form>
+
+              <input id="observations__patient_id" name="observations[][patient_id]" type="hidden" value="17" />
+              <input id="observations__obs_datetime" name="observations[][obs_datetime]" type="hidden" value="2011-02-21T09:33:21+02:00" />
+              </form>
+
+              <table cellpadding="2" cellspacing="0" width="90%" align ="center">
+              <tr> <td style="background: red; color: white;" align ="center">
+              <b>The patient has not tested in the last 12 months </b>
+              </td></tr>
+              </table>
+
+              <table cellpadding="2" cellspacing="0">
+              <tr> <td> <span class='title'>&nbsp;</span> </td> <td>&nbsp;<br/></td></tr>
+              <tr> <td> <span class='title'> HIV Status: </span> </td> <td> Advised to test<br/></td></tr>
+              <tr> <td> <span class='title'> Date: </span> </td> <td> Unknown<br/></td></tr>
+              </table>
+              </div>
+              </div>
+              </div>
+              </div>
+            </div>
+          <div id="menu" class="">
+              <a class="button green" href='diagnosis.html'>Diagnosis</a>
+              </div>
+              </div>
+
+              <div id="footer">
+              <div id="buttons" class="buttonsDiv" style="top:0px">
+              <button id="finishButton" class="button navButton green" onclick="if (tt_cancel_destination) window.location = tt_cancel_destination;">
+              <span>Finish</span>
+              </button>
+              </div>
+              <div id="tt_extraButtons"/>
+              </div>
+
+             
+      </div>
+    </div>
+  </body>
+</html>
+

@@ -1,0 +1,26 @@
+ .graph-button {
+    display: inline;
+    background: #eeeeee;
+    padding: 5px;
+    border-bottom: 1px solid white;
+    border-top: 1px solid #cccccc;
+    border-right: 1px solid #cccccc;
+    border-left: 1px solid #cccccc;
+    margin-bottom: 0px;
+  }
+
+  .active{
+    background-color: #ffffff;
+    border: 1px solid #eee;
+    border-bottom: 1px solid white;
+  }
+  #simplegraphholder {
+    border: 1px solid #eee;
+    display: block;
+    width: 400px;
+    height: 200px;
+    padding: 5px;
+  }
+  #graph{
+    float:right;
+  }
