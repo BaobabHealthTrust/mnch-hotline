@@ -1,0 +1,52 @@
+.gradient-style
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 20px;
+	/*width: 480px;*/
+	border: 1px solid #eee;
+	text-align: left;
+/*	border-collapse: collapse;*/
+	margin-top: 10px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.gradient-style th
+{
+	font-size: 20px;
+	font-weight: normal;
+	padding: 8px;
+	background: #FED98E repeat-x;
+	border-top: 1px solid #d3ddff;
+	border-bottom: 1px solid #fff;
+	
+	/*color: #039;*/
+}
+.gradient-style td
+{
+	padding: 8px; 
+	border-bottom: 1px solid #fff;
+/*	color: #669; */
+	border-top: 1px solid #fff;
+	background: #FEECCE url('table-images/gradback.png') repeat-x;
+}
+.gradient-style tfoot tr td
+{
+	background: #FEECCE;
+	font-size: 12px;
+	color: #99c;
+}
+/*.gradient-style tbody tr:hover td
+{
+	background: #d0dafd url('table-images/gradhover.png') repeat-x;
+	color: #339;
+}*/
+.odd td
+{
+	background: #FEECFF;
+}
+.gradient-style-even
+{
+	background: #FEECCE;
+}

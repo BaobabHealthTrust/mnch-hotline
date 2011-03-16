@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>Clinic Schedules</title>
+    
+    <link href="../stylesheets/dashboard.css" media="screen" rel="stylesheet" type="text/css"/>
+    <link href="../stylesheets/touch-fancy.css" media="screen" rel="stylesheet" type="text/css"/>
+    <link href="../stylesheets/tables.css" media="screen" rel="stylesheet" type="text/css"/>
+    <script language="javascript" type="text/javascript" src="../javascripts/jquery.js"></script>
+    <script src="../javascripts/barcode.js" type="text/javascript"></script>
+    
+    <script language="javascript">
+      tstUsername = "admin";
+      tstCurrentDate = "2011/03/09";
+    </script>
+    <style type="text/css">
+      #barcode {
+        background:transparent none repeat scroll 0 0;
+        border-color:-moz-use-text-color -moz-use-text-color silver;
+        border-style:none none solid;
+        border-width:medium medium 1px;
+        font-family:"Nimbus Sans L","Arial Narrow",sans-serif;
+        font-size:2.2em;
+        padding-left:5px;
+        width:400px;
+      }
+      #header div {
+        font-weight:normal;
+        float:none;
+        clear:both;
+      }
+    </style>
+  </head>
+
+  <body id="container">
+    <div id="content">
+      <div id="header" style="height: 160px; margin-top: -15px; padding-left: 20px;">
+        <h1>Chilambe Health Center</h1>
+        <div id="version" style="padding-top: 44px;">Hotline System - <span>Wednesday, 09-Mar-2011</span></div>
+        <div id="user" style="margin-top: -4px;">Logged in as ceekays</div>
+      </div>
+
+      <div id="nav" class="nav">
+        <ul>
+          <li><a class="active" href="">Clinic Schedules</a></li>
+        </ul>
+      </div>
+
+      <script type="text/javascript">
+        jQuery(document).ready(function($) {
+        })
+      </script>
+      <style type="text/css">
+        #stats {
+          width:98%;
+          border:1px solid black;
+          margin:10px;
+          background:white;
+        }
+        #stats td, #stats th {
+          text-align:center;
+        }
+      </style>
+      <div id="tab" >
+        <div class="panel" style="width: 980px;">
+          <div style="height: 430px; margin-top:10px; margin-left:auto; margin-right:auto; width: 965px; overflow: auto;background:white;">
+          <h3 style="text-align:center;">Clinic Schedules for <i>Chilaweni Health Center</i></h3>
+            <table class="gradient-style">
+              <tr>
+                <th>Activity</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <th>Friday</th>
+                <th>Saturday</th>
+                <th>Sunday</th>
+              </tr>
+
+              <tr class="odd">
+                <td>Antenatal</td>
+                <td></td>
+                <td>√</td>
+                <td></td>
+                <td>√</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+
+              <tr>
+                <td>Under Five</td>
+                <td></td>
+                <td></td>
+                <td>√</td>
+                <td></td>
+                <td>√</td>
+                <td></td>
+                <td></td>
+              </tr>
+
+              <tr class="odd">
+                <td>OPD</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+
+              <tr>
+                <td>Maternity</td>
+                <td>√</td>
+                <td></td>
+                <td>√</td>
+                <td></td>
+                <td>√</td>
+                <td></td>
+                <td></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="footer" class="dark">
+        <div id="buttons" class="buttons" style="top: 0px;">
+          <button id="find" class="green" onmousedown="window.location = 'patient_dashboard.html'" ><span>Finish</span></button>
+          <button id="find" class="blue" onmousedown="window.location = 'select_clinic.html'" ><span>Back</span></button>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>

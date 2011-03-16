@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en"><head>
+
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+      <title>Patients Show</title>
+      <script language="javascript">
+        tstUsername = "admin";
+        tstCurrentDate = "2011/03/09";
+        var tt_cancel_destination = null;
+        var plot;
+      </script>
+      <link href="../stylesheets/touch-fancy.css" media="screen" rel="stylesheet" type="text/css"/>
+      <link href="../stylesheets/graph.css" media="screen" rel="stylesheet" type="text/css" />
+      <link href="../stylesheets/dashboard.css" media="screen" rel="stylesheet" type="text/css"/>
+      <script language="javascript" type="text/javascript" src="../javascripts/jquery.js"></script>
+      <script language="javascript" type="text/javascript" src="../javascripts/jquery.flot.js"></script>
+  </head>
+  <body id="container">
+    <div id="content">
+
+      <style type="text/css">
+        .personal-details-label {
+          font-weight:bold;
+        }
+        #personal-details{
+          font-size: 1em;
+          height: 150px;
+          max-width: 720px;
+          margin: 5px;
+          overflow: auto;
+        }
+
+        #menu {
+          float: right;
+          height: 680px;
+          overflow: auto;
+          width: 253px;
+          border: thin solid #EEEEEE;
+          margin-right: 5px;
+          margin-top: 5px;
+        }
+        .menu-button{
+          width:245px;
+        }
+        #visit-summary{
+          background: none repeat scroll 0 0 white;
+          margin-top: 10px;
+          float: left;
+          height: 236px;
+          width: 276px;
+        }
+      </style>
+
+      <div>
+        <div id="content-wrapper" style="float:left;">
+          <div id="personal-details">
+            <h1><img src="../images/female.gif" alt="Female" height="30px">Tisunge Milimbo</h1>
+            <div>
+              <span class='personal-details-label'> Patient ID:</span> <span> P1582-0000-0024 </span> <br/>
+              <span class='personal-details-label'> Age:       </span> <span> 25</span><br/>
+            </div>
+          </div>
+
+          <div id="flash" class="flash centered" style="display: none;"></div>
+          <div id="nav" class="nav">
+            <ul>
+              <li><a class="active" href="">Overview</a></li>
+              <li><a href="">Medication</a></li>
+            </ul>
+          </div>
+
+          <div id="tab" style="width:720px;">
+            <div class="panel" style="">
+
+              <div id="visit-summary"> 
+                <h3> Call Summary</h3>
+              </div>
+
+              <div id="graph">
+
+                <div id="choices" style="padding-top:5px;">
+                  <div id="graph0" class="graph-button"  onmousedown="plotAccordingToChoices(0);">Sample Graph 1</div>
+                  <div id="graph1" class="graph-button" onmousedown="plotAccordingToChoices(1);">Sample Graph 2</div>
+                </div>
+              <div id="simplegraphholder" class="gadget-cell"></div>
+            <script language="javascript" type="text/javascript" src='../javascripts/sample_graph.js'></script>
+            </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="menu" style="vertical-align:">
+          <button id="finish" class="blue menu-button" onmousedown="window.location = 'diagnosis.html'"><span>Diagnosis</span></button> <br/>
+          <button id="finish" class="blue menu-button" onmousedown="window.location = 'select_clinic.html'"><span>Clinic Schedules</span></button> <br/>
+          <button id="finish" class="blue menu-button" onmousedown="window.location = 'diagnosis.html'"><span>Tips and Reminders</span></button> <br/>
+
+        </div>
+      </div>
+
+      <div id="footer" class="dark">
+        <div id="buttons" class="buttons" style="top: 0px;">
+          <button id="finish" class="green" onmousedown="window.location = 'application_dashboard.html'"><span>Finish</span></button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -22,5 +22,9 @@
     padding: 5px;
   }
   #graph{
-    float:right;
+    background: none repeat scroll 0 0 white;
+    float: right;
+    left: 306px;
+    margin-top:10px;
+    position: absolute;
   }

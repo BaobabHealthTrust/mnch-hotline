@@ -7,10 +7,10 @@
 <script language="javascript">
 tstUsername = "";
 tstCurrentDate = "2010/03/12";
-tt_cancel_destination = 'dashboard.html';
-tt_cancel_show = 'dashboard.html';
+tt_cancel_destination = 'application_dashboard.html';
+tt_cancel_show = 'patient_dashboard.html';
 </script>
-<link href="../stylesheets/mateme.css?1266397276" media="screen" rel="stylesheet" type="text/css" />
+<link href="../stylesheets/form.css?1266397276" media="screen" rel="stylesheet" type="text/css" />
 <link href="../stylesheets/touch-fancy.css?1266397276" media="screen" rel="stylesheet" type="text/css" />
 <script src="../javascripts/preload.js?1266397276" type="text/javascript"></script>
 <!-- Uncomment/Comment the line below to enable/disable the Touchscreen Toolkit-->
@@ -18,11 +18,10 @@ tt_cancel_show = 'dashboard.html';
 <script src="../javascripts/dateselector.js?1266397276" type="text/javascript"></script>
 <script src="../javascripts/utils.js?1266397276" type="text/javascript"></script>
 </head>
-<body id='mateme'>
-<div id='container'>
+<body id='container'>
 <div id='content'>
 <div id='description' style='color:#777;position:absolute;margin-top:-70px;'></div><center>
-<form action='dashboard.html' method='POST'>
+<form action='patient_dashboard.html' method='POST'>
 <table cellpadding=10>
 <tr>
 <th colspan=2>Register A Client</th>
@@ -39,10 +38,11 @@ tt_cancel_show = 'dashboard.html';
 <input type='text' value='Milimbo' name='last_name' id='last_name' helptext='Last Name' />
 </td>
 </tr>
+
 <tr>
 <td>Gender</td>
 <td>
-<select style='width: 100%' name='gender' id='gender' helptext='Gender' value='Female'>
+<select style='width: 100%' name='gender' id='gender' helptext='Gender'>
 <option></option>
 <option>Male</option>
 <option>Female</option>
@@ -52,34 +52,34 @@ tt_cancel_show = 'dashboard.html';
 <tr>
 <td>Year Of Birth</td>
 <td>
-<input field_type= 'number' type='text' value='' name='year_of_birth' id='year_of_birth' helptext='Year Of Birth' />
+<input field_type= 'number' type='text' value='' name='birth_year' id='birth_year' helptext='Year Of Birth' />
 </td>
 </tr>
 <tr>
 <td>Month</td>
 <td>
-<select style='width: 100%' name='month' id='month' helptext='Month' value='Jan'>
+<select style='width: 100%' name='birth_month' id='birth_month' helptext='Month' value='Jan'>
 <option></option>
-<option>Jan</option>
-<option>Feb</option>
-<option>Mar</option>
-<option>Apr</option>
-<option>May</option>
-<option>Jun</option>
-<option>Jul</option>
-<option>Aug</option>
-<option>Sep</option>
-<option>Oct</option>
-<option>Nov</option>
-<option>Dec</option>
-<option>Unknown</option>
+<option value="1">Jan</option>
+<option value="2">Feb</option>
+<option value="3">Mar</option>
+<option value="4">Apr</option>
+<option value="5">May</option>
+<option value="6">Jun</option>
+<option value="7">Jul</option>
+<option value="8">Aug</option>
+<option value="9">Sep</option>
+<option value="10">Oct</option>
+<option value="11">Nov</option>
+<option value="12">Dec</option>
+<option value="0">Unknown</option>
 </select>
 </td>
 </tr>
 <tr>
 <td>Day</td>
 <td>
-<input field_type='number' type='text' value='' name='day' id='day'  helptext='Day' />
+<input field_type='number' type='text' value='' name='birth_day' id='birth_day'  helptext='Day' />
 </td>
 </tr>
 <tr>
@@ -109,7 +109,7 @@ tt_cancel_show = 'dashboard.html';
 <tr>
 <td>Cell Phone Number</td>
 <td>
-<input type='text' value='' name='cell_phone_number' id='cell_phone_number' helptext='Cell Phone Number' />
+<input field_type= 'number' type='text' value='' name='cell_phone_number' id='cell_phone_number' helptext='Cell Phone Number' />
 </td>
 </tr>
 <tr>
@@ -126,7 +126,7 @@ tt_cancel_show = 'dashboard.html';
 </table>
 </form>
 </center>
-</div>
+<div id="footer"> </div> 
 </div>
 </body>
 </html>

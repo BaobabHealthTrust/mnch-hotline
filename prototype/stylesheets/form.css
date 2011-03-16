@@ -1,41 +1,32 @@
-#mateme {
-  background-color:#000000;
-}
+/**************************************************************************
+  * form.css
+  *   manages layout of HTML forms
+  *   CSS for the Touchscreen Toolkit library
+  *
+  * (c) 2011 Baobab Health Trust (http://www.baobabhealth.org)
+  *
+  * For lincense details, see the README.md file
+  *
+  * Browser:    Firefox
+  * Interface:  Touchscreen 
+  * Resolution: 800X600
+  *
+  **************************************************************************/
 
 #container {
   background-color:#000000;
-  display:block;
-  height:1px;
-  left:0;
-  overflow:visible;
-  position:absolute;
-  top:50%;
-  visibility:visible;
-  width:100%;
 }
 
 #content {
-  /*background:#FFFFFF;*/
-  background: Scrollbar;
+  background:#FFFFFF;
   position:absolute;
-  left:40%;
+  left:50%;
   top:50%;
   width:1000px;
   height:750px;
-  margin-left:-400px;
+  margin-left:-500px;
   margin-top:-380px;
 
-}
-
-#footer {
-  background:#BBCCD9;
-  border-top:3px solid :#99AAB7;
-  color:#CADCEA;
-  height:80px;
-  width:100%;
-  bottom:0px;
-  position:absolute;
-  overflow:hidden;
 }
 
 .inputPage {
@@ -50,7 +41,7 @@
   width:400px;
   height:300px;
   position:absolute;
-  margin-top:-250px;
+  margin-top:-150px;
   margin-left:-200px;
   left:50%;
   top:50%;
@@ -67,9 +58,9 @@
 
 ul.list {
   font-size:0.9em;
-  border:3px solid black;
+  border:2px solid black;
   padding:0px;
-  overflow:auto;
+  overflow:scroll;
 }  
 ul.list li.data {
   vertical-align:top;

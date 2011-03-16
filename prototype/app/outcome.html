@@ -7,22 +7,20 @@
 <script language="javascript">
 tstUsername = "";
 tstCurrentDate = "2010/03/12";
-tt_cancel_destination = '';
+tt_cancel_destination = 'patient_dashboard.html';
 tt_cancel_show = '';
 </script>
-<link href="../stylesheets/mateme.css?1266397276" media="screen" rel="stylesheet" type="text/css" />
+<link href="../stylesheets/form.css?1266397276" media="screen" rel="stylesheet" type="text/css" />
 <link href="../stylesheets/touch-fancy.css?1266397276" media="screen" rel="stylesheet" type="text/css" />
-<script src="../javascripts/preload.js?1266397276" type="text/javascript"></script>
+
 <!-- Uncomment/Comment the line below to enable/disable the Touchscreen Toolkit-->
 <script src="../javascripts/touchscreen.js?1266397276" type="text/javascript"></script>
-<script src="../javascripts/dateselector.js?1266397276" type="text/javascript"></script>
-<script src="../javascripts/utils.js?1266397276" type="text/javascript"></script>
+
 </head>
-<body id='mateme'>
-<div id='container'>
+<body id='container'>
 <div id='content'>
 <div id='description' style='color:#777;position:absolute;margin-top:-70px;'></div><center>
-<form action='dashboard.html'>
+<form action='patient_dashboard.html'>
 <table cellpadding=10>
 <tr>
 <th colspan=2>Outcome</th>
@@ -63,6 +61,17 @@ tt_cancel_show = '';
 </tr>
 
 <tr>
+<td>Select Language</td>
+<td>
+<select style='width: 100%' name='language' id='language' condition= "$('tips_and_reminders').value == 'Yes'" helptext='Select Language'>
+<option></option>
+<option>Chichewa</option>
+<option>English</option>
+</select>
+</td>
+</tr>
+
+<tr>
 <td>Form of Tips and Reminders</td>
 <td>
 <select style='width: 100%' name='form_of_tips_and_reminders' id='form_of_tips_and_reminders' condition= "$('tips_and_reminders').value == 'Yes'" helptext='Form of Tips and Reminders'>
@@ -88,6 +97,7 @@ tt_cancel_show = '';
 </table>
 </form>
 </center>
+<div id="footer"> </div> 
 </div>
 </div>
 </body>
