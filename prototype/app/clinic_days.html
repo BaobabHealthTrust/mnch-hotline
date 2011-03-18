@@ -7,12 +7,19 @@
     <link href="../stylesheets/dashboard.css" media="screen" rel="stylesheet" type="text/css"/>
     <link href="../stylesheets/touch-fancy.css" media="screen" rel="stylesheet" type="text/css"/>
     <link href="../stylesheets/tables.css" media="screen" rel="stylesheet" type="text/css"/>
+    <script language="javascript" type="text/javascript" src='../javascripts/utils.js'></script>
     <script language="javascript" type="text/javascript" src="../javascripts/jquery.js"></script>
     <script src="../javascripts/barcode.js" type="text/javascript"></script>
     
     <script language="javascript">
       tstUsername = "admin";
       tstCurrentDate = "2011/03/09";
+      function get_destination_url(){
+        if(grep_url_params("source_url") == "diagnosis")
+          return 'tips_and_reminders.html'
+        else
+          return 'patient_dashboard.html'
+      }
     </script>
     <style type="text/css">
       #barcode {
@@ -128,7 +135,7 @@
 
       <div id="footer" class="dark">
         <div id="buttons" class="buttons" style="top: 0px;">
-          <button id="find" class="green" onmousedown="window.location = 'patient_dashboard.html'" ><span>Finish</span></button>
+          <button id="find" class="green" onmousedown="window.location = get_destination_url()" ><span>Finish</span></button>
           <button id="find" class="blue" onmousedown="window.location = 'select_clinic.html'" ><span>Back</span></button>
         </div>
       </div>
