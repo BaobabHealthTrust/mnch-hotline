@@ -13,34 +13,16 @@
       tstUsername = "admin";
       tstCurrentDate = "2011/03/09";
     </script>
-    <style type="text/css">
-      #barcode {
-        background:transparent none repeat scroll 0 0;
-        border-color:-moz-use-text-color -moz-use-text-color silver;
-        border-style:none none solid;
-        border-width:medium medium 1px;
-        font-family:"Nimbus Sans L","Arial Narrow",sans-serif;
-        font-size:2.2em;
-        padding-left:5px;
-        width:400px;
-      }
-      #header div {
-        font-weight:normal;
-        float:none;
-        clear:both;
-      }
-    </style>
   </head>
 
   <body id="container">
     <div id="content">
-      <div id="header" style="height: 160px; margin-top: -15px; padding-left: 20px;">
-        <h1>Chilambe Health Center</h1>
-        <div id="version" style="padding-top: 44px;">Hotline System - <span>Wednesday, 09-Mar-2011</span></div>
-        <div id="user" style="margin-top: -4px;">Logged in as ceekays</div>
+      <div id="header">
+        <div id="facility-name">Chilambe Health Center</div>
+        <div id="app-version">Hotline System - <span>Wednesday, 09-Mar-2011</span></div>
+        <div id="user">Logged in as ceekays</div>
         <form id="barcodeForm" action="/people/search">
-          <div style="float: left; font-size: 25px; font-style: normal; font-weight: bold;">Scan Patient Barcode:</div>
-          <input class="touchscreenTextInput" id="barcode" name="identifier" style="position: absolute;" type="text"/ >
+          <div id="barcode-label">Scan Patient Barcode: <input id="barcode" name="identifier" type="text"/> </div>
           <input name="commit" style="display: none;" value="Submit" type="submit"/>
         </form>
       </div>
@@ -57,17 +39,6 @@
         jQuery(document).ready(function($) {
         })
       </script>
-      <style type="text/css">
-        #stats {
-          width:98%;
-          border:1px solid black;
-          margin:10px;
-          background:white;
-        }
-        #stats td, #stats th {
-          text-align:center;
-        }
-      </style>
       <div id="tab" >
         <div class="panel" style="width: 980px;">
           <div style="height: 970px; overflow: auto;">

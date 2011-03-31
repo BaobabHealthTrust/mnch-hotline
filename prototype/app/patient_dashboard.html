@@ -20,29 +20,6 @@
     <div id="content">
 
       <style type="text/css">
-        .personal-details-label {
-          font-weight:bold;
-        }
-        #personal-details{
-          font-size: 1em;
-          height: 150px;
-          max-width: 720px;
-          margin: 5px;
-          overflow: auto;
-        }
-
-        #menu {
-          float: right;
-          height: 680px;
-          overflow: auto;
-          width: 253px;
-          border: thin solid #EEEEEE;
-          margin-right: 5px;
-          margin-top: 5px;
-        }
-        .menu-button{
-          width:245px;
-        }
         #visit-summary{
           background: none repeat scroll 0 0 white;
           margin-top: 10px;
@@ -57,8 +34,8 @@
           <div id="personal-details">
             <h1><img src="../images/female.gif" alt="Female" height="30px">Tisunge Milimbo</h1>
             <div>
-              <span class='personal-details-label'> Patient ID:</span> <span> P1582-0000-0024 </span> <br/>
-              <span class='personal-details-label'> Age:       </span> <span> 25</span><br/>
+              <span class='details-label'> Patient ID:</span> <span> P1582-0000-0024 </span> <br/>
+              <span class='details-label'> Age:       </span> <span> 25</span><br/>
             </div>
           </div>
 
@@ -70,7 +47,7 @@
             </ul>
           </div>
 
-          <div id="tab" style="width:720px;">
+          <div id="tab" class="client-dashboard">
             <div class="panel" style="">
 
               <div id="visit-summary"> 
@@ -84,13 +61,13 @@
                   <div id="graph1" class="graph-button" onmousedown="plotAccordingToChoices(1);">Sample Graph 2</div>
                 </div>
               <div id="simplegraphholder" class="gadget-cell"></div>
-            <script language="javascript" type="text/javascript" src='../javascripts/sample_graph.js'></script>
+              <script language="javascript" type="text/javascript" src='../javascripts/sample_graph.js'></script>
             </div>
             </div>
           </div>
         </div>
 
-        <div id="menu" style="vertical-align:">
+        <div id="menu">
           <button id="finish" class="blue menu-button" onmousedown="window.location = 'diagnosis.html'"><span>Diagnosis</span></button> <br/>
           <button id="finish" class="blue menu-button" onmousedown="window.location = 'select_clinic.html'"><span>Clinic Schedules</span></button> <br/>
           <button id="finish" class="blue menu-button" onmousedown="window.location = 'tips_and_reminders.html'"><span>Tips and Reminders</span></button> <br/>
