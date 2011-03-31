@@ -1,0 +1,4 @@
+<li tstValue="New Prescription" onmousedown="null;updateTouchscreenInputForSelect(this);">New Prescription</li>
+<% @options.each do |option| %>
+<li tstValue="<%= option[0] %>" onmousedown="null;updateTouchscreenInputForSelect(this);"><%= option[1] %></li>
+<% end %>

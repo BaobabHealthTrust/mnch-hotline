@@ -1,0 +1,11 @@
+<div id="nav" class="nav">
+  <ul>
+    <li><a <%= 'class="active"' if active == 'overview' %> href='/patients/show/<%= @patient.patient_id %>'>Overview</a></li>
+    <li><a <%= 'class="active"' if active == 'treatment' %> href='/patients/treatment/<%= @patient.patient_id %>'>Treatment</a></li>
+    <li><a <%= 'class="active"' if active == 'relationships' %> href='/patients/guardians/<%= @patient.patient_id %>'>Relationships</a></li>
+    <li><a <%= 'class="active"' if active == 'programs' %> href='/patients/programs/<%= @patient.patient_id %>'>Programs</a></li>
+    <!-- li><a <%= 'class="active"' if active == 'problems' %> href='/patients/problems/<%= @patient.patient_id %>'>Problems</a></li>
+    <li><a <%= 'class="active"' if active == 'personal' %> href='/patients/personal/<%= @patient.patient_id %>'>Personal</a></li>
+    <li><a <%= 'class="active"' if active == 'history' %> href='/patients/history/<%= @patient.patient_id %>'>History</a></li-->
+  </ul>
+</div>

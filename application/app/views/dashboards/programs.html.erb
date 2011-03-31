@@ -1,0 +1,62 @@
+<%= render :partial => 'dashboards/nav', :locals => {:active => 'programs'} %>
+<script type="text/javascript">
+  function select(node) {
+    $('#states').empty().load('/programs/status/' + node.attr('program'))
+    $('#programs li.data').removeClass("active");
+    node.addClass("active");
+    setUpdateStateButtonPath(node.attr('program'));
+  }
+  
+  function voiding(node) {
+    confirmYesNo("Void this item?", function() {
+      hideConfirmation();
+      node = node.parent();
+      $.post('/programs/void/?id=' + node.attr('program'), {}, function(data, status) {
+        if (status == 'success'){
+           document.getElementById('states').innerHTML = '';
+           node.remove();
+        }
+      })       
+    }, function() { hideConfirmation(); });
+  }
+
+  jQuery(document).ready(function($) {
+    $('#enroll').click(function() { window.location = '/programs/new?patient_id=<%= @patient.id -%>' })
+    $('#programs li.data div.void').click(function() { voiding($(this)); return false; }); 
+    $('#programs li.data').click(function() { select($(this)); }); 
+    recent = $('#programs li.data:first');
+    if (recent) select(recent);
+  }) 
+
+  <% unless @programs.blank? %>
+   function setUpdateStateButtonPath(program_id) {
+      $('#status').click(function() { window.location = '/programs/update/' + program_id })
+    }
+  <% end %>
+</script>
+<div id="tab">
+  <div class="panel" style="width:480px;float:left">
+    <h2>Programs (possibly filtered)</h2>
+    <ul id="programs" class="list" style="height:450px;width:100%;">
+      <% for program in @programs do %>
+        <li class="data <%= cycle('even', 'odd') %>" program="<%= program.id %>">
+          <div class="void"><img src="/images/cancel_flat_small.png"/></div>
+          <div class="summary"><%= program.to_s.gsub(/\n/, '<br/>') -%></div>
+        </li>  
+      <% end %>
+      <% if @programs.blank? %>        
+        <li class="data">This patient is not enrolled in any programs</li>
+      <% end %>
+    </ul>
+    <button id="enroll" class="silver" style="margin-top:10px;"><span>Enroll in program</span></button>    
+  </div>
+  <div class="panel" style="width:480px">
+    <h2>Status</h2>
+    <ul id="states" class="list" style="height:450px;width:100%;">
+    </ul>
+    <!-- button id="status" class="silver" style="float:right;margin-top:10px;"><span>New Status</span></button -->    
+      <% unless @programs.blank? %>
+        <button id="status" class="silver" style="margin-top:10px;float:right;"><span>Update state</span></button>    
+      <% end %>
+  </div>
+</div>

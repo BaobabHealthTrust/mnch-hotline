@@ -1,0 +1,19 @@
+#date,#star,#abc,#slash,#Unknown,#percent,#comma,#minus,#plus,#decimal {
+  display:none;
+}
+/*
+.keyboardButton {
+  height:15px;
+  width:15px;
+}
+
+.buttonLine {
+  padding:10px;
+}
+*/
+
+.abcKeyboard { display:none; }
+
+#tt_page_month #viewport { height:520px }
+
+#tt_page_day #viewport { display:none; }

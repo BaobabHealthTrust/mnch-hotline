@@ -1,0 +1,73 @@
+<style type="text/css">
+</style>
+<script>
+  var patient_id = "<%= @patient.patient_id %>";
+  var tt_cancel_destination = "/patients/treatment/<%= @patient.patient_id %>"
+  var current_regimens_for_programs = <%= @current_regimens_for_programs.to_json -%>;
+  var current_regimen_names_for_programs = <%= @current_regimen_names_for_programs.to_json -%>;
+
+  function set_patient_program_for_suggestions() {    
+    var patient_program_id = encodeURIComponent($('patient_program').value); 
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', "/regimens/suggested?id=" + patient_program_id + "&search_string=");
+    listSuggestions(tstCurrentPage); 
+  }
+
+  function set_regimen_concept_id_for_regimen() {    
+    // It is really helpful to just set this
+    if (selectedValue("continue_existing_regimen") == "YES") {
+      value = current_regimens_for_programs[$("patient_program").value];
+      $('regimen_concept_id').innerHTML = "<option selected='selected'>" + value + "</option>";
+    }
+    var regimen_concept_id = encodeURIComponent($('regimen_concept_id').value); 
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', "/regimens/dosing?patient_id=<%= @patient.patient_id %>&id=" + regimen_concept_id + "&search_string=");
+    listSuggestions(tstCurrentPage); 
+  }
+
+  function set_regimen_concept_id_for_duration() {
+    var regimen_concept_id = encodeURIComponent($('regimen_concept_id').value); 
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', "/regimens/durations?id=" + regimen_concept_id + "&search_string=");
+    listSuggestions(tstCurrentPage); 
+  }
+
+</script>
+<form id='regimen_form' action="/regimens/create" method='post'>
+ 
+  <%= hidden_field_tag :patient_id, @patient.id %>
+  
+  <%= select_tag :patient_program, options_for_select(@programs.map{|program| [program.program.name, program.patient_program_id] if PatientProgram.find(program.patient_program_id).date_completed == nil}), {
+    :textCase => "upper", 
+    :allowFreeText => 'false',
+    :helpText => "Prescribe regimen for which program?"}%>
+  
+  <%= select_tag :continue_existing_regimen, options_for_select([['',''],['YES','YES'],['NO','NO']], ''), {
+    :textCase => "upper", 
+    :allowFreeText => 'false',
+    :condition => 'current_regimens_for_programs[$("patient_program").value] != null',
+    :tt_onLoad => '$("infoBar"+tstCurrentPage).innerHTML = current_regimen_names_for_programs[$("patient_program").value]',
+    :helpText => "Continue existing regimen?"}%>
+  
+  <%= select_tag :regimen_concept_id, nil, {
+    :ajaxUrl => "",
+    :allowFreeText => 'false',
+    :condition => 'selectedValue("continue_existing_regimen") != "YES"',
+    :tt_onLoad => 'set_patient_program_for_suggestions();',
+    :helpText => "Select regimen"}%>
+  
+  <%= select_tag :regimen, nil, {
+    :ajaxUrl => "",
+    :allowFreeText => 'false',
+    :tt_onLoad => 'set_regimen_concept_id_for_regimen();',
+    :helpText => "Select formulations and doses"}%>
+
+  <%= text_field_tag :duration, nil, { 
+    :ajaxURL => "", 
+    :field_type => 'number',
+    :units => 'days',
+    :tt_onLoad => 'set_regimen_concept_id_for_duration();',
+    :helpText => "Duration (days)",
+    :validationRule => "([0-9]+\\.?[0-9]*)|Unknown$",
+    :validationMessage => "You must enter a number (for example: 5<b>.0</b>)",
+    :allowFreeText => "true",
+    :tt_pageStyleClass => "NumbersOnlyWithDecimal"}%>
+  
+</form>

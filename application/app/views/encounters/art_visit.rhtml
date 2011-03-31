@@ -1,0 +1,96 @@
+<style type="text/css">
+  .summary {
+    margin:20px;
+    font-size:1.6em;
+  }
+  .title, .recommendation {
+    margin-right:10px;
+    font-weight:bold;
+  }
+  .recommendation {
+    :font-style:italic;
+  }
+  .warning {
+    color:red;
+  }
+
+  .pills_remaing{
+    left:25px;
+    position:inherit;
+  }
+
+  #notes{background-color:red;}
+
+  .tt_controls_clinical_notes_optional #space { display:inline; }
+</style>
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+</script>  
+<form action="/encounters/create" method='post'>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "ART VISIT" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+  <% if @patient.person.gender == 'F' && @patient.person.age > 14 
+      obs_date = session[:datetime].to_date rescue Date.today
+      patient_pregnant = Observation.find(:first,:conditions =>["concept_id = ? AND person_id = ? AND DATE(obs_datetime) = ?",
+                       ConceptName.find_by_name('IS PATIENT PREGNANT?').concept_id,
+                       @patient.id,obs_date])
+  
+      if patient_pregnant.blank? %>
+        <%= touch_yes_no_unknown_tag "IS PATIENT PREGNANT?", @patient, nil,
+        {:optional => true,
+        :helpText => "Is patient pregnant?" } %>
+      <% end %>    
+  <% end %>    
+  
+  <% if ask_standard_art_side_effects %>
+    <%= touch_select_tag "MALAWI ART SIDE EFFECTS", @patient, concept_set_options('MALAWI ART SIDE EFFECTS'),
+      {:id => 'side_effects',
+       :optional => true,
+       :multiple => true,
+       :helpText => "Side effects (select all that apply)" } %>
+  <% else %>
+    <%= touch_select_tag "SYMPTOM PRESENT", @patient, concept_set_options('MALAWI ART SYMPTOM SET'),
+      {:id => 'symptoms',
+       :optional => true,
+       :multiple => true,
+       :helpText => "Symptoms (select all that apply)" } %>
+
+    <%= touch_select_tag "ADVERSE EFFECT", @patient, options_for_select([['SKIN RASH', 'SKIN RASH'], ['PERIPHERAL NEUROPATHY', 'PERIPHERAL NEUROPATHY']]),
+      {:id => 'symptoms',
+       :optional => true,
+       :multiple => true,
+       :helpText => "Adverse effects (select all that apply)" } %>
+  <% end %>
+
+  <%= touch_select_tag "TB STATUS", @patient, concept_set_options('TB STATUS'),
+    {:id => 'tb_status',
+     :optional => true,
+     :multiple => false,
+     :helpText => "TB Status" } %>
+
+  <!-- Adherence report -->  
+  <!--   do we need a referral to adherence counseling? -->
+
+  <%= touch_yes_no_unknown_tag "PRESCRIBE ARVS THIS VISIT", @patient, nil,
+    {:optional => false,
+     :helpText => "Prescribe ARVs this visit?" } %>
+  <!--   If no, and ON ANTIRETROVIRALS, then program state = treatment stopped? -->  
+
+  <% if Location.current_location.name.match(/Nurse/i) %>
+    <%= touch_yes_no_unknown_tag "REFER TO ART CLINICIAN", @patient, nil,
+      {:optional => false,
+      :helpText => "Refer to clinician?" } %>
+  <%else%>
+    <%= hidden_field_tag "observations[][value_coded_or_text]",'NO' %>
+    <%= hidden_field_tag "observations[][concept_name]",'REFER TO ART CLINICIAN' %>
+    <%= hidden_field_tag "observations[][patient_id]",@patient.id %>
+  <%end%>
+
+  <%= touch_text_field_tag("CLINICAL NOTES CONSTRUCT", @patient, nil,
+    {:optional => true,:helpText => "Clinical notes (optional)"}, time=DateTime.now()) %>
+
+  <%= submit_tag "Finish" %>    
+</form>

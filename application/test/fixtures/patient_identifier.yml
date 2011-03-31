@@ -1,0 +1,39 @@
+evan_identifier:
+  patient_id: 1
+  identifier: P1701210013
+  identifier_type: 3
+  preferred: 1
+  location_id: 1
+  creator: 1
+  date_created: 2000-01-01 00:00:00
+  voided: 0
+  voided_by: 0
+  date_voided: 2000-01-01 00:00:00
+  void_reason: 
+  uuid: 1ff26ffa-268f-102d-a2b3-16da04859145
+evan_arv_number:
+  patient_id: 1
+  identifier: ARV-311
+  identifier_type: 4
+  preferred: 1
+  location_id: 1
+  creator: 1
+  date_created: 2000-01-01 00:00:00
+  voided: 0
+  voided_by: 0
+  date_voided: 2000-01-01 00:00:00
+  void_reason: 
+  uuid: 1ff34876-268f-102d-a2b3-16da04859145
+evan_pre_art_number:
+  patient_id: 1
+  identifier: PART-311
+  identifier_type: 5
+  preferred: 1
+  location_id: 1
+  creator: 1
+  date_created: 2000-01-01 00:00:00
+  voided: 0
+  voided_by: 0
+  date_voided: 2000-01-01 00:00:00
+  void_reason: 
+  uuid: 1ff3583e-268f-102d-a2b3-16da04859145

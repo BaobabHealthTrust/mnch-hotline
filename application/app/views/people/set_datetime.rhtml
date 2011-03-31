@@ -1,0 +1,47 @@
+<%= stylesheet_link_tag "set_date" %>
+<script>
+  function validateDate() {
+    year = parseFloat(document.getElementsByName('set_year')[0].value)
+    month = parseFloat(document.getElementsByName('set_month')[0].value)
+    day = parseFloat(document.getElementsByName('set_day')[0].value)
+    return dateDiff(year,month,day);
+  }
+
+  function dateDiff(year,month,day){
+    today = new Date();
+    dateStr = today.getDate();
+    monthStr = today.getMonth() + 1;
+    yearStr = today.getFullYear();
+    today = new Date(parseFloat(yearStr),parseFloat(monthStr),parseFloat(dateStr));
+    set_date = new Date(parseFloat(year),parseFloat(month),parseFloat(day));
+    return (today > set_date)
+  }
+
+  var tt_cancel_destination = "/clinic"
+</script>
+
+
+<form action = "/people/set_datetime" method = "post">
+
+  <%= text_field_tag (:set_year,nil,{:field_type => 'number', :absoluteMin => "1940", :absoluteMax => Time.now.year, :helpText => 'Year'}) %>
+
+  <% optionsString = "<option>" "" "</option>"
+  1.upto(12){ |number| 
+       optionsString += "<option value = '" + number.to_s + "'>" + Date::MONTHNAMES[number] + "</option>"
+      }
+      optionsString << "<option>" "Unknown" "</option>"
+  %>
+  <%= select_tag :set_month, optionsString, {:helpText => 'Month'}%>
+
+  <%day=Array.new(31){|d|d + 1 } 
+    unknown=Array.new
+    unknown[0]= "Unknown" 
+    days_with_unknown = day 
+    days = [""].concat day%>
+    <%= select_tag(:set_day, options_for_select(days), 
+        :field_type => 'number' , :absoluteMax => Date.today.to_s ,:helpText => 'Day' ,
+        :validationJS =>'validateDate()',
+        :validationMessage => "You must enter an earlier date than #{Date.today.strftime('%Y-%b-%d')}")  %>
+
+  <%= submit_tag "Set visit date" %>
+</form>

@@ -1,0 +1,58 @@
+
+ body{
+   font-size:13px;
+   }
+  
+ table{width:100%} 
+
+ th{
+   background-color:lightgrey;
+   -moz-user-select:none;
+   }
+
+ td {
+   -moz-user-select:none;
+   }
+
+ .scrollTableContainer
+ {
+  border-style:solid;
+  border-width:1px; 
+  height: 185px;
+  overflow: auto;
+  width:100%;
+  }
+
+  div.scrollTableContainer {
+  height: 100%;
+  overflow: auto;
+  width: 100%;
+  margin: 15px 0 0 0;
+  /*position: relative;*/
+  }
+
+  div.scrollTableContainer table {
+  width:100%;
+  }
+
+  html>/**/body div.scrollTableContainer table {
+  width:100%;
+  }
+
+  html>/**/body div.scrollTableContainer table>tbody {
+  overflow: auto;
+  height: 509px;
+  overflow-x: hidden;
+  }
+
+  div.scrollTableContainer thead tr {
+  /*position:relative;*/
+  top: expression(offsetParent.scrollTop); /*IE5+ only*/
+  /* fixes the header being over too far in IE, doesn’t seem to affect FF */
+  left: 0px;
+  }
+
+
+  .survival-analysis {
+    display:none;
+  }

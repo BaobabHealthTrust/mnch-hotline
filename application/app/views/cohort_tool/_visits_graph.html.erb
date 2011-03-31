@@ -1,0 +1,16 @@
+<div id="page-title">  </div>
+<!-- graph area -->
+<table class="graph-area">
+  <tr>
+    <td class="grid-section"> <div id="placeholder" class="graph"></div> </td>
+    <td class="graph-menu"> <button id="done-button" class="button" onmousedown="parent_div = 'none'; menu(visits.ShowTable);">Back to Visit's List</button> </td>
+  </tr>
+</table>
+
+<!-- popup message dialog box-->
+<div id="popup-dialog-box" class="dialog-box">
+  <span id="title" class="message-title">Point Detail</span>
+  <div  id="message-box-text-area"> </div>
+  <input type="button" id="patients-list" class="pop-button" onclick="listPatients('#popup-dialog-box', 'message-box-text-area');"    value="Patients' list" />
+  <input type="button" id="close-button"  class="pop-button" onclick="closeDialogBox('#popup-dialog-box');" value="Close" />
+</div>

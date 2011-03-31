@@ -1,0 +1,7 @@
+require 'fastercsv'
+weight_for_height_values = FasterCSV.read(RAILS_ROOT + '/script/weight_for_height_over_84.5cm.csv')
+weight_for_height_values.each do |height,weight|
+   puts "height: #{height}, median_weight_height: #{weight}"
+   WeightForHeight.create(:supinecm => height, 
+                          :median_weight_height => weight)
+end  

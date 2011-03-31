@@ -1,0 +1,13 @@
+<div id="nav" class="nav">
+  <ul>
+    <li><a <%= 'class="active"' if active == 'overview' %> href='/clinic/'>Overview</a></li>
+    <% if User.current_user.admin? %>
+    <li><a <%= 'class="active"' if active == 'reports' %> href='/clinic/reports'>Data Cleaning Tools</a></li>
+    <li><a <%= 'class="active"' if active == 'supervision' %> href='/clinic/supervision'>Supervision</a></li-->
+    <li><a <%= 'class="active"' if active == 'properties' %> href='/clinic/properties'>Properties</a></li>
+    <!--li><a <%#= 'class="active"' if active == 'printing' %> href='/clinic/printing'>Printing</a></li-->
+    <li><a <%= 'class="active"' if active == 'users' %> href='/clinic/users'>Users</a></li>
+    <li><a <%= 'class="active"' if active == 'administration' %> href='/clinic/administration'>Administration</a></li-->
+    <% end %>
+  </ul>
+</div>

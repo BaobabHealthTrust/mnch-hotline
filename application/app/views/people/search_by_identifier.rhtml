@@ -1,0 +1,25 @@
+<%= javascript_include_tag "prototype" %>
+<script type="text/javascript">
+  var tt_cancel_destination = "/clinic"
+
+  function searchByOther(){
+    document.location = '/people/find_by_arv_number'
+  }
+
+  function addButton() {
+    keyboard = document.getElementsByClassName('abcKeyboard')[0]
+    keyboard = keyboard.getElementsByClassName('buttonLine')[0]
+    keyboard.innerHTML+= "<button id='back' class='keyboardButton' onmousedown='searchByOther();'><span>ARV number</span></button>"
+  }
+</script>
+
+<style>
+
+#space { display:inline; }
+
+</style>
+
+
+<form method = 'post' action = 'search'>
+   <%= text_field_tag :identifier, nil , :helpText => 'Enter identifier', :tt_onLoad => 'addButton()' %>
+</form> 

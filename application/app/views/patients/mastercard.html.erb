@@ -1,0 +1,65 @@
+<script>
+  var tt_cancel_destination = "/patients/show/?patient_id=" + "<%=@patient_id%>"
+</script>
+<%=stylesheet_link_tag 'mastercard'%>
+<style>
+
+#keypad{
+ background-color:#FFFF99;
+ position:absolute;
+ top:10px;
+ width:330px;
+ right:500px;
+ height:440px;
+ display:none;
+ border-bottom-color-value:lightblue;
+ border-top-color-value:lightblue;
+ border-right-color-value:lightblue;
+ border-left-color-value:lightblue;
+ border-style:solid;
+}
+
+#press{
+  font-size:75px;
+  height:80px;
+  position:absolute;
+  right:13px;
+  top:35px;
+  width:300px;
+}
+
+
+/*span {
+  left:0;
+  position:absolute;
+  right:13px;
+  text-align:left;
+  top:120px;
+  width:312px;
+}
+
+.keypad{
+  padding-left:17px;
+}
+
+#keypad{-moz-user-select:none;} */
+
+#popupmessage {
+ position: absolute;
+ top: 84px;
+ left: 198px;
+ border: solid 1px #000000;
+ background-color:MediumTurquoise;
+ /*visibility: hidden;*/
+ font-size: 25;
+ z-index: 600;
+ width:413px;
+ display:none;
+}
+</style>
+
+<table class="mastercard" id="demographics">
+  <%= render(:partial => "mastercard_demographics", :object => @data) %>
+</table>
+<%= render(:partial => "mastercard_visits", :object => @previous_visits) %>
+

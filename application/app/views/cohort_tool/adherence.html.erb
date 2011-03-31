@@ -1,0 +1,94 @@
+<%= stylesheet_link_tag "cohort_tool_graph" %>
+<style>
+  #adherence_summary{    
+    border-style:solid;
+    position: absolute;
+    top: 75px;
+    left: 150px;
+    background-color: white;
+    display: none;
+    font-size: 25;
+    z-index: 100;
+    width: 400px;
+    height:230px;
+    -moz-user-select:none;
+  }
+
+  #adherence_summary table{
+    width:100%;
+  }
+  
+  #adherence_summary button{
+    bottom:5px;
+    height:55px;
+    left:155px;
+    position:absolute;
+    width:85px;
+  }
+
+  .summary_title {
+    padding-left:15px;
+  }
+
+  .summary_results {
+    text-align:right;
+    padding-right:15px;
+  }
+
+</style>
+
+<script language="javascript">
+  function closeSummary(){
+    document.getElementById('adherence_summary').style.display="none";
+  }
+  
+  function adhSummary(){
+    document.getElementById('adherence_summary').style.display="block";
+  }
+</script>
+
+<div id="header">
+  <%= @report_type + "</p>" + @quater + @adherence_summary rescue  @report_type + "</p>" + @quater %>  
+</div>
+<table>
+<tr>
+<td id='y_axis'>
+<ul id="vertical">
+<li>
+  <em>P</em>
+  <em>a</em>
+  <em>t</em>
+  <em>i</em>
+  <em>e</em>
+  <em>n</em>
+  <em>t</em>
+  <em>s</em>
+</li>
+</ul>
+</td>
+<td id="graph_td">
+  <%= render :partial => "adherence_graph" %>
+</td>
+</tr>
+<tr>
+  <td></td><td id='x_axis'></br>Adherence (%)</td>
+</tr>
+</table>
+
+<div class = "buttonsDiv">
+  <button id='done_button' onmousedown="javascript:document.location='/cohort_tool/select?report_type=adherence_histogram_for_all_patients_in_the_quarter'">Done</button>
+</div>
+
+<div id = "adherence_summary">
+  <table>
+    <tr><td style="text-align:center;">Summary</td></tr>
+  </table>  
+  <table>
+    <tr><td class='summary_title'><b>Adherence level</b></td><td class='summary_results'><b>Patient(s)</b></td></tr>
+    <tr><td class='summary_title'>0 - 94%</td><td class='summary_results'><%= @adherence_summary_hash["0 - 94"] %></td></tr>
+    <tr><td class='summary_title'>95 - 100%</td><td class='summary_results'><%= @adherence_summary_hash["95 - 100"] %></td></tr>
+    <tr><td class='summary_title'>Over 100%</td><td class='summary_results'><%= @adherence_summary_hash["> 100"] %></td></tr>
+    <tr><td class='summary_title'><a href="/cohort_tool/patients_with_adherence_greater_than_hundred/?quater=<%=@quater%>&show_missing_adherence=yes">Missing</a></td><td class='summary_results'><%= @adherence_summary_hash["missing"] %></td></tr>
+    <tr><td class='summary_title'>Total</td><td class='summary_results'><b><%= @adherence_summary_hash["total"] %></b></td></tr>
+  </table></br><button onClick="closeSummary()">Close</button>
+</div>

@@ -1,0 +1,60 @@
+<%= javascript_include_tag "prototype" %>
+<style>
+  #Unknown { display:none; }
+</style>
+<script>
+
+  var assigned_arv_number
+  
+  function arv_number(){
+    suggest_arv_number = "<%=GlobalProperty.find_by_property('suggest_arv_number').property_value rescue 'true' %>"
+    inputElement = $('tt_page_art_number').getElementsByTagName("input")[0]
+    prefix = document.createElement("span")
+    style = document.createAttribute("style")
+    style.value = "position: absolute; z-index: 100; left: 47px; font-size: 44px;"
+    prefix.setAttributeNode(style)
+    inputElement.setAttribute("style","text-align:right;width:924px;")
+    prefix.innerHTML = "<%=Location.current_arv_code rescue nil %>"
+    inputElement.parentNode.insertBefore(prefix, inputElement)
+    style.value+= 'left:35px;'
+    prefix.setAttributeNode(style)
+
+    if (suggest_arv_number=="true"){
+      new Ajax.Request("/patients/next_available_arv_number",{method:'get',onSuccess: function(transport){
+        id = transport.responseText || "1";
+        inputElement.value = id
+      }})
+    }
+  }
+
+  function validNumber(){
+    selected_number = parseFloat(($('tt_page_art_number').getElementsByTagName("input")[0].value))
+
+    for(i = 0 ; i < assigned_arv_number.length ; i++){
+      if(assigned_arv_number[i] == selected_number){
+        return false
+      }
+    }
+    return true
+  }
+
+  function loadAssignedNumbers(){
+    new Ajax.Request("/patients/assigned_arv_number",{method:'get',onSuccess: function(transport){
+      arv_numbers = transport.responseText || null;
+      if (arv_numbers == "[]")
+        arv_numbers = []
+
+        assigned_arv_number = arv_numbers
+    }})
+  }
+</script>
+
+<%= touch_identifier_tag @patient, "ARV Number", nil,
+    {:id => "art_number",
+     :optional => false,
+     :tt_onLoad => "press('num');arv_number();loadAssignedNumbers()",
+     :tt_pageStyleClass => "Numeric NumbersOnly",
+     :validationJS =>"validNumber()",
+     :validationMessage => "ARV number already exist",
+     :helpText => "ART number" } %>
+

@@ -1,0 +1,43 @@
+<script >
+    tt_cancel_destination = "/Report/data_cleaning"
+</script>
+<%= javascript_include_tag 'jquery' %>
+<%= stylesheet_link_tag 'extra_buttons' %>
+
+</script>
+<h1 align='center'><u>Patients with multiple start reasons</u></h1>
+<table id='summary'>
+ <thead>
+ <tr>
+  <th>ID</th>
+  <th>ARV Number</th>
+  <th>National ID</th>
+  <th>Visit Date</th>
+  <th>Date Created</th>
+  <th>Reason</th>
+ </tr>
+ </thead>
+ <tbody>
+
+  <% session[:mastercard_ids] = [] %>
+  <% session[:mastercard_counter] = 0 %>
+
+  <%@report.each do |data_row|%>
+
+  <% session[:mastercard_ids] << data_row[0].to_i %>
+
+      <td align='center'><%= link_to_onmousedown "#{data_row[0]}",{:controller =>"patients", :action => 'mastercard', 
+                             :patient_id => "#{data_row[0]}" ,:source =>"patients_with_multiple_start_reasons", :quarter => "#{@report_quarter}"}%></td>
+
+      <td align='center'><%= data_row[1] %></td>
+      <td align='center'><%= data_row[2]%></td>
+      <td align='right'><%= data_row[3] %></td>
+      <td>--------------------</td>
+      <td><%= data_row[4] %></td>
+  </tr>
+  <%end rescue nill%>
+  <script>
+    insertBlankRow ();
+  </script>
+  </tbody>
+  </table>

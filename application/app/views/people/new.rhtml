@@ -1,0 +1,100 @@
+<style>
+
+  .tt_controls_month_of_birth #num , #apostrophe { display:none; }
+
+  .tt_controls_home_village #space , #apostrophe { display:inline; }
+
+  .tt_controls_current_traditional_authority_ta #space { display:inline; }
+
+  .tt_controls_current_village_residence #space { display:inline; }
+
+  .tt_controls_cell_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+
+  .tt_controls_home_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+
+  .tt_controls_office_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+
+</style>
+
+<script>
+  <% if params[:relation] %>
+  var tt_cancel_destination = "/patients/relationships?patient_id=<%=h params[:relation] -%>"
+  <% else %>
+  var tt_cancel_destination = "/clinic"
+  <% end %>
+
+  var skipped = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  
+  function seen(page) {
+    for (var i = page; i >= 0; i--) {
+      skipped[i] = 1;
+    }
+  }
+
+  function validPhoneNum(type){
+    text = document.getElementById('tt_page_' + type).getElementsByTagName("input")[0]
+    if (text.value == 'Unknown')
+      return true
+
+    if (text.value.match("^0\\d{10}$"))
+      return false
+
+    if (text.value.length == 10){
+      return true
+    }else if (text.value.length == 8){
+      return true
+    }else if (text.value.length == 7){
+      return true
+    }
+
+    return false
+  }
+</script>
+
+<% form_for :person, @person, :url => { :action => "create" } do |f| %>
+
+  <%= text_field_tag "person[names][given_name]", params[:given_name], {:id => 'given_name', :field_type => 'alpha', :helpText => 'First name', :ajaxURL => '/person_names/given_names?search_string=', :allowFreeText => true, :condition => '$("given_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
+  
+  <%= text_field_tag "person[names][family_name]", params[:family_name], {:id => 'family_name', :field_type => 'alpha', :helpText => 'Last name', :ajaxURL => '/person_names/family_names?search_string=', :allowFreeText => true, :condition => '$("family_name").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
+
+  Gender: <%= f.select :gender, {"" => "", "Male" => "M", "Female" => "F"}, {:selected => params[:gender]}, {:id => 'gender', :helpText => 'Gender', :condition => '$("gender").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } %>
+
+  <%= text_field_tag "person[names][family_name2]", params[:family_name2], {:id => 'family_name2', :field_type => 'alpha', :helpText => 'Mother\'s Surname', :ajaxURL => '/person_names/family_name2?search_string=', :allowFreeText => true, :condition => '$("family_name2").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_mothers_surname %>
+
+  <%= text_field_tag "person[birth_year]", nil, {:helpText => 'Year of Birth', :field_type => 'number', :absoluteMin => "1890", :min => "1940", :absoluteMax => Date.today.year, :tt_pageStyleClass => "Numeric NumbersOnly", :tt_onLoad => 'seen(tstCurrentPage);' }  %>
+
+  <%= select_tag "person[birth_month]", month_name_options, {:helpText => 'Month of Birth', :condition => '$("person_birth_year").value.toLowerCase() != "unknown"'}%>
+
+  <%= text_field_tag "person[age_estimate]", nil, {:helpText => 'Age Estimate', :absoluteMin => 1, :absoluteMax => age_limit, :field_type => 'number', :condition => '$("person_birth_year").value == "Unknown"', :tt_pageStyleClass => "Numeric NumbersOnly"} %> 
+
+  <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Birth Day', :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value, $('person_birth_month').value)" %>
+
+  <%= text_field_tag "person[addresses][address2]", params[:address2], {:id => 'address2', :field_type => 'alpha', :helpText => 'Home Village', :ajaxURL => '/person_addresses/address2?search_string=', :allowFreeText => true, :condition => '$("address2").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_home_village %>
+  
+  <%= text_field_tag "person[addresses][county_district]",  params[:county_district], {:field_type => 'alpha', :helpText => 'Current Traditional Authority (TA)', :ajaxURL => '/person_addresses/traditional_authority?search_string=', :allowFreeText => true }%>
+
+  <%= text_field_tag "person[addresses][city_village]",  params[:city_village], {:field_type => 'alpha', :helpText => 'Current Village (residence)', :ajaxURL => '/person_addresses/village?search_string=', :allowFreeText => true }%>
+
+  <%= text_field_tag "person[cell_phone_number]",  params[:cell_phone_number], {:field_type => 'number',:validationJS =>"validPhoneNum('cell_phone_number')", :helpText => 'Cell Phone Number', :allowFreeText => true, :validationMessage => "You must enter a valid number" }%>
+
+  <% ask_multiple_phone_numbers = GlobalProperty.find_by_property("ask_multiple_phone_numbers").property_value rescue 'false'
+     if ask_multiple_phone_numbers == 'true' 
+  %>
+  <%= text_field_tag "person[office_phone_number]",  params[:office_phone_number], {:field_type => 'number', :helpText => 'Office Phone Number', :allowFreeText => true }%>
+
+  <%= text_field_tag "person[home_phone_number]",  params[:home_phone_number], {:field_type => 'number', :helpText => 'Home Phone Number', :allowFreeText => true }%>
+  <%end%>
+
+  <%= select_tag("person[occupation]", options_for_select([" ", "Housewife", "Farmer", "Police", "Soldier", "Business", "Teacher", "Student", "Healthcare Worker"].sort.concat(["Other"]) ,params[:occupation]),:helpText =>"Occupation",:allowFreeText => true, :tt_onLoad => 'seen(tstCurrentPage);')%>
+  
+  <!-- Make sure patient is created -->
+
+  <%= hidden_field_tag "person[patient]", "" %>
+
+  <%= hidden_field_tag "relation", params[:relation] %>
+  
+  <%= hidden_field_tag :identifier, params[:identifier] %>
+
+  <%= submit_tag "Create person" %>
+  
+<% end %>

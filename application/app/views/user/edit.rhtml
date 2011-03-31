@@ -1,0 +1,10 @@
+<script>
+  var tt_cancel_destination = "/clinic/users"
+</script>
+<% form_tag :action => 'update', :id => @user.id do %>
+  <%= render :partial => 'form' %>
+  <%= submit_tag 'Edit' %>
+<% end %>
+
+<%= link_to 'Show', :action => 'show', :id => @user.id %> |
+<%= link_to 'Back', :action => 'list' %>

@@ -1,0 +1,23 @@
+--- 
+drug: 
+  name: Drug
+  retire_reason: 
+  retired_by: 
+  creator: 1
+  date_retired: 
+  concept_class_id: 3
+  description: Drug
+  retired: 0
+  date_created: 2004-02-02 00:00:00 -08:00
+  uuid: 1fd581e2-268f-102d-a2b3-16da04859145
+diagnosis: 
+  name: Diagnosis
+  retire_reason: 
+  retired_by: 
+  creator: 1
+  date_retired: 
+  concept_class_id: 4
+  description: Conclusion drawn through findings
+  retired: 0
+  date_created: 2004-02-02 00:00:00 -08:00
+  uuid: 1fd5ade8-268f-102d-a2b3-16da04859145

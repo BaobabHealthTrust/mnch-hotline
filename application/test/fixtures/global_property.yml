@@ -1,0 +1,11 @@
+--- 
+global_property_00000: 
+  property: use_patient_attribute.tribe
+  description: Indicates whether or not the 'tribe' attribute is shown when viewing/searching for patients
+  property_value: "true"
+  uuid: 1fe55c20-268f-102d-a2b3-16da04859145
+global_property_00001: 
+  property: remote_demographics_servers
+  description: Indicates hostnames for retrieving patient demographics
+  property_value: "localhost"
+  uuid: 1fe590fa-268f-102d-a2b3-16da04859145

@@ -1,0 +1,5 @@
+<% for obs in @encounter.observations do %>
+  <li class="data <%= cycle('even', 'odd') %>" encounter="<%= @encounter.id %>" observation="<%= obs.id %>">
+    <div class="encounter"><%=h obs.to_s(["short", "order"]) %></div>
+  </li>  
+<% end %>

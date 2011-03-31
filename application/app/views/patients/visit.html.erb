@@ -1,0 +1,157 @@
+<script>
+var tt_cancel_destination = "/patients/mastercard?patient_id=" + "<%=@patient_id%>"
+</script>
+
+
+<style>
+
+#visit-left table
+{
+  width:100%;
+}
+
+#head
+{
+  border-bottom-style:solid;
+  padding:10px;
+  font-size:15px;
+  border-width: 1px;
+}
+
+#visit-left
+{
+  float:left;
+}
+
+#visit-right
+{
+  float:right;
+}
+
+.data-visit
+{
+  padding:10px;
+  width:47%;
+  border-bottom-style:solid;
+  border-left-style:solid;
+  border-right-style:solid;
+  border-width: 1px;
+}
+
+
+#visit-left th
+{
+  text-align:left;
+  padding-left:5px;
+}
+
+#visit-left td , th
+{
+  border-style:solid;
+  border-width:1px;
+}
+
+#visit-right table
+{
+  width:98%;
+}
+
+caption
+{
+  font-weight: bold;
+}
+</style>
+
+<div id = 'head'>
+<h3>Patient's visit summary:&nbsp;<%=@date.to_date.strftime('%A, %d %B %Y')%></h3>
+Name:&nbsp;<%person = @patient.person %>
+<%=person.name %><br/>
+Age:&nbsp;<%=person.age %><br/>
+Guardian(s):&nbsp;<%=person.relationships.map{|r|Person.find(r.person_b).name}.join(' : ') rescue 'NONE' %>
+</div>
+
+<div id = 'visit-left' class = 'data-visit'>
+  <table>
+    <% @visits.each do |date,visit| %>
+    <tr>
+      <th>Weight</th>
+      <td><%=visit.weight%></td>
+    </tr>
+    <tr>
+      <th>Height</th>
+      <td><%=visit.height%></td>
+    </tr>
+    <tr>
+      <th>BMI</th>
+      <td><%=visit.bmi%></td>
+    </tr>
+    <tr>
+      <th>Regimen</th>
+      <td><%=visit.reg%></td>
+    </tr>
+    <tr>
+      <th>Outcome</th>
+      <td><%=visit.outcome%></td>
+    </tr>
+    <tr>
+      <th>Adherence</th>
+      <td>
+        <% adherence = ''
+        (visit.adherence || []).each do | name , percentage |
+          adherence += "<br/>#{name} (#{percentage})" unless adherence.blank?
+          adherence = "#{name} (#{percentage})" if adherence.blank?
+        end %>
+        <%= adherence || '&nbsp;'%>
+      </td>
+    </tr>
+    <tr>
+      <th>TB Status</th>
+      <td><%=visit.tb_status%></td>
+    </tr>
+    <tr>
+      <th>Symptoms</th>
+      <td><%=visit.s_eff%></td>
+    </tr>
+    <tr>
+      <th>Pill count</th>
+      <td>
+        <% pills = ''
+        (visit.pills || []).each do | drug_name,count |
+          pills += "<br/>#{drug_name}: #{count}" unless pills.blank?
+          pills = "#{drug_name}: #{count}" if pills.blank?
+        end %>
+        <%= pills || '&nbsp;'%>
+      </td>
+    </tr>
+    <tr>
+      <th>Drugs given</th>
+      <td>
+        <% gave = ''
+        (visit.gave || []).each do | name , quantity |
+          gave += "<br/>#{name} (#{quantity})" unless gave.blank?
+          gave = "#{name} (#{quantity})" if gave.blank?
+        end %>
+        <%= gave || '&nbsp;'%>
+      </td>
+    </tr>
+    <tr>
+      <th>Visit by</th>
+      <td><%=visit.visit_by%></td>
+    </tr>
+    <tr>
+      <th>Appointment date</th>
+      <td><%=visit.appointment_date.to_date.strftime('%A, %B %d %Y') rescue '&nbsp;'%></td>
+    </tr>
+    <% end %>
+  </table>
+</div>
+<div id = 'visit-right' class = 'data-visit'>
+  <table>
+    <%@visits.each do |date,visit| %>
+      <caption>Clinical notes (optional) ....</caption>
+      <tr>
+        <td><%=visit.notes%></td>
+      </tr>
+    <% end %>
+  </table>
+</div>

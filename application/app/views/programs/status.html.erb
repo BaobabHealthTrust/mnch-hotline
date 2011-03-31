@@ -1,0 +1,5 @@
+<% for patient_state in @program.patient_states do %>
+  <li class="data <%= cycle('even', 'odd') %>" program="<%= @program.id %>" state="<%= patient_state.id %>">
+    <div class="state"><%=h patient_state.to_s %></div>
+  </li>  
+<% end %>

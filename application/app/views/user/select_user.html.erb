@@ -1,0 +1,9 @@
+<script type="text/javascript">
+  var tt_cancel_destination = "/clinic/users"
+</script>
+ 
+  <% form_tag "search_user", :method => :post do %>
+    <%= text_field 'user', 'username', :textCase =>"lower", :ajaxURL => '/user/username?username=' ,:helpText => 'Select username'%>
+    <%= submit_tag "Find user" %>
+  <% end %>
+ 

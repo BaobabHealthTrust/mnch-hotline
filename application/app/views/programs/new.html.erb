@@ -1,0 +1,89 @@
+<style type="text/css">
+  /* TEMP, move out of here! */
+  .options {
+    height:13em;
+  }
+</style>
+<script>
+  var tt_cancel_destination = "/patients/programs/<%= @patient.patient_id %>"  
+  var enrolled_program_names = <%=@enrolled_program_names%>
+  
+  function set_program_for_workflows() {
+    var program_id = encodeURIComponent($('program_id').value); 
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', "/programs/workflows?program=" + program_id);
+    listSuggestions(tstCurrentPage); 
+  }
+  
+  function set_workflow_for_states() {
+    var workflow_id = encodeURIComponent($('program_workflow_id').value); 
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', "/programs/states?workflow=" + workflow_id);
+    listSuggestions(tstCurrentPage); 
+  }
+ 
+  function validProgram(){
+    selected_program = ($('tt_page_select_program').getElementsByTagName("input")[0].value)
+    for (var i = 0 ; i < enrolled_program_names.length ; i++ ){
+      if(enrolled_program_names[i] == selected_program){return false}
+    }
+    return true
+  }
+</script>
+
+<% if flash[:error] %>
+  <p id='flash_error'><%= flash[:error]%></p>
+<% end %>
+
+<form id='program' action="/programs/create" method='post'> 
+  <%= hidden_field_tag :patient_id, @patient.id %>
+
+  <%= select_tag 'program_id', options_for_select(
+    Program.all.inject({}){|result, element| result[element.name] = element.program_id; result }, nil), 
+    {:helpText => "Select Program",
+     :validationJS =>"validProgram()",
+     :validationMessage => "Patient already enrolled in program" } %> 
+
+  <%= select_tag 'location_id', params[:location_id],
+    {:id => 'location_id', 
+     :field_type => 'alpha', 
+     :helpText => "Location", 
+     :ajaxURL => '/programs/locations?q=', 
+     :allowFreeText => false } %>
+
+  <%= select_tag 'program_workflow_id', params[:program_workflow_id],     
+    {:id => 'program_workflow_id', 
+     :field_type => 'alpha', 
+     :helpText => "Program workflow",
+     :tt_onLoad => "set_program_for_workflows();",
+     :ajaxURL => "", 
+     :allowFreeText => false } %> 
+
+  <%= select_tag 'initial_state', params[:inital_state],     
+    {:id => 'initial_state', 
+     :field_type => 'alpha', 
+     :helpText => "Initial state",
+     :tt_onLoad => "set_workflow_for_states();",
+     :ajaxURL => "", 
+     :allowFreeText => false } %> 
+
+  <%= text_field_tag 'initial_date', params[:initial_date] || (Time.now).year, 
+      {:id => 'initial_date',
+       :field_type => 'date', 
+       :helpText => "Initial state start date",
+       :max => "#{(Date.today).strftime('%Y-%m-%d')}",
+       :tt_pageStyleClass => "Date DatesOnly"} %>     
+<!--
+  <%= select_tag 'current_state', params[:current_state],     
+    {:id => 'current_state', 
+     :field_type => 'alpha', 
+     :helpText => "Current state",
+     :tt_onLoad => "set_workflow_for_states();",
+     :ajaxURL => "", 
+     :allowFreeText => false } %> 
+
+  <%= text_field_tag 'current_date', params[:current_date] || (Time.now).year, 
+      {:id => 'current_date',
+       :field_type => 'date', 
+       :helpText => "Current state start date",
+       :tt_pageStyleClass => "Date DatesOnly"} %>     
+-->
+</form>

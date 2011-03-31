@@ -1,0 +1,442 @@
+<style>
+  .tt_controls_clinical_notes_optional #space { display:inline; }
+</style>
+
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id -%>";
+  var age = <%= @patient.person.age -%>;
+  var ageInMonths = <%= @patient.person.age_in_months -%>;
+  var firstPositiveHivTestType = "<%= Observation.question("FIRST POSITIVE HIV TEST TYPE").first(:conditions => {:person_id => @patient.person}, :include => :answer_concept_name).answer_concept_name.name rescue 'UNKNOWN' -%>";  
+  
+  function updateCD4Count() {
+    var cd4_available = $('new_cd4_count_available').value == 'YES';
+    var cd4_count = cd4_available ? $('cd4_count').value : null;
+    var cd4_count_numeric, cd4_count_estimate, cd4_count_modifier;
+    try { cd4_count_numeric = parseInt(cd4_count); } catch(e) { cd4_count_numeric = null; }
+    if (cd4_count_numeric == null || ''+cd4_count_numeric == 'NaN') {
+      try {
+        var matches = cd4_count.match(/^(\<|\>)([0-9\.]+)$/)
+        cd4_count_modifier = matches[1]; 
+        cd4_count_estimate = parseInt(matches[2]);
+        cd4_count_numeric = cd4_count_estimate;
+        if (cd4_count_modifier == '<') cd4_count_numeric -= 1;
+        if (cd4_count_modifier == '>') cd4_count_numeric += 1;
+      } catch(e) {
+        cd4_count_modifier = null; 
+        cd4_count_estimate = null;
+        cd4_count_numeric = null;
+      }
+    }
+    if (cd4_count_numeric == null || ''+cd4_count_numeric == 'NaN') {
+      $('cd4_count_less_than_250').value = "UNKNOWN";
+      $('cd4_count_less_than_350').value = "UNKNOWN";
+    } else {
+      $('cd4_count_less_than_250').value = (cd4_count_numeric < 250) ? "YES" : "NO";
+      $('cd4_count_less_than_350').value = (cd4_count_numeric < 350) ? "YES" : "NO";
+    }    
+  }
+
+  function updateCD4Percent() {
+    var cd4_percent_available = $('new_cd4_percent_available').value == 'YES';
+    var cd4_percent = cd4_percent_available ? $('cd4_percent').value : null;
+    var cd4_percent_numeric, cd4_percent_estimate, cd4_percent_modifier;
+    try { cd4_percent_numeric = parseInt(cd4_percent); } catch(e) { cd4_percent_numeric = null; }
+    if (cd4_percent_numeric == null || ''+cd4_percent_numeric == 'NaN') {
+      try {
+        var matches = cd4_percent.match(/^(\<|\>)([0-9\.]+)$/)
+        cd4_percent_modifier = matches[1]; 
+        cd4_percent_estimate = parseInt(matches[2]);
+        cd4_percent_numeric = cd4_percent_estimate;
+        if (cd4_percent_modifier == '<') cd4_percent_numeric -= 1;
+        if (cd4_percent_modifier == '>') cd4_percent_numeric += 1;
+      } catch(e) {
+        cd4_percent_modifier = null; 
+        cd4_percent_estimate = null;
+        cd4_percent_numeric = null;
+      }
+    }
+    if (cd4_percent_numeric == null || ''+cd4_percent_numeric == 'NaN') {
+      $('cd4_percent_less_than_25').value = "UNKNOWN";
+    } else {
+      $('cd4_percent_less_than_25').value = (cd4_percent_numeric < 25) ? "YES" : "NO";
+    }      
+  }
+
+  
+  // These are here in case you are looking up hard coded concept names
+  // WHO STAGE I ADULT
+  // WHO STAGE II ADULT
+  // WHO STAGE III ADULT
+  // WHO STAGE IV ADULT
+  // WHO STAGE I PEDS
+  // WHO STAGE II PEDS
+  // WHO STAGE III PEDS
+  // WHO STAGE IV PEDS
+  function whoStageConcept(stage, adultOrPeds) {    
+    return "WHO STAGE " + numeral(stage) + " " + adultOrPeds;  
+  }
+  
+  function numeral(num) {
+    switch(num) {
+      case 1: 
+        return "I";
+      case 2: 
+        return "II";
+      case 3: 
+        return "III";
+      case 4: 
+        return "IV";
+    }
+  }
+    
+  var whoStage = null;  
+    
+  function updateWhoStage() {
+    // Everyone is supposed to be HIV positive so start them at 1
+    whoStage = 1;
+    for (var i=1; i<=4; i++) {
+      try{
+        if ( $("stage_"+i+"_conditions").value != '') whoStage = i;
+      }catch(e){}
+      try{
+        if ( $("stage_"+i+"_conditions_adults") && $("stage_"+i+"_conditions_adults").value != '') whoStage = i;
+      }catch(e){}
+      try{
+        if ( $("stage_"+i+"_conditions_peds") && $("stage_"+i+"_conditions_peds").value != '') whoStage = i;
+      }catch(e){}
+    }
+    var adultOrPeds = (age > 14) ? "ADULT" : "PEDS";
+    $('who_stage').value = whoStageConcept(whoStage, adultOrPeds);      
+  }
+  
+  function updateReasonForArtEligibility() {
+    var reasonForArtEligibility = "UNKNOWN";    
+    if (age > 14) {        
+      if(whoStage >= 3) {
+        reasonForArtEligibility = whoStageConcept(whoStage, "ADULT");  
+      } else {
+        if ($('pregnant') && $('pregnant').value == "YES" && $('cd4_count_less_than_350').value == "YES") {
+          reasonForArtEligibility = "CD4 COUNT LESS THAN 350";
+        } else if ($('cd4_count_less_than_250').value == "YES") {
+          reasonForArtEligibility = "CD4 COUNT LESS THAN 250";
+        }
+      }
+    } else {
+      // Lymphocyte thresholds for ages 0-15
+      var lymphocyteThresholds = [4000, 4000, 4000, 3000, 3000, 2500, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000];
+
+      var lymphocyteCountAvailable = $('new_lymphocyte_count_available').value == 'YES';
+      var lymphocyteCount = lymphocyteCountAvailable ? $('lymphocyte_count').value : null;
+      var lymphocyteCountNumeric = null;
+      try { lymphocyteCountNumeric = parseInt(lymphocyteCount); } catch(e) { }
+
+      var presumedSevereHivConditions = "";
+      if ($('presumed_severe_hiv_conditions')) presumedSevereHivCondition = $('presumed_severe_hiv_conditions').value;
+      var presumedSevereHiv = false;
+      if (firstPositiveHivTestType == "HIV RAPID TEST, QUALITATIVE") {
+        if (
+          presumedSevereHivConditions.indexOf("PNEUMOCYSTIS PNEUMONIA") > -1 ||
+          presumedSevereHivConditions.indexOf("CANDIDIASIS, ESOPHAGEAL") > -1 ||
+          presumedSevereHivConditions.indexOf("CRYPTOCOCCAL MENINGITIS") > -1 ||
+          presumedSevereHivConditions.indexOf("SEVERE UNEXPLAINED WASTING OR MALNUTRITION NOT RESPONDING TO TREATMENT") > -1 ||
+          presumedSevereHivConditions.indexOf("TOXOPLASMOSIS OF THE BRAIN (FROM AGE 1 MONTH)") > -1)
+          presumedSevereHiv = true;
+        else if (
+          ((presumedSevereHivConditions.indexOf("ORAL THRUSH") > -1) && (presumedSevereHivConditions.indexOf("SEPSIS, SEVERE") > -1)) ||
+          ((presumedSevereHivConditions.indexOf("ORAL THRUSH") > -1) && (presumedSevereHivConditions.indexOf("PNEUMONIA, SEVERE") > -1)) ||
+          ((presumedSevereHivConditions.indexOf("PNEUMONIA, SEVERE") > -1) && (presumedSevereHivConditions.indexOf("SEPSIS, SEVERE") > -1)))
+          presumedSevereHiv = true;
+      }
+      
+      try{
+        presumedSeverHiv == null} catch (e) {
+      } finally {presumedSeverHiv = null}
+
+      try{
+        if (ageInMonths <= 17 && firstPositiveHivTestType == "HIV RAPID TEST, QUALITATIVE" && presumedSeverHiv)
+          reasonForArtEligibility = "PRESUMED SEVERE HIV";
+        else if (ageInMonths <= 12 && firstPositiveHivTestType == "HIV DNA POLYMERASE CHAIN REACTION")
+          reasonForArtEligibility = "HIV DNA POLYMERASE CHAIN REACTION";
+        else if (whoStage >= 3)
+          reasonForArtEligibility = whoStageConcept(whoStage, "PEDS");  
+        else if ($('cd4_count_less_than_250') && $('cd4_count_less_than_250').value == "YES")
+          reasonForArtEligibility = "CD4 COUNT LESS THAN 250";
+        else if ($('cd4_percent_less_than_25') && $('cd4_percent_less_than_25').value == "YES")
+          reasonForArtEligibility = "CD4 PERCENT LESS THAN 25";
+        else if (whoStage >= 2 && lymphocyteCount < lymphocyteThresholds[age])
+          reasonForArtEligibility = "LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 2";              
+      }catch(e){}
+    }  
+    $('reason_for_art_eligibility').value = reasonForArtEligibility;
+  }
+
+  function summary() {
+    updateWhoStage(); 
+    updateReasonForArtEligibility();  
+    var display = "<div><span class='title'>WHO Stage: " + $('who_stage').value + "</span></div>";
+    display += "<div><span class='title'>Reason for ART Eligibility: " + $('reason_for_art_eligibility').value + "</span></div>";
+    $('inputFrame'+tstCurrentPage).innerHTML = '<div id="summary">' + display + '</div>' ;    
+  }  
+  
+</script>  
+<style type="text/css">
+  .small .options li { font-size:1.1em; }
+  .tt_controls_cd4_count #lessthan, .tt_controls_cd4_count #greaterthan { display:block; float:right }
+  .tt_controls_cd4_percent #lessthan, .tt_controls_cd4_percent #greaterthan { display:block; float:right }
+</style>
+<form id='appointment' action="/encounters/create" method='post'>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "HIV STAGING" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+  <% if @patient.person.age > 14 
+    if @patient.person.gender == 'F' 
+      obs_date = session[:datetime].to_date rescue Date.today
+      patient_pregnant = Observation.find(:first,:conditions =>["concept_id = ? AND person_id = ? AND DATE(obs_datetime) = ?",
+                       ConceptName.find_by_name('IS PATIENT PREGNANT?').concept_id,
+                       @patient.id,obs_date])
+    %>
+
+      <% if patient_pregnant.blank? %>
+      <%= touch_yes_no_unknown_tag "IS PATIENT PREGNANT?", @patient, nil,
+        {:id => "pregnant",
+        :optional => true,
+        :helpText => "Is patient pregnant?" } %>
+      <% end %>    
+    <% end %>    
+
+    <% unless concept_set_options('WHO STAGE I ADULT AND PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE I ADULT AND PEDS'),
+        {:id => "stage_1_conditions",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 1 Conditions (adults and children)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE I ADULT').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE I ADULT'),
+        {:id => "stage_1_conditions_adults",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 1 Conditions (adults only)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE II ADULT AND PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE II ADULT AND PEDS'),
+        {:id => "stage_2_conditions",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 2 Conditions (adults and children)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE II ADULT').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE II ADULT'),
+        {:id => "stage_2_conditions_adults",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 2 Conditions (adults only)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE III ADULT AND PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE III ADULT AND PEDS'),
+        {:id => "stage_3_conditions",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 3 Conditions (adults and children)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE III ADULT').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE III ADULT'),
+        {:id => "stage_3_conditions_adults",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 3 Conditions (adults only)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE IV ADULT AND PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE IV ADULT AND PEDS'),
+        {:id => "stage_4_conditions",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 4 Conditions (adults and children)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE IV ADULT').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE IV ADULT'),
+        {:id => "stage_4_conditions_adults",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 4 Conditions (adults only)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <label for='new_cd4_count_available'>New CD4 count available?</label>
+      <%= select_tag "new_cd4_count_available", options_for_select([['Yes','YES'],['No','NO']]), :id => 'new_cd4_count_available', :tt_pageStyleClass => 'NoKeyboard' %>
+
+    <%= touch_location_tag "CD4 COUNT LOCATION", @patient, nil,
+      {:id => "cd4_count_location",
+       :condition => '$("new_cd4_count_available").value == "YES"',
+       :helpText => "CD4 Count Location"} %>
+
+    <%= touch_date_tag "CD4 COUNT DATETIME", @patient, (Time.now - 1.month).year,
+      {:id => "cd4_count_date",
+       :condition => '$("new_cd4_count_available").value == "YES"',
+       :helpText => "CD4 Count Date",
+       :max => "#{(Date.today).strftime('%Y-%m-%d')}"} %>
+
+    <%= touch_numeric_tag "CD4 COUNT", @patient, nil,
+      {:id => "cd4_count",
+       :condition => '$("new_cd4_count_available").value == "YES"',
+       :helpText => "CD4 Count",
+       :tt_onComplete => 'updateCD4Count()'} %>
+
+    <%= touch_hidden_tag "CD4 COUNT LESS THAN 250", @patient, "", :id => "cd4_count_less_than_250" %>
+    <%= touch_hidden_tag "CD4 COUNT LESS THAN 350", @patient, "", :id => "cd4_count_less_than_350" %>
+
+  <% else %> 
+  
+    <!-- Children under the age of 14 --> 
+
+    <% unless concept_set_options('WHO STAGE I ADULT AND PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE I ADULT AND PEDS'),
+        {:id => "stage_1_conditions",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 1 Conditions (adults and children)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE I PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE I PEDS'),
+        {:id => "stage_1_conditions_peds",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 1 Conditions (children only)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE II ADULT AND PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE II ADULT AND PEDS'),
+        {:id => "stage_2_conditions",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 2 Conditions (adults and children)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE II PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE II PEDS'),
+        {:id => "stage_2_conditions_peds",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 2 Conditions (children only)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE III ADULT AND PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE III ADULT AND PEDS'),
+        {:id => "stage_3_conditions",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 3 Conditions (adults and children)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE III PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE III PEDS'),
+        {:id => "stage_3_conditions_peds",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 3 Conditions (children only)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE IV ADULT AND PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE IV ADULT AND PEDS'),
+        {:id => "stage_4_conditions",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 4 Conditions (adults and children)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% unless concept_set_options('WHO STAGE IV PEDS').blank? %>
+      <%= touch_select_tag "WHO STAGES CRITERIA PRESENT", @patient, concept_set_options('WHO STAGE IV PEDS'),
+        {:id => "stage_4_conditions_peds",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Stage 4 Conditions (children only)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <% if @patient.person.age_in_months <= 17 %>
+      <%#= touch_select_tag "PRESUMED SEVERE HIV CRITERIA PRESENT", @patient, concept_set_options('PRESUMED SEVERE HIV CRITERIA IN INFANTS'),
+        {:id => "presumed_severe_hiv_conditions",
+         :multiple => true,
+         :optional => true,
+         :helpText => "Presumed severe HIV criteria (infants only)",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+    <% end %>
+
+    <label for='new_cd4_percent_available'>New CD4 percent available?</label>
+      <%= select_tag "new_cd4_percent_available", options_for_select([['Yes','YES'],['No','NO']]), :id => 'new_cd4_percent_available', :tt_pageStyleClass => 'NoKeyboard' %>
+
+    <%= touch_location_tag "CD4 PERCENT LOCATION", @patient, nil,
+      {:id => "cd4_percent_location",
+       :condition => '$("new_cd4_percent_available").value == "YES"',
+       :helpText => "CD4 Percent Location"} %>
+
+    <%= touch_date_tag "CD4 PERCENT DATETIME", @patient, (Time.now - 1.month).year,
+      {:id => "cd4_percent_date",
+       :condition => '$("new_cd4_percent_available").value == "YES"',
+       :helpText => "CD4 Percent Date",
+       :max => "#{(Date.today).strftime('%Y-%m-%d')}"} %>
+
+    <%= touch_numeric_tag "CD4 PERCENT", @patient, nil,
+      {:id => "cd4_percent",
+       :condition => '$("new_cd4_percent_available").value == "YES"',
+       :helpText => "CD4 Percent",
+       :tt_onComplete => 'updateCD4Percent()'} %>
+
+    <%= touch_hidden_tag "CD4 PERCENT LESS THAN 25", @patient, "", :id => "cd4_percent_less_than_25" %>
+
+    <label for='new_lymphocyte_count_available'>New Lymphocyte count available?</label>
+      <%= select_tag "new_lymphocyte_count_available", options_for_select([['Yes','YES'],['No','NO']]), :id => 'new_lymphocyte_count_available', :tt_pageStyleClass => 'NoKeyboard' %>
+
+    <%= touch_location_tag "LYMPHOCYTE COUNT LOCATION", @patient, nil,
+      {:id => "lymphocyte_count_location",
+       :condition => '$("new_lymphocyte_count_available").value == "YES"',
+       :helpText => "Lymphocyte Count Location"} %>
+
+    <%= touch_date_tag "LYMPHOCYTE COUNT DATETIME", @patient, (Time.now - 1.month).year,
+      {:id => "lymphocyte_count_date",
+       :condition => '$("new_lymphocyte_count_available").value == "YES"',
+       :helpText => "Lymphocyte Count Date",
+       :max => "#{(Date.today).strftime('%Y-%m-%d')}"} %>
+
+    <%= touch_numeric_tag "LYMPHOCYTE COUNT", @patient, nil,
+      {:id => "lymphocyte_count",
+       :condition => '$("new_lymphocyte_count_available").value == "YES"',
+       :helpText => "Lymphocyte Count"} %>
+
+  <% end %>   
+
+  <%= touch_text_field_tag("CLINICAL NOTES CONSTRUCT", @patient, nil,
+    {:optional => true,:helpText => "Clinical notes (optional)"}, time=DateTime.now()) %>
+
+  <%= touch_hidden_tag "WHO STAGE", @patient, "", :id => "who_stage" %>
+  <%= touch_hidden_tag "REASON FOR ART ELIGIBILITY", @patient, "", :id => "reason_for_art_eligibility" %>
+  
+  <label for='summary'>Summary</label>
+  <%= text_field_tag :summary, nil, { :tt_onLoad => "summary();", :optional => "true", :tt_pageStyleClass => "NoControls" } %>
+  
+  <%= submit_tag "Finish" %>    
+</form>

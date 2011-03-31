@@ -1,0 +1,68 @@
+--- 
+openmrs_identification_number: 
+  name: OpenMRS Identification Number
+  format: ""
+  date_created: 2005-09-22 00:00:00 +02:00
+  creator: 1
+  check_digit: 1
+  description: Unique number used in OpenMRS
+  patient_identifier_type_id: 1
+  required: 0
+  format_description: 
+  uuid: 1ff47340-268f-102d-a2b3-16da04859145
+old_identification_number: 
+  name: Old Identification Number
+  format: ""
+  date_created: 2005-09-22 00:00:00 +02:00
+  creator: 1
+  check_digit: 0
+  description: Number given out prior to the OpenMRS system (No check digit)
+  patient_identifier_type_id: 2
+  required: 0
+  format_description: 
+  uuid: 1ff49ab4-268f-102d-a2b3-16da04859145
+national_id: 
+  name: National id
+  format: ""
+  date_created: 2007-11-29 22:12:34 +02:00
+  creator: 1
+  check_digit: 0
+  description: National ID number developed by Baobab
+  patient_identifier_type_id: 3
+  required: 0
+  format_description: P-175-0000004-5
+  uuid: 1ff4a9be-268f-102d-a2b3-16da04859145
+arv_number: 
+  name: ARV Number
+  format: ""
+  date_created: 2007-12-17 15:29:01 +02:00
+  creator: 15878
+  check_digit: 0
+  description: Unique ID Number for Patients in ARV Treatment Program
+  patient_identifier_type_id: 4
+  required: 0
+  format_description: ""
+  uuid: 1ff4bc6a-268f-102d-a2b3-16da04859145
+pre_art_number: 
+  name: Pre ART Number
+  format: PART-0001 
+  date_created: 2008-04-30 22:28:52 +02:00
+  creator: 1
+  check_digit: 0
+  description: Sequential number given to patients enrolled in Pre-ART program 
+  patient_identifier_type_id: 5
+  required: 0
+  format_description: 
+  uuid: 1ff4cb10-268f-102d-a2b3-16da04859145
+unknown_id: 
+  name: Unknown ID
+  format: 
+  date_created: 2008-04-30 22:28:52 +02:00
+  creator: 1
+  check_digit: 0
+  description: Identifier that was recorded for this patient but with unknown provenance
+  patient_identifier_type_id: 6
+  required: 0
+  format_description: 
+  uuid: 1ff4da88-268f-102d-a2b3-16da04859145
+  

@@ -1,0 +1,40 @@
+new_deliveries:
+  pharmacy_encounter_type_id: 1
+  name: New deliveries
+  description: New deliveries
+  creator: 1
+  date_created: 2010-12-01 00:00:00 
+  retired: 0
+currently_in_stock:
+  pharmacy_encounter_type_id: 2
+  name: Tins currently in stock
+  description: currently_in_stock
+  creator: 1
+  date_created: 2010-12-01 00:00:00 
+  retired: 0
+previous_stock:
+  pharmacy_encounter_type_id: 3
+  name: Tins in previous stock
+  description: Tins in previous stock
+  creator: 1
+  date_created: 2010-12-01 00:00:00 
+  retired: 0
+removed:
+  pharmacy_encounter_type_id: 4
+  name: Tins removed
+  description: Tins removed
+  creator: 1
+  date_created: 2010-12-01 00:00:00 
+  retired: 0
+edited_stock:
+  pharmacy_encounter_type_id: 5
+  name: Edited stock
+  description: Edited stock
+  creator: 1
+  date_created: 2010-12-01 00:00:00 
+  retired: 0
+
+
+
+
+

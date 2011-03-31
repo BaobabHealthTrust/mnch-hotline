@@ -1,0 +1,69 @@
+<script type="text/javascript">
+  <% if params[:relation] %>
+  var tt_cancel_destination = "/patients/relationships?patient_id=<%=h params[:relation] -%>"
+  <% else %>
+  var tt_cancel_destination = "/clinic"
+  <% end %>
+
+  function changeNextButtonText(text){
+    $('nextButton').innerHTML = "<span>" + text + "</span>";  
+  }
+    
+  function newSearch(){
+    if (window.location.href.match(/\?identifier/))
+      window.location.href = "/people/identifiers";
+    else
+      window.location.href = "/people/search";
+  }
+
+  function createNewSearchButton(){
+    $('clearButton').innerHTML = "<span>New Search</span>";  
+    $('clearButton').setAttribute("onmousedown","newSearch();");  
+  }
+</script>
+ 
+<% if (params[:gender].blank? || params[:given_name].blank? || params[:family_name].blank?) && (params[:identifier].blank?) %>
+ 
+  <% form_tag "search", :method => :get do %>
+    <%= text_field_tag :given_name, params[:given_name], {:field_type => 'alpha', :helpText => 'First name', :ajaxURL => '/person_names/given_names?search_string=', :allowFreeText => true }%> 
+    <%= text_field_tag :family_name, params[:family_name], {:field_type => 'alpha', :helpText => 'Last name', :ajaxURL => '/person_names/family_names?search_string=', :allowFreeText => true }%> 
+    Gender: <%= select_tag :gender, options_for_select({"" => "", "Male" => "M", "Female" => "F"}), {:helpText => "Gender"} %> 
+    <%= hidden_field_tag :create_patient, params[:create_patient] %>
+    <%= hidden_field_tag :relation, params[:relation] %>
+    <%= submit_tag "Find person" %>
+  <% end -%>
+<% end -%>
+ 
+<% unless (params[:gender].blank? || params[:given_name].blank? || params[:family_name].blank?) && (params[:identifier].blank?) %>
+  <% form_tag "select", :method => :get do %>
+    <% if @people.blank? %>
+      <label for="person">No patients were found:</label>
+    <% else -%>
+      <label for="person">Select the patient from the following</label>
+    <% end -%>
+    <select name="person" id="person">
+      <% @people.each do |person| -%>
+        <option value="<%= person.id %>" onmousedown="changeNextButtonText('Select Patient')">
+          <%=h person.name -%>, 
+          <% unless person.birthdate.blank? %>Birthdate: <%=h person.birthdate_formatted -%>,<% end %>
+          <% if person.addresses.first && person.addresses.first.address2.present? %>Home Village: <%=h person.addresses.first.address2 -%>,<% end %>
+          <% if person.addresses.first && person.addresses.first.city_village.present? %>Current Village: <%=h person.addresses.first.city_village -%>,<% end %>
+          <% if person.names.first && person.names.first.family_name2.present? %>Mother's Surname: <%=h person.names.first.family_name2 -%><% end %>
+          <%=h ' Died' if person.dead == 1 rescue '' -%>
+        </option>
+      <% end -%>
+      <% if params[:identifier] %>
+        <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the identifier <%=h params[:identifier] -%></option>
+      <% else %>
+        <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option>
+      <% end %>
+    </select>
+    <input type="hidden" name="identifier" value="<%=h params[:identifier] -%>" />
+    <input type="hidden" name="gender" value="<%=h params[:gender] -%>" />
+    <input type="hidden" name="given_name" value="<%=h params[:given_name] -%>" />
+    <input type="hidden" name="family_name" value="<%=h params[:family_name] -%>" />
+    <input type="hidden" name="family_name2" value="<%=h params[:family_name2] -%>" />
+    <input type="hidden" name="address2" value="<%=h params[:address2] -%>" />
+    <input type="hidden" name="relation" value="<%=h params[:relation] -%>" />
+  <% end -%>
+<% end -%>

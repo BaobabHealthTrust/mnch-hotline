@@ -1,0 +1,263 @@
+html{
+-moz-user-select:none;
+}
+.top-colunm{}
+.top-colunm a{
+  border:2px outset gray;
+  color:black;
+  display:block;
+  font-size:1.75em;
+  margin-left:5px;
+  margin-top:15px;
+  padding-top:5px;
+  min-width: 30px;
+  text-decoration:none;
+  background-color:lightgrey;
+}
+
+#data{
+  overflow:auto;
+  position:relative;
+  width:100%;
+}
+
+.data-td {
+  padding-left:25;
+  padding-right:18;
+  text-align:center;
+  background:#FFFF99;
+}
+
+table.buttons td {
+  cursor:pointer;
+}
+
+.buttons td{
+  background-color:lightgrey;
+  border:2px outset gray;
+  min-width:50px;
+  cursor:pointer;
+}
+
+.data-td{
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+#data-table {
+  border-style:outset;
+  background-color:lightyellow;
+  width:100%;
+}
+
+#table-heading{
+  padding-left:254;
+  padding-top:15px;
+  padding-bottom:15px;
+  text-align:center;
+}
+
+.table-heading-td  {
+  text-align:       center;
+  border:           2px outset gray;
+  color:            black;
+  font-size:        1.5em;
+  margin-left:      10px;
+  margin-top:       15px;
+  padding-top:      5px;
+  background-color: lightgrey;
+}
+
+.user-details{
+  width:      80%;
+  font-size:  1.5em;
+  top:        10px;
+  position:   absolute;
+}
+
+.data-totals-td{
+  font-style:oblique;
+  font-size:18px;
+  background:-moz-field;
+  border:thin solid Sienna;
+  min-width: 30px;
+  padding: 10px;
+  text-align:center;
+}
+
+#totals{
+  background-color:-moz-field;
+}
+
+.user-details table{
+  font-size:20px;
+}
+.color-too-high{
+  background-color:#CDCD00;
+}
+
+.color-too-low{
+  background-color:#EEC900;
+}
+
+.graph {
+  border-top:   1px solid black;
+  width:        80%;
+  height:       400px;
+  margin-left:  auto;
+  margin-right: auto;
+}
+
+.graph-label {
+  text-align: center;
+  min-width:  33px;
+}
+
+.button {
+  display:          block;
+  font-size:        0.8em;
+  color:            black;
+  background-color: lightGreen;
+  margin:           15px;
+  border:           3px outset gray;
+  -moz-user-select: none;
+  width:            250px;
+  height:           70px;
+  text-align:       center;
+  font-size:        24;
+  -moz-user-select: none;
+}
+
+.buttonsDiv {
+  display:  block;
+  height:   10px;
+  left:     640px;
+  position: absolute;
+  right:    10px;
+  top:      0px;
+  z-index:  10;
+  -moz-user-select:none;
+}
+
+#header{
+  display:    block;
+  font-size:  1.8em;
+  color:      black;
+}
+
+.pop-button{
+  bottom:   10px;
+  position: absolute;
+}
+
+#patients-list{
+  height: 55px;
+  left:   25px;
+  width:  115px;
+}
+
+#close-button{
+  height: 55px;
+  right:  25px;
+  width:  115px;
+}
+
+.dialog-box{
+background:       silver;
+border:           1px solid black;
+display:          none;
+height:           150px;
+margin-left:      60px;
+margin-top:       20px;
+-moz-user-select: none;
+padding:          10px;
+position:         absolute;
+text-align:       center;
+width:            300px;
+}
+
+.message-title{
+  font-weight:bold;
+}
+
+#message-box-text-area{
+  height:     50px;
+  padding-top:15px;
+}
+
+.grid-section{
+  width: 90%;
+}
+
+.graph-menu{
+  vertical-align: top;
+}
+.graph-area{
+  padding-bottom: 50px;
+  width: 100%;
+}
+
+.dotted-table-data {
+  border-top:   1px dotted silver;
+  border-left:  1px dotted silver;
+  border-right: 1px dotted silver;
+}
+.bold-table-header{
+  background-color: lightgray;
+  font-weight: bold;
+}
+.solid-bolder-table{
+  width: 100%;
+  border-bottom:2px solid black;
+}
+
+#tabbed-content {
+  padding: 15px 0px 0px;
+  border: 2px solid #eee;
+}
+
+#tabbed-content #tab-menu {
+  margin-bottom: 0px;
+}
+
+#tabbed-content ul {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+#tabbed-content #tab-menu ul li {
+  display: inline;
+  padding: 3px 7px;
+  cursor: default;
+  background-color: #eeeeee;
+  border: 1px solid #cccccc;
+  border-bottom: none;
+}
+
+#tabbed-content #tab-menu ul li.activated {
+  border: 1px solid #eee;
+  border-bottom: 1px solid white;
+  background-color: #ffffff;
+}
+
+#tabbed-content #tab-menu ul li:hover {
+   background-color: #ffffff;
+}
+
+#tabbed-content #tabbed-body {
+  margin-top: 3px;
+}
+
+#tabbed-content #tabbed-body div {
+  display: none;
+  border: 1px solid #eee;
+  padding: 10px;
+  height: 300px;
+  width: 695px;
+}
+
+#tabbed-content #tabbed-body div.activated {
+  display: block;
+  overflow: auto;
+}
+

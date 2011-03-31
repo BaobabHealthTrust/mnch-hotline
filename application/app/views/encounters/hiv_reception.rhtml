@@ -1,0 +1,54 @@
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+  
+  function new_relationship() {
+    var current = '/encounters/new/hiv_reception?patient_id=<%= @patient.patient_id %>';
+    window.location = "/relationships/search?patient_id=<%= @patient.patient_id %>&return_to=" + escape(current)
+  }
+  
+  function show_new_relationship_button() {
+    var button = "<button onmousedown='new_relationship();' class='button navButton gray'><span>New Relationship</span></button>";
+    $('tt_extraButtons').innerHTML = button
+  }
+  
+  function hide_new_relationship_button() {
+    $('tt_extraButtons').innerHTML = "";    
+  }
+ 
+</script>  
+<form id='appointment' action="/encounters/create" method='post'>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "HIV RECEPTION" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+  <label for='guardian_present'>Guardian Present</label>
+    <%= select_tag "observations[][value_text]", relationship_options(@patient),
+      {:id => "guardian_present",
+       :multiple => true,
+       :optional => true,
+       :tt_onLoad => 'show_new_relationship_button()' } %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
+    <%= hidden_field_tag("observations[][concept_name]", "GUARDIAN PRESENT") %>
+    <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>  
+  
+  <label for='patient_present'>Patient Present</label>
+    <%= select_tag "observations[][value_coded_or_text]", options_for_select([['Yes','YES'],['No','NO']]), 
+      {:id => 'patient_present',
+      :tt_onLoad => 'hide_new_relationship_button()'} %>
+    <%= hidden_field_tag("observations[][value_text]", nil) %>
+    <%= hidden_field_tag("observations[][concept_name]", "PATIENT PRESENT") %>
+    <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>  
+
+  <%if @patient.given_arvs_before? and @patient.get_identifier("ARV Number").blank?
+      show_arv_number = GlobalProperty.find_by_property('show_arv_number').property_value rescue 'true'
+      unless show_arv_number == 'false'
+  %>
+        <%= render :partial => "/patients/arv_number" %>
+    <% end %>
+  <% end %>
+  
+  <%= submit_tag "Finish" %>    
+</form>

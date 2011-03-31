@@ -1,0 +1,40 @@
+<script>
+  var tt_cancel_destination = '/clinic/reports';
+</script>
+<form method='post' action="stock_report">
+<%= touch_date_tag "start_date", 'start_date', nil,
+    {:id => "start_date",
+     :absoluteMax => Date.today,
+     :tt_onLoad => "setMin();",
+     :helpText => "START DATE"} %>
+
+<%= touch_date_tag "end_date", 'end_date', nil,
+    {:id => "end_date",
+     :absoluteMax => Date.today,
+     :tt_onLoad => "getStartDate();",
+     :helpText => "END DATE"} %>
+</form>
+
+<script type="text/javascript">
+  var end_date = null 
+  var next_button = null
+  var date_int = ''
+    
+  function setMin(){
+    next_button = document.getElementById('nextButton');
+    next_button.setAttribute('onmousedown',"setValue();gotoNextPage();");
+    if(date_int){
+      document.getElementById("touchscreenInput0").value = date_int
+    }
+  }
+
+  function setValue(){
+    date_int = document.getElementById('touchscreenInput0').value;
+  }
+
+  function getStartDate(){
+    end_date = document.getElementById('touchscreenInput1');
+    end_date.setAttribute("absolutemin",date_int);
+  }
+</script>
+

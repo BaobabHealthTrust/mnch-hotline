@@ -1,0 +1,531 @@
+<html>
+<head>
+<%= javascript_include_tag "prototype" %>
+<%= stylesheet_link_tag "cohort" %>
+<script>
+  var tt_cancel_destination = "/cohort_tool/cohort_menu"  
+
+  function showReport() {
+    cohort = document.getElementsByClassName('scrollTableContainer')[0]
+    survival_analysis = document.getElementsByClassName('survival-analysis')[0]
+    switch_button = $('switch_view')
+    if (switch_button.innerHTML.sub('<span>','').sub('</span>','') == 'Survival Analysis'){
+      cohort.style.display = 'none'
+      switch_button.innerHTML = "<span>Cohort</span>"
+      survival_analysis.style.display = 'inline'
+    } else {
+      cohort.style.display = 'inline'
+      switch_button.innerHTML = "<span>Survival Analysis</span>"
+      survival_analysis.style.display = 'none'
+    } 
+     
+  }
+</script>
+<style>
+  table {
+    border-style:none;
+    border-width:1px;
+  }
+
+  th {
+    border-style:none;
+    border-width:1px;
+  }
+
+  td {
+    text-align:center;
+    border-style:solid;
+    border-width:1px;
+  }
+
+  .row_break td {
+    border-width:0px;
+  }
+
+  div.scrollTableContainer {
+    border-style:solid;
+  }
+
+  .survival-analysis th, .survival-analysis td {
+    text-align:left;
+  }
+</style>
+
+<title>Cohort<%= Location.current_health_center.name + "  " + @quater %></title>
+</head>
+
+<body>
+<h1><%= Location.current_health_center.name + "  " + @quater %></h1>
+<br />
+
+<div class='scrollTableContainer'>
+<table class='dataTable' cellspacing='0'>
+<thead>
+<tr>
+  <th>&nbsp;</th>
+  <th style = "text-align:left;">PATIENT'S REGISTRATION DETAILS</th>
+  <th>NEWLY REGISTRATED IN QUATER</th>
+  <th>CUMULATED EVER REGISTRATED</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style ="border-width:0px">6</td>
+  <td style="text-align:left;">Total registrated</td>
+  <td><%= @cohort['Newly total registrated'] %></td>
+  <td><%= @cohort['Total registrated'] %></td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>7</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px">Patients initiated on ART first time</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Patients initiated on ART']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total Patients initiated on ART']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>8</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">Patients re-initiated on ART</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Patients reinitiated on ART']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total Patients reinitiated on ART']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>9</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px">Patients transfered in on ART</td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Newly transferred in patients'] %></td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Total transferred in patients'] %></td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>10</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px">Male (all ages)</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Newly registrated male'] %></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total registrated male'] %></td>
+</tr>
+<tr class = 'row_break'>
+  <td>11</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">Non-pregnant females (all ages)</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Newly registrated women (non-pregnant)']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total registrated women (non-pregnant)']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>12</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px">Pregnant females (all ages)</td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Newly registrated women (pregnant)']%></td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Total registrated women (pregnant)']%></td>
+</tr>
+
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+
+<tr class = 'row_break'>
+  <td>13</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px">Infants (0 - 17 months at ART initiation)</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Newly registrated infants']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total registrated infants']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>14</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">Children (18 months - 14 years at initiation)</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Newly registrated children']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total registrated children']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>15</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">Adult (15 years or older at ART initiation)</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Newly registrated adults']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total registrated adults']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px">Unknown age</td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['']%></td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['']%></td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td style="text-align:left;">Reason for starting ART</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>16</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px">Presumed severe HIV disease in infants</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total Presumed severe HIV disease in infants']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total Presumed severe HIV disease in infants']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>17</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">Confirmed HIV infection in infants (PCR)</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Confirmed HIV infection in infants (PCR)']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total Confirmed HIV infection in infants (PCR)']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>18</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">WHO stage 1 or 2 ,CD4 below threshold</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['WHO stage 1 or 2, CD4 below threshold']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total WHO stage 1 or 2, CD4 below threshold']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>19</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">WHO stage 2,total lymphocytes < 1,200/mm3</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['WHO stage 2, total lymphocytes']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total WHO stage 2, total lymphocytes']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>20</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">WHO stage 3</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['WHO stage 3']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total WHO stage 3']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>21</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">WHO stage 4</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['WHO stage 4']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total WHO stage 4']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>22</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px">Unknown / other reason outside guidelines</td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Unknown reason']%></td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Total Unknown reason']%></td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td style="text-align:left;">Stage defining conditions at ART initiation</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>23</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px">No TB</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['No TB']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total No TB']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>24</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">TB within the past 2 years</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['TB within the last 2 years']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total TB within the last 2 years']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>25</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">Current episode of TB</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Current episode of TB']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total Current episode of TB']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>26</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px">Kaposis Sarcoma</td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Kaposis Sarcoma']%></td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Total Kaposis Sarcoma']%></td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td style="text-align:left;">Primary outcomes as of the end of the quater evaluated (only cumulative)</td>
+  <td>&nbsp;</td>
+  <td style="text-align:center;">Cumulative ever registrated</td>
+</tr>
+
+
+<tr class = 'row_break'>
+  <td>27</td>
+  <td style="text-align:left;border-width:1px 0px 1px 1px">Total alive and on ART</td>
+  <td style="border-width:1px 0px 1px 0px">&nbsp;</td>
+  <td style="border-width:1px"><%=@cohort['Total alive and on ART']%></td>
+</tr>
+
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+
+
+<tr class = 'row_break'>
+  <td>28</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px">Died within the 1st month of ART initiation</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Died within the 1st month after ART initiation']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total Died within the 1st month after ART initiation']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>29</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">Died within the 2nd month of ART initiation</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Died within the 2nd month after ART initiation']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total Died within the 2nd month after ART initiation']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>30</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">Died within the 3rd month of ART initiation</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Died within the 3rd month after ART initiation']%></td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Total Died within the 3rd month after ART initiation']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>31</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px">Died after the 3rd month of ART initiation</td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Died after the end of the 3rd month after ART initiation']%></td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Total Died after the end of the 3rd month after ART initiation']%></td>
+</tr>
+
+
+<tr class = 'row_break'>
+  <td>32</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px">Died Total</td>
+  <td style="border-width:1px 0px 0px 0px">&nbsp;</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Died total']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>33</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">Defaulted (more than 2 months overdue after expected to have run out of ARVs)</td>
+  <td style="border-width:0px">&nbsp;</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Defaulted']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>34</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px">Stopped taking ARVs (clinician or patient own decision,last known alive)</td>
+  <td style="border-width:0px">&nbsp;</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Stopped taking ARVs']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>35</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px">Transfered out</td>
+  <td style="border-width:0px 0px 1px 0px;">&nbsp;</td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Transferred out']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px;">Unknown outcome</td>
+  <td style="border-width:0px 0px 1px 0px;">&nbsp;</td>
+  <td style="border-width:0px 1px 1px 1px;"><%=@cohort['']%></td>
+</tr>
+
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td style="text-align:left;">Secondary outcomes of those alive on ART as of last visit before end of quater</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td style="text-align:left;">ARV regimens</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>38</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px">1st Line (start)</font></td>
+  <td style="border-width:1px 0px 0px 1px">d4T 3TC NVP</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Regimens']['STAVUDINE LAMIVUDINE AND NEVIRAPINE']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>39</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px;">1st Line alternatives</td>
+  <td style="border-width:1px 0px 0px 1px;">AZT 3TC NVP</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Regimens']['ZIDOVUDINE LAMIVUDINE AND NEVIRAPINE']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>40</td>
+  <td style="border-width:0px 0px 0px 1px;">&nbsp;</td>
+  <td style="border-width:1px 0px 0px 1px;">d4T 3TC EFV</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Regimens']['STAVUDINE LAMIVUDINE AND EFAVIRENZ']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>41</td>
+  <td style="border-width:0px 0px 0px 1px;">&nbsp;</td>
+  <td style="border-width:1px 0px 1px 1px;">AZT 3TC EFV</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Regimens']['ZIDOVUDINE LAMIVUDINE AND EFAVIRENZ']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>42</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px;">2nd Line adult</td>
+  <td style="border-width:0px 0px 1px 1px;">AZT 3TC TDF LPV/r</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['Regimens']['AZT+3TC+TDF+LPV/R']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>43</td>
+  <td style="text-align:left;border-width:0px 0px 0px 1px;">2nd Line child</td>
+  <td style="border-width:0px 0px 1px 1px;">ddl ABC LPV/r</td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['Regimens']['DIDANOSINE ABACAVIR LOPINAVIR RITONAVIR']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>44</td>
+  <td style="text-align:left;border-width:1px 0px 1px 1px;">Non-standard</td>
+  <td style="border-width:0px 0px 1px 1px;">(Patients on any other regimens)</td>
+  <td style="border-width:0px 1px 1px 1px;"><%=@cohort['Regimens']['UNKNOWN ANTIRETROVIRAL DRUG']%></td>
+</tr>
+
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>45</td>
+  <td style="text-align:left;border-width:1px 0px 1px 1px;">Total patients with side effects</td>
+  <td style="border-width:1px 0px 1px 0px;">&nbsp;</td>
+  <td style="border-width:1px"><%=@cohort['']%></td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td style="text-align:left;border-width:0px">Adherence</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>46</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px;">Patients with 0 - 6 doses missed at their last visit (before end of quater evaluated)</td>
+  <td style="border-width:1px 0px 0px 0px;">&nbsp;</td>
+  <td style="border-width:1px 0px 0px 1px;"><%=@cohort['']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>47</td>
+  <td style="text-align:left;border-width:1px 0px 1px 1px;">Patients with 7+ doses missed at their last visit (before end of quater evaluated)</td>
+  <td style="border-width:1px 0px 1px 0px;">&nbsp;</td>
+  <td style="border-width:1px"><%=@cohort['']%></td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td style="text-align:left;border-width:0px">Current TB status,any form of TB</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+</tr>
+
+<tr class = 'row_break'>
+  <td>48</td>
+  <td style="text-align:left;border-width:1px 0px 0px 1px;">TB not suspected</td>
+  <td style="border-width:1px 0px 0px 0px;">&nbsp;</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['TB not suspected']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>49</td>
+  <td style="text-align:left;border-width:1px 0px 1px 1px;">TB suspected</td>
+  <td style="border-width:1px 0px 1px 0px;">&nbsp;</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['TB suspected']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>50</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px;">TB confirmed, currently not yet on TB treatment</td>
+  <td style="border-width:0px 0px 1px 0px;">&nbsp;</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['TB confirmed not treatment']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>51</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px;">TB confirmed, on TB treatment</td>
+  <td style="border-width:0px 0px 1px 0px;">&nbsp;</td>
+  <td style="border-width:1px 0px 0px 1px"><%=@cohort['TB confirmed on treatment']%></td>
+</tr>
+<tr class = 'row_break'>
+  <td>&nbsp;</td>
+  <td style="text-align:left;border-width:0px 0px 1px 1px;">Unknown TB status</td>
+  <td style="border-width:0px 0px 1px 0px;">&nbsp;</td>
+  <td style="border-width:1px 0px 1px 1px"><%=@cohort['TB Unknown']%></td>
+</tr>
+
+</tbody>
+</table>
+</div>
+
+<div class = 'survival-analysis'>
+<table>
+<% @survival_analysis.each do | key , values | %>
+  <tr>
+    <th><%=key%></th>
+    <th>&nbsp;</th>
+  </tr>
+  <tr>
+    <td>New patients registered for ART</td>
+    <td style = "text-align:right;"><%=values['New patients registered for ART']%></td>
+  </tr>
+  <tr>
+    <td>Number Alive and on ART</td>
+    <td style = "text-align:right;"><%=values['Number Alive and on ART']%></td>
+  </tr>
+  <tr>
+    <td>Number Dead</td>
+    <td style = "text-align:right;"><%=values['Number Dead']%></td>
+  </tr>
+  <tr>
+    <td>Number Defaulted</td>
+    <td style = "text-align:right;"><%=values['Unknown']%></td>
+  </tr>
+  <tr>
+    <td>Number Stopped Treatment</td>
+    <td style = "text-align:right;"><%=values['Number Stopped Treatment']%></td>
+  </tr>
+  <tr>
+    <td>Number Transferred out</td>
+    <td style = "text-align:right;"><%=values['Number Transferred out']%></td>
+  </tr>
+  <tr>
+    <td>Number Unknown</td>
+    <td style = "text-align:right;"><%=values['Unknown']%></td>
+  </tr>
+<% end rescue nil%>
+</table>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

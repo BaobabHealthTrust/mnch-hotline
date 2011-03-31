@@ -1,0 +1,7 @@
+default:
+  order_type_id: 1
+  name: Turpentine order
+  description: Order it, use it.
+  creator: 1
+  date_created: 2000-01-01 00:00:00
+  uuid: 1feddddc-268f-102d-a2b3-16da04859145

@@ -1,0 +1,34 @@
+<%= render :partial => 'dashboards/nav', :locals => {:active => 'relationships'} %>
+<script type="text/javascript">
+  function voiding(node) {
+    confirmYesNo("Void this item?", function() {
+      hideConfirmation();
+      node = node.parent();
+      $.post('/relationships/void/?id=' + node.attr('relationship'), {}, function(data, status) {
+        if (status == 'success') node.remove();
+      })       
+    }, function() { hideConfirmation(); });
+  }
+
+  jQuery(document).ready(function($) {
+    $('#relate').click(function() { window.location = '/relationships/search?patient_id=<%= @patient.id -%>' })
+    $('#relationships li.data div.void').click(function() { voiding($(this)); return false; }); 
+  }) 
+</script>
+<div id="tab">
+  <div class="panel" style="width:980px">
+    <h2>Relationships</h2>
+    <ul id="relationships" class="list" style="height:450px;width:100%;">
+      <% for rel in @relationships do %>
+        <li class="data <%= cycle('even', 'odd') %>" relationship="<%= rel.id %>">
+          <div class="void"><img src="/images/cancel_flat_small.png"/></div>
+          <div class="summary"><%= rel.to_s.gsub(/\n/, '<br/>') -%></div>
+        </li>  
+      <% end %>
+      <% if @relationships.blank? %>        
+        <li class="data">No relationships have been created for this patient</li>
+      <% end %>
+    </ul>
+    <button id="relate" class="silver" style="float:right;margin-top:10px;"><span>New Relationship</span></button>    
+  </div>
+</div>

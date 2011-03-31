@@ -1,0 +1,30 @@
+<style type="text/css">
+</style>
+<script>
+  var tt_cancel_destination = "/patients/treatment/<%= @patient.patient_id %>"    
+
+  function set_drug_for_quantity() {
+    var drug_id = encodeURIComponent($('drug_id').value); 
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', "/dispensations/quantities?formulation=" + drug_id + "&search_string=");
+    listSuggestions(tstCurrentPage); 
+  }
+</script>
+<form id='dispensation' action="/dispensations/create" method='post'>
+ 
+  <%= hidden_field_tag :patient_id, @patient.id %>
+
+  <%= select_tag :drug_id, options_for_select(@options), 
+    {:helpText => "Dispense which prescribed drug?"} %> 
+
+  <% # Set ajaxURL in the script, but need to start it blank %>
+  <%= text_field_tag :quantity, nil, { 
+    :tt_onLoad => "set_drug_for_quantity();",
+    :ajaxURL => "", 
+    :field_type => 'number',
+    :units => '',
+    :helpText => "Quantity",
+    :validationRule => "([0-9]+\\.?[0-9]*)|Unknown$",
+    :validationMessage => "You must enter a number (for example: 5<b>.0</b>)",
+    :allowFreeText => "true",
+    :tt_pageStyleClass => "NumbersOnlyWithDecimal"}%>
+</form>

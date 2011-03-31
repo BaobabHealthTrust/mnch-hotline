@@ -1,0 +1,37 @@
+<%= javascript_include_tag "prototype" %>
+<script type="text/javascript">
+  var tt_cancel_destination = "/clinic"
+
+  function arvCode(){
+    inputElement = document.getElementById('tt_page_enter_arv_number').getElementsByTagName("input")[0]
+    prefix = document.createElement("span")
+    style = document.createAttribute("style")
+    style.value = "position: absolute; z-index: 100; left: 0px; font-size: 35px;"
+    prefix.setAttributeNode(style)
+    inputElement.setAttribute("style","text-align:right;width:99%;")
+    prefix.innerHTML = "<%=Location.current_arv_code rescue 'NNO' %>"
+    inputElement.parentNode.insertBefore(prefix, inputElement)
+    style.value+= 'left:30px;'
+    prefix.setAttributeNode(style)
+
+    other_identifiers = document.getElementById('Unknown')
+    other_identifiers.innerHTML = '<span>Search by other</span>'
+    other_identifiers.setAttribute('onmousedown','searchByOther()')
+  }
+
+  function searchByOther(){
+    document.location = '/people/search_by_identifier'
+  }
+</script>
+
+<style>
+
+#date,#star,#abc,#slash,#percent,#comma,#minus,#plus,#decimal {
+  display:none;
+}
+
+</style>
+
+<form method = 'post' action = 'find_by_arv_number'>
+   <%= text_field_tag :arv_number, nil , :field_type => 'number' , :helpText => 'Enter ARV Number',:tt_onLoad =>'arvCode()'%>
+</form> 

@@ -1,0 +1,45 @@
+<script >
+    tt_cancel_destination = "/clinic/supervision"
+</script>
+<%= javascript_include_tag 'jquery' %>
+<%= stylesheet_link_tag 'extra_buttons' %>
+
+<h1 align='center'><u><%=@report_type%></u></h1>
+<div style= "position:relative; overflow: auto; height:72%">
+<table id='summary'>
+ <tr>
+  <th>ID</th>
+  <th>ARV Number</th>
+  <th>National ID</th>
+  <th>Gender</th>
+  <th>Age</th>
+  <th>Visit Date</th>
+  <th>Drug</th>
+  <th>Pill count</th>
+  <th>Expected</th>
+  <th>Adherence</th>
+  <th>Date Started</th>
+</tr>
+<% @patients.each do |patient_id,attributes| %>
+
+<tr>
+   <td align='center'><%= link_to_onmousedown "#{attributes["id"]}",{:controller =>"patients", :action => 'mastercard', 
+                           :patient_id => "#{attributes["id"]}" ,:source =>"", :quarter => ""}%></td> 
+   <td align="center"><%=attributes["arv_number"]%></td>
+   <td align="center"><%=attributes["national_id"]%></td>
+   <td align="center"><%=attributes["gender"]%></td>
+   <td align="center"><%=attributes["age"]%></td>
+   <td align="center"><%=attributes["visit_date"].strftime("%Y-%m-%d %H:%M:%S")%></td>
+   <td><%=attributes["drug"]%></td>
+   <td align="center"><%=attributes["pill_count"]%></td>
+   <td align="center"><%=attributes["expected_count"]%></td>
+   <td align="center"><%=attributes["adherence"]%> %</td>
+   <td align="center"><%=attributes["start_date"]%></td>
+</tr>
+<%end rescue nil%>
+  <script>
+    insertBlankRow ();
+  </script>
+</table>
+</div>
+

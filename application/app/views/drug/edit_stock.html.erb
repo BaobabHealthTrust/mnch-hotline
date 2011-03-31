@@ -1,0 +1,33 @@
+<script type="text/javascript">
+var tt_cancel_destination = "/drug/management"
+</script>
+
+<form method='post' action="edit_stock">
+
+<%optionsString = []
+  optionsString << "Damaged"
+  optionsString << "Expired"
+  optionsString << "Given to other clinics"
+  optionsString << "Went missing"
+  optionsString << "Other"
+%>
+
+<%= touch_select_tag "REASON", '', options_for_select(optionsString),
+        {:id => "edit_reason",
+         :multiple => false,
+         :optional => false,
+         :helpText => "EDIT REASON",
+         :tt_pageStyleClass => "NoKeyboard NoInput small"  } %>
+
+<%= text_field_tag "drug_name", nil, {:id => 'drug_name', :field_type => 'alpha', :helpText => 'DRUG NAME', :ajaxURL =>  '/drug/name?search_string=', :condition => '', :tt_onLoad  => '' } %>
+
+<%= touch_date_tag "encounter_date", 'encounter_date', nil,
+    {:id => "delivery_date",
+     :absoluteMax => Date.today,	
+     :helpText => "ENCOUNTER DATE"} %>
+
+<%= text_field_tag "number_of_tins", nil, {:helpText => 'NUMBER OF TINS', :field_type => 'number', :absoluteMin => "1", :min => "1", :tt_pageStyleClass => "Numeric NumbersOnly"}  %>
+
+<%= text_field_tag "number_of_pills_per_tin", nil, {:helpText => 'NUMBER OF PILLS PER TIN', :field_type => 'number', :absoluteMin => "1", :min => "1", :tt_pageStyleClass => "Numeric NumbersOnly"}  %>
+
+</form>

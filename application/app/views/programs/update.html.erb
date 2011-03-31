@@ -1,0 +1,106 @@
+<script>
+  var tt_cancel_destination = "/patients/programs/<%= @patient.patient_id %>"
+  var program_date_completed = "<%= @program_date_completed %>"
+
+  var current_state_input_box = null
+  function set_workflow_for_states() {
+    var workflow_id = <%= @program_workflow_id %>
+    var current_state = '<%=@current_state%>'
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', "/programs/states?workflow=" + workflow_id + "&current_state=" + current_state);
+    current_state_input_box = $('touchscreenInput'+tstCurrentPage)
+    listSuggestions(tstCurrentPage); 
+  }
+
+  function validProgram(){
+    selected_state = ($('tt_page_current_state').getElementsByTagName("input")[0].value)
+    if(program_date_completed != ""){return false}
+    return true
+  } 
+
+  function validStartDate(){
+    closed_states = '<%= @invalid_date_ranges %>'
+    set_start_date = dateCreate($('tt_page_current_state_start_date').getElementsByTagName("input")[0].value)
+    
+    if (closed_states == '')
+      return true
+    
+    dates = closed_states.split(',')
+    return_str = true
+    for (i = 0 ; i < dates.length ; i++) {
+      start_date = dateCreate(dates[i].split(':')[0])
+      end_date = dateCreate(dates[i].split(':')[1])
+      if (set_start_date >= start_date && set_start_date < end_date)
+        return_str = false
+      
+    }
+    return return_str
+  } 
+
+  function dateCreate(date_str){
+    date_array = []
+    date_array.push(parseInt(date_str.substring(0,4)))
+    date_array.push(parseInt(date_str.substring(5,7)) - 1)
+    date_array.push(parseInt(date_str.substring(8,10)))
+    return new Date(date_array[0],date_array[1],date_array[2])
+  }
+
+
+</script>
+<form id='program' action="/programs/update" method = 'post'>
+  <%= hidden_field_tag :patient_id, @patient.id %>
+  <%= hidden_field_tag :patient_program_id, @patient_program_id %>
+  <%= hidden_field_tag :location_id, Location.current_health_center.id %>
+
+  <%= select_tag 'current_state', params[:current_state],
+      {:id => 'initial_state',
+       :field_type => 'alpha',
+       :helpText => "Current state",
+       :tt_onLoad => "resetNextButtonCaption();set_workflow_for_states();", 
+       :ajaxURL => "",
+       :validationJS =>"validProgram()",
+       :validationMessage => "#{@program_name}<br/>is closed<br/>Closed on: #{@program_date_completed}",
+       :allowFreeText => false } %>
+
+  <%= text_field_tag 'current_date', params[:current_date] || (Time.now).year,
+        {:id => 'current_date',
+         :field_type => 'date',
+         :tt_onLoad => "changeNextButtonCaption();",
+         :helpText => "Current state start date",
+         :max => "#{(Date.today).strftime('%Y-%m-%d')}",
+         :validationJS =>"validStartDate()",
+         :validationMessage => "Start date is overlaping with other states start dates",
+         :tt_pageStyleClass => "Date DatesOnly"} %>
+
+  <script>
+    function resetNextButtonCaption(){
+      $('nextButton').innerHTML = "<span>Next</span>"
+    }
+
+    function changeNextButtonCaption(){
+      if(current_state_input_box.value != 'PATIENT TRANSFERRED OUT'){
+        $('nextButton').innerHTML = "<span>Finish</span>"
+      }
+    }
+  </script>
+
+  <%= select_tag 'transfer_out_location_id', nil,
+      {:id => 'transfer_out_location_id',
+       :field_type => 'alpha',
+       :helpText => "Transfer out location",
+       :ajaxURL => '/programs/locations?q=',
+       :condition => "current_state_input_box.value == 'PATIENT TRANSFERRED OUT'",
+       :allowFreeText => true } %>
+
+  <%= touch_yes_no_unknown_tag "TRANSFER WITHIN RESPONSIBILITY", @patient, nil,
+      {:id => "transfer_within_responsibility",
+       :optional => false,
+       :condition => "current_state_input_box.value == 'PATIENT TRANSFERRED OUT'",
+       :helpText => "Transfer within responsibility" } %>
+
+
+  <%= hidden_field_tag "encounter[encounter_type_name]", "TRANSFER OUT" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+</form>
+

@@ -1,0 +1,179 @@
+<html>
+<head>
+<style>
+  
+ .dataTable {
+   padding-left:10px;
+   padding-right:10px;
+ } 
+
+ .dataTable td , .dataTable th {
+    border-style: solid;
+    border-width: 1px;
+    text-align:center;
+   -moz-user-select:none;
+ }
+
+  td { height: auto; }
+
+  .scrollTableContainer
+ {
+  border-width:1px;
+  height: 185px;
+  overflow: auto;
+  width:100%;
+  }
+
+  div.scrollTableContainer {
+  height: 350px;
+  overflow: auto;
+  width: 100%;
+  margin: 15px 0 0 0;
+  /*position: relative;*/
+  }
+
+
+  div.scrollTableContainer table {
+    width:100%;
+    border-style:solid;
+    border-width:0px 0px 1px 0px;
+  }
+
+  html>/**/body div.scrollTableContainer table {
+    width:100%;
+  }
+
+
+  html>/**/body div.scrollTableContainer table>tbody {
+    overflow: auto;
+    height: 220px;
+    overflow-x: hidden;
+  }
+
+  div.scrollTableContainer thead tr {
+  /*position:relative;*/
+  top: expression(offsetParent.scrollTop); /*IE5+ only*/
+  /* fixes the header being over too far in IE, doesn’t seem to affect FF */
+  left: 0px;
+  }
+
+  .dataTable td{
+    vertical-align:top;
+  }
+
+  a.rounded {
+    background: transparent url("images/buttons/btn_right_hover_green.png") no-repeat scroll right top;
+    clear: left;
+    font-size: 0.8em;
+  }
+
+  a span {
+    display: block;
+    padding: 0 0 0 15px;
+    position: relative;
+    white-space: nowrap;
+    height: 30px;
+    line-height: 30px;
+  }
+
+a.rounded span {
+/*background: transparent url("/images/buttons/btn_left_hover_green.png") no-repeat scroll left top;
+color: #FFFFFF;*/
+
+background-color: grey;
+border-bottom: 1px outset black;
+border-style: outset;
+border-top: 1px outset black;
+color: white;
+display: block;
+padding: 10px 16px 10px 10px;
+text-align: center;
+text-decoration: none;
+}
+
+a.rounded:hover {
+background-position: 100% -30px;
+}
+
+a.rounded:hover span {
+background-position: 0% -30px;
+}
+</style>
+</head>
+
+<body>
+
+<div class='scrollTableContainer'>
+<table class='dataTable' cellspacing='0'>
+<thead>
+<tr>
+  <th width=260 style='text-align:left;'>Visit Date</th>
+  <th width=85>Wt</th>
+  <th width=85>Ht</th>
+  <th width=85>BMI</th>
+  <th width=180>Outcome</th>
+  <th width=180>Reg</th>
+  <th width=70>Adh</th>
+  <th width=100>TB Sts</th>
+  <th width=85>S. Eff</th>
+  <th width=100>Pills</th>
+  <th width=200>Gave</th>
+  <th width=85 style="border-width:1px 0px 1px 1px;">CPT</th>
+  <th width=85 style="border-width:1px 1px 1px 0px;">&nbsp;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <% date = Date.today
+   @visits.sort.map{|date,data| 
+    unless data.reg.blank?
+      outcome = 'ON ART' 
+    end
+    outcome = data.outcome if data.outcome != 'ON ANTIRETROVIRALS' and !data.outcome.blank?
+   %>
+    <tr>
+      <td><a href='/patients/visit?date=<%=date%>&patient_id=<%=@patient_id%>' class='rounded'><span><%=date%></span></a></td>
+      <td><%= data.weight || '&nbsp;'%></td>
+      <td><%= data.height || '&nbsp;'%></td>
+      <td><%= data.bmi || '&nbsp;'%></td>
+      <td><%= outcome || '&nbsp;'%></td>
+      <td><%= data.reg || '&nbsp;'%></td>
+      <td>
+      <% adherence = ''
+      (data.adherence || []).each do | name , percentage |
+        adherence += "<br/>#{name} (#{percentage})" unless adherence.blank?
+        adherence = "#{name} (#{percentage})" if adherence.blank?
+      end %>
+      <%= adherence || '&nbsp;'%>
+      </td>
+      <td><%= data.tb_status || '&nbsp;'%></td>
+      <td><%= data.s_eff || '&nbsp;'%></td>
+      <td>
+      <% pills = ''
+      (data.pills || []).each do | drug_name,count |
+        pills += "<br/>#{drug_name}: #{count}" unless pills.blank?
+        pills = "#{drug_name}: #{count}" if pills.blank?
+      end %>
+      <%= pills || '&nbsp;'%>
+      </td>
+      <td>
+      <% gave = ''
+      (data.gave || []).each do | name , quantity |
+        gave += "<br/>#{name} (#{quantity})" unless gave.blank?
+        gave = "#{name} (#{quantity})" if gave.blank?
+      end %>
+      <%= gave || '&nbsp;'%>
+      </td>
+      <td style="border-width:1px 0px 1px 1px;">&nbsp;</td>
+      <td style="border-width:1px 1px 1px 0px;">&nbsp;</td>
+  <%}%>
+</tr>
+<tr style="border-width:0px;height:auto;">
+  <td style="border-width:0px;height:auto;"><%= '&nbsp;'%></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</body>
+</html>

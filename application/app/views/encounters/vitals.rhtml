@@ -1,0 +1,258 @@
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+</script>
+  <style type="text/css">
+    #summary {
+      padding:10px;
+      font-size:1.8em;
+    }
+    .title {
+      text-decoration:underline;
+      margin-right:10px;
+    }
+    .lowWeightForHeight{color:black;background:red;}
+    .medWeightForHeight {color:black;background:yellow;}
+    .lowBMI {color:black;background:red;}
+    .lowWeightForAge {color:black;background:red;}
+    .medWeightForAge {color:black;background:yellow;}
+    .goodWeightForAge {color:black;}
+    .lowHeightForAge {color:black;background:red;}
+    .medHeightForAge {color:black;background:yellow;}
+    .goodHeightForAge {color:black;}
+
+    #tt_page_summary_ .inputFrameClass { height:84%; }
+  </style>
+ 
+  <script language="javascript" type="text/javascript" src="/javascripts/jquery.js"></script>
+  <script language="javascript" type="text/javascript" src="/javascripts/jquery.flot.js"></script>
+  <script language="javascript">
+  jQuery.noConflict();
+ 
+  var currentBmi;
+  var currentWeight;
+  var currentHeight;
+  var currentHeightPercentile;
+  var currentWeightPercentile;
+  var displayText;
+  var medianWeightHeight;
+
+  function $(e) {
+    return document.getElementById(e);
+  }
+ 
+  function growthIndicators(){
+     //These values pulled from the tt_onLoad bit in the third form...
+     try{ 
+      currentHeight = document.getElementById('height').value;
+     }catch(e){
+      currentHeight = <%= @patient.current_height %>
+     }
+     currentWeight = document.getElementById('weight').value;
+     medianWeightHeight = [<%= WeightHeightForAge.median_weight_height(@patient.person.age, @patient.person.gender).join(',') rescue nil -%>];
+     currentWeightPercentile = (currentWeight/(medianWeightHeight[0])*100).toFixed(0);
+     currentHeightPercentile = (currentHeight/(medianWeightHeight[1])*100).toFixed(0);     
+     if (('<%= @patient.person.age %>') > 14) {
+       showBMI();
+     } else {
+       showWeightHeightForAge();
+       showWeightForHeight();
+     }
+     document.getElementById('inputFrame'+tstCurrentPage).innerHTML = '<div id="summary">' + displayText + '</div><div id="charts" style="height:185px;margin:2px 6px 6px;padding:2px;width:380px;"></div>' ;
+     jQuery('#charts').empty().load('/patients/graph/<%= @patient.id -%>?data=weight');     
+   }
+        
+  function showWeightHeightForAge(){
+    document.getElementById('weight_for_age').value = currentWeightPercentile;
+    document.getElementById('height_for_age').value = currentHeightPercentile;
+   
+    displayText = "<div><span class='title'>Weight for age:</span>";
+    if (currentWeightPercentile >= 80){
+      displayText += "<span class='goodWeightForAge'>" + currentWeightPercentile + "%</span><br>";
+    } else if (currentWeightPercentile >= 75) {
+      displayText += "<span class='medWeightForAge'>" + currentWeightPercentile + "%</span>" + " <span class='recommendation'> Moderate wasting </span><br>";
+    } else {
+      displayText += "<span class='lowWeightForAge'>" + currentWeightPercentile + "%</span>" + " <span class='recommendation'> Severe wasting</span><br>";
+    }
+    displayText += "</div>";
+     
+    displayText += "<div><span class='title'>Height for age:</span>";
+    if (currentHeightPercentile >= 80){
+      displayText += "<span class='goodHeightForAge'>" + currentHeightPercentile + "%</span><br>";
+    } else if (currentHeightPercentile >= 75) {
+      displayText += "<span class='medHeightForAge'>" + currentHeightPercentile + "%</span>" + " <span class='recommendation'> Moderate stunted growth </span><br>";
+    } else {
+      displayText += "<span class='lowHeightForAge'>" + currentHeightPercentile + "%</span>" + " <span class='recommendation'> Severe stunted growth </span><br>";
+    }
+    displayText += "</div>";
+ 
+  }
+ 
+  function showWeightForHeight() {
+    var currentHeightRounded = (currentHeight % Math.floor(currentHeight) < 0.5 ? 0 : 0.5) + Math.floor(currentHeight);
+    var weightForHeights = <%= WeightForHeight.patient_weight_for_height_values.to_json -%>;
+    var medianWeightHeight = weightForHeights[currentHeightRounded.toFixed(1)];
+    var weightForHeightPercentile = (currentWeight/(medianWeightHeight)*100).toFixed(0);
+
+    document.getElementById('weight_for_height').value = weightForHeightPercentile;
+ 
+    displayText += "<div><span class='title'>Weight for height:</span>";
+ 
+    if (weightForHeightPercentile >= 80) {
+      displayText += "<span class='goodWeightForHeight'>" + weightForHeightPercentile + "%</span><br>";
+    } else if (weightForHeightPercentile >= 75) {
+      displayText += "<span class='medWeightForHeight'>" + weightForHeightPercentile + "%</span>" + " <span class='recommendation'> Moderate wasting</span><br>";
+    } else {
+      displayText += "<span class='lowWeightForHeight'>" + weightForHeightPercentile + "%</span> <br/><span class='recommendation'> Severe wasting</span><br>";
+    }
+    displayText += "</div>"; 
+  }
+ 
+  function showBMI() {
+    currentBmi = (currentWeight/(currentHeight*currentHeight)*10000).toFixed(1);
+
+    document.getElementById('bmi').value = currentBmi;
+
+    displayText = "<div><span class='title'>BMI:</span>";
+    if (currentBmi > 18.5) {
+      displayText += currentBmi;
+    } else if (currentBmi > 17.0) {
+      displayText += "<span class='lowBMI'>" + currentBmi + "</span>" + "<br/><span class='recommendation'> Eligible for counseling</span>";
+    } else {
+     displayText += "<span class='lowBMI'>" + currentBmi + "</span><br/><span class='recommendation'>Eligible for therapeutic feeding</span>";
+    }
+    displayText += "</div>";
+ }
+ 
+  </script>
+ 
+ 
+  <form action="/encounters/create/vitals">
+    <%= hidden_field_tag "encounter[encounter_type_name]", "VITALS" %>
+    <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+    <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+    <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+  
+    <% if ask_temperature %>
+      <label for="temperature">Temperature (C)</label>
+        <%= text_field_tag "observations[][value_numeric]", nil,
+          {:id => "temperature",
+           :field_type => 'number',
+           :helptext =>"Temperature",
+           :allowFreeText => 'true',
+           :min => 20,
+           :max => 45,
+           :units => 'Celcuis',  
+           :validationRule => "([0-9]+\\.[0-9])|Unknown$",
+           :validationMessage => "You must enter a decimal between 0 and 9 (for example: 36<b>.6</b>)",
+           :tt_pageStyleClass => "Numeric NumbersOnlyWithDecimal"} %>
+        <%= hidden_field_tag("observations[][concept_name]", "TEMPERATURE (C)") %>
+        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+    <% end %>  
+         
+    <label for='weight'>Weight (KG)</label>
+      <%= text_field_tag "observations[][value_numeric]", nil,
+        {:id => "weight",
+         :field_type => 'number',
+         :min => number_with_precision(@patient.min_weight, :precision => 1),
+         :max => number_with_precision(@patient.max_weight, :precision => 1),
+         :absoluteMin => 0,
+         :absoluteMax => 250,
+         :units => 'kg',
+         :validationRule => "([0-9]+\\.[0-9])|Unknown$",
+         :validationMessage => "You must enter a decimal between 0 and 9 (for example: 54<b>.6</b>)",
+         :tt_pageStyleClass => "Numeric NumbersOnlyWithDecimal"} %>
+      <%= hidden_field_tag("observations[][concept_name]", "WEIGHT (KG)") %>
+      <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+      <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+    <% if @patient.person.age > 18 and not @patient.current_height == 0 %>
+      <%= hidden_field_tag "observations[][value_numeric]",@patient.current_height %>
+      <%= hidden_field_tag("observations[][concept_name]", "HEIGHT (CM)") %>
+      <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+      <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+    <% else %>
+    <label for='height'>Height (CM)</label>
+      <%= text_field_tag "observations[][value_numeric]", nil,
+        {:id => "height",
+         :field_type => 'number',
+         :min => number_with_precision(@patient.min_height, :precision => 1),
+         :max => number_with_precision(@patient.max_height, :precision => 1),
+         :absoluteMin => 10,
+         :absoluteMax => 228,
+         :units => 'cm',
+         :validationRule => "^([0-9]+)|Unknown$",
+         :validationMessage => "You must enter numbers only (for example 157)",
+         :tt_pageStyleClass => "Numeric NumbersOnly"} %>
+      <%= hidden_field_tag("observations[][concept_name]", "HEIGHT (CM)") %>
+      <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+      <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+    <% end %>
+
+    <% if ask_blood_pressure %>
+
+      <label for='systolic_blood_pressure'>SYSTOLIC BLOOD PRESSURE(?/Y)</label>
+        <%= text_field_tag "observations[][value_numeric]", nil,
+          {:id => "systolic_blood_pressure",
+           :field_type => 'number',
+           # :min => number_with_precision(@patient.min_height, :precision => 1),
+           # :max => number_with_precision(@patient.max_height, :precision => 1),
+           :absoluteMin => 80,
+           :absoluteMax => 180,
+           # :units => 'cm',
+           :validationRule => "^([0-9]+)|Unknown$",
+           :validationMessage => "You must enter numbers only (for example 157)",
+           :tt_pageStyleClass => "Numeric NumbersOnly"} %>
+        <%= hidden_field_tag("observations[][concept_name]", "SYSTOLIC BLOOD PRESSURE (?/Y)") %>
+        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+      <label for='diastolic_blood_pressure'>DIASTOLIC BLOOD PRESSURE (X/?)</label>
+        <%= text_field_tag "observations[][value_numeric]", nil,
+          {:id => "diastolic_blood_pressure",
+           :field_type => 'number',
+           # :min => number_with_precision(@patient.min_height, :precision => 1),
+           # :max => number_with_precision(@patient.max_height, :precision => 1),
+           :absoluteMin => 50,
+           :absoluteMax => 110,
+           # :units => 'cm',
+           :validationRule => "^([0-9]+)|Unknown$",
+           :validationMessage => "You must enter numbers only (for example 157)",
+           :tt_pageStyleClass => "Numeric NumbersOnly"} %>
+        <%= hidden_field_tag("observations[][concept_name]", "DIASTOLIC BLOOD PRESSURE (X/?)") %>
+        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+      <% end %>
+
+      <% if @patient.person.age > 14 %>
+
+        <%= hidden_field_tag("observations[][value_numeric]", nil, {:id => 'bmi'}) %>
+        <%= hidden_field_tag("observations[][concept_name]", "BODY MASS INDEX, MEASURED") %>
+        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+
+      <% else %> 
+        
+        <%= hidden_field_tag("observations[][value_numeric]", nil, {:id => 'weight_for_height'}) %>
+        <%= hidden_field_tag("observations[][concept_name]", "WT FOR HT") %>
+        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+    
+        <%= hidden_field_tag("observations[][value_numeric]", nil, {:id => 'weight_for_age'}) %>
+        <%= hidden_field_tag("observations[][concept_name]", "WT FOR AGE") %>
+        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+    
+        <%= hidden_field_tag("observations[][value_numeric]", nil, {:id => 'height_for_age'}) %>
+        <%= hidden_field_tag("observations[][concept_name]", "HT FOR AGE") %>
+        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+    
+      <% end %>
+    
+    <label for='showSummary'>Summary </label>
+    <%= text_field_tag :showSummary, nil, { :tt_onLoad => "growthIndicators()", :optional => "true", :tt_pageStyleClass => "NoControls" } %>
+   
+  <%= submit_tag "Finish" %>    
+  </form>

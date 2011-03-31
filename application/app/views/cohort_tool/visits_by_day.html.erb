@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <%= stylesheet_link_tag 'visits_by_day' %>
+
+    <script language = 'javascript'>
+      var visitsByWeekDay   = <%= @visits_by_week_day.to_json %>
+      var visitingPatients  = <%= @patients.to_json%>
+    </script>
+
+    <%= javascript_include_tag 'jquery'  %>
+    <%= javascript_include_tag 'jquery.flot'%>
+    <%= javascript_include_tag 'utils' %>
+    <%= javascript_include_tag 'visits_by_day' %>
+  </head>
+  <body>
+    <%= render :partial => '/report/header' %>
+    <div id='tabbed-content'>
+      <div id='visits-table-tab' class='activated'>
+        <%= render :partial => 'visits_table' %>
+      </div>
+
+      <div id='visits-graph-tab' style='display: none'>
+          <%= render :partial => 'visits_graph' %>
+      </div>
+
+      <div id='patients-list-tab' style='display: none'>
+        <%= render :partial => 'patients_list'%>
+      </div>
+    </div>
+  </body>
+</html>
+

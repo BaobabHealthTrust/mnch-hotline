@@ -1,0 +1,34 @@
+<%
+case active
+  when "supervirsion" 
+    report_label = "Supervirsion"
+    admin_label   ="Admnistration"
+
+  when "reports"
+    report_label = label
+    admin_label   ="Admnistration"
+
+  when "administration"
+    report_label  = "Reports"
+    admin_label   = label
+
+  else
+    report_label  = "Reports"
+    admin_label   ="Admnistration"
+end
+%>
+
+<div id="nav" class="nav">
+  <ul>
+    <li><a <%= 'class="active"' if active == 'overview' %> href='/clinic/'>Overview</a></li>
+    <li><a <%= 'class="active"' if active == 'reports' %> href='/clinic/reports'><%=report_label%></a></li>
+    <% if User.current_user.admin? %>
+      <li><a <%= 'class="active"' if active == 'properties' %> href='/clinic/properties'>Properties</a></li>
+      <!--li><a <%#= 'class="active"' if active == 'printing' %> href='/clinic/printing'>Printing</a></li-->
+    <% end %><!-->
+    <li><a <%= 'class="active"' if active == 'users' %> href='/clinic/users'>Users</a></li><-->
+    <%# if User.current_user.admin? %>
+      <li><a <%= 'class="active"' if active == 'administration' %> href='/clinic/administration'><%=admin_label%></a></li-->
+    <%# end %>
+  </ul>
+</div>

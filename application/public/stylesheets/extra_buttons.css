@@ -1,0 +1,52 @@
+#tcontent{
+  float:left;
+  padding-left:5px;
+  position:absolute;
+  top:235px;
+}
+.report_button{
+/*
+text-align:center;
+text-decoration:none;
+width:100%;
+height:60px;
+border-top-style:outset;
+border-top-color:gray;
+border-bottom-style:outset;
+-moz-user-select:none;*/
+background-color:grey;
+border-bottom-color:black;
+border-bottom-width:1px;
+border-left-color-ltr-source:physical;
+border-left-color-rtl-source:physical;
+border-left-color-value:black;
+border-left-style-ltr-source:physical;
+border-left-style-rtl-source:physical;
+border-left-style-value:solid;
+border-left-width-ltr-source:physical;
+border-left-width-rtl-source:physical;
+border-left-width-value:1px;
+border-right-color-ltr-source:physical;
+border-right-color-rtl-source:physical;
+border-right-color-value:black;
+border-right-style-ltr-source:physical;
+border-right-style-rtl-source:physical;
+border-right-style-value:solid;
+border-right-width-ltr-source:physical;
+border-right-width-rtl-source:physical;
+border-right-width-value:1px;
+border-top-color:black;
+/*border-top-style:solid;
+border-bottom-style:solid;*/
+border-style:outset;
+border-top-width:1px;
+color:white;
+display:block;
+padding-bottom:10px;
+padding-left:10px;
+padding-right:16px;
+padding-top:10px;
+padding-top:10px;
+text-decoration:none;
+text-align:center;
+}

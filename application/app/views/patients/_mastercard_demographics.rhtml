@@ -1,0 +1,78 @@
+<!------------!>
+
+<tbody class="master">
+     <tr>
+      <!--td colspan="7" style="background-color:#447AA4;height:70px;padding-left:10px;"><b><font size="4">PATIENT MASTER RECORD CARD FOR ARV</font></b></td-->
+      <td colspan="7" style="height:55px;padding-left:10px;border-style:solid;border-width:0px 0px 1px 0px;"><b><font size="4">PATIENT MASTER CARD FOR ARV</font></b></td>
+     </tr>
+     <tr>
+       <td colspan="2">&nbsp;</td>
+       <td colspan="2">&nbsp;</td>
+     </tr>
+     <tr>
+       <td colspan="2"><%= link_to "ARV National ID:", "/patients/mastercard_modify?field=arv_number&id=#{@data_demo.patient_id}" -%></td>
+       <td colspan="2">National Patient ID:</td>
+     </tr>
+     <tr class="master_data">
+       <td colspan="2"><%= @data_demo.arv_number %></td>
+       <td colspan='7'><%= @data_demo.national_id %></td>
+     </tr>
+     <tr>
+       <td><%= link_to "Name:", "#" -%></td>
+       <td><%= link_to "Age:", "#" -%></td>
+       <td><%= link_to "Sex:", "#" -%></td>
+       <td><%= link_to "Init Wt (Kg):", "#" -%></td>
+       <td><%= link_to "Init Ht (cm):", "#" -%></td>
+       <td>BMI:</td>
+       <td>Transfer-In:</td>
+     </tr>
+     <tr class="master_data">
+       <td><%= @data_demo.name -%></td>
+       <td><%= @data_demo.age -%></td>
+       <td><%= @data_demo.sex -%></td>
+       <td><%= @data_demo.init_wt -%></td>
+       <td><%= @data_demo.init_ht -%></td>
+       <td><%= @data_demo.bmi -%></td>
+       <td><%= @data_demo.transfer_in -%></td>
+     </tr>
+     <tr> 
+       <td><%= link_to "Location:", "#" -%></td>
+       <td colspan="3"><%= link_to "Landmark / Address (Physical / PO Box):", "#" -%></td>
+       <td colspan="5"><%= link_to "Occupation:", "#" -%></td>
+     </tr>
+     <tr class="master_data">
+       <td><%= @data_demo.address -%></td>
+       <td colspan="3"><%= @data_demo.landmark -%></td>
+       <td colspan="5"><%= @data_demo.occupation -%></td>
+     </tr>
+     <tr>
+       <td colspan="2"><%= link_to "Name of Guardian:", "#" -%></td>
+       <td colspan="4">Date/Place of +HIV Test:</td> 
+       <td colspan="1">Agrees to followup</td>
+     </tr> 
+     <tr class="master_data">
+       <td colspan="2"><%= @data_demo.guardian -%></td>
+       <td colspan="4"><%= "#{@data_demo.hiv_test_date.to_date.strftime('%d-%b-%Y') rescue nil} #{@data_demo.hiv_test_location}" -%></td>
+       <td colspan="1"><%= @data_demo.agrees_to_followup %></td>
+     </tr>
+     <tr>
+       <td colspan="2">Date of Starting 1st Line ARV Regimen:</td>
+       <td colspan="7">Reason for ARV:</td>
+     </tr>
+     <tr class="master_data">
+       <td colspan="2"><%= @data_demo.date_of_first_line_regimen %></td>
+       <td colspan="7"><%= @data_demo.reason_for_art_eligibility -%></td>
+     </tr>
+     <tr>
+       <td colspan="1">Pulmonary tuberculosis within the last 2 years:</td>
+       <td colspan="1">Extrapulmonary tuberculosis:</td>
+       <td colspan="1">Pulmonary tuberculosis (current):</td>
+       <td colspan="7">Kaposi's sarcoma:</td>
+     </tr>
+     <tr class="master_data">
+       <td colspan="1"><%= @data_demo.tb_within_last_two_yrs -%></td> 
+       <td colspan="1"><%= @data_demo.eptb -%></td> 
+       <td colspan="1"><%= @data_demo.pulmonary_tb -%></td>
+       <td colspan="7"><%= @data_demo.ks -%></td>
+     </tr>
+   </tbody>

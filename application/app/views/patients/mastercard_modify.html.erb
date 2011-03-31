@@ -1,0 +1,12 @@
+<script>
+var tt_cancel_destination = "/patients/mastercard?patient_id=" + "<%=@patient_id%>"
+</script>
+
+<form action = "mastercard_modify" method = "post">
+  <% if @edit_page == "arv_number" %>
+    <%= render(:partial => "/patients/arv_number" ) %>
+  <% end %>
+
+  <%= hidden_field_tag "patient_id", @patient_id %>
+  <%= hidden_field_tag "field", @edit_page %>
+</form>

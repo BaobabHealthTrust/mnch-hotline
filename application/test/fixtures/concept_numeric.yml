@@ -1,0 +1,11 @@
+--- 
+height_limits: 
+  concept_id: 5090
+  hi_absolute: 100
+  hi_critical: 90
+  hi_normal: 80
+  low_absolute: 10
+  low_critical: 20
+  low_normal: 30
+  units: cm
+  precise: 0

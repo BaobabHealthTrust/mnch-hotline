@@ -1,0 +1,64 @@
+--- 
+vitals: 
+  name: VITALS
+  date_created: 2008-03-24 00:00:00 +02:00
+  creator: 1
+  encounter_type_id: 6
+  description: ""
+  uuid: 1fe21fa6-268f-102d-a2b3-16da04859145
+registration: 
+  name: REGISTRATION
+  date_created: 2008-04-30 22:44:08 +02:00
+  creator: 1
+  encounter_type_id: 7
+  description: ""
+  uuid: 1fe2c1fe-268f-102d-a2b3-16da04859145
+adultinitial: 
+  name: ADULTINITIAL
+  date_created: 2005-02-24 00:00:00 +02:00
+  creator: 1
+  encounter_type_id: 1
+  description: Outpatient Adult Initial Visit
+  uuid: 1fe303bc-268f-102d-a2b3-16da04859145
+adultreturn: 
+  name: ADULTRETURN
+  date_created: 2005-02-24 00:00:00 +02:00
+  creator: 1
+  encounter_type_id: 2
+  description: Outpatient Adult Return Visit
+  uuid: 1fe310dc-268f-102d-a2b3-16da04859145
+pedsinitial: 
+  name: PEDSINITIAL
+  date_created: 2005-02-24 00:00:00 +02:00
+  creator: 1
+  encounter_type_id: 3
+  description: Outpatient Pediatric Initial Visit
+  uuid: 1fe31c4e-268f-102d-a2b3-16da04859145
+pedsreturn: 
+  name: PEDSRETURN
+  date_created: 2005-02-24 00:00:00 +02:00
+  creator: 1
+  encounter_type_id: 4
+  description: Outpatient Pediatric Return Visit
+  uuid: 1fe32766-268f-102d-a2b3-16da04859145
+outpatient_diagnosis: 
+  name: OUTPATIENT DIAGNOSIS
+  date_created: 2008-03-24 00:00:00 +02:00
+  creator: 1
+  encounter_type_id: 5
+  description: ""
+  uuid: 1fe331fc-268f-102d-a2b3-16da04859145
+treatment: 
+  name: TREATMENT
+  date_created: 2008-09-24 00:00:00 +02:00
+  creator: 1
+  encounter_type_id: 8
+  description: ""
+  uuid: 1fe33c24-268f-102d-a2b3-16da04859145
+diabetes_hypertenstion_initial_visit: 
+  name: DIABETES HYPERTENSION INITIAL VISIT
+  date_created: 2008-09-24 00:00:00 +02:00
+  creator: 1
+  encounter_type_id: 9
+  description: ""
+  uuid: 1fe3471e-268f-102d-a2b3-16da04859145

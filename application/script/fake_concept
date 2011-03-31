@@ -1,0 +1,173 @@
+# Run this with script runner: script/runner script/fake_concept [name] [id]
+User.current_user = User.find_by_username("admin")
+Location.current_location = Location.current_health_center
+
+names = ["YES",
+"NO",
+"UNKNOWN",
+"CD4 COUNT",
+"CD4 COUNT DATETIME",
+"CD4 COUNT LOCATION",
+"CD4 COUNT LESS THAN 250",
+"CD4 COUNT LESS THAN 350",
+"CD4 PERCENT",
+"CD4 PERCENT LOCATION",
+"CD4 PERCENT DATETIME",
+"CD4 PERCENT LESS THAN 25",
+"WHO STAGE I ADULT AND PEDS",
+"WHO STAGE II ADULT AND PEDS",
+"WHO STAGE III ADULT AND PEDS",
+"WHO STAGE IV ADULT AND PEDS",
+"WHO STAGE I ADULT",
+"WHO STAGE II ADULT",
+"WHO STAGE III ADULT",
+"WHO STAGE IV ADULT",
+"WHO STAGE I PEDS",
+"WHO STAGE II PEDS",
+"WHO STAGE III PEDS",
+"WHO STAGE IV PEDS",
+"PNEUMOCYSTIS PNEUMONIA",
+"CANDIDIASIS, ESOPHAGEAL",
+"CRYPTOCOCCAL MENINGITIS",
+"SEVERE UNEXPLAINED WASTING OR MALNUTRITION NOT RESPONDING TO TREATMENT",
+"INFANT TOXOPLASMOSIS",
+"ORAL THRUSH",
+"SEPSIS, SEVERE",
+"PNEUMONIA, SEVERE",
+"FIRST POSITIVE HIV TEST TYPE",
+"HIV RAPID TEST, QUALITATIVE",
+"HIV DNA POLYMERASE CHAIN REACTION",
+"LYMPHOCYTE COUNT",
+"LYMPHOCYTE COUNT LOCATION",
+"LYMPHOCYTE COUNT DATETIME",
+"LYMPHOCYTE COUNT BELOW THRESHOLD WITH WHO STAGE 2",
+"WHO STAGES CRITERIA PRESENT",
+"PRESUMED SEVERE HIV CRITERIA PRESENT",
+"PRESUMED SEVERE HIV CRITERIA",
+"PRESUMED SEVERE HIV",
+"WHO STAGE",
+"REASON FOR ART ELIGIBILITY"]
+
+names.each do |name|
+  rec = ConceptName.find_by_name(name)
+  unless rec
+    puts "Creating concept '#{name}'"
+    concept = Concept.create(:class_id => 1, :datatype_id => 2)
+    concept_name = ConceptName.create(:name => name, :concept_id => concept.concept_id)
+  end
+end
+
+
+concept = ConceptName.find_by_name("PRESUMED SEVERE HIV CRITERIA").concept
+
+names = ["PNEUMOCYSTIS PNEUMONIA",
+"CANDIDIASIS, ESOPHAGEAL",
+"CRYPTOCOCCAL MENINGITIS",
+"SEVERE UNEXPLAINED WASTING OR MALNUTRITION NOT RESPONDING TO TREATMENT",
+"INFANT TOXOPLASMOSIS",
+"ORAL THRUSH",
+"SEPSIS, SEVERE",
+"PNEUMONIA, SEVERE"]
+
+names.each do |name|
+  concept_name = ConceptName.find_by_name(name)
+  ConceptSet.create(:concept_set => concept.concept_id, :concept_id => concept_name.concept_id)
+end
+
+
+=begin
+STAGE 1
+  ADULTS AND CHILDREN
+    Asymptomatic 
+    Persistent generalized lymphadenopathy   
+  ADULTS ONLY (15 years or older)
+  CHILDREN ONLY (14 years or younger)
+  
+STAGE 2
+  ADULTS AND CHILDREN
+    Respiratory tract infections, recurrent (sinusitis, tonsillitis, otitis media, pharyngitis)
+    Herpes zoster 
+    Angular cheilitis
+    Oral ulcerations, recurrent
+    Papular pruritic eruptions/fungal nail infections 
+  ADULTS ONLY (15 years or older)
+    Moderate weight loss <10%, unexplained
+    Seborrhoeic dermatitis
+  CHILDREN ONLY (14 years or younger)
+    Hepatosplenomegaly, persistent unexplained
+    Lineal gingival erythema
+    Wart virus infection, extensive 
+    Molluscum contagiosum, extensive
+    Parotid enlargement, persistent unexplained
+
+STAGE 3
+  ADULTS AND CHILDREN
+    Fever, persistent unexplained (intermittent or constant, >1 month) 
+    Oral hairy leukoplakia 
+    Pulmonary tuberculosis (current) 
+    Pulmonary tuberculosis within the last 2 years 
+    Anaemia, unexplained < 8 g/dl
+    Neutropaenia, unexplained < 500/mm3
+    Thrombocytopaenia, chronic < 50,000/mm3
+  ADULTS ONLY (15 years or older)
+    Severe weight loss >10% and/or BMI <18.5kg/m2, unexplained
+    Diarrhoea, chronic (>1 month) unexplained
+    Oral candidiasis
+    Severe bacterial infections (pneumonia, empyema, pyomyositis, bone/joint, meningitis, bacteraemia) 
+    Acute necrotizing ulcerative stomatitis, gingivitis or periodontitis 
+  CHILDREN ONLY (14 years or younger)
+    Moderate unexplained wasting/malnutrition not responding to treatment (weight-for-height/weight-for-age 70-79% or MUAC 11-12cm) 
+    Diarrhoea, persistent unexplained (14 days or more) 
+    Oral candidiasis (from age 2 months) 
+    Acute necrotizing ulcerative gingivitis or periodontitis 
+    Lymph node tuberculosis 
+    Bacterial pneumonia, severe recurrent 
+    Symptomatic lymphoid interstitial pneumonitis 
+    Chronic HIV-associated lung disease including brochiectasis
+
+STAGE 4
+  ADULTS AND CHILDREN
+    Pneumocystis pneumonia 
+    Candidiasis of oesophagus, trachea, bronchi or lungs 
+    Extrapulmonary tuberculosis 
+    Kaposi’s sarcoma 
+    HIV encephalopathy 
+    Cryptococcal meningitis or other Extrapulmonary cryptococcosis 
+    Disseminated non-tuberculous mycobacterial infection 
+    Cryptosporidiosis, chronic with diarrhoea 
+    Isosporiasis >1 month 
+    Disseminated mycosis (coccidiomycosis or histoplasmosis) 
+    Symptomatic HIV-associated nephropathy or cardiomyopathy 
+    Progressive multifocal leukoencephalopathy 
+    Cerebral or B-cell non-Hodgkin lymphoma 
+  ADULTS ONLY (15 years or older)
+    HIV wasting syndrome (severe weight loss + persistent fever or severe loss + chronic diarrhoea) 
+    Bacterial pneumonia, recurrent severe 
+    Chronic herpes simplex infection (orolabial, genital/anorectal >1 month or visceral at any site) 
+    Cytomegalovirus infection (retinitis or infection of other organs) 
+    Toxoplasmosis of the brain 
+    Non-typhoidal  Salmonella bacteraemia, recurrent 
+    Invasive cancer of cervix 
+    Leishmaniasis, atypical disseminated 
+  CHILDREN ONLY (14 years or younger)
+    Severe unexplained wasting/malnutrition not responding to treatment (weight-for-height/weight-for-age <70% or MUAC <11cm or oedema) 
+    Bacterial infections, severe recurrent (empyema, pyomyositis, bone/joint, meningitis, but excluding pneumonia) 
+    Chronic herpes simplex infection (orolabial or cutaneous >1 month or visceral at any site) 
+    Cytomegalovirus infection:  retinitis or other organ (from age 1 month) 
+    Toxoplasmosis of the brain (from age 1 month) 
+    Recto-vaginal fistula, HIV-associated 
+
+
+PRESUMED SEVERE HIV IN INFANTS 0-17 MONTHS
+  Positive antibody (rapid) test plus one or several of the following clinical conditions from the WHO staging list:
+    Pneumocystis pneumonia
+    Candidiasis of oesophagus
+    Cryptococcal meningitis
+    Severe unexplained wasting/malnutrition not responding to treatment (weight-for-height/weight-for-age <70% or MUAC <11cm or oedema) 
+    Toxoplasmosis of the brain (from age 1 month)
+    
+  Positive antibody (rapid) test plus combination of at least 2 of the following: 
+    Oral thrush 
+    Sepsis, severe 
+    Pneumonia, severe 
+=end

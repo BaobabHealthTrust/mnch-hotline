@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <%= @title = "#{controller.controller_name.humanize} #{controller.action_name.humanize}" rescue ""  %>
+    <script language="javascript">
+      tstUsername = "<%= User.current_user.username unless User.current_user.nil? %>";
+      tstCurrentDate = "<%= Time.now.strftime("%Y/%m/%d") %>";
+      var tt_cancel_destination = null;
+      
+      var total  = <%="#{session[:mastercard_ids].length.to_i}" rescue 0%>;
+      var current = <%="#{session[:mastercard_counter].to_i + 1}" rescue 0%>;
+
+      function next()
+      {
+        current = current + 1 ;
+
+        if (current >= total)
+        {
+           current = total;
+        }
+        document.location = "/patients/mastercard?current=" + current;
+      }
+
+      function prev()
+      {
+        current = current - 1 ;
+
+        if (current <= 0)
+        {
+           current = 1;
+        }
+        document.location = "/patients/mastercard?current=" + current;
+      }
+
+    </script>
+    <%= stylesheet_link_tag "mateme" %>
+    <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+    <%= javascript_include_tag "preload" %>
+  </head>
+  <body id="mateme">  
+    <div id="container">
+      <div id="content">
+        <div id="description" style="color:#777;position:absolute;margin-top:-70px;">
+          <% if show_intro_text %>
+            This demonstration site contains the work of <a href="http://pih.org" style="color:white">Partners In Health</a>
+            and <a href="http://baobabhealth.org" style="color:white">Baobab Health.</a>
+            This EMR is built on top of OpenMRS 1.5 and is currently being used in Neno and Ngoni, Malawi.
+            It is designed for an 800 by 600 pixel touch screen at the point of patient contact. 
+            <br/><a href="mailto:jeff@baobabhealth.org" style="color:white">Email</a> with questions.
+            Login using the sample login "demo", password "demo" and location "7".
+          <% end %>  
+        </div>
+        <div style="padding-left: 15px;font-size:1.2em;">
+          <% unless flash[:notice].nil? %>
+            <p id="flash_notice" style="color: green"><%= flash[:notice] %></p>
+          <% end %>
+          <% unless flash[:error].nil? %>
+            <p id="flash_error" style="color: red"><%= flash[:error] %></p>
+          <% end %>
+        </div>  
+        <%= yield %>  
+        <div id="footer">
+          <div id="buttons" class="buttonsDiv" style="top:0px">
+            <button id="finishButton" class="button navButton green" onclick="if (tt_cancel_destination) window.location = tt_cancel_destination;"><span>Finish</span></button>
+                  <% if 'mastercard' == params[:action].to_s %>
+                    <% if session[:mastercard_ids].length.to_i != 0 %>
+                        <script>
+                                tt_cancel_destination = "/clinic/reports";
+                        </script>
+                      <%if @show_mastercard_counter == true %>
+                        <div id="navigator" style="position:relative; height:70px;width : 65%">
+                            <button id="back" class="<%=@prev_button_class%>" style="position:relative; float:left;" onclick="prev()"><span>Previous</span></button>
+                            <span style="position:relative;float:left; top:4px; padding : 0px 10px 0 20px"><h1 id="navigation_value"> ----- </h1></span>
+                            <button id="forward" class="<%=@next_button_class%>" style="position:relative; float:left;" onclick="next()"><span>Next</span></button>
+                        </div>
+                      <%end%>
+                  <%end%>
+                 <%end%>
+           </div>
+            <div id="tt_extraButtons"/>
+          </div>
+          
+        </div>    
+      </div>  
+    </div>
+    <script>
+          document.getElementById('navigation_value').innerHTML = current + " of " + total;
+    </script>
+  </body>
+</html>

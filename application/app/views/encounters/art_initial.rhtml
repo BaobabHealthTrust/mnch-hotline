@@ -1,0 +1,117 @@
+<style>
+  .tt_controls_date_of_first_positive_hiv_test #num { display:none; }
+
+  .tt_controls_date_art_last_taken #num { display:none; }
+
+  .tt_controls_date_of_first_positive_hiv_test table {  position: absolute; top: -360px; }
+
+  .tt_controls_date_art_last_taken table {  position: absolute; top: -360px; }
+
+</style>
+
+<script>
+  var tt_cancel_destination = "/patients/show/<%= @patient.patient_id %>"
+</script>  
+<% if @patient.patient_programs.current.local.map(&:program).map(&:name).include?('HIV PROGRAM') %>
+  <div class="inputPage NoKeyboard" id="page" style="display: block;">
+    <div id="trigger"></div>
+    <div id="infoBar" class="infoBarClass"></div>
+    <label id="helpText" class="helpTextClass" for="">This patient has already been initiated in the HIV program at this location</label>
+  </div>
+  <div id="buttons" class="buttonsDiv" style="top:456;">
+    <div id="tt_extraButtons"></div>
+    <button onmousedown="window.location=tt_cancel_destination;" id="cancelButton" class="button navButton red"><span>Cancel</span></button>
+  </div>  
+  <script>
+		setTimeout("window.location=tt_cancel_destination;", 5000);
+  </script>
+<% else %>
+<form id='appointment' action="/encounters/create" method='post'>
+  <%= hidden_field_tag "encounter[encounter_type_name]", "ART_INITIAL" %>
+  <%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+  <%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+  <%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+  
+  <label for='ever_received_art'>Ever received ART?</label>
+    <%= touch_select_tag("EVER RECEIVED ART", @patient, options_for_select([['Yes','YES'],['No','NO']]), {:id => 'ever_received_art'}) %>
+  
+  <%= hidden_field_tag("programs[][patient_program_id]", nil) %>
+  <%= hidden_field_tag("programs[][program_id]", Program.find_by_name('HIV PROGRAM').id) %>
+  <%= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
+  <%= hidden_field_tag("programs[][date_enrolled]", session[:datetime] ) %>
+  <%= hidden_field_tag("programs[][states][][state]", "FOLLOWING") %>
+
+  <%= touch_yes_no_tag "HAS TRANSFER LETTER", @patient, nil,
+    {:id => "has_transfer_letter",
+     :condition => '$("ever_received_art").value == "YES"',
+     :helpText => "Has transfer letter?"} %>
+
+  <%= touch_location_tag "LOCATION OF ART INITIALIZATION", @patient, nil,
+    {:id => "location_of_art_initialization",
+     :condition => '$("ever_received_art").value == "YES"',
+     :optional => false,
+     :helpText => "Location of ART initialization" } %>
+
+  <%= touch_text_field_tag "ART NUMBER AT PREVIOUS LOCATION", @patient, nil,
+    {:id => "previous_art_number",
+     :condition => '$("ever_received_art").value == "YES"',
+     :helpText => "ART number at previous location" } %>
+
+
+  <%= touch_date_tag "DATE ART LAST TAKEN", @patient, nil,
+    {:id => "date_art_last_taken",
+     :absoluteMax => Date.today,
+     :condition => '$("ever_received_art").value == "YES"',
+     :helpText => "Date ART last taken"} %>
+
+  <%= touch_yes_no_unknown_tag "HAS THE PATIENT TAKEN ART IN THE LAST TWO MONTHS", @patient, nil,
+    {:id => "taken_art_in_last_two_months",
+     :condition => '$("date_art_last_taken").value.toUpperCase() == "UNKNOWN"',
+     :helpText => "Taken ART in the last two months?" } %>
+
+  <%= touch_yes_no_unknown_tag "HAS THE PATIENT TAKEN ART IN THE LAST TWO WEEKS", @patient, nil,
+    {:id => "taken_art_in_last_two_weeks",
+     :condition => '$("taken_art_in_last_two_months").value == "YES" && $("date_art_last_taken").value.toUpperCase() == "UNKNOWN"',
+     :helpText => "Taken ART in the last two weeks?" } %>
+
+  <%= touch_select_tag "LAST ART DRUGS TAKEN", @patient, options_for_select(@answer_array),
+    {:id => "last_art_drugs_taken",
+     :condition => '$("ever_received_art").value == "YES"',
+     :tt_pageStyleClass => "NoKeyboard",
+     :helpText => "Last ART drugs taken" } %>
+
+  <%= touch_yes_no_tag "FOLLOW UP AGREEMENT", @patient, nil,
+    {:id => "agrees_to_followup",
+    :helpText => "Agrees to followup?" } %>
+
+  <%= touch_select_tag "FIRST POSITIVE HIV TEST TYPE", @patient, options_for_select([['HIV RAPID TEST, QUALITATIVE','HIV RAPID TEST, QUALITATIVE'],['HIV DNA POLYMERASE CHAIN REACTION','HIV DNA POLYMERASE CHAIN REACTION'],['UNKNOWN','UNKNOWN']]),
+    {:id => "first_positive_hiv_test_type",
+     :helpText => "Type of first positive HIV test" } %>
+
+  <%= touch_location_tag "FIRST POSITIVE HIV TEST LOCATION", @patient, nil,
+    {:id => "first_positive_hiv_test_location",
+     :helpText => "Location of first positive HIV test"} %>
+
+  <%= touch_date_tag "FIRST POSITIVE HIV TEST DATE", @patient, nil,
+    {:id => "first_positive_hiv_test_date",
+    :absoluteMax => Date.today,
+    :helpText => "Date of first positive HIV test"} %>
+
+  <%#= touch_identifier_tag @patient, "ARV Number", nil, 
+    {:id => "art_number",
+     :optional => false,
+     :helpText => "ART number at current location" } %>
+
+  <% if @patient.person.gender == 'F' && @patient.person.age > 15 %>
+    <%= touch_yes_no_tag "REFERRED BY PMTCT", @patient, nil,
+      {:id => "referred_by_pmtct",
+       :helpText => "Referred by PMTCT?" } %>
+  <% end %>  
+  
+  <!--  *SKIP INITIAL HEIGHT
+        *SKIP INITIAL WEIGHT
+  -->  
+  
+  <%= submit_tag "Finish" %>    
+</form>
+<% end %>

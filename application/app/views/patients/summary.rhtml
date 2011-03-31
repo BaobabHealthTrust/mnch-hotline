@@ -1,0 +1,16 @@
+<script>
+  var tt_cancel_destination = "/patients/show/" + "<%=@patient_id%>"
+</script>
+
+<style>
+  .info {
+    padding-left: 10px;
+    padding-top: 10px;
+    font-size: 30px;
+  }
+</style>
+
+<div class='info'>
+Patient/Guardian has skipped a task.
+<h3>Next task:&nbsp;<%=@encounter_type.gsub('_',' ')%></h3>
+</div>

@@ -1,0 +1,134 @@
+<%#= render :partial => 'clinic/nav', :locals => {:active => 'administration', :label => "Drug management"} %>
+<html>
+<head>
+<title>Drug management</title>
+<style>
+#header{
+  padding-left:10px;
+}
+
+div#main{
+  padding:40px 10px 0px 10px;
+/*  padding-right:10px;*/
+}
+
+div#left{
+  float:left;
+  border: 1px solid black;
+  width:68%;
+  text-align:center;
+}
+
+div#right{
+  float:right;
+  border: 0px solid black;
+  width:30%;
+  text-align:right;
+}
+
+.report_buttons{
+background-color:grey;
+border-bottom-color:black;
+border-bottom-width:1px;
+border-left-color-ltr-source:physical;
+border-left-color-rtl-source:physical;
+border-left-color-value:black;
+border-left-style-ltr-source:physical;
+border-left-style-rtl-source:physical;
+border-left-style-value:solid;
+border-left-width-ltr-source:physical;
+border-left-width-rtl-source:physical;
+border-left-width-value:1px;
+border-right-color-ltr-source:physical;
+border-right-color-rtl-source:physical;
+border-right-color-value:black;
+border-right-style-ltr-source:physical;
+border-right-style-rtl-source:physical;
+border-right-style-value:solid;
+border-right-width-ltr-source:physical;
+border-right-width-rtl-source:physical;
+border-right-width-value:1px;
+border-top-color:black;
+/*border-top-style:solid;
+border-bottom-style:solid;*/
+border-style:outset;
+border-top-width:1px;
+color:white;
+display:block;
+padding-bottom:10px;
+padding-left:10px;
+padding-right:16px;
+padding-top:10px;
+padding-top:10px;
+text-decoration:none;
+text-align:center;
+width:85%;
+}
+
+#activity_buttons{
+  float:right;
+  width:100%
+}
+
+#activity_buttons td{
+  padding-bottom:5px;
+}
+
+#summary{
+  float:left;
+  width:100%;
+}
+
+#summary td , th{
+  border-style:solid;
+  border-width:thin;  
+}
+#stats {
+  width:100%;
+  border:0px solid grey;    
+  background:white;
+} 
+#stats td, #stats th {
+  text-align:center;
+}
+</style>
+
+<script type="text/javascript">
+var tt_cancel_destination = "/clinic/administration"
+//jQuery(document).ready(function($) {  })
+</script>
+</head>
+<div id="tab" style="height: 461px;">
+  <div id='main'>
+    <div id="left">
+      <table id="stats"  cellpadding="10">
+        <tr>
+          <th  style="text-align:left;">Drug</th>
+          <th>Current stock</th>
+          <th>Dispensed</th>
+          <!--th>Consumed (%)</th-->
+        </tr>
+        <% @stock.each do |name,value| %>
+        <tr class="<%= cycle('even', 'odd') %>">
+          <td style="text-align:left;"><%= name %></a></td>
+          <td><%= value['current_stock'] %></a></td>
+          <td><%= value['dispensed'] %></a></td>
+          <!--td><%#= value['consumption_per'] %></a></td-->
+        </tr>
+        <%end%>
+      </table>
+    </div>
+    <div id="right"-->
+      <table id="activity_buttons">
+        <% @activities.each do |name,path| %>
+        <tr>
+          <td><a href="<%=path%>" class='report_buttons'><%=name%></a></td>
+        </tr>
+        <%end%>
+      </table>
+    </div>
+</div>
+</div>
+<!--form action='/clinic/reports'-->
+  <%#= touch_hidden_tag "CD4 COUNT LESS THAN 250", "", "", :id => "cd4_count_less_than_250" %>
+<!--/form-->

@@ -1,0 +1,75 @@
+<table id="visits-table">
+  <%
+    # This code generates HTML Page from Ruby
+    # added new line formatting at the end of each table data rows
+
+    week_days     = [["Mon", "Monday"], ["Tue", "Tuesday"], ["Wed", "Wednesday"], ["Thu", "Thursday"], ["Fri","Friday"], ["Sat", "Saturday"], ["Sun", "Sunday"]]
+
+    # generate table headers
+    table_header  =  "<tr>\n\t\t"
+    table_header  += "<td style='background:#FFFF99;'"
+    table_header  += "class='table-heading-td'>"
+    table_header  += "Week</td>\n\t\t"
+
+    week_days.map do |day, day_name|
+
+      table_header += "<td class='table-heading-td' onclick='plotGraph(visitsByWeekDay[\"#{day}\"], \"#{day_name}\", \"page-title\");'>"
+      table_header += day
+      table_header += "</td>\n\t\t"
+    end
+
+    print_table_header =  table_header
+    print_table_header += "<td class='table-heading-td'"
+    print_table_header += " id='totals'>Total</td>\n\t"
+    print_table_header += "\r\t</tr>\n\t"
+
+    # generate table data
+    week_number = 0
+    weeks       = @visits_by_day.keys.sort
+
+    print_each_table_row = ""
+
+    weeks.map do |week|
+
+      week_number     += 1
+      weekly_visits   = 0
+      week_beginning  = week.beginning_of_week.strftime("%d-%b-%Y")
+      week_ending     = week.end_of_week.strftime("%d-%b-%Y")
+      day_details     = ""
+
+      week_details    =  "<tr>\n\t\t"
+      week_details    += "<td class='button-td'>"
+      week_details    += "Week #{week_number}: #{week_beginning}"
+      week_details    += " to  #{week_ending}"
+      week_details    += "</td>\n\t\t"
+
+      week_days.map do |day, day_name|
+
+        this_day = @visits_by_day[week][day]
+
+        unless this_day.nil?
+          visits_number = this_day.count
+          visit_date    = this_day.first.encounter_datetime.to_date
+          weekly_visits += visits_number
+        else
+          visits_number = ""
+          visit_date    = ""
+        end
+
+        day_details +=  "<td class='data-totals-td'>"
+        day_details +=  link_to_onmousedown visits_number,
+                          :controller => "report",
+                          :action     => "appointment_dates",
+                          :date       => visit_date
+        day_details +=  "</td>\n\t\t"
+      end
+
+      print_each_table_row  +=  week_details + day_details
+      print_each_table_row  += "<td style='text-align: center' "
+      print_each_table_row  += "id='totals'>#{weekly_visits}</td>\n\t"
+      print_each_table_row  += "\r\t</tr>\n\t"
+  end
+  %>
+  <%= print_table_header %>
+  <%= print_each_table_row %>
+</table>
