@@ -3,5 +3,6 @@
 *.swo
 config/database.yml
 config/settings.yml
+application/config/database.yml
 *~
 nbproject
