@@ -83,22 +83,25 @@ button {
   float:left;
 }
 
-#header {
-  height:60px;
-}
 
-#header h1 {
-  margin-top:10px;
-  position:absolute;
-}
-
-#header div {
-  float:right;
+#header{
   font-size:1.3em;
-  font-weight:bold;
-  margin-top:18px;
-  margin-right:10px;
+  margin: 10px;
+  width: 98%;
 }
+
+#barcode-label{
+  font-size: 25px;
+  font-style: normal;
+  font-weight: bold;
+}
+
+#facility-name{
+  font-size: 1.5em;
+  font-style: normal;
+  font-weight: bold;
+}
+
 .nav {
   height:42px;
   z-index:2;
@@ -143,12 +146,20 @@ button {
   margin-right: 6px;
   background-color:#ddd;
   height:454px;
+  width:98%;
   /*border-top:1px solid black;
   border-bottom:1px solid black;*/
   border:1px solid black;
 
 }
 
+#tab.app-dashboard{
+  width: 980px;
+}
+
+#tab.client-dashboard{
+  width: 720px;
+}
 ul, ul li, ul li div {
   -moz-user-select:none;
 }
@@ -186,8 +197,6 @@ ul.list li div.encounter {
 } 
 
 div.panel {
-  width:480px;
-  float:left;  
   margin:6px;
   margin-top:2px;
   padding:2px;
@@ -276,3 +285,43 @@ div.panel h2 {
   text-decoration:none;
   text-align:center;
 }
+#personal-details{
+  font-size: 1em;
+  height: 150px;
+  max-width: 720px;
+  margin: 5px;
+  overflow: auto;
+}
+
+#menu {
+  float: right;
+  height: 680px;
+  overflow: auto;
+  width: 253px;
+  border: thin solid #EEEEEE;
+  margin-right: 5px;
+  margin-top: 5px;
+}
+.menu-button{
+  width:245px;
+}
+
+#barcode {
+  background:transparent none repeat scroll 0 0;
+  border-color:-moz-use-text-color -moz-use-text-color silver;
+  border-style:none none solid;
+  border-width:medium medium 1px;
+  font-family:"Nimbus Sans L","Arial Narrow",sans-serif;
+  font-size: 1.2em;
+  width:400px;
+  vertical-align: super;
+}
+
+.client-dashboard{
+  width:720px;
+}
+
+.details-label {
+  font-weight:bold;
+}
+
