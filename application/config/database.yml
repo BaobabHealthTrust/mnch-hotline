@@ -7,7 +7,7 @@
 
 development:
   adapter: mysql
-  database: bart2_development
+  database: mnch_development
   username: root
   password: ben979
   host: localhost
