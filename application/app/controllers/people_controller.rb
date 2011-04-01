@@ -47,17 +47,7 @@ class PeopleController < ApplicationController
   def create
     Person.session_datetime = session[:datetime].to_date rescue Date.today
     person = Person.create_from_form(params[:person])
-    if params[:person][:patient]
-      person.patient.national_id_label
-      unless (params[:relation].blank?)
-        print_and_redirect("/patients/national_id_label/?patient_id=#{person.patient.id}", search_complete_url(person.id, params[:relation]))      
-      else
-        print_and_redirect("/patients/national_id_label/?patient_id=#{person.patient.id}", next_task(person.patient))
-      end  
-    else
-      # Does this ever get hit?
-      redirect_to :action => "index"
-    end
+    redirect_to :action => "index"
   end
 
   def set_datetime
