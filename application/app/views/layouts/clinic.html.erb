@@ -17,7 +17,7 @@
       jQuery(document).ready(function($) {    
         $('#logout').click(function() { window.location = '/logout' })
         $('#find').click(function() { window.location = '/people/search' })
-        $('#find_by_id').click(function() { window.location = '/people/find_by_arv_number' })
+        $('#find_by_id').click(function() { window.location = '/people/find_by_national_id' })
         //if ($('#staging')) $('#staging').click(function() { window.location = 'http://staging/clinic' })        
         $('#new_desk').click(function() { window.location = '/location' })        
         $('#set_date').click(function() { window.location = '/people/set_datetime' })        
@@ -27,10 +27,10 @@
         if (session_datetime != ''){
           document.getElementById('set_date').innerHTML = '<span>Reset date</span>'
           $('#set_date').click(function() { window.location = '/people/reset_datetime' })        
-        } else {
+        } /*else {
           document.getElementById('set_date').innerHTML = '<span>Set date</span>'
           $('#set_date').click(function() { window.location = '/people/set_datetime' })        
-        }
+        }*/
       }) 
     </script>
     <style type="text/css">
@@ -77,13 +77,13 @@
         <div id="footer" class="dark">
           <div id="buttons" class="buttons" style="top:0px">
             <button id="logout" class="red left"><span>Logout</span></button>
-            <button id="find" class="green"><span>Find Name</span></button>
-            <button id="find_by_id" class="green" style="width:245px;"><span>Find By ARV Number</span></button>
+            <button id="find" class="green" style="width:250px;"><span>Find Patient By Name</span></button>
+            <button id="find_by_id" class="green" style="width:300px;"><span>Find Patient By National Id</span></button>
             <!--button id="staging" class="yellow"><span>Staging</span></button-->
             <% if development_environment? %>
-              <button id="new_desk" class="yellow"><span>Swap desk</span></button>
+              <button id="new_desk" class="blue" style="width:150px;"><span>Swap desk</span></button>
             <% end %>
-            <button id="set_date" class=""><span>Set date</span></button>
+            <!--button id="set_date" class=""><span>Set date</span></button-->
           </div>          
         </div>    
       </div>  
