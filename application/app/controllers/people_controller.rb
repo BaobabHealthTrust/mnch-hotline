@@ -74,7 +74,13 @@ class PeopleController < ApplicationController
         :identifier => "#{Location.current_arv_code} #{params[:arv_number]}" and return
     end
   end
-  
+
+  def find_by_national_id
+    if request.post?
+      redirect_to :action => 'search', :identifier => "#{params[:national_id]}" and return
+    end
+  end
+
 private
   
   def search_complete_url(found_person_id, primary_person_id) 
