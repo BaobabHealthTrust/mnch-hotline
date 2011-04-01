@@ -45,8 +45,10 @@ display:block;
 padding-bottom:10px;
 padding-left:10px;
 padding-right:16px;
-padding-top:10px;
-padding-top:10px;
+padding-top:20px;
+height:30px;
+font-size: 1.3em;
+font-weight: bold;
 text-decoration:none;
 text-align:center;
 }
