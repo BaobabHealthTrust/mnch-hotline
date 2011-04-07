@@ -34,6 +34,16 @@ class ApplicationController < ActionController::Base
     @message = message
     render :template => 'print/print', :layout => nil
   end
+
+  def void_encounter
+    @encounter = Encounter.find(params[:encounter_id])
+    ActiveRecord::Base.transaction do
+      @encounter.observations.each{|obs| obs.void! }
+      @encounter.orders.each{|order| order.void! }
+      @encounter.void!
+    end
+    return
+  end
   
 private
 
