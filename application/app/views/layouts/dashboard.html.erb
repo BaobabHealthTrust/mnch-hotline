@@ -31,30 +31,15 @@
       
     </script>
   </head>
-  <body id="mateme">  
-    <div id="container">      
+  <body id="container">
       <div id="content">
-        <div id="header">
-          <h1><%= patient_image(@patient) -%><%= @patient.person.name %></h1>
-          <div id="identifiers">
-            <%= @patient.national_id_with_dashes rescue '' %>
-          </div>
-          <div id="demographics">
-            <span class='title'>Birthdate:</span> <%= @patient.person.birthdate_formatted rescue '' %>
-          </div>
-        </div>
-        <div id="flash" class="flash centered" style="display:none;"><%= [flash[:notice], flash[:error], flash[:failure], flash[:success]].compact.join(" ").chomp unless flash.blank? -%></div>
-        <%= yield %>  
-        <div id="footer" class="dark">
-          <div id="buttons" class="buttons" style="top:0px">
-            <button id="finish" class="green"><span>Finish</span></button>
-            <button id="additional" class="yellow"><span>Tasks</span></button>
-            <button id="print" class="yellow"><span>Print ID</span></button>
-            <button id="visit" class="yellow"><span>Print Visit</span></button>    
-            <button id="mastercard" class="yellow"><span>Mastercard</span></button>    
-          </div>          
-        </div>    
-      </div>  
+        <%=yield%>
+
+    <div id="footer" class="dark">
+      <div id="buttons" class="buttons" style="top: 0px;">
+        <button id="finish" class="green" onmousedown="window.location = '/clinic'"><span>Finish</span></button>
+      </div>
     </div>
+      </div>
   </body>
 </html>
