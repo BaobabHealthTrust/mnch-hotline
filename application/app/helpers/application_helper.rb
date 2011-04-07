@@ -9,7 +9,10 @@ module ApplicationHelper
 
   def img_button_submit_to(url, image, options = {}, params = {})
     content = ""
-    content << "<form method='post' action='#{url}'><input type='image' src='#{image}'/>"
+    content << "<form " + ((options[:form_id])?("id=#{options[:form_id]}"):"id='frm_general'") + " method='post' action='#{url}'><input type='image' src='#{image}' " +
+      ((options[:confirm])?("onclick=\"return confirmRecordDeletion('" +
+      options[:confirm] + "', '" + ((options[:form_id])?("#{options[:form_id]}"):"frm_general") + "')\""):"") + "/>"
+
     params.each {|n,v| content << "<input type='hidden' name='#{n}' value='#{v}'/>" }
     content << "</form>"
     content
