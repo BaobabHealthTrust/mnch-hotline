@@ -1,32 +1,19 @@
-/******
-Browser: Firefox
-Interface: Touchscreen 
-Resolution: 800X600
-
- --------------------------------------------------------------------
- 
- Touchscreen Toolkit
-
- (c) 2006 Baobab Health Partnership www.baobabhealth.org
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
- --------------------------------------------------------------------
-
-
-******/
+/**************************************************************************
+  * touch-basic.css
+  *   displays a basic (non-fancy) look and feel
+  *   it is used together with form.css or dashboard.css
+  *
+  *   CSS for the Touchscreen Toolkit library
+  *
+  * (c) 2011 Baobab Health Trust (http://www.baobabhealth.org)
+  *
+  * For lincense details, see the README.md file
+  *
+  * Browser:    Firefox
+  * Interface:  Touchscreen 
+  * Resolution: 800X600
+  *
+  **************************************************************************/
 
 body{
   font-family: "Nimbus Sans L", "Arial Narrow", sans-serif;
@@ -339,10 +326,10 @@ form{
   margin:5px;
 }
 
-/*button.navButton {
+button.navButton {
  float:right;
  margin-top:20px;
-}*/
+}
 
 button { 
   background:#000; 
@@ -724,3 +711,5 @@ display:block;
 .NoKeyboard .inputFrameClass { height: 440px !important } 
 .NoKeyboard .options { height: 395px !important } 
 .NoInput .options { height: 435px !important } 
+
+
