@@ -1,43 +1,71 @@
 <script type="text/javascript">
   tt_cancel_destination = "/clinic";
 </script>
-<style type="text/css">
 
-  a.button.green {
-    width:220px;
-    -moz-user-select:none;
-    border:0 none;
-    color:white;
-    cursor:pointer;
-    display:block;
-    font-weight:bold;
-    padding:0 8px 0 0;
-    text-align:center;
-    text-decoration:none;
-    background:#00FF00 none repeat scroll 0 0;
-    font-size:1.4em;
-    height:57px;
-    line-height:57px;
-    min-width:48px;
-    margin-top:10px
-  }
-
-</style>
-
-<div style="margin:10px;">
-  <div id="details" style="float:left">
-    <%= render :partial => "details" %>
-    <%= render :partial => "current_encounters" %>
+<div id="content-wrapper" style="float:left;">
+  <div id="personal-details">
+    <h1><%= patient_image(@patient) -%><%= @patient.person.name %></h1>
+    <div>
+      <span class='details-label'> Patient ID:</span> <span><%= @patient.national_id_with_dashes rescue '' %> </span> <br/>
+      <span class='details-label'> Age:       </span> <span><%= @patient.person.birthdate_formatted rescue '' %></span><br/>
+    </div>
   </div>
-  <div id="menu" style="float:right">
-    <a class="button green" href='/encounter_types?patient_id=<%= @patient.id -%>'>Encounters</a>
-    <!--
-    <a class="button green" href='/encounters/new/vitals?patient_id=<%= @patient.id -%>'>Weight/Height</a>
-    <a class="button green" href='/encounters/new/outpatient_diagnosis?patient_id=<%= @patient.id -%>'>Diagnosis</a>
-    -->
-    <a class="button green" href='/prescriptions/?patient_id=<%= @patient.id -%>'>Prescriptions</a>
-    <a class="button green" href='/encounters/new/appointment?patient_id=<%= @patient.id -%>'>Next Appointment</a>
-    <a class="button green" href='/patients/print_registration?patient_id=<%= @patient.id -%>'>Print Registration</a>
-    <a class="button green" href='/patients/print_visit?patient_id=<%= @patient.id -%>'>Print Visit</a>
+
+  <div id="flash" class="flash centered" style="display: none;"></div>
+  <div id="nav" class="nav">
+    <ul>
+      <li><a class="active" href="">Overview</a></li>
+      <li><a href="">Medication</a></li>
+    </ul>
   </div>
-</div>  
+
+  <div id="tab" class="client-dashboard">
+    <div class="panel" style="">
+
+      <div id="visit-summary">
+        <h3> Call Summary</h3>
+        <table width="90%">
+          <%@encounter_names.each{|encounter_name|
+            header = true
+            i = 0
+            for encounter in @encounters do
+              i += 1
+
+              if encounter.name == encounter_name %>
+
+                <%if header == true %>
+                  <%header_title = encounter.name.humanize.titleize%>
+                  <tr> <th class="tableHeader" colspan="2" style="height:2px;"><%=h(header_title)%></th> </tr>
+                <%end%>
+                <% header = false%>
+                <tr>
+                  <td>
+                    <%= encounter.to_s.lstrip.gsub(/\n/, '<br/>') %>
+                  </td>
+                  <td>
+                    <%=img_button_submit_to("/patients/show/#{@patient.patient_id}", "/images/cancel_flat_small_red.png",
+                      {:confirm => "Are you sure you want to void this entry?", :form_id => "frm_current_encounter_"+i.to_s},
+                      {:encounter_id => encounter.encounter_id, :void => "true"}) -%>
+                  </td>
+                </tr>
+              <%end
+            end
+          }%>
+        </table>
+      </div>
+
+      <div id="graph">
+        <div id="choices" style="padding-top:5px;"> </div>
+        <div id="simplegraphholder" class="gadget-cell"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="menu">
+  <button id="finish" class="blue menu-button" onmousedown="window.location = 'diagnosis.html'"><span>Diagnosis</span></button> <br/>
+  <button id="finish" class="blue menu-button" onmousedown="window.location = 'select_clinic.html'"><span>Clinic Schedules</span></button> <br/>
+  <button id="finish" class="blue menu-button" onmousedown="window.location = '/encounters/new/symptoms?patient_id=<%=@patient.id%>'"><span>Pregnancy</span></button> <br/>
+  <button id="finish" class="blue menu-button" onmousedown="window.location = 'tips_and_reminders.html'"><span>Tips and Reminders</span></button> <br/>
+</div>
