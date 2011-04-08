@@ -120,31 +120,40 @@ function onMonthUpdateDateTime(main_field_str, month_str, modifier_str){
         $(modifier_str).value   = estimated_date['value_modifier'];
     }
 }
-/* expects  arrays of activedTabs and inactivedTabs, and their container */
-function displayTab(activedTabs, inactivedTabs, tabsContainer){
 
-  /* hide all tab menus */
-  function hideSelectedTabs(tabs) {
-    for (i = 0; i < tabs.length; i++) {
-      tabDiv               = document.getElementById(tabs[i]);
-      tabDiv.style.display = 'none';
-      tabDiv.className     = '';
+function displayTab(tabMenu, tabMenuId, tabBody, tabMenuContainer){
+
+    /* inactivate all tab menus */
+    function inactivateAlltabs(menu) {
+        menu      = document.getElementById(menu);
+        tabLinks  = menu.getElementsByTagName('LI');
+
+        for (i = 0; i < tabLinks.length; i++) {
+            tabLinks[i].className = '';
+        }
     }
-  }
 
-  /* show selected tabs */
-  function showSelectedTabs(tabs) {
-    for (i = 0; i < tabs.length; i++) {
-      tabDiv               = document.getElementById(tabs[i]);
-      tabDiv.style.display = 'block';
-      tabDiv.className     = 'activated';
-      tabData              = tabDiv.getElementsByTagName('DIV');
+    /* hide all tab menus */
+    function hideAllTabs(tab) {
+        tabData = document.getElementById(tab);
+        tabDivs = tabData.getElementsByTagName('DIV');
+
+        for (i = 0; i < tabDivs.length; i++) {
+            tabDivs[i].style.display = 'none';
+        }
     }
-  }
 
-  hideSelectedTabs(inactivedTabs);
-  showSelectedTabs(activedTabs);
-  return false;
+    /* activate a tab*/
+    function doShow(menu, menuId) {
+        hideAllTabs(tabMenuContainer);
+        inactivateAlltabs(tabBody);
+        menu.className = 'activated';
+        tabData = document.getElementById(menuId);
+        tabData.style.display = 'block';
+        return false;
+    }
+
+    doShow(tabMenu, tabMenuId);
 }
 
 function confirmRecordDeletion(message, form) {    
@@ -219,4 +228,3 @@ function colorolizeTab(menu, tabId, newColor) {
           tabLinks[i].style.backgroundColor = newColor;
     }
 }
-
