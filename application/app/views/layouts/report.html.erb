@@ -93,7 +93,7 @@
 
   </head>
   <body id="container">
-    <div id="content" style = "position : relative; width : 85%; margin-left : -43%;">
+    <div id="content" style = "position : relative; width : 85%; margin-left : -43px;">
 
       <%= yield %>
 
@@ -107,9 +107,6 @@
         <div id="buttons" class="buttons" style="top:0px">
           <button id="logout" class="red left" style="position :relative; float:right;"><span>Finish</span></button>
           <button id="find" class="green" style="position :relative; float:right;"><span>Mastercards</span></button>
-          <% if User.current_user.admin? %>
-            <!--button id="staging" class="yellow"><span>Staging</span></button-->
-          <% end %>
         </div>
       </div>
     </div>
