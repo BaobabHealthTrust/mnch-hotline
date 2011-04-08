@@ -20,7 +20,7 @@ module ApplicationHelper
   
   def fancy_or_high_contrast_touch
     fancy = GlobalProperty.find_by_property("interface").property_value == "fancy" rescue false
-    fancy ? "touch-fancy.css" : "touch.css"
+    fancy ? "touch-fancy.css" : "touch-basic.css"
   end
   
   def show_intro_text

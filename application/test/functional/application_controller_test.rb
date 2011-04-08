@@ -16,7 +16,7 @@ class ApplicationControllerTest < ActionController::TestCase
       include ApplicationHelper
       
       should "determine which stylesheet to use for the interface" do
-        assert_equal fancy_or_high_contrast_touch, "touch.css"
+        assert_equal fancy_or_high_contrast_touch, "touch-basic.css"
         GlobalProperty.make(:property => 'interface', :property_value => 'fancy')
         assert_equal fancy_or_high_contrast_touch, "touch-fancy.css"          
       end
