@@ -2,7 +2,6 @@
     tt_cancel_destination = "/Report/data_cleaning"
 </script>
 <%= javascript_include_tag 'jquery' %>
-<%= stylesheet_link_tag 'extra_buttons' %>
 
 <h1 align='center'><u>ARV Numbers within the range {<%=params[:arv_start_number].to_i-%> To 
     <%=params[:arv_end_number].to_i-%>} but not in {<%=params[:quarter]-%>} : (<%= @report.length.to_s%>)</u></h1>
