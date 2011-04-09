@@ -325,3 +325,9 @@ div.panel h2 {
   font-weight:bold;
 }
 
+.visit-summary-header{
+  text-align: left;
+  font-size:  1em;
+  color:      #FFFFFF;
+  background: #808080;
+}
