@@ -112,4 +112,11 @@ class Encounter < ActiveRecord::Base
       :group      => "encounter.patient_id,DATE(encounter_datetime)",
       :order      => "encounter.encounter_datetime ASC")
   end
+
+  def self.create(params, session_datetime = nil)
+    encounter = Encounter.new(params)
+    encounter.encounter_datetime = session_datetime unless session_datetime.blank?
+    encounter.save
+    encounter
+  end
 end
