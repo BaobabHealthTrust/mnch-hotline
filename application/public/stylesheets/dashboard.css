@@ -158,7 +158,7 @@ button {
 }
 
 #tab.client-dashboard{
-  width: 720px;
+  width: 700px;
 }
 ul, ul li, ul li div {
   -moz-user-select:none;
@@ -297,13 +297,13 @@ div.panel h2 {
   float: right;
   height: 680px;
   overflow: auto;
-  width: 253px;
+  width: 275px;
   border: thin solid #EEEEEE;
   margin-right: 5px;
   margin-top: 5px;
 }
 .menu-button{
-  width:245px;
+  width:260px;
 }
 
 #barcode {
@@ -315,10 +315,6 @@ div.panel h2 {
   font-size: 1.2em;
   width:400px;
   vertical-align: super;
-}
-
-.client-dashboard{
-  width:720px;
 }
 
 .details-label {
