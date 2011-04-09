@@ -35,12 +35,10 @@ class ApplicationController < ActionController::Base
     render :template => 'print/print', :layout => nil
   end
 
-  def void_encounter
+  def void_encounter(reason = "Cancelled")
     @encounter = Encounter.find(params[:encounter_id])
     ActiveRecord::Base.transaction do
-      @encounter.observations.each{|obs| obs.void! }
-      @encounter.orders.each{|order| order.void! }
-      @encounter.void!
+      @encounter.void(reason)
     end
     return
   end
