@@ -3,12 +3,10 @@
   jQuery(document).ready(function($) {
   }) 
 </script>
-<%= stylesheet_link_tag 'extra_buttons' %>
 
 <div id="tab" style="height: 461px;">
-  <div class="panel" style="width:980px">
+  <div class="panel">
     <h2>Select administrative task</h2>
-    <div style="height:970px;overflow:auto;">
       <table id="stats" style="height: 400px;" cellpadding="10">
         <% @reports.each do |path,report_name| %>
           <tr>
@@ -16,7 +14,6 @@
           </tr>
         <%end%>
       </table>
-    </div>
   </div>
 </div>
 

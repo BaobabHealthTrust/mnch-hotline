@@ -20,9 +20,9 @@
   </div>
 
   <div id="tab" class="client-dashboard">
-    <div class="panel" style="">
+    <div class="panel" style="width: 655px; background: white; padding: 10px; height: 410px; border: 1px solid;">
 
-      <div id="visit-summary">
+      <div id="visit-summary" style=" width: 628px;">
         <h3> Call Summary</h3>
         <table width="90%">
           <%@encounter_names.each{|encounter_name|
@@ -35,7 +35,7 @@
 
                 <%if header == true %>
                   <%header_title = encounter.name.humanize.titleize%>
-                  <tr> <th class="tableHeader" colspan="2" style="height:2px;"><%=h(header_title)%></th> </tr>
+                  <tr> <th class="visit-summary-header" colspan="2" style="height:2px;"><%=h(header_title)%></th> </tr>
                 <%end%>
                 <% header = false%>
                 <tr>
