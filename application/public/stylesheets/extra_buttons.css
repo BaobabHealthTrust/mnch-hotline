@@ -52,3 +52,18 @@ font-weight: bold;
 text-decoration:none;
 text-align:center;
 }
+
+#stats {
+  width:98%;
+  border:1px solid black;
+  margin:10px;
+  background:white;
+}
+#stats td{
+  text-align:right;
+}
+
+#stats a {
+  width:200px;
+  float:right;
+}
