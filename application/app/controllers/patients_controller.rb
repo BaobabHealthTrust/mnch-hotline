@@ -5,6 +5,7 @@ class PatientsController < ApplicationController
     session[:mastercard_ids] = []
     session_date = session[:datetime].to_date rescue Date.today
     @encounters = @patient.encounters.find_by_date(session_date)
+    void_encounter if (params[:void] && params[:void] == 'true')
     @encounter_names = @encounters.map{|encounter| encounter.name}.uniq rescue []
     @prescriptions = @patient.orders.unfinished.prescriptions.all
     @programs = @patient.patient_programs.all
