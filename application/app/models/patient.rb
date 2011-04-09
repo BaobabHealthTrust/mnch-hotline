@@ -423,4 +423,8 @@ EOF
     (count_drug_count[1] / equivalent_daily_dose).to_i
   end
 
+  def female_adult?
+    (gender == "Female" && self.person.age > 9) ? true : false
+  end
+
 end
