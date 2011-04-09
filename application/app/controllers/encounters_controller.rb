@@ -29,10 +29,12 @@ class EncountersController < ApplicationController
     # Go to the dashboard if this is a non-encounter
     redirect_to "/patients/show/#{@patient.id}" unless params[:encounter]
 
-    # Encounter handling
-    encounter = Encounter.new(params[:encounter])
-    encounter.encounter_datetime = session[:datetime] unless session[:datetime].blank?
-    encounter.save    
+    encounter               = nil
+    this_encounter          = params[:encounter][:encounter_type_name]
+    exceptional_encounters  = ["REGISTRATION"]
+
+    # Handling exceptional encounters i.e. that do not necessarily need observations such as Registration
+    encounter = Encounter.create(params[:encounter], session[:datetime]) if (exceptional_encounters.include? this_encounter)
 
     # Observation handling
     (params[:observations] || []).each do |observation|
@@ -44,6 +46,11 @@ class EncountersController < ApplicationController
       }.compact
 
       next if values.length == 0
+
+      # Create an encounter if the obsevations are not empty
+      # This keeps us from saving empty encounters
+      encounter.nil? ? (encounter = Encounter.create(params[:encounter], session[:datetime])) : (encounter = Encounter.find(encounter.id))
+
       observation[:value_text] = observation[:value_text].join(", ") if observation[:value_text].present? && observation[:value_text].is_a?(Array)
       observation.delete(:value_text) unless observation[:value_coded_or_text].blank?
       observation[:encounter_id] = encounter.id
