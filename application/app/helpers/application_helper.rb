@@ -115,4 +115,19 @@ module ApplicationHelper
   def development_environment?
     ENV['RAILS_ENV'] == 'development'
   end
+
+  def to_jsarray(values)
+    str = "["
+    values.each do |val|
+      if val.class == String
+        str += "\"" + val + "\","
+      elsif val.class == Array
+        to_jsarray(val)
+      else
+        str += val + ","
+      end
+    end
+    str.chop!
+    str += "]"
+  end
 end
