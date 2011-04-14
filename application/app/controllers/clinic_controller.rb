@@ -1,7 +1,7 @@
 class ClinicController < ApplicationController
   def index
-    @types = GlobalProperty.find_by_property("statistics.show_encounter_types").property_value rescue EncounterType.all.map(&:name).join(",")
-    @types = @types.split(/,/)
+    @types = GlobalProperty.find_by_property("statistics.show_encounter_types").property_value rescue EncounterType.all.map(&:name).join(", ")
+    @types = @types.split(", ")
     @me = Encounter.statistics(@types, :conditions => ['DATE(encounter_datetime) = DATE(NOW()) AND encounter.creator = ?', User.current_user.user_id])
     @today = Encounter.statistics(@types, :conditions => ['DATE(encounter_datetime) = DATE(NOW())'])
     @year = Encounter.statistics(@types, :conditions => ['YEAR(encounter_datetime) = YEAR(NOW())'])
@@ -38,9 +38,33 @@ class ClinicController < ApplicationController
   end
 
   def administration
-    @reports = [['/clinic/users','User accounts/settings'],['/drug/management','Drug Management']]
+    @reports = [['/clinic/users','User Management'],['/clinic/schedules','Clinic Schedules']]
     @landing_dashboard = 'clinic_administration'
     render :template => 'clinic/administration', :layout => 'clinic' 
+  end
+
+  def schedules
+    @health_facility = params[:health_facility] || session[:health_facility]
+    unless @health_facility
+      @health_facilities = [""] + ClinicSchedule.health_facilities.map(&:name)
+      render :template => "/clinic/select", :layout => "application"
+    else
+      void_clinic_schedule  if (params[:void] && params[:void] == 'true')
+      ClinicSchedule.create(params) if (params[:new] && params[:new] == 'true')
+      @clinic_list  = GlobalProperty.find_by_property("health_facility.clinic_list").property_value rescue nil
+        unless @clinic_list.nil?
+        @clinic_list      = @clinic_list.split(", ").sort
+        clinic_schedules  = ClinicSchedule.clinic_schedules_by_health_facility(@health_facility) rescue []
+
+        @week_days        = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY",
+                            "FRIDAY", "SATURDAY", "SUNDAY"]
+        @clinic_days      = ClinicSchedule.week_days(@week_days)
+
+        @schedules = ClinicSchedule.format_clinic_schedules(clinic_schedules, @clinic_list) rescue []
+
+        render :layout => "clinic"
+      end
+    end
   end
 
 end
