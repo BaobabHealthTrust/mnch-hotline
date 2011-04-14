@@ -130,4 +130,28 @@ module ApplicationHelper
     str.chop!
     str += "]"
   end
+
+  def extra_submit_button(url, label, button_class = nil, options = {}, params = {})
+    content         = ""
+    confirm_method  = ""
+
+    form_id   = options[:form_id]   || "form_id"
+    button_id = options[:button_id] || "button_id"
+
+    confirm_message = options[:confirm] || nil
+    confirm_method  = "onClick=\"return confirmRecordDeletion('#{confirm_message}', '#{form_id}')\"" if confirm_message
+    button_class = "green" if button_class.nil?
+
+    content << "<form id='#{form_id}' method='post' action='#{url}'>"
+    content << "<button id='#{button_id}' class='#{button_class}' #{confirm_method}><span>#{label}</span></button>"
+
+    unless params.nil?
+      params.each do |name, value|
+        content << "<input type='hidden' name='#{name}' value='#{value}'/>"
+      end
+    end
+
+    content << "</form>"
+    content
+  end
 end
