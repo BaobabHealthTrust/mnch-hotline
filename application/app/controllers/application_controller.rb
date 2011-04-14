@@ -42,6 +42,15 @@ class ApplicationController < ActionController::Base
     end
     return
   end
+
+  def void_clinic_schedule(reason = "Removed")
+    schedule_id = params[:schedule_id] || params[:clinic_schedule_id]
+    @schedule = ClinicSchedule.find(schedule_id)
+    ActiveRecord::Base.transaction do
+      @schedule.void(reason)
+    end
+    return
+  end
   
 private
 
