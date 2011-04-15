@@ -1,0 +1,105 @@
+<script type="text/javascript" language="javascript">
+		tt_cancel_show = "/patients/show/<%= @patient.id %>";
+		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+
+var symptoms_values = [];
+
+function setConceptNamesAndValues(symptoms, observations, obs_type){
+
+    var values_string = selectedValue(observations);
+
+    /* clear the fields*/
+  for (var index = 0; index < symptoms.length; index++){
+    var concept_name        = obs_type + index +"_concept_name";
+    var value_coded_or_text = obs_type + index +"_value_coded_or_text";
+
+
+    if(values_string.contains(symptoms[index]) && symptoms[index]!= ""){
+      $(concept_name).value         = symptoms[index];
+      $(value_coded_or_text).value  = 'YES';
+    }
+    else{
+      $(concept_name).value         = '';
+      $(value_coded_or_text).value  = '';
+    }
+  }
+}
+
+</script>
+
+<% form_tag :controller => "encounters", :action => "create" do |f| %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "CHILD HEALTH SYMPTOMS" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+<% @child_health_symptoms = ["", "FEVER", "DIARRHEA", "COUGH", "CONVULSIONS",
+                            "NOT EATING", "VOMITING", "RED EYE",
+                            "FAST BREATHING", "VERY SLEEPY","UNCONSCIOUS"] %>
+
+<script type="text/javascript" language="javascript">
+  symptoms_values = <%= to_jsarray(@child_health_symptoms) %> ;
+</script>
+
+	<%= select_tag "child_health_symptoms",options_for_select(@child_health_symptoms),
+		{:id => "child_health_symptoms_id",
+      :multiple     => true,
+      :optional     => true,
+      :tt_onUnLoad  => "setConceptNamesAndValues(symptoms_values, 'child_health_symptoms_id', 'child_health_symptom');",
+		 :helptext      => "Experiencing any of the following symptoms?" } %>
+
+  <%  @child_health_symptoms.each_with_index do |e, index| %>
+    <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "child_health_symptom#{index}_concept_name"}) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => "child_health_symptom#{index}_value_coded_or_text"} ) %>
+    <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+  <%end%>
+
+<% @child_health_info = ["", "SLEEPING", "FEEDING PROBLEMS", "CRYING",
+                            "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
+                            "UMBILICUS INFECTION", "GROWTH MILESTONES",
+                            "ACCESSING HEALTHCARE SERVICES"] %>
+
+  <script type="text/javascript" language="javascript">
+    child_health_values = <%= to_jsarray(@child_health_info) %> ;
+  </script>
+	<%= select_tag "child_health_info",options_for_select(@child_health_info),
+		{:id          => "child_health_info_id",
+     :multiple    => true,
+     :optional    => true,
+     :tt_onUnLoad => "setConceptNamesAndValues(child_health_values, 'child_health_info_id', 'child_health_info');",
+		 :helptext    => "Does the caller want information on one of the following topics?" } %>
+
+  <% @child_health_info.each_with_index do |e, index| %>
+    <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "child_health_info#{index}_concept_name"}) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => "child_health_info#{index}_value_coded_or_text"} ) %>
+    <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+  <%end%>
+
+  <% @danger_signs = ["", "FEVER OF 7 DAYS OR MORE", "DIARRHEA FOR 14 DAYS OR MORE",
+                      "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE",
+                      "CONVULSIONS", "NOT EATING OR DRINKING ANYTHING",
+                      "VOMITING EVERYTHING",
+                      "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
+                      "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"] %>
+
+  <script type="text/javascript" language="javascript">
+    danger_signs_values = <%= to_jsarray(@danger_signs) %> ;
+  </script>
+	<%= select_tag "danger_signs",options_for_select(@danger_signs),
+		{:id          => "danger_signs_id",
+     :multiple    => true,
+     :optional     => true,
+     :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'danger_signs_id', 'danger_sign');",
+		 :helptext    => "Select the danger signs for pregnancy" } %>
+
+  <% @danger_signs.each_with_index do |e, index| %>
+    <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "danger_sign#{index}_concept_name"}) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => "danger_sign#{index}_value_coded_or_text"} ) %>
+    <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+  <%end%>
+
+	<%= submit_tag 'Finish' %>
+<% end %>

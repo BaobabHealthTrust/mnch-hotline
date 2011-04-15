@@ -1,0 +1,105 @@
+<script type="text/javascript" language="javascript">
+		tt_cancel_show = "/patients/show/<%= @patient.id %>";
+		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+
+var symptoms_values = [];
+
+function setConceptNamesAndValues(symptoms, observations, obs_type){
+
+    var values_string = selectedValue(observations);
+
+    /* clear the fields*/
+  for (var index = 0; index < symptoms.length; index++){
+    var concept_name        = obs_type + index +"_concept_name";
+    var value_coded_or_text = obs_type + index +"_value_coded_or_text";
+
+    
+    if(values_string.contains(symptoms[index]) && symptoms[index]!= ""){
+      $(concept_name).value         = symptoms[index];
+      $(value_coded_or_text).value  = 'YES';
+    }
+    else{
+      $(concept_name).value         = '';
+      $(value_coded_or_text).value  = '';
+    }
+  }
+}
+
+</script>
+
+<% form_tag :controller => "encounters", :action => "create" do |f| %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "MATERNAL HEALTH SYMPTOMS" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+
+<% @pregnancy_symptoms = ["", "VAGINAL BLEEDING DURING PREGNANCY",
+                        "POSTNATAL BLEEDING", "FEVER DURING PREGNANCY",
+                        "POSTNATAL FEVER", "HEADACHES", "FITS OR CONVULSIONS",
+                        "SWOLLEN HANDS OR FEET", "PALENESS OF THE SKIN AND TIREDNESS",
+                        "NO FETAL MOVEMENTS", "WATER BREAKS"] %>
+
+<script type="text/javascript" language="javascript">
+  symptoms_values = <%= to_jsarray(@pregnancy_symptoms) %> ;
+</script>
+
+	<%= select_tag "pregnancy_symptoms",options_for_select(@pregnancy_symptoms),
+		{:id => "pregnancy_symptoms_id",
+      :multiple     => true,
+      :optional     => true,
+      :tt_onUnLoad  => "setConceptNamesAndValues(symptoms_values, 'pregnancy_symptoms_id', 'pregnancy_symptom');",
+		 :helptext      => "Experiencing any of the following symptoms?" } %>
+
+  <%  @pregnancy_symptoms.each_with_index do |e, index| %>
+    <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "pregnancy_symptom#{index}_concept_name"}) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => "pregnancy_symptom#{index}_value_coded_or_text"} ) %>
+    <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+  <%end%>
+
+<% @maternal_health_info = ["", "HEALTHCARE VISITS", "NUTRITION", "BODY CHANGES",
+                            "DISCOMFORT", "CONCERNS", "EMOTIONS",
+                            "WARNING SIGNS", "ROUTINES", "BELIEFS",
+                            "BABY'S GROWTH", "MILESTONES", "PREVENTION"] %>
+
+  <script type="text/javascript" language="javascript">
+    maternal_health_values = <%= to_jsarray(@maternal_health_info) %> ;
+  </script>
+	<%= select_tag "maternal_health_info",options_for_select(@maternal_health_info),
+		{:id          => "maternal_health_info_id",
+     :multiple    => true,
+     :optional     => true,
+     :tt_onUnLoad => "setConceptNamesAndValues(maternal_health_values, 'maternal_health_info_id', 'maternal_health_info');",
+		 :helptext    => "Does the caller want information on one of the following topics?" } %>
+
+  <% @maternal_health_info.each_with_index do |e, index| %>
+    <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "maternal_health_info#{index}_concept_name"}) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => "maternal_health_info#{index}_value_coded_or_text"} ) %>
+    <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+  <%end%>
+
+  <% @danger_signs = ["", "HEAVY VAGINAL BLEEDING DURING PREGNANCY",
+                      "EXCESSIVE POSTNATAL BLEEDING", "FEVER DURING PREGNANCY",
+                      "POSTNATAL FEVER", "SEVERE HEADACHE", "FITS OR CONVULSIONS",
+                      "SWOLLEN HANDS OR FEET", "PALENESS OF THE SKIN AND TIREDNESS",
+                      "NO FETAL MOVEMENTS", "WATER BREAKS"] %>
+
+  <script type="text/javascript" language="javascript">
+    danger_signs_values = <%= to_jsarray(@danger_signs) %> ;
+  </script>
+	<%= select_tag "danger_signs",options_for_select(@danger_signs),
+		{:id          => "danger_signs_id",
+     :multiple    => true,
+     :optional     => true,
+     :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'danger_signs_id', 'danger_sign');",
+		 :helptext    => "Select the danger signs for pregnancy" } %>
+
+  <% @danger_signs.each_with_index do |e, index| %>
+    <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "danger_sign#{index}_concept_name"}) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => "danger_sign#{index}_value_coded_or_text"} ) %>
+    <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+  <%end%>
+	<%= submit_tag 'Finish' %>
+<% end %>
