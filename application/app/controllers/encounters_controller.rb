@@ -119,6 +119,11 @@ class EncountersController < ApplicationController
   def new
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
 
+    # created a hash of 'upcased' health centers
+    @health_facilities = ([""] + ClinicSchedule.health_facilities.map(&:name)).inject([]) do |facility_list, facilities|
+      facility_list.push(facilities.upcase)
+    end
+
     use_regimen_short_names = GlobalProperty.find_by_property(
       "use_regimen_short_names").property_value rescue "false"
     show_other_regimen = GlobalProperty.find_by_property(
