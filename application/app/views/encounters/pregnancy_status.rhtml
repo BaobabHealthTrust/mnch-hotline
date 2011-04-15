@@ -1,0 +1,29 @@
+<script type="text/javascript" language="javascript">
+		tt_cancel_show = "/patients/show/<%= @patient.id %>";
+		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+</script>
+
+<% form_tag :controller => "encounters", :action => "create" do |f| %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "PREGNANCY STATUS" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%session_date = session[:datetime] || Time.now() %>
+
+<% @pregnancy_status = ["", "PREGNANT", "NOT PREGNANT", "DELIVERED"] %>
+	<%= touch_select_tag "PREGNANCY STATUS", @patient, options_for_select(@pregnancy_status),
+		{:id => "pregnancy_status",
+		 :helptext => "Pregnancy Status" } %>
+	<%= touch_text_field_tag "EXPECTED DUE DATE", @patient, nil,
+		{:id => "due_date",
+      :field_type => "date",
+      :helptext => "Expected Due Date",
+      :condition =>"$('pregnancy_status').value == 'PREGNANT'" } %>
+	<%= touch_text_field_tag "ESTIMATED DELIVERY DATE", @patient, nil,
+		{:id => "delivery_date",
+      :field_type => "date",
+      :helptext => "Expected Delivery Date",
+      :condition => "$('pregnancy_status').value == 'NOT PREGNANT'" } %>
+
+	<%= submit_tag 'Finish' %>
+<% end %>
