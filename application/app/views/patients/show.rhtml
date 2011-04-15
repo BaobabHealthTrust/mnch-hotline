@@ -64,13 +64,13 @@
 </div>
 
 <div id="menu">
-  <button id="finish" class="blue menu-button" onmousedown="window.location = 'diagnosis.html'"><span>Diagnosis</span></button> <br/>
-  <button id="finish" class="blue menu-button" onmousedown="window.location = 'select_clinic.html'"><span>Clinic Schedules</span></button> <br/>
   <%if @patient.female_adult?%>
-    <button id="finish" class="blue menu-button" onmousedown="window.location = '/encounters/new/female_symptoms?patient_id=<%=@patient.id%>'"><span>Symptoms</span></button> <br/>
-    <button id="finish" class="blue menu-button" onmousedown="window.location = '/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>'"><span>Pregnancy Status</span></button> <br/>
+    <button id="female_symptoms" class="blue menu-button" onmousedown="window.location = '/encounters/new/female_symptoms?patient_id=<%=@patient.id%>'"><span>Symptoms</span></button> <br/>
+    <button id="pregnancy_status" class="blue menu-button" onmousedown="window.location = '/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>'"><span>Pregnancy Status</span></button> <br/>
   <%else%>
-    <button id="finish" class="blue menu-button" onmousedown="window.location = '/encounters/new/child_symptoms?patient_id=<%=@patient.id%>'"><span>Symptoms</span></button> <br/>
+    <button id="child_symptoms" class="blue menu-button" onmousedown="window.location = '/encounters/new/child_symptoms?patient_id=<%=@patient.id%>'"><span>Symptoms</span></button> <br/>
   <%end%>
-  <button id="finish" class="blue menu-button" onmousedown="window.location = 'tips_and_reminders.html'"><span>Tips and Reminders</span></button> <br/>
+    <button id="outcome" class="blue menu-button" onmousedown="window.location = '/encounters/new/outcome?patient_id=<%=@patient.id%>'"><span>Outcome</span></button> <br/>
+    <button id="clinic_schedules" class="blue menu-button" onmousedown="window.location = '/clinic/schedules?patient_id=<%=@patient.id%>&source_url=patient_dashboard'"><span>Clinic Schedules</span></button> <br/>
+  <button id="tips_and_reminders" class="blue menu-button" onmousedown="window.location = '/encounters/new/tips_and_reminders?patient_id=<%=@patient.id%>'"><span>Tips and Reminders</span></button> <br/>
 </div>
