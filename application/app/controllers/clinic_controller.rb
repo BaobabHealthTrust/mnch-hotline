@@ -44,11 +44,20 @@ class ClinicController < ApplicationController
   end
 
   def schedules
-    @health_facility = params[:health_facility] || session[:health_facility]
+    @health_facility  = params[:health_facility] || session[:health_facility]
+    @source_url       = params[:source_url] || ""
+    @patient_id       = params[:patient_id]
     unless @health_facility
-      @health_facilities = [""] + ClinicSchedule.health_facilities.map(&:name)
+      @health_facilities = [""] + ClinicSchedule.health_facilities.map(&:name).inject([]) do |facility_list, facilities|
+      facility_list.push(facilities.upcase)
+    end
       render :template => "/clinic/select", :layout => "application"
     else
+      if @source_url == "patient_dashboard"
+        @destination = "/patients/show/#{@patient_id}"
+      else
+        @destination = "/clinic/administration"
+      end
       void_clinic_schedule  if (params[:void] && params[:void] == 'true')
       ClinicSchedule.create(params) if (params[:new] && params[:new] == 'true')
       @clinic_list  = GlobalProperty.find_by_property("health_facility.clinic_list").property_value rescue nil
