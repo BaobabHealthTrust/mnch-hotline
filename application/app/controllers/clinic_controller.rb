@@ -1,11 +1,10 @@
 class ClinicController < ApplicationController
   def index
-    @types = GlobalProperty.find_by_property("statistics.show_encounter_types").property_value rescue EncounterType.all.map(&:name).join(", ")
-    @types = @types.split(", ")
-    @me = Encounter.statistics(@types, :conditions => ['DATE(encounter_datetime) = DATE(NOW()) AND encounter.creator = ?', User.current_user.user_id])
-    @today = Encounter.statistics(@types, :conditions => ['DATE(encounter_datetime) = DATE(NOW())'])
-    @year = Encounter.statistics(@types, :conditions => ['YEAR(encounter_datetime) = YEAR(NOW())'])
-    @ever = Encounter.statistics(@types)
+    @types  = Encounter.show_encounter_types
+    @me     = Encounter.statistics(@types, :conditions => ['DATE(encounter_datetime) = DATE(NOW()) AND encounter.creator = ?', User.current_user.user_id])
+    @today  = Encounter.statistics(@types, :conditions => ['DATE(encounter_datetime) = DATE(NOW())'])
+    @year   = Encounter.statistics(@types, :conditions => ['YEAR(encounter_datetime) = YEAR(NOW())'])
+    @ever   = Encounter.statistics(@types)
     render :template => 'clinic/overview', :layout => 'clinic' 
   end
 

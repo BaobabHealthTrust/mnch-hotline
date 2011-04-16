@@ -119,4 +119,9 @@ class Encounter < ActiveRecord::Base
     encounter.save
     encounter
   end
+
+  def self.show_encounter_types
+    types = GlobalProperty.find_by_property("statistics.show_encounter_types").property_value rescue EncounterType.all.map(&:name).join(", ")
+    types = types.split(", ")
+  end
 end
