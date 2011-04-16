@@ -77,5 +77,10 @@ class ClinicSchedule < ActiveRecord::Base
     end
     schedules
   end
+
+  def self.clinic_list
+    clinic_list = GlobalProperty.find_by_property("health_facility.clinic_list").property_value rescue nil
+    clinic_list = clinic_list.split(", ").sort unless clinic_list.nil?
+  end
 end
 

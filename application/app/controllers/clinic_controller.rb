@@ -58,20 +58,16 @@ class ClinicController < ApplicationController
       end
       void_clinic_schedule  if (params[:void] && params[:void] == 'true')
       ClinicSchedule.create(params) if (params[:new] && params[:new] == 'true')
-      @clinic_list  = GlobalProperty.find_by_property("health_facility.clinic_list").property_value rescue nil
-        unless @clinic_list.nil?
-        @clinic_list      = @clinic_list.split(", ").sort
-        clinic_schedules  = ClinicSchedule.clinic_schedules_by_health_facility(@health_facility) rescue []
+      @clinic_list  = ClinicSchedule.clinic_list
+      clinic_schedules  = ClinicSchedule.clinic_schedules_by_health_facility(@health_facility) rescue []
 
-        @week_days        = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY",
+      @week_days        = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY",
                             "FRIDAY", "SATURDAY", "SUNDAY"]
-        @clinic_days      = ClinicSchedule.week_days(@week_days)
+      @clinic_days      = ClinicSchedule.week_days(@week_days)
 
-        @schedules = ClinicSchedule.format_clinic_schedules(clinic_schedules, @clinic_list) rescue []
+      @schedules = ClinicSchedule.format_clinic_schedules(clinic_schedules, @clinic_list) rescue []
 
-        render :layout => "clinic"
-      end
+      render :layout => "clinic"
     end
   end
-
 end
