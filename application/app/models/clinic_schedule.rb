@@ -28,6 +28,13 @@ class ClinicSchedule < ActiveRecord::Base
         :conditions =>["location_tag_id = ?", mnch_location_tag_id])
   end
 
+  def self.health_facilities_list
+    facilities = ClinicSchedule.health_facilities.map(&:name).inject([]) do |facility_list, facilities|
+      facility_list.push(facilities.upcase)
+    end
+    facilities
+  end
+
   def self.week_days(days = nil)
     week_days_list = {}
 

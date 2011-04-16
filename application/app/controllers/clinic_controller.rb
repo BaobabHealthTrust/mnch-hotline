@@ -48,9 +48,7 @@ class ClinicController < ApplicationController
     @source_url       = params[:source_url] || ""
     @patient_id       = params[:patient_id]
     unless @health_facility
-      @health_facilities = [""] + ClinicSchedule.health_facilities.map(&:name).inject([]) do |facility_list, facilities|
-      facility_list.push(facilities.upcase)
-    end
+      @health_facilities = [""] + ClinicSchedule.health_facilities_list
       render :template => "/clinic/select", :layout => "application"
     else
       if @source_url == "patient_dashboard"
