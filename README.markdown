@@ -24,6 +24,9 @@ In order to setup the system, do the following:
       script/initial_database_setup.sh ENVIRONMENT SITE
 
 where ENVIRONMENT corresponds to the one(s) you configured in the database.yml and SITE is the name of the site directory as listed in db/data/. If any of the sites does not suite you, use 'defualts' as site name.
+* Run
+      rake db:migrate
+  from the application's directory.
 
 Source code
 -----------
