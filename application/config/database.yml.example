@@ -7,9 +7,9 @@
 
 development:
   adapter: mysql
-  database: bart2_development
+  database: openmrs_mnch
   username: root
-  password: password
+  password: m4t3m3
   host: localhost
 
 test: &TEST
