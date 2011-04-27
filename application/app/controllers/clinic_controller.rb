@@ -1,11 +1,18 @@
 class ClinicController < ApplicationController
   def index
+    render :template => 'clinic/home', :layout => 'clinic'
+  end
+
+  def overview
     @types  = Encounter.show_encounter_types
     @me     = Encounter.statistics(@types, :conditions => ['DATE(encounter_datetime) = DATE(NOW()) AND encounter.creator = ?', User.current_user.user_id])
     @today  = Encounter.statistics(@types, :conditions => ['DATE(encounter_datetime) = DATE(NOW())'])
     @year   = Encounter.statistics(@types, :conditions => ['YEAR(encounter_datetime) = YEAR(NOW())'])
     @ever   = Encounter.statistics(@types)
-    render :template => 'clinic/overview', :layout => 'clinic' 
+    render :template => 'clinic/overview', :layout => false
+  end
+  def administration
+    render  :template => 'clinic/administration', :layout => false
   end
 
   def reports
@@ -42,21 +49,44 @@ class ClinicController < ApplicationController
     render :template => 'clinic/administration', :layout => 'clinic' 
   end
 
+ # def schedulehome
+ #   render :template => 'clinic/schedulehome', :layout => 'clinic'
+ # end
   def schedules
+    
     @health_facility  = params[:health_facility] || session[:health_facility]
     @source_url       = params[:source_url] || ""
     @patient_id       = params[:patient_id]
+
     unless @health_facility
       @health_facilities = [""] + ClinicSchedule.health_facilities_list
       render :template => "/clinic/select", :layout => "application"
     else
       if @source_url == "patient_dashboard"
         @destination = "/patients/show/#{@patient_id}"
+      elsif @source_url =="clinic_dashboard"
+        @destination = "/clinic"
       else
-        @destination = "/clinic/administration"
+        @destination = "/clinic/schedulehome"
       end
       void_clinic_schedule  if (params[:void] && params[:void] == 'true')
       ClinicSchedule.create(params) if (params[:new] && params[:new] == 'true')
+    end
+  end
+
+  def showschedules
+      @health_facility  = params[:health_facility] || session[:health_facility]
+      @source_url       = params[:source_url] || ""
+      @patient_id       = params[:patient_id]
+      
+       #added to ensure that the page is redirected to the right source
+      if @source_url == "patient_dashboard"
+        @destination = "/patients/show/#{@patient_id}"
+      elsif @source_url =="clinic_dashboard"
+        @destination = "/clinic"
+      else
+        @destination = "/clinic"
+      end
       @clinic_list  = ClinicSchedule.clinic_list
       clinic_schedules  = ClinicSchedule.clinic_schedules_by_health_facility(@health_facility) rescue []
 
@@ -64,9 +94,9 @@ class ClinicController < ApplicationController
                             "FRIDAY", "SATURDAY", "SUNDAY"]
       @clinic_days      = ClinicSchedule.week_days(@week_days)
 
+
       @schedules = ClinicSchedule.format_clinic_schedules(clinic_schedules, @clinic_list) rescue []
 
-      render :layout => "clinic"
+      render :layout => false
     end
-  end
 end
