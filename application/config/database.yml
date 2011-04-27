@@ -7,17 +7,25 @@
 
 development:
   adapter: mysql
-  database: mnch_development
+  database: openmrs_mnch
   username: root
-  password: ben979
+  password: m4t3m3
   host: localhost
 
 test: &TEST
   adapter: mysql
   database: bart2_test
   username: root
-  password: ben979
+  password: password
   host: localhost
 
 cucumber:
   <<: *TEST
+
+migration:
+  adapter: mysql
+  database: test
+  username: root
+  password: password
+  host: localhost
+
