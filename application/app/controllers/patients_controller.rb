@@ -2,21 +2,24 @@ class PatientsController < ApplicationController
   before_filter :find_patient, :except => [:void]
   
   def show
+    render :layout => 'clinic'
+  end
+
+  def visit_summary
     session[:mastercard_ids] = []
     session_date = session[:datetime].to_date rescue Date.today
     void_encounter if (params[:void] && params[:void] == 'true')
     @encounters = @patient.encounters.find_by_date(session_date)
     @encounter_names = @encounters.map{|encounter| encounter.name}.uniq rescue []
     @prescriptions = @patient.orders.unfinished.prescriptions.all
-    @programs = @patient.patient_programs.all
     # This code is pretty hacky at the moment
     @restricted = ProgramLocationRestriction.all(:conditions => {:location_id => Location.current_health_center.id })
-    @restricted.each do |restriction|    
+    @restricted.each do |restriction|
       @encounters = restriction.filter_encounters(@encounters)
       @prescriptions = restriction.filter_orders(@prescriptions)
       @programs = restriction.filter_programs(@programs)
     end
-    render :layout => 'dashboard'
+    render :layout => false
   end
 
   def treatment
