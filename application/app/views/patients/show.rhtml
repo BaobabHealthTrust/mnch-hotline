@@ -2,75 +2,40 @@
   tt_cancel_destination = "/clinic";
 </script>
 
-<div id="content-wrapper" style="float:left;">
-  <div id="personal-details">
-    <h1><%= patient_image(@patient) -%><%= @patient.person.name %></h1>
+
+<div id="dashboard">
+
+  <div id="project_name">Hotline</div>
+
+  <div id="patient_name"><%= @patient.person.name -%></div>
+  <div id="patient_gender"><%=@patient.person.gender -%></div>
+
+  <div id="patient_age"><%= @patient.person.birthdate_formatted rescue '' -%></div>
+  <div id="patient_id"><%= @patient.national_id_with_dashes rescue '' -%></div>
+
+ <!-- <div id="personal-details">
+    <h1><%#= patient_image(@patient) -%><%= @patient.person.name %></h1>
     <div>
       <span class='details-label'> Patient ID:</span> <span><%= @patient.national_id_with_dashes rescue '' %> </span> <br/>
       <span class='details-label'> Age:       </span> <span><%= @patient.person.birthdate_formatted rescue '' %></span><br/>
     </div>
-  </div>
+  </div> -->
 
-  <div id="flash" class="flash centered" style="display: none;"></div>
-  <div id="nav" class="nav">
-    <ul>
-      <li><a class="active" href="">Overview</a></li>
-      <li><a href="">Medication</a></li>
-    </ul>
-  </div>
+  <select id="tabs">
+    <option value="/patients/visit_summary?patient_id=<%=@patient.id%>">Overview</option>
+    <option value="">Medication</option>
+  </select>
 
-  <div id="tab" class="client-dashboard">
-    <div class="panel" style="width: 655px; background: white; padding: 10px; height: 410px; border: 1px solid;">
-
-      <div id="visit-summary" style=" width: 628px;">
-        <h3> Call Summary</h3>
-        <table width="90%">
-          <%@encounter_names.each{|encounter_name|
-            header = true
-            i = 0
-            for encounter in @encounters do
-              i += 1
-
-              if encounter.name == encounter_name %>
-
-                <%if header == true %>
-                  <%header_title = encounter.name.humanize.titleize%>
-                  <tr> <th class="visit-summary-header" colspan="2" style="height:2px;"><%=h(header_title)%></th> </tr>
-                <%end%>
-                <% header = false%>
-                <tr>
-                  <td>
-                    <%= encounter.to_s.lstrip.gsub(/\n/, '<br/>') %>
-                  </td>
-                  <td>
-                    <%=img_button_submit_to("/patients/show/#{@patient.patient_id}", "/images/cancel_flat_small_red.png",
-                      {:confirm => "Are you sure you want to void this entry?", :form_id => "frm_current_encounter_"+i.to_s},
-                      {:encounter_id => encounter.encounter_id, :void => "true"}) -%>
-                  </td>
-                </tr>
-              <%end
-            end
-          }%>
-        </table>
-      </div>
-
-      <div id="graph">
-        <div id="choices" style="padding-top:5px;"> </div>
-        <div id="simplegraphholder" class="gadget-cell"></div>
-      </div>
-
-    </div>
-  </div>
+  <select id="links">
+    <%if @patient.female_adult?%>
+      <option value='/encounters/new/female_symptoms?patient_id=<%=@patient.id%>'>Symptoms</option>
+      <option value='/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>'>Pregnancy Status</option>
+    <%else%>
+      <option value='/encounters/new/child_symptoms?patient_id=<%=@patient.id%>'>Symptoms</option>
+    <%end%>
+    <option value='/encounters/new/outcome?patient_id=<%=@patient.id%>'">Outcome</option>
+    <option value='/clinic/schedules?patient_id=<%=@patient.id%>&source_url=patient_dashboard'>Clinic Schedules</option>
+    <option value='/encounters/new/tips_and_reminders?patient_id=<%=@patient.id%>'>Tips and Reminders</option>
+  </select>
 </div>
 
-<div id="menu">
-  <%if @patient.female_adult?%>
-    <button id="female_symptoms" class="blue menu-button" onmousedown="window.location = '/encounters/new/female_symptoms?patient_id=<%=@patient.id%>'"><span>Symptoms</span></button> <br/>
-    <button id="pregnancy_status" class="blue menu-button" onmousedown="window.location = '/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>'"><span>Pregnancy Status</span></button> <br/>
-  <%else%>
-    <button id="child_symptoms" class="blue menu-button" onmousedown="window.location = '/encounters/new/child_symptoms?patient_id=<%=@patient.id%>'"><span>Symptoms</span></button> <br/>
-  <%end%>
-    <button id="outcome" class="blue menu-button" onmousedown="window.location = '/encounters/new/outcome?patient_id=<%=@patient.id%>'"><span>Outcome</span></button> <br/>
-    <button id="clinic_schedules" class="blue menu-button" onmousedown="window.location = '/clinic/schedules?patient_id=<%=@patient.id%>&source_url=patient_dashboard'"><span>Clinic Schedules</span></button> <br/>
-  <button id="tips_and_reminders" class="blue menu-button" onmousedown="window.location = '/encounters/new/tips_and_reminders?patient_id=<%=@patient.id%>'"><span>Tips and Reminders</span></button> <br/>
-</div>

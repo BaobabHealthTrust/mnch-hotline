@@ -1,0 +1,21 @@
+<script language="javascript">
+  tt_cancel_destination = "/logout";
+  tt_cancel_show = "/people/search";
+</script>
+
+<div id="home">
+  <div id="project_name"><span style="font-size: 0.4em;">Hotline</span></div>
+  <div id="facility"><%=@health_facility%></div>
+  <div id="location">Hotline</div>
+  <div id="date">21/11/2010</div>
+
+  <div id="user"><%= User.current_user.username %></div>
+  <select id="tabs">
+    <option value="/clinic/schedules">Schedules</option>
+  </select>
+
+  <select id="links">
+    <option value="">Finish</option>
+  </select>
+</div>
+

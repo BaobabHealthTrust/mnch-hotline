@@ -1,0 +1,39 @@
+<base target="_parent">
+    <div id="visit-summary" style=" width: 628px;">
+        <h3> Call Summary</h3>
+        <table width="90%">
+          <%@encounter_names.each{|encounter_name|
+            header = true
+            i = 0
+            for encounter in @encounters do
+              i += 1
+
+              if encounter.name == encounter_name %>
+
+                <%if header == true %>
+                  <%header_title = encounter.name.humanize.titleize%>
+                  <tr> <th class="visit-summary-header" colspan="2" style="height:2px;"><%=h(header_title)%></th> </tr>
+                <%end%>
+                <% header = false%>
+                <tr>
+                  <td>
+                    <%= encounter.to_s %>
+                  </td>
+                  <td>
+                    <%=img_button_submit_to("/patients/show/#{@patient.patient_id}", "/images/cancel_flat_small_red.png",
+                      {:confirm => "Are you sure you want to void this entry?", :form_id => "frm_current_encounter_"+i.to_s},
+                      {:encounter_id => encounter.encounter_id, :void => "true"}) -%>
+                  </td>
+                </tr>
+              <%end
+            end
+          }%>
+        </table>
+      </div>
+
+      <div id="graph">
+        <div id="choices" style="padding-top:5px;"> </div>
+        <div id="simplegraphholder" class="gadget-cell"></div>
+      </div>
+</base>
+

@@ -24,8 +24,12 @@
       <div id="buttons" style="height: 304px;margin-top: 200px;margin-left: 20px;">
         <h2>Select administrative task</h2>
         <base target="_parent">
-            <button style="margin: 5px 0px 0px; min-width: 230px;" onMouseDown="window.parent.location= '/clinic/users?dashboard=clinic_administration'" target="_parent "class="blue"><span>User Management</span></button><br/>
-            <button style="margin: 5px 0px 0px; min-width: 230px;" onMouseDown="window.parent.location = '/clinic/schedules?dashboard=clinic_administration&source_url=clinic_dashboard'" target="_parent" class="blue"><span>Clinic Schedules</span></button><br/>
+            <button style="margin: 5px 0px 0px; min-width: 210px;" onMouseDown="window.parent.location= '/user/change_password/<%=User.current_user.id%>'" target="_parent "class="blue"><span>Change Password</span></button><br/>
+            <button style="margin: 5px 0px 0px; min-width: 210px;" onMouseDown="window.parent.location = '/user/edit/<%=User.current_user.id%>'" target="_parent" class="blue"><span>Edit Name</span></button><br/>
+            <% if User.current_user.admin? %>
+              <button style="margin: 5px 0px 0px; min-width: 210px;" onMouseDown="window.parent.location= '/user/new'" target="_parent "class="blue"><span>Create User</span></button><br/>
+              <button style="margin: 5px 0px 0px; min-width: 210px;" onMouseDown="window.parent.location = '/user/select_user'" target="_parent" class="blue"><span>Edit User</span></button><br/>
+            <%end%>
         <!--
             <button style="margin: 5px 0px 0px; min-width: 190px;" onMouseDown="window.parent.location= '/clinic/users?dashboard=clinic_administration'" target="_parent "class="blue"><span>User Management</span></button><br/>
             <button style="margin: 5px 0px 0px; min-width: 190px;" onMouseDown="window.parent.location = '/clinic/schedules?dashboard=clinic_administration'" target="_parent" class="blue"><span>Clinic Schedules</span></button><br/>

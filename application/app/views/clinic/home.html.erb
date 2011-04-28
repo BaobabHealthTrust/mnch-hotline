@@ -1,0 +1,28 @@
+<script language="javascript">
+  tt_cancel_destination = "/logout";
+  tt_cancel_show = "/people/search";
+</script>
+
+<div id="home">
+  <div id="project_name"><span style="font-size: 0.4em;">Hotline</span></div>
+  <div id="facility">Balaka DH</div>
+  <div id="location">Hotline</div>
+  <div id="date">21/11/2010</div>
+
+  <div id="user"><%= User.current_user.username %></div>
+  <select id="tabs">
+    <option value='/clinic/overview' target="_parent">Overview</option>
+    <option value=''>Reports</option>
+    <% if User.current_user.admin? %>
+      <option value='/clinic/administration' target="_parent">Admin</option>
+    <% end %>
+  </select>
+
+  <select id="links">
+    <option value="">Logout</option>
+    <option value="" ttSize="190px">Find by Name</option>
+    <option value="/people/find_by_national_id" ttSize="190px">Find by ID</option>
+    <option value="" ttSize="190px">Irrelevant Call</option>
+  </select>
+</div>
+

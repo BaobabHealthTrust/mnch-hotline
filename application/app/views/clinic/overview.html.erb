@@ -1,32 +1,50 @@
-<%= render :partial => 'clinic/nav', :locals => {:active => 'overview', :label => ""} %>
-<script type="text/javascript">
-  jQuery(document).ready(function($) {
-  }) 
-</script>
+<html>
+  <head>
+    <%= javascript_include_tag "jquery-1.3.2.min" %>
+    <%= stylesheet_link_tag "dashboard" %>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+      })
+    </script>
+    <style type="text/css">
+      #stats {
+        width:98%;
+        border:1px solid black;
+        margin:10px;
+        background:white;
+      }
+      #stats td, #stats th {
+        text-align:center;
+      }
+    </style>
+  </head>
+<!--<div id="tab" style="height: 461px;">-->
+<body style="background-color: #ffffff">
+   <base target="_parent">
+      <h2>Current Patient Statistics</h2>
 
-<div id="tab" style="height: 461px;">
-  <div class="panel">
-    <h2>Current Patient Statistics</h2>
-    <div style="">
-      <table id="stats" cellpadding="10" style="height: 400px;">
-        <tr>
-          <th style="text-align:left;">Encounter Type</th>
-          <th>Me</th>
-          <th>Today</th>
-          <th>This Year</th>
-          <th>Total to Date</th>
-        </tr>
-        <% @types.each do |type| %>
-          <tr class="<%= cycle('even', 'odd') %>">
-            <td style="text-align:left;"><%= type %></td>
-            <td><%= @me[type] %></td>
-            <td><%= @today[type] %></td>
-            <td><%= @year[type] %></td>
-            <td><%= @ever[type] %></td>
+      <!--div style=""-->
+        <table id="stats" cellpadding="10" style="height: 304px;">
+          <tr>
+            <th style="text-align:left;">Encounter Type</th>
+            <th>Me</th>
+            <th>Today</th>
+            <th>This Year</th>
+            <th>Total to Date</th>
           </tr>
-        <% end %>
-      </table>
-    </div>
-  </div>        
-</div>
+          <% @types.each do |type| %>
+            <tr class="<%= cycle('even', 'odd') %>">
+              <td style="text-align:left;"><%= type %></td>
+              <td><%= @me[type] %></td>
+              <td><%= @today[type] %></td>
+              <td><%= @year[type] %></td>
+              <td><%= @ever[type] %></td>
+            </tr>
+          <% end %>
+        </table>
+      <!--/div-->
+    <!--</div> -->
+    </base>
+  </body>
+</html>
 

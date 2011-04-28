@@ -1,30 +1,28 @@
-<%= render :partial => 'clinic/nav', :locals => {:active => 'administration', :label => "Administration"} %>
-<script type="text/javascript">
-  jQuery(document).ready(function($) {
-  }) 
-</script>
 
-<div id="tab" style="height: 461px;">
-  <div class="panel" style="width:980px">
-    <h2>Create/Edit users</h2>
-    <div style="height:970px;overflow:auto;">
-    <table id="stats" style="height: 400px;" cellpadding="10">
-      <tr>
-        <td><a class='report_button' href="/user/change_password/<%=User.current_user.id%>">Change password</a> </td>
-      </tr>
-      <tr>
-        <td><a class='report_button' href="/user/edit/<%=User.current_user.id%>">Edit name</a> </td>
-      </tr>
-      <% if User.current_user.admin? %>
-      <tr>
-        <td><a class='report_button' href="/user/new">Create user</a> </td>
-      </tr>
-      <tr>
-        <td><a class='report_button' href="/user/select_user">Edit user</a> </td>
-      </tr>
-      <% end %>
-    </table>
-    </table>
-    </div>
-  </div>        
+<%= javascript_include_tag "jquery-1.3.2.min" %>
+<script language="javascript">
+  tt_cancel_destination = "/clinic";
+  tt_cancel_show = "/clinic";
+
+  var destination = "<%= @destination %>";
+
+  jQuery(document).ready(function($) {
+    $('#back').click(function() { window.location = destination })
+  })
+
+</script>
+<div id="home">
+  <div id="project_name"><span style="font-size: 0.4em;">Hotline</span></div>
+  <div id="facility"><%=@facility -%></div>
+  <div id="location">Hotline</div>
+  <div id="date"></div>
+
+  <div id="user"><%= User.current_user.username %></div>
+  <select id="tabs">
+    <option value="/clinic/showuserfunctions"> Clinic Schedules</option>
+  </select>
+  <select id="links">
+    <option value="">Cancel</option>
+    <option value="">Finish</option>
+  </select>
 </div>

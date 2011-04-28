@@ -1,5 +1,9 @@
-<%= render :partial => 'clinic/nav', :locals => {:active => 'administration', :label => ""} %>
-<script type="text/javascript">
+
+<%= javascript_include_tag "jquery-1.3.2.min" %>
+<script language="javascript">
+  tt_cancel_destination = "<%= @destination %>";
+  tt_cancel_show = "<%= @destination %>";
+
   var destination = "<%= @destination %>";
 
   jQuery(document).ready(function($) {
@@ -8,107 +12,18 @@
 
   var schedules = <%= @schedules.to_json %>;
 </script>
+<div id="home">
+  <div id="project_name"><span style="font-size: 0.4em;">Hotline</span></div>
+  <div id="facility"><%=@facility-%></div>
+  <div id="location">Hotline</div>
+  <div id="date">21/11/2010</div>
 
-<div id="tab" style="height: 461px;">
-  <div class="panel">
-    <h2 style="text-align: center">Clinic Schedules for <%= @health_facility%> </h2>
-    <div id="clinic-schedule" style="float: left; width: 85%;">
-      <table id="stats" cellpadding="10" style="height: 350px; margin: 5px;">
-        <tr>
-          <th style="text-align:left; background: none repeat-x scroll 0 0 #FED98E">Clinic</th>
-          <%@week_days.each do |week_day|%>
-          <th style="text-align:left; background: none repeat-x scroll 0 0 #FED98E"><%= week_day.titleize %></th>
-          <%end%>
-        </tr>
-        <% counter = 1 %>
-
-        <% @clinic_list.each do |clinic| %>
-          <tr class="<%= cycle('even', 'odd') %>">
-            <td style="text-align:left;"><%= clinic %></td>
-            <%unless @schedules[clinic].nil?%>
-            <% i = 0 %>
-              <%@week_days.each do |week_day|%>
-                <td style="text-align:center;">
-                <% if (@schedules[clinic]["day"].include? @clinic_days[week_day.downcase.to_sym])
-                      void_options = {
-                        :confirm    => "Are you sure you want to remove this entry?",
-                        :button_id  => "button_#{counter}",
-                        :form_id    => "form_#{counter}"
-                        }
-
-                      void_params ={
-                        :void             => true,
-                        :schedule_id      => "#{@schedules[clinic][@clinic_days[week_day.downcase.to_sym]]}",
-                        :health_facility  => "#{@health_facility}"
-                      }
-
-                  i = i + 1
-
-                  if @source_url == "patient_dashboard"
-                    display_data = "√"
-                  else
-                    display_data = extra_submit_button("/clinic/schedules", "√", "blue", void_options, void_params)
-                  end
-                %>
-                <%= display_data%>
-                <%else
-                    add_options = {
-                      :button_id  => "button_#{counter}",
-                      :form_id    => "form_#{counter}"
-                      }
-
-                    add_params = {
-                      :new              =>"true",
-                      :clinic_name      => "#{clinic}",
-                      :clinic_day       => "#{week_day}",
-                      :health_facility  => "#{@health_facility}",
-                      :created_by       => "current_user"
-                    }
-
-                  if @source_url == "patient_dashboard"
-                    display_data = ""
-                  else
-                    display_data = extra_submit_button("/clinic/schedules", "+", "green", add_options, add_params)
-                  end
-                %>
-                  <%= display_data%>
-                <%end%>
-                </td>
-                <% counter = counter + 1 %>
-              <% end %>
-            <%else%>
-              <%@week_days.each do |week_day|%>
-                <td style="text-align:center;">
-                  <% add_options = {
-                      :button_id  => "button_#{counter}",
-                      :form_id    => "form_#{counter}"
-                      }
-
-                    add_params = {
-                      :new              =>"true",
-                      :clinic_name      => "#{clinic}",
-                      :clinic_day       => "#{week_day}",
-                      :health_facility  => "#{@health_facility}",
-                      :created_by       => "User.current_user"
-                    }
-
-                  if @source_url == "patient_dashboard"
-                    display_data = ""
-                  else
-                    display_data = extra_submit_button("/clinic/schedules", "+", "green", add_options, add_params)
-                  end
-                %>
-                <%= display_data%>
-                  </td>
-              <% end %>
-            <% end %>
-          </tr>
-        <% end %>
-      </table>
-    </div>
-    <div id="min-menu" style="float: right;">
-      <button id="back" class="green" style="width: 120px;"><span>Back</span></button>
-    </div>
-  </div>
+  <div id="user"><%= User.current_user.username %></div>
+  <select id="tabs">
+    <option value="/clinic/showschedules?health_facility=<%=@health_facility %>&source_url=<%=@source_url%>&patient_id=<%=@patient_id%>"> Clinic Schedules</option>
+  </select>
+  <select id="links">
+    <option value="">Cancel</option>
+    <option value="">Finish</option>
+  </select>
 </div>
-
