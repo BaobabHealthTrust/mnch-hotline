@@ -5,12 +5,12 @@
 
 <div id="dashboard">
 
-  <div id="project_name">Hotline</div>
+  <div id="project_name"><%=version_without_date -%></div>
 
   <div id="patient_name"><%= @patient.person.name -%></div>
-  <div id="patient_gender"><%=@patient.person.gender -%></div>
+  <div id="patient_gender"><%=@patient.person.formatted_gender -%></div>
 
-  <div id="patient_age"><%= @patient.person.birthdate_formatted rescue '' -%></div>
+  <div id="patient_age"><%= @patient.person.age rescue '' -%></div>
   <div id="patient_id"><%= @patient.national_id_with_dashes rescue '' -%></div>
 
  <!-- <div id="personal-details">
