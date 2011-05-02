@@ -2,13 +2,14 @@ class PatientsController < ApplicationController
   before_filter :find_patient, :except => [:void]
   
   def show
+    #added this to ensure that we are able to void the encounters
+    void_encounter if (params[:void] && params[:void] == 'true')
     render :layout => 'clinic'
   end
 
   def visit_summary
     session[:mastercard_ids] = []
     session_date = session[:datetime].to_date rescue Date.today
-    void_encounter if (params[:void] && params[:void] == 'true')
     @encounters = @patient.encounters.find_by_date(session_date)
     @encounter_names = @encounters.map{|encounter| encounter.name}.uniq rescue []
     @prescriptions = @patient.orders.unfinished.prescriptions.all
