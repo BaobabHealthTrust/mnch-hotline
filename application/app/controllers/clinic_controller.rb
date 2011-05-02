@@ -67,7 +67,7 @@ class ClinicController < ApplicationController
       elsif @source_url =="clinic_dashboard"
         @destination = "/clinic"
       else
-        @destination = "/clinic/schedulehome"
+        @destination = "/clinic"
       end
       void_clinic_schedule  if (params[:void] && params[:void] == 'true')
       ClinicSchedule.create(params) if (params[:new] && params[:new] == 'true')
