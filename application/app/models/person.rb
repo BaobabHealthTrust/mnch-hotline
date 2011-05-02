@@ -254,7 +254,7 @@ class Person < ActiveRecord::Base
       :value => params["home_phone_number"]) unless params["home_phone_number"].blank?
  
 # TODO handle the birthplace attribute
- 
+    
     if (!patient_params.nil?)
       patient = person.create_patient
 
@@ -328,6 +328,17 @@ class Person < ActiveRecord::Base
     else
       return nil
     end
+  end
+  #added since dashboard accepts female and male as gender. --Copied from spine
+  #Just discovered that it is like the one above, but I have done this for uniformity amongst the systems
+  
+  def formatted_gender
+
+    if self.gender == "F" then "Female"
+      elsif self.gender == "M" then "Male"
+        else "Unknown"
+    end
+
   end
 
 end
