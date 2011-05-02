@@ -59,10 +59,17 @@ module ApplicationHelper
 
   def version
     #"Bart Version: #{BART_VERSION}#{' ' + BART_SETTINGS['installation'] if BART_SETTINGS}, #{File.ctime(File.join(RAILS_ROOT, 'config', 'environment.rb')).strftime('%d-%b-%Y')}"
+    #make sure that all changes in this action  are also made to the 'Twin' version_without_date. Am sure you know what it means.
     style = "style='background-color:red;'" unless session[:datetime].blank?
     "Hotline System - <span #{style}>#{(session[:datetime].to_date rescue Date.today).strftime('%A, %d-%b-%Y')}</span>"
   end
-  
+  def version_without_date
+    #Added this to ensure that the we are not returning the when needing the version
+    "Hotline"
+  end
+  def system_date
+    return (session[:datetime].to_date rescue Date.today).strftime('%d-%b-%Y')
+  end
   def welcome_message
     "Muli bwanji, enter your user information or scan your id card. <span style='font-size:0.6em;float:right'>(#{version})</span>"  
   end
