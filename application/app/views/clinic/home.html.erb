@@ -5,9 +5,9 @@
 
 <div id="home">
   <div id="project_name"><span style="font-size: 0.4em;">Hotline</span></div>
-  <div id="facility">Balaka DH</div>
-  <div id="location">Hotline</div>
-  <div id="date">21/11/2010</div>
+  <div id="facility"><%= Location.current_location.name %></div>
+  <div id="location"><%= version_without_date %></div>
+  <div id="date"><%=system_date%></div>
 
   <div id="user"><%= User.current_user.username %></div>
   <select id="tabs">
