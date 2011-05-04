@@ -254,7 +254,7 @@ class Person < ActiveRecord::Base
       :value => params["home_phone_number"]) unless params["home_phone_number"].blank?
  
 # TODO handle the birthplace attribute
-    
+
     if (!patient_params.nil?)
       patient = person.create_patient
 

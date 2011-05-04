@@ -551,7 +551,7 @@ global_property_00143:
   property: current_health_center_id
   uuid: 1d51c44e-bd85-11df-9b35-00248c09418a
   id: 143
-  property_value: y
+  property_value: "2"
   description: ""
 global_property_00001: 
   property: birt.birtHome
