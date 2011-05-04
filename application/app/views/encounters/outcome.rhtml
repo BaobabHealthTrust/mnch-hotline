@@ -40,14 +40,15 @@
   <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
 
   <% options = {
-     :id          => "select_outcome",
+     :id          => "referral_reason",
      :tt_onUnLoad => "$('outcome_value_coded_or_text').value = $('select_outcome').value",
-     :helpText    => "Select reason for refferal"
+     :helpText    => "Select reason for refferal",
+     :condition => "$('select_outcome').value != 'GIVEN ADVICE NO REFERRAL NEEDED'"
      } %>
 
   <%@reasons_for_referral = ["","DANGER SIGNS OBSERVED", "PHYSICAL OBSERVATION"]%>
 
-  <%= select_tag("select_outcome", options_for_select(@reasons_for_referral), options)%>
+  <%= select_tag("referral_reason", options_for_select(@reasons_for_referral), options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "REASON FOR REFERRAL") %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'reasons_for_referral_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
