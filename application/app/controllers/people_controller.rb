@@ -47,7 +47,9 @@ class PeopleController < ApplicationController
   def create
     Person.session_datetime = session[:datetime].to_date rescue Date.today
     person = Person.create_from_form(params[:person])
-    redirect_to :action => "index"
+    
+    redirect_to search_complete_url(person.id, params[:relation]) and return
+    #redirect_to :action => "index"
   end
 
   def set_datetime
