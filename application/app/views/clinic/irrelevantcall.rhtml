@@ -1,0 +1,13 @@
+<script type="text/javascript">
+  tt_cancel_destination = "/clinic/call";
+  tt_cancel_show = "/clinic";
+</script>
+
+<form id='confirm' action="/clinic/irrelevant_call_action" method='post'>
+
+  <%@confirmation_options = ["","YES", "NO"]%>
+  <%= select_tag "confirmation", options_for_select(@confirmation_options), {:helpText => 'Is this really an irrelevant call?', :id => "confirmation"}%>
+
+
+  <%= submit_tag "Finish" %>
+</form>
