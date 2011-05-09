@@ -1,6 +1,6 @@
 class ClinicController < ApplicationController
   def index
-    render :template => 'clinic/home', :layout => 'clinic'
+    render :template => 'clinic/homemain', :layout => 'clinic'
   end
 
   def overview
@@ -98,5 +98,25 @@ class ClinicController < ApplicationController
       @schedules = ClinicSchedule.format_clinic_schedules(clinic_schedules, @clinic_list) rescue []
 
       render :layout => false
+    end
+
+    def call
+      render :template => 'clinic/home', :layout => 'clinic'
+    end
+
+    def irrelevantcall
+      render :template => 'clinic/irrelevantcall', :layout => 'application'
+    end
+
+    def irrelevant_call_action
+      redirect_to "/clinic"
+    end
+    
+    def emergency_call_action
+      redirect_to "/clinic"
+    end
+
+    def emergencycall
+      render :template => 'clinic/emergencycall', :layout => 'application'
     end
 end

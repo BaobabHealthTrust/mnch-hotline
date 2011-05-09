@@ -2,7 +2,7 @@
   <% if params[:relation] %>
   var tt_cancel_destination = "/patients/relationships?patient_id=<%=h params[:relation] -%>"
   <% else %>
-  var tt_cancel_destination = "/clinic"
+  var tt_cancel_destination = "/clinic/call"
   <% end %>
 
   function changeNextButtonText(text){
