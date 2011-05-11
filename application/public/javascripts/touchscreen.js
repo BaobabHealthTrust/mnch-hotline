@@ -2537,22 +2537,21 @@ function dispatchFlag(){
 	return thisPage.flag();
 }
 
-function confirmRecordDeletion(message, form) {
+function confirmRecordDeletion(message, form, container) {
     if(!tstMessageBar){
         var tstMessageBar = document.createElement("div");
-        tstMessageBar.id = "messageBar";
+        tstMessageBar.id  = "messageBar";
         tstMessageBar.className = "messageBar";
 
         tstMessageBar.innerHTML = message + "<br/>" +
-        "<button onmousedown=\"document.getElementById('content').removeChild(document.getElementById('messageBar')); if(document.getElementById('" + form +
+        "<button onmousedown=\"document.getElementById('" + container + "').removeChild(document.getElementById('messageBar')); if(document.getElementById('" + form +
         "')) document.getElementById('" + form +
-        "').submit();\"><span>Yes</span></button><button onmousedown=\"document.getElementById('content').removeChild(document.getElementById('messageBar'));\"><span>No</span></button>";
+        "').submit();\"><span>Yes</span></button><button onmousedown=\"document.getElementById('" + container + "').removeChild(document.getElementById('messageBar'));\"><span>No</span></button>";
 
         tstMessageBar.style.display = "block";
-        document.getElementById("content").appendChild(tstMessageBar);
+        document.getElementById(container).appendChild(tstMessageBar);
 
         return false;
     }
     return false;
 }
-
