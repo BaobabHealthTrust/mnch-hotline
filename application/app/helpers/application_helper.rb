@@ -150,7 +150,8 @@ module ApplicationHelper
     button_id = options[:button_id] || "button_id"
 
     confirm_message = options[:confirm] || nil
-    confirm_method  = "onClick=\"return confirmRecordDeletion('#{confirm_message}', '#{form_id}')\"" if confirm_message
+    container_id  = (options[:container_id]) ? ("#{options[:container_id]}") : ""
+    confirm_method  = "onClick=\"return confirmRecordDeletion('#{confirm_message}', '#{form_id}', '#{container_id}')\"" if confirm_message
     button_class = "green" if button_class.nil?
 
     content << "<form id='#{form_id}' method='post' action='#{url}'>"
