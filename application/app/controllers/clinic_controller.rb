@@ -1,5 +1,11 @@
 class ClinicController < ApplicationController
   def index
+
+    if params[:status]== 'endcall'
+      session[:call_end_timestamp] = Time.now.strftime('%H:%M')
+      log_call(0)
+    end
+
     render :template => 'clinic/homemain', :layout => 'clinic'
   end
 
@@ -101,6 +107,14 @@ class ClinicController < ApplicationController
     end
 
     def call
+      @task = params[:task]
+     
+      if @task == 'new'
+        session[:call_id] = GlobalProperty.next_call_id
+        session[:call_start_timestamp] = Time.now.strftime('%H:%M')
+        session[:call_end_timestamp] = ''
+      end
+      
       render :template => 'clinic/home', :layout => 'clinic'
     end
 
@@ -109,14 +123,45 @@ class ClinicController < ApplicationController
     end
 
     def irrelevant_call_action
-      redirect_to "/clinic"
+       if params[:confirmation] == 'YES'
+         session[:call_end_timestamp] = Time.now.strftime('%H:%M')
+         log_call(2)
+         redirect_to "/clinic"
+       else
+         redirect_to "/clinic/call"
+       end
+      
     end
     
     def emergency_call_action
-      redirect_to "/clinic"
+      if params[:confirmation] == 'YES'
+        session[:call_end_timestamp] = Time.now.strftime('%H:%M')
+        log_call(1)
+        redirect_to "/clinic"
+      else
+        redirect_to "/clinic/call"
+      end
     end
 
     def emergencycall
       render :template => 'clinic/emergencycall', :layout => 'application'
+    end
+
+    def log_call(call_log_type)
+      calllog = CallLog.new
+      calllog.call_log_id = session[:call_id]
+      calllog.start_time = session[:call_start_timestamp]
+      calllog.end_time = session[:call_end_timestamp]
+      calllog.call_type = call_log_type
+
+      calllog.save
+
+      reset_session_variables
+    end
+
+    def reset_session_variables
+        session[:call_id] = ''
+        session[:call_start_timestamp] = ''
+        session[:call_end_timestamp] = ''
     end
 end
