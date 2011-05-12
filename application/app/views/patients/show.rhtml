@@ -1,6 +1,6 @@
 <script type="text/javascript">
-  tt_cancel_destination = "/clinic";
-  tt_cancel_show = "/clinic"
+  tt_cancel_destination = "/clinic?status=endcall";
+  tt_cancel_show = "/clinic?status=endcall";
 </script>
 
 
@@ -10,10 +10,19 @@
 
   <div id="patient_name"><%= @patient.person.name -%></div>
   <div id="patient_gender"><%=@patient.person.formatted_gender -%></div>
-
   <div id="patient_age"><%= @patient.person.age rescue '' -%></div>
   <div id="patient_id"><%= @patient.national_id_with_dashes rescue '' -%></div>
-
+ 
+  <div id="patient_card">
+    <div id="ivr_access_code" value="">IVR Access Code</div>
+    
+    <% if @status == 'DELIVERED' %>
+        <div id="date_delivered" value="<%=@date%>">Date Delivered</div>
+    <% end %>
+    <% if @status == 'PREGNANT'%>
+        <div id="expected_delivery_date" value="<%=@date%>">Expected Delivery Date</div>
+    <% end %>
+  </div>
  <!-- <div id="personal-details">
     <h1><%#= patient_image(@patient) -%><%= @patient.person.name %></h1>
     <div>
@@ -34,10 +43,10 @@
     <%else%>
       <option value='/encounters/new/child_symptoms?patient_id=<%=@patient.id%>'>Symptoms</option>
     <%end%>
-    <option value='/encounters/new/outcome?patient_id=<%=@patient.id%>'">Outcome</option>
+    <option value='/encounters/new/outcome?patient_id=<%=@patient.id%>'>Outcome</option>
     <option value='/clinic/schedules?patient_id=<%=@patient.id%>&source_url=patient_dashboard'>Clinic Schedules</option>
     <option value='/encounters/new/tips_and_reminders?patient_id=<%=@patient.id%>'>Tips and Reminders</option>
-    <option value=''>Next Client</option>
+    <option value='/clinic/call?task=next'>Next Client</option>
   </select>
 </div>
 
