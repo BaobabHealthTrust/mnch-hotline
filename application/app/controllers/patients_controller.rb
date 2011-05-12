@@ -1,8 +1,21 @@
 class PatientsController < ApplicationController
   before_filter :find_patient, :except => [:void]
+
   
   def show
-    #added this to ensure that we are able to void the encounters
+    #get the pregnancy status for the particular female patient and display
+    #either expected due date or delivery date. as for the others, leave it blank
+    pregnancy_status = @patient.pregnancy_status
+
+    if pregnancy_status.length != 0
+      @status = pregnancy_status[0]
+      @date   = pregnancy_status[1]
+    else
+      @status = ""
+      @date   = ""
+    end
+    
+   #added this to ensure that we are able to void the encounters
     void_encounter if (params[:void] && params[:void] == 'true')
     render :layout => 'clinic'
   end
@@ -249,8 +262,6 @@ class PatientsController < ApplicationController
             :type => 'text/csv; charset=iso-8859-1; header=present',
             :disposition => "attachment; filename=users.csv"
   end
-   
-
   
 private
   
