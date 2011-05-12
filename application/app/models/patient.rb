@@ -427,4 +427,20 @@ EOF
     (gender == "Female" && self.person.age > 9) ? true : false
   end
 
+  def pregnancy_status
+    pregnancy_statuses  = Encounter.get_pregnancy_statuses(self.id)
+    current_status      = nil
+    status_date         = nil
+    pregnancy_statuses.last.observations.each do | observation|
+      current_status  = observation.answer_string if(observation.concept.name == "PREGNANCY STATUS")
+    end
+
+  unless current_status.nil?
+    pregnancy_statuses.last.observations.each do | observation|
+      status_date     = observation.answer_string if(observation.concept.name == "EXPECTED DUE DATE" || observation.concept.name =="DELIVERY DATE")
+    end
+  end
+
+  return [current_status, status_date]
+  end
 end
