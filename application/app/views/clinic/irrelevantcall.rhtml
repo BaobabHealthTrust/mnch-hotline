@@ -7,7 +7,6 @@
 
   <%@confirmation_options = ["","YES", "NO"]%>
   <%= select_tag "confirmation", options_for_select(@confirmation_options), {:helpText => 'Is this really an irrelevant call?', :id => "confirmation"}%>
-
-
+  
   <%= submit_tag "Finish" %>
 </form>
