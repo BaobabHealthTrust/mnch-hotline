@@ -3,7 +3,7 @@
   tt_cancel_show = "/clinic";
 </script>
 
-<form id='confirm' action="/clinic/irrelevant_call_action" method='post'>
+<form id='confirm' action="/clinic/emergency_call_action" method='post'>
 
   <%@confirmation_options = ["","YES", "NO"]%>
   <%= select_tag "confirmation", options_for_select(@confirmation_options), {:helpText => 'Is this really an emergency call?', :id => "confirmation"}%>

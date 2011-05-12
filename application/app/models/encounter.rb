@@ -124,4 +124,14 @@ class Encounter < ActiveRecord::Base
     types = GlobalProperty.find_by_property("statistics.show_encounter_types").property_value rescue EncounterType.all.map(&:name).join(", ")
     types = types.split(", ")
   end
+
+  def self.get_pregnancy_statuses(patient_id)
+    pregnancy_statuses = self.all(
+              :conditions => ["encounter.encounter_type = ? and encounter.voided = ? and patient_id = ?",
+                  EncounterType.find_by_name('PREGNANCY STATUS').encounter_type_id, 0, patient_id],
+              :include => [:observations]
+            )
+
+    pregnancy_statuses
+  end
 end
