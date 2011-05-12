@@ -19,11 +19,10 @@
       :field_type => "date",
       :helptext => "Expected Due Date",
       :condition => "$('pregnancy_status').value == 'PREGNANT'" } %>
-    <%= touch_text_field_tag "ESTIMATED DELIVERY DATE", @patient, nil,
+    <%= touch_text_field_tag "DELIVERY DATE", @patient, nil,
         {:id => "delivery_date",
       :field_type => "date",
-      :helptext => "Expected Delivery Date",
-      :condition => "$('pregnancy_status').value == 'NOT PREGNANT'" } %>
-    
+      :helptext => "Delivery Date",
+      :condition => "$('pregnancy_status').value == 'DELIVERED'" } %>  
 	<%= submit_tag 'Finish' %>
 <% end %>
