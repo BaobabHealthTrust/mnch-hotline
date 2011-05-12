@@ -1,3 +1,6 @@
+<%= javascript_include_tag "touchscreen" %>
+<%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+
 <style type="text/css">
   .visit-summary-header{
     text-align: left;
@@ -30,7 +33,7 @@
                   </td>
                   <td>
                     <%=img_button_submit_to("/patients/show/#{@patient.patient_id}", "/images/cancel_flat_small_red.png",
-                      {:confirm => "Are you sure you want to void this entry?", :form_id => "frm_current_encounter_"+i.to_s},
+                      {:confirm => "Are you sure you want to void this entry?", :container_id => "visit-summary", :form_id => "frm_current_encounter_"+i.to_s},
                       {:encounter_id => encounter.encounter_id, :void => "true"}) -%>
                   </td>
                 </tr>
