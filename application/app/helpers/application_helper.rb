@@ -8,10 +8,14 @@ module ApplicationHelper
   end
 
   def img_button_submit_to(url, image, options = {}, params = {})
+    form_id       = (options[:form_id]) ? ("#{options[:form_id]}") : "frm_general"
+    container_id  = (options[:container_id]) ? ("#{options[:container_id]}") : ""
+    confirmation_message = ""
+    confirmation_message = "onclick = \"return confirmRecordDeletion('#{options[:confirm]}', '#{form_id}', '#{container_id}')\"" if options[:confirm]
+
     content = ""
-    content << "<form " + ((options[:form_id])?("id=#{options[:form_id]}"):"id='frm_general'") + " method='post' action='#{url}'><input type='image' src='#{image}' " +
-      ((options[:confirm])?("onclick=\"return confirmRecordDeletion('" +
-      options[:confirm] + "', '" + ((options[:form_id])?("#{options[:form_id]}"):"frm_general") + "')\""):"") + "/>"
+    content << "<form id='#{form_id}' method='post' action='#{url}'>"
+    content << "<input type='image' src='#{image}' #{confirmation_message}/>"
 
     params.each {|n,v| content << "<input type='hidden' name='#{n}' value='#{v}'/>" }
     content << "</form>"
@@ -146,7 +150,8 @@ module ApplicationHelper
     button_id = options[:button_id] || "button_id"
 
     confirm_message = options[:confirm] || nil
-    confirm_method  = "onClick=\"return confirmRecordDeletion('#{confirm_message}', '#{form_id}')\"" if confirm_message
+    container_id  = (options[:container_id]) ? ("#{options[:container_id]}") : ""
+    confirm_method  = "onClick=\"return confirmRecordDeletion('#{confirm_message}', '#{form_id}', '#{container_id}')\"" if confirm_message
     button_class = "green" if button_class.nil?
 
     content << "<form id='#{form_id}' method='post' action='#{url}'>"
