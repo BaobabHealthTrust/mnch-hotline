@@ -813,3 +813,13 @@ CREATE TABLE `drug_ingredient` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2010-12-11 20:00:04
+
+-- Table structure for table `call_log'
+DROP TABLE IF EXISTS `call_log`;
+
+CREATE TABLE `call_log` (
+  'call_log_id' VARCHAR(8) NOT NULL PRIMARY KEY,
+  'start_time' VARCHAR(5),
+  'end_time' VARCHAR(5),
+  'call_type' VARCHAR(1)
+);
