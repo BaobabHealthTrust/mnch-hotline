@@ -32,7 +32,15 @@ class EncountersController < ApplicationController
     encounter               = nil
     this_encounter          = params[:encounter][:encounter_type_name]
     exceptional_encounters  = ["REGISTRATION"]
+    
+    # added this to append the call id observation the list of observaations
+    current_observations = params[:observations]
+    new_observation = {"patient_id"=> "#{@patient.id}", "concept_name" => "CALL ID", "obs_datetime" => "#{DateTime.now()}", "value_coded_or_text" => "#{session[:call_id]}"}
 
+    current_observations << new_observation
+
+    params[:observations] = current_observations
+ 
     # Handling exceptional encounters i.e. that do not necessarily need observations such as Registration
     encounter = Encounter.create(params[:encounter], session[:datetime]) if (exceptional_encounters.include? this_encounter)
 
