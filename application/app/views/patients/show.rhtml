@@ -14,7 +14,7 @@
   <div id="patient_id"><%= @patient.national_id_with_dashes rescue '' -%></div>
  
   <div id="patient_card">
-    <div id="ivr_access_code" value="">IVR Access Code</div>
+    <div id="ivr_access_code" value="<%= @patient.ivr_access_code rescue '' %>">IVR Access Code</div>
     
     <% if @status == 'DELIVERED' %>
         <div id="date_delivered" value="<%=@date%>">Date Delivered</div>
