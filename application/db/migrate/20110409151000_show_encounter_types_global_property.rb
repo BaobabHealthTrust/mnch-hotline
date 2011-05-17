@@ -8,8 +8,8 @@ class ShowEncounterTypesGlobalProperty < ActiveRecord::Migration
     g.save
 
     g = GlobalProperty.new()
-    g.property        = "Interface"
-    g.property_value  = "Fancy"
+    g.property        = "interface"
+    g.property_value  = "fancy"
     g.save
 
     g = GlobalProperty.new()
@@ -28,7 +28,7 @@ class ShowEncounterTypesGlobalProperty < ActiveRecord::Migration
     g = GlobalProperty.find_by_property("statistics.show_encounter_types")
     g.delete
 
-    g = GlobalProperty.find_by_property("Interface")
+    g = GlobalProperty.find_by_property("interface")
     g.delete
 
     g = GlobalProperty.find_by_property("IVR_ACCESS_CODE_COUNTER")

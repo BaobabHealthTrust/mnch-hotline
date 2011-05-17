@@ -818,8 +818,9 @@ CREATE TABLE `drug_ingredient` (
 DROP TABLE IF EXISTS `call_log`;
 
 CREATE TABLE `call_log` (
-  'call_log_id' VARCHAR(8) NOT NULL PRIMARY KEY,
+  'call_log_id' VARCHAR(8) NOT NULL,
   'start_time' VARCHAR(5),
   'end_time' VARCHAR(5),
-  'call_type' VARCHAR(1)
+  'call_type' VARCHAR(1),
+  PRIMARY KEY ('call_log_id')
 );
