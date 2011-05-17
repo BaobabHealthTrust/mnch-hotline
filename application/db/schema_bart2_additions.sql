@@ -818,9 +818,10 @@ CREATE TABLE `drug_ingredient` (
 DROP TABLE IF EXISTS `call_log`;
 
 CREATE TABLE `call_log` (
-  'call_log_id' VARCHAR(8) NOT NULL,
-  'start_time' VARCHAR(5),
-  'end_time' VARCHAR(5),
-  'call_type' VARCHAR(1),
-  PRIMARY KEY ('call_log_id')
-);
+  `call_log_id` int(11) NOT NULL DEFAULT '0',
+  `start_time` VARCHAR(5) DEFAULT NULL,
+  `end_time` VARCHAR(5) DEFAULT NULL,
+  `call_type` int(1),
+  PRIMARY KEY (`call_log_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
