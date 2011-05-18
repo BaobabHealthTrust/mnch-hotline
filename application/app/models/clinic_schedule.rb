@@ -60,7 +60,7 @@ class ClinicSchedule < ActiveRecord::Base
   def self.format_clinic_schedules(clinic_schedules, clinic_list)
       schedules = {}
     clinic_list.map do |clinic|
-      clinic_name    = clinic + " " + "CLINIC"
+      clinic_name    = clinic #+ " " + "CLINIC"
       clinic_name_id = Concept.find_by_name(clinic_name).concept_id rescue nil
 
       clinic_schedules.each do |clinic_schedule|
