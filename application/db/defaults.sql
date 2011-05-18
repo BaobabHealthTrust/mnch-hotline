@@ -88,6 +88,12 @@ INSERT INTO `global_property` VALUES ('birt.birtHome','/usr/bin/birt-runtime-2_3
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
+LOCK TABLES `patient_identifier_type` WRITE;
+
+/*!40000 ALTER TABLE `patient_identifier_type` DISABLE KEYS */;
+INSERT INTO `patient_identifier_type` (`name`,`description`,`check_digit`,`creator`,`date_created`,`required`,`retired`) VALUES('IVR Access Code','Unique identifier for a particular patient. To be used for search purposes',0,1,'2010-11-15T13:18:58',0,0);
+UNLOCK TABLES;
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

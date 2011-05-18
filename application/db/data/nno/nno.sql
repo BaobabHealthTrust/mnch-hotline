@@ -146,8 +146,4 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 
-LOCK TABLES `patient_identifier_type` WRITE;
-/*!40000 ALTER TABLE `patient_identifier_type_map` DISABLE KEYS */;
-INSERT INTO 'patient_identifier_type' ('name','description','check_digit','creator','date_created','required','retired') VALUES('IVR Access Code','Unique identifier for a particular patient. To be used for search purposes',0,1,'2010-11-15T13:18:58',0,0);
-/*!40000 ALTER TABLE `program_patient_identifier_type_map` ENABLE KEYS */;
-UNLOCK TABLES;
+
