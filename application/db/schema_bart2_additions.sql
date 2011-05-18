@@ -819,8 +819,8 @@ DROP TABLE IF EXISTS `call_log`;
 
 CREATE TABLE `call_log` (
   `call_log_id` int(11) NOT NULL DEFAULT '0',
-  `start_time` VARCHAR(5) DEFAULT NULL,
-  `end_time` VARCHAR(5) DEFAULT NULL,
+  `start_time` datetime DEFAULT NULL,
+  `end_time` datetime DEFAULT NULL,
   `call_type` int(1),
   PRIMARY KEY (`call_log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
