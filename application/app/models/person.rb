@@ -342,5 +342,29 @@ class Person < ActiveRecord::Base
     end
 
   end
+  def age_in_years_months
+    number_of_months = age_in_months
+    result = number_of_months.divmod(12)
+    years = result[0].to_s 
+    months = result[1].to_s
+    
+    returnstring = ""
+
+    if years.to_i != 0
+      returnstring += years.to_s + " Year "
+    end
+    if months.to_i != 0
+      if months.to_i == 1
+        returnstring += months.to_s + " Month"
+      else
+        returnstring += months.to_s + " Months"
+      end
+    end
+    if returnstring == ""
+      returnstring = "0"
+    end
+
+    return returnstring     
+  end
 
 end
