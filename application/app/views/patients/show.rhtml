@@ -10,7 +10,12 @@
 
   <div id="patient_name"><%= @patient.person.name -%></div>
   <div id="patient_gender"><%=@patient.person.formatted_gender -%></div>
-  <div id="patient_age"><%= @patient.person.age rescue '' -%></div>
+  <%  if @patient.person.age <= 2 %>
+      <div id="patient_age"><%= @patient.person.age_in_years_months rescue '' -%></div>
+  <%  else %>
+      <div id="patient_age"><%= @patient.person.age rescue '' -%></div>
+  <%  end %>
+  
   <div id="patient_id"><%= @patient.national_id_with_dashes rescue '' -%></div>
  
   <div id="patient_card">
@@ -33,7 +38,7 @@
 
   <select id="tabs">
     <option value="/patients/visit_summary?patient_id=<%=@patient.id%>">Overview</option>
-    <option value="">Medication</option>
+    <option value="">Symptoms History</option>
   </select>
 
   <select id="links">
