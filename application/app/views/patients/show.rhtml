@@ -37,8 +37,10 @@
   </div> -->
 
   <select id="tabs">
-    <option value="/patients/visit_summary?patient_id=<%=@patient.id%>">Overview</option>
+    <option value="/patients/visit_summary?patient_id=<%=@patient.id%>">Current Call</option>
     <option value="">Symptoms History</option>
+    <option value="">Recent Calls</option>
+    <option value="">Tips and Reminders</option>
   </select>
 
   <select id="links">
@@ -46,7 +48,9 @@
       <option value='/encounters/new/female_symptoms?patient_id=<%=@patient.id%>'>Symptoms</option>
       <option value='/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>'>Pregnancy Status</option>
     <%else%>
-      <option value='/encounters/new/child_symptoms?patient_id=<%=@patient.id%>'>Symptoms</option>
+      <% if @patient.person.age <= 5 %>
+        <option value='/encounters/new/child_symptoms?patient_id=<%=@patient.id%>'>Symptoms</option>
+      <% end %>
     <%end%>
     <option value='/encounters/new/outcome?patient_id=<%=@patient.id%>'>Outcome</option>
     <option value='/clinic/schedules?patient_id=<%=@patient.id%>&source_url=patient_dashboard'>Clinic Schedules</option>
