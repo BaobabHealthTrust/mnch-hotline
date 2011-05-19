@@ -2,7 +2,7 @@ class ClinicController < ApplicationController
   def index
 
     if params[:status]== 'endcall'
-      session[:call_end_timestamp] = Time.now.strftime('%H:%M')
+      session[:call_end_timestamp] = DateTime.now
       log_call(0)
     end
 
@@ -111,7 +111,7 @@ class ClinicController < ApplicationController
      
       if @task == 'new'
         session[:call_id] = GlobalProperty.next_call_id
-        session[:call_start_timestamp] = Time.now.strftime('%H:%M')
+        session[:call_start_timestamp] = DateTime.now
         session[:call_end_timestamp] = ''
       end
       
@@ -124,7 +124,7 @@ class ClinicController < ApplicationController
 
     def irrelevant_call_action
        if params[:confirmation] == 'YES'
-         session[:call_end_timestamp] = Time.now.strftime('%H:%M')
+         session[:call_end_timestamp] = DateTime.now
          log_call(2)
          redirect_to "/clinic"
        else
@@ -135,7 +135,7 @@ class ClinicController < ApplicationController
     
     def emergency_call_action
       if params[:confirmation] == 'YES'
-        session[:call_end_timestamp] = Time.now.strftime('%H:%M')
+        session[:call_end_timestamp] = DateTime.now
         log_call(1)
         redirect_to "/clinic"
       else
@@ -149,10 +149,10 @@ class ClinicController < ApplicationController
 
     def log_call(call_log_type)
       calllog = CallLog.new
-      calllog.call_log_id = session[:call_id]
+      calllog.call_log_id = session[:call_id].to_i
       calllog.start_time = session[:call_start_timestamp]
       calllog.end_time = session[:call_end_timestamp]
-      calllog.call_type = call_log_type
+      calllog.call_type = call_log_type.to_i
 
       calllog.save
 

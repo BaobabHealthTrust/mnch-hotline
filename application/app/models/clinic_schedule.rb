@@ -11,7 +11,9 @@ class ClinicSchedule < ActiveRecord::Base
     schedule        = ClinicSchedule.new()
     clinic_day      = params['clinic_day']
     health_facility = params['health_facility']
-    clinic_name     = params['clinic_name']  + " " + "CLINIC"
+    clinic_name     = params['clinic_name']
+
+#  + " " + "CLINIC"
 
     schedule.location_id     = Location.find_by_name(health_facility).id
     schedule.clinic_day_id   = Concept.find_by_name(clinic_day).concept_id
@@ -58,7 +60,7 @@ class ClinicSchedule < ActiveRecord::Base
   def self.format_clinic_schedules(clinic_schedules, clinic_list)
       schedules = {}
     clinic_list.map do |clinic|
-      clinic_name    = clinic + " " + "CLINIC"
+      clinic_name    = clinic #+ " " + "CLINIC"
       clinic_name_id = Concept.find_by_name(clinic_name).concept_id rescue nil
 
       clinic_schedules.each do |clinic_schedule|

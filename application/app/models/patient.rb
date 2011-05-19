@@ -431,18 +431,28 @@ EOF
     pregnancy_statuses  = Encounter.get_pregnancy_statuses(self.id)
     current_status      = nil
     status_date         = nil
+
     unless pregnancy_statuses.nil?
       pregnancy_statuses.last.observations.each do | observation|
         current_status  = observation.answer_string if(observation.concept.name == "PREGNANCY STATUS")
       end
     end
-
-  unless current_status.nil?
-    pregnancy_statuses.last.observations.each do | observation|
-      status_date     = observation.answer_string if(observation.concept.name == "EXPECTED DUE DATE" || observation.concept.name =="DELIVERY DATE")
+    unless current_status.nil?
+      pregnancy_statuses.last.observations.each do | observation|
+        status_date     = observation.answer_string if(observation.concept.name == "EXPECTED DUE DATE" || observation.concept.name =="DELIVERY DATE")
+      end
     end
+
+    return [current_status, status_date]
   end
 
-  return [current_status, status_date]
+  def ivr_access_code(force = true)
+    id = self.patient_identifiers.find_by_identifier_type(PatientIdentifierType.find_by_name("IVR Access Code").id).identifier rescue nil
+    return id unless force
+    id ||= PatientIdentifierType.find_by_name("IVR Access Code").next_identifier(:patient => self).identifier
+    id
+  end
+  def male_adult?
+    (gender == "Male" && self.person.age > 5) ? true : false
   end
 end

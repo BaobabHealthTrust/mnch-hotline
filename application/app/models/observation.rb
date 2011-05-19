@@ -130,4 +130,11 @@ class Observation < ActiveRecord::Base
 
     patients_data
   end
+  def name_to_s(tags=[])
+    formatted_name = self.concept_name.tagged(tags).name rescue nil
+    formatted_name ||= self.concept_name.name rescue nil
+    formatted_name ||= self.concept.concept_names.tagged(tags).first.name rescue nil
+    formatted_name ||= self.concept.concept_names.first.name rescue 'Unknown concept name'
+    "#{formatted_name}"
+  end
 end

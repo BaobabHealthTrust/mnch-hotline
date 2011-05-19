@@ -63,8 +63,19 @@ class Encounter < ActiveRecord::Base
       temp_str = temp.first.answer_string + '°C' rescue nil
       vitals << temp_str if temp_str                          
       vitals.join(', ')
-    else  
-      observations.collect{|observation| observation.answer_string}.join(", ")
+    elsif name == 'MATERNAL HEALTH SYMPTOMS' || name == "CHILD HEALTH SYMPTOMS"
+      templist = []
+
+      for obs in observations do
+        if obs.name_to_s != "CALL ID"
+          templist << obs.name_to_s.capitalize
+        end
+      end
+
+      return templist.join(", ")
+    else
+      #changed the line below, from observation.answer_string to observation.to_s
+      observations.collect{|observation| observation.to_s.capitalize}.join(", ")
     end  
   end
 

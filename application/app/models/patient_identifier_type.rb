@@ -25,6 +25,14 @@ class PatientIdentifierType < ActiveRecord::Base
         patient_identifier.patient = options[:patient]
         patient_identifier.save!
         patient_identifier
+
+      when "IVR Access Code"
+        patient_identifier = PatientIdentifier.new
+        patient_identifier.type = self
+        patient_identifier.identifier = GlobalProperty.next_ivr_access_code
+        patient_identifier.patient = options[:patient]
+        patient_identifier.save!
+        patient_identifier
     end
   end
 end

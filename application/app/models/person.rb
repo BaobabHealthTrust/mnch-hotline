@@ -222,6 +222,7 @@ class Person < ActiveRecord::Base
     address_params = params["addresses"]
     names_params = params["names"]
     patient_params = params["patient"]
+
     params_to_process = params.reject{|key,value| key.match(/addresses|patient|names|relation|cell_phone_number|home_phone_number|office_phone_number/) }
     birthday_params = params_to_process.reject{|key,value| key.match(/gender/) }
     person_params = params_to_process.reject{|key,value| key.match(/birth_|age_estimate|occupation/) }
@@ -257,7 +258,8 @@ class Person < ActiveRecord::Base
 
     if (!patient_params.nil?)
       patient = person.create_patient
-
+      patient.ivr_access_code
+      
       patient_params["identifiers"].each{|identifier_type_name, identifier|
         identifier_type = PatientIdentifierType.find_by_name(identifier_type_name) || PatientIdentifierType.find_by_name("Unknown id")
         patient.patient_identifiers.create("identifier" => identifier, "identifier_type" => identifier_type.patient_identifier_type_id)
@@ -339,6 +341,34 @@ class Person < ActiveRecord::Base
         else "Unknown"
     end
 
+  end
+  def age_in_years_months
+    number_of_months = age_in_months
+    result = number_of_months.divmod(12)
+    years = result[0].to_s 
+    months = result[1].to_s
+
+    returnstring = ""
+
+    if years.to_i != 0
+      if years.to_i == 1
+        returnstring += years.to_s + " Year "
+      else
+        returnstring += years.to_s + " Years "
+      end
+    end
+    if months.to_i != 0
+      if months.to_i == 1
+        returnstring += months.to_s + " Month"
+      else
+        returnstring += months.to_s + " Months"
+      end
+    end
+    if returnstring == ""
+      returnstring = "0"
+    end
+
+    return returnstring     
   end
 
 end

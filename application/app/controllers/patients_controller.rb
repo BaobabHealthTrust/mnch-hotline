@@ -5,7 +5,7 @@ class PatientsController < ApplicationController
   def show
     #get the pregnancy status for the particular female patient and display
     #either expected due date or delivery date. as for the others, leave it blank
-    pregnancy_status = @patient.pregnancy_status
+    pregnancy_status = @patient.pregnancy_status rescue []
 
     if pregnancy_status.length != 0
       @status = pregnancy_status[0]
