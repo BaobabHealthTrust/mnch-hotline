@@ -157,14 +157,14 @@ INSERT INTO concept(short_name, description,creator,date_created,class_id,dataty
 	('UMBILICUS INFECTION','Umbilicus Infection',1,'2004-01-01T00:00:00',12,2),
 	('GROWTH MILESTONES','Growth Milestones',1,'2004-01-01T00:00:00',12,2),
 	('ACCESSING HEALTHCARE SERVICES','Accessing Healthcare services',1,'2004-01-01T00:00:00',12,2),
-	('FEVER OF 7 DAYS','Fever of 7 days or more',1,'2004-01-01T00:00:00',12,2),
-	('DIARRHEA FOR 14 DAYS','Diarrhea for 14 days or more',1,'2004-01-01T00:00:00',12,2),
+	('FEVER OF 7 DAYS OR MORE','Fever of 7 days or more',1,'2004-01-01T00:00:00',12,2),
+	('DIARRHEA FOR 14 DAYS OR MORE','Diarrhea for 14 days or more',1,'2004-01-01T00:00:00',12,2),
 	('BLOOD IN STOOL','Blood in stool',1,'2004-01-01T00:00:00',12,2),
-	('COUGH FOR 21 DAYS','Cough for 21 days or more',1,'2004-01-01T00:00:00',12,2),
-	('NOT EATING OR DRINKING','Not eating or drinking anything',1,'2004-01-01T00:00:00',12,2),
+	('COUGH FOR 21 DAYS OR MORE','Cough for 21 days or more',1,'2004-01-01T00:00:00',12,2),
+	('NOT EATING OR DRINKING ANYTHING','Not eating or drinking anything',1,'2004-01-01T00:00:00',12,2),
 	('VOMITING EVERYTHING','Vomiting everything',1,'2004-01-01T00:00:00',12,2),
-	('RED EYE FOR 4 DAYS','Red eye for 4 days or more with visual problems',1,'2004-01-01T00:00:00',12,2),
-	('POTENTIAL CHEST DRAWING','Potential Chest Drawing',1,'2004-01-01T00:00:00',12,2),
+	('RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS','Red eye for 4 days or more with visual problems',1,'2004-01-01T00:00:00',12,2),
+	('POTENTIAL CHEST INDRAWING','Potential Chest Indrawing',1,'2004-01-01T00:00:00',12,2),
 	('VAGINAL BLEEDING DURING PREGNANCY','VAGINAL BLEEDING DURING PREGNANCY',1,'2004-01-01T00:00:00',12,2),
 	('POSTNATAL BLEEDING','POSTNATAL BLEEDING',1,'2004-01-01T00:00:00',12,2),
 	('FEVER DURING PREGNANCY','FEVER DURING PREGNANCY',1,'2004-01-01T00:00:00',12,2),
@@ -208,6 +208,7 @@ INSERT INTO concept(short_name, description,creator,date_created,class_id,dataty
 	('LANGUAGE PREFERENCE', 'LANGUAGE PREFERENCE', 1, '2004-01-01T00:00:00', 12, 2),
 	('TYPE OF MESSAGE', 'TYPE OF MESSAGE', 1, '2004-01-01T00:00:00', 12, 2),
 	('TYPE OF MESSAGE CONTENT', 'TYPE OF MESSAGE CONTENT', 1, '2004-01-01T00:00:00', 12, 2),
+	('VERY SLEEPY OR UNCONSCIOUS','VERY SLEEPY OR UNCONSCIOUS',1,'2004-01-01T00:00:00',11,4),
 	('FAMILY MEMBER PHONE', 'FAMILY MEMBER PHONE',1,'2004-01-01T00:00:00',12,2);
 	
 LOCK TABLES `concept_name` WRITE;
@@ -296,6 +297,7 @@ INSERT INTO concept_name(concept_id,name,locale,creator,date_created) VALUES
 	(1, 'LANGUAGE PREFERENCE','en',1,'2004-01-01T00:00:00'),
 	(1, 'TYPE OF MESSAGE','en',1,'2004-01-01T00:00:00'),
 	(1, 'TYPE OF MESSAGE CONTENT','en',1,'2004-01-01T00:00:00'),
+	(1, 'VERY SLEEPY OR UNCONSCIOUS','en',1,'2004-01-01T00:00:00'),
 	(1, 'FAMILY MEMBER PHONE','en',1,'2004-01-01T00:00:00');
 UNLOCK TABLES;
 
