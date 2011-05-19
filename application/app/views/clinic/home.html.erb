@@ -12,10 +12,6 @@
   <div id="user"><%= User.current_user.username %></div>
   <select id="tabs">
     <option value='/clinic/overview' target="_parent">Overview</option>
-    <option value=''>Reports</option>
-    <% if User.current_user.admin? %>
-      <option value='/clinic/administration' target="_parent">Admin</option>
-    <% end %>
   </select>
 
   <select id="links">
