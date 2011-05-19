@@ -39,6 +39,22 @@
   <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
 
   <% options = {
+     :id          => "tips_and_reminders_phone_number",
+     :tt_onUnLoad => "$('phone_number_value_coded_or_text').value = $('tips_and_reminders_phone_number').value",
+     :helpText    => "Enter Phone Number",
+     :field_type => 'number',
+     :validationJS => "validPhoneNum('phone_number')",
+     :allowFreeText => true,
+     :validationMessage => "You must enter a valid number"
+     } %>
+
+  <%= text_field_tag "phone_number",  params[:cell_phone_number], options%>
+  <%= hidden_field_tag("observations[][concept_name]",        "PHONE NUMBER", options) %>
+  <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_number_value_coded_or_text'}) %>
+  <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+  
+  <% options = {
     :id           => "language_type",
     :helptext     => "Language preference",
     :tt_onUnLoad  => "$('language_type_value_coded_or_text').value = $('language_type').value",
