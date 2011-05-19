@@ -451,4 +451,7 @@ EOF
     id ||= PatientIdentifierType.find_by_name("IVR Access Code").next_identifier(:patient => self).identifier
     id
   end
+  def male_adult?
+    (gender == "Male" && self.person.age > 5) ? true : false
+  end
 end
