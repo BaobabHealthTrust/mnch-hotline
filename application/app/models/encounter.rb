@@ -63,8 +63,9 @@ class Encounter < ActiveRecord::Base
       temp_str = temp.first.answer_string + '°C' rescue nil
       vitals << temp_str if temp_str                          
       vitals.join(', ')
-    else  
-      observations.collect{|observation| observation.answer_string}.join(", ")
+    else
+      #changed the line below, from observation.answer_string to observation.to_s
+      observations.collect{|observation| observation.to_s}.join(", ")
     end  
   end
 
