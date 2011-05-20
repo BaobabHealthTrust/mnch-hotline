@@ -8,7 +8,7 @@ class GlobalProperty < ActiveRecord::Base
   end
 
   def self.next_ivr_access_code
-    site_location = Location.current_location.site_id.rjust(3,'0')
+    site_location = Location.current_health_center.location_id
 
     globalproperty = GlobalProperty.find_by_property("IVR_ACCESS_CODE_COUNTER")
     current_number = globalproperty.property_value.to_i + 1
