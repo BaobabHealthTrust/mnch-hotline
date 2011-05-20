@@ -7,9 +7,9 @@ class PatientIdentifierType < ActiveRecord::Base
     return nil unless options[:patient]
     case self.name
       when "National id"
-        health_center_id = Location.current_location.site_id
+        health_center_id = Location.current_health_center.location_id
         national_id_version = "1"
-        national_id_prefix = "P#{national_id_version}#{health_center_id.rjust(3,"0")}"
+        national_id_prefix = "P#{national_id_version}#{health_center_id.to_s.rjust(3,"0")}"
 
         last_national_id = PatientIdentifier.find(:first,:order=>"identifier desc", :conditions => ["identifier_type = ? AND left(identifier,5)= ?", self.patient_identifier_type_id, national_id_prefix])
         last_national_id_number = last_national_id.identifier rescue "0"

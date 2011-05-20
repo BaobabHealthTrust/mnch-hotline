@@ -446,10 +446,19 @@ EOF
     return [current_status, status_date]
   end
 
-  def ivr_access_code(force = true)
+  def create_ivr_access_code(force = true)
     id = self.patient_identifiers.find_by_identifier_type(PatientIdentifierType.find_by_name("IVR Access Code").id).identifier rescue nil
     return id unless force
     id ||= PatientIdentifierType.find_by_name("IVR Access Code").next_identifier(:patient => self).identifier
+    id
+  end
+  def ivr_access_code
+    create_ivr_access_code(force = true)
+  end
+  def create_national_id(force = true)
+    id = self.patient_identifiers.find_by_identifier_type(PatientIdentifierType.find_by_name("National id").id).identifier rescue nil
+    return id unless force
+    id ||= PatientIdentifierType.find_by_name("National id").next_identifier(:patient => self).identifier
     id
   end
   def male_adult?
