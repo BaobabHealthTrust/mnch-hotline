@@ -46,7 +46,7 @@
      :condition => "$('select_outcome').value != 'GIVEN ADVICE NO REFERRAL NEEDED'"
      } %>
 
-  <%@reasons_for_referral = ["","DANGER SIGNS OBSERVED", "PHYSICAL OBSERVATION"]%>
+  <%@reasons_for_referral = ["","DANGER SIGNS OBSERVED", "PHYSICAL OBSERVATION NEEDED"]%>
 
   <%= select_tag("referral_reason", options_for_select(@reasons_for_referral), options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "REASON FOR REFERRAL") %>
