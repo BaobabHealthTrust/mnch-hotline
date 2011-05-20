@@ -431,7 +431,8 @@ EOF
     pregnancy_statuses  = Encounter.get_pregnancy_statuses(self.id)
     current_status      = nil
     status_date         = nil
-    if pregnancy_statuses.length != 0
+
+    unless pregnancy_statuses.nil?
       pregnancy_statuses.last.observations.each do | observation|
         current_status  = observation.answer_string if(observation.concept.name == "PREGNANCY STATUS")
       end
