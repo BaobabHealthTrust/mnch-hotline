@@ -92,7 +92,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
      :multiple    => true,
      :optional     => true,
      :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'danger_signs_id', 'danger_sign');",
-		 :helptext    => "Select the danger signs for pregnancy" } %>
+		 :helptext    => "Select the danger warning signs for children" } %>
 
   <% @danger_signs.each_with_index do |e, index| %>
     <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "danger_sign#{index}_concept_name"}) %>

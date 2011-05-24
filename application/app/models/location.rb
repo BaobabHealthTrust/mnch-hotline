@@ -51,7 +51,7 @@ class Location < ActiveRecord::Base
   end
 
   def self.current_health_center
-    @@current_health_center ||= Location.find(GlobalProperty.find_by_property("current_health_center_id").property_value) rescue self.current_location
+    @@current_health_center = Location.find(GlobalProperty.find_by_property("current_health_center_id").property_value)
   end
 
   def self.current_arv_code

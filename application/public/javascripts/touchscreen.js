@@ -470,6 +470,8 @@ function setTouchscreenAttributes(aInputNode, aFormElement, aPageNum) {
 	// Invoke different CSS declaration for TEXTAREA control
 	if(aFormElement.tagName == "TEXTAREA" ){
 		aInputNode.setAttribute('class','touchscreenTextAreaInput');
+                aInputNode.setAttribute('cols','56');
+                aInputNode.setAttribute('rows','10');
 	} else {
 		aInputNode.setAttribute('class','touchscreenTextInput');
 	}
@@ -889,57 +891,61 @@ function tt_update(sourceElement){
 	var targetElement = returnElementWithAttributeValue("touchscreenInputID", sourceElement.getAttribute("refersToTouchscreenInputID"), tstFormElements);
 	targetElement.focus();
 	switch (sourceElement.tagName){
-	// switch (targetElement.tagName){
-	case "INPUT":
-		if (targetElement.type == "text" || targetElement.type == "password")  {
-			targetElement.value = sourceValue;
-		} else if (targetElement.type == "radio") {
-			var radioElements = document.getElementsByName(targetElement.name);
-			for (var i=0; i<radioElements.length; i++) {
-				if (radioElements[i].value == sourceValue) {
-					radioElements[i].checked = true;
-				}
-			}
-		} else if (targetElement.type == "checkbox") {
-			if (sourceValue.toLowerCase().substring(0,1) == "y") {
-				targetElement.checked = true;
-			} else {
-				targetElement.checked = false;
-			}
-		} else if (targetElement.tagName == "SELECT") {
-
-			if (isDateElement(targetElement) && (sourceValue.length>0) &&
-					!tstSearchPage && tstEnableDateSelector) {
-				sourceValue = tstInputTarget.value;
-				var railsDate = new RailsDate(targetElement);
-				railsDate.update(sourceValue);
-			} else {
+		// switch (targetElement.tagName){
+		case "INPUT":
+			if (targetElement.type == "text" || targetElement.type == "password")  {
 				targetElement.value = sourceValue;
-
-				if (targetElement.getAttribute("multiple") == "multiple") {
-					var val_arr = new Array();
-					val_arr = sourceElement.value.split(tstMultipleSplitChar);
-					for(i=0;i<targetElement.options.length;i++){
-						if(optionIncludedInValue(targetElement.options[i].text, val_arr)) {
-							targetElement.options[i].selected = true;
-						} else
-							targetElement.options[i].selected = false;
-
+			} else if (targetElement.type == "radio") {
+				var radioElements = document.getElementsByName(targetElement.name);
+				for (var i=0; i<radioElements.length; i++) {
+					if (radioElements[i].value == sourceValue) {
+						radioElements[i].checked = true;
 					}
 				}
-			}
+			} else if (targetElement.type == "checkbox") {
+				if (sourceValue.toLowerCase().substring(0,1) == "y") {
+					targetElement.checked = true;
+				} else {
+					targetElement.checked = false;
+				}
+			} else if (targetElement.tagName == "SELECT") {
 
-		}
-		break;
-	case "SELECT":
-		/*
-		 * var val_arr = new Array(); if (targetElement.multiple) val_arr =
-		 * sourceElement.value.split(tstMultipleSplitChar); else
-		 * val_arr.push(sourceElement.value); for(i=0;i<targetElement.options.length;i++){
-		 * if(optionIncludedInValue(targetElement.options[i].value, val_arr)){
-		 * targetElement.options[i].selected = true; if (!targetElement.multiple)
-		 * break; } else targetElement.options[i].selected = false; } break;
-		 */
+				if (isDateElement(targetElement) && (sourceValue.length>0) &&
+						!tstSearchPage && tstEnableDateSelector) {
+					sourceValue = tstInputTarget.value;
+					var railsDate = new RailsDate(targetElement);
+					railsDate.update(sourceValue);
+				} else {
+					targetElement.value = sourceValue;
+
+					if (targetElement.getAttribute("multiple") == "multiple") {
+						var val_arr = new Array();
+						val_arr = sourceElement.value.split(tstMultipleSplitChar);
+						for(i=0;i<targetElement.options.length;i++){
+							if(optionIncludedInValue(targetElement.options[i].text, val_arr)) {
+								targetElement.options[i].selected = true;
+							} else
+								targetElement.options[i].selected = false;
+
+						}
+					}
+				}
+
+			}
+			break;
+		case "SELECT":
+			/*
+			 * var val_arr = new Array(); if (targetElement.multiple) val_arr =
+			 * sourceElement.value.split(tstMultipleSplitChar); else
+			 * val_arr.push(sourceElement.value); for(i=0;i<targetElement.options.length;i++){
+			 * if(optionIncludedInValue(targetElement.options[i].value, val_arr)){
+			 * targetElement.options[i].selected = true; if (!targetElement.multiple)
+			 * break; } else targetElement.options[i].selected = false; } break;
+			 */
+			break;
+		case "TEXTAREA":
+			targetElement.value = sourceValue;
+			break;
 	}
 }
 
@@ -1079,6 +1085,7 @@ function gotoPage(destPage, validate){
 				return;
 			}
 		}
+                /*
 		try {
 			var thisPage = $('page'+currentPage);
 			var pageWrapper = thisPage.parentNode;
@@ -1089,6 +1096,22 @@ function gotoPage(destPage, validate){
 				pages[i].parentNode.removeChild(pages[i]);
 			}
 		}
+                */
+
+                if($('page'+currentPage) != null){
+
+                    var thisPage = $('page'+currentPage);
+                    var pageWrapper = thisPage.parentNode;
+                    pageWrapper.parentNode.removeChild(pageWrapper);
+
+                } else {
+
+                    var pages = document.getElementsByClassName('inputPage');
+                    for(var i=0; i<pages.length; i++) {
+                        pages[i].parentNode.removeChild(pages[i]);
+                    }
+
+                }
 
 		inputTargetPageNumber = destPage;
 		tstCurrentPage = destPage;
@@ -2555,3 +2578,4 @@ function confirmRecordDeletion(message, form, container) {
     }
     return false;
 }
+

@@ -9,9 +9,11 @@ var focusOnce = false;
 var title = "";
 var tt_cancel_show = null;
 var tt_cancel_destination = null;
+var tt_active_tab = null;
 var tt_register_destination = null;
 var heading = [];
 var controls = [];
+var tstSuppressBarcode = false
 
 function __$(id){
     return document.getElementById(id);
@@ -113,6 +115,13 @@ function generateHomepage(){
     var barcodeinput = document.createElement("input");
     barcodeinput.type = "text";
     barcodeinput.id = "barcode";
+
+    if (tstSuppressBarcode == true) {
+        scanlabel.style.color = "white";
+        barcodeinput.style.color = "white";
+        scaninput.style.color = "white";
+    }
+
     barcodeinput.className = "touchscreenTextInput";
     barcodeinput.onkeydown = function(event){
         return;
@@ -197,13 +206,21 @@ function generateHomepage(){
             button.setAttribute("link", childlinks[j].value);
 			if (j == 0) {
 	            button.className = "red left";
-		        button.onclick = function(){
-		            window.location = tt_cancel_destination;
+		        button.onclick = function() {
+					if (this.getAttribute("link") == "") {
+		            	window.location = tt_cancel_destination;
+					} else {
+						window.location = this.getAttribute("link");
+					}
 		        }
 			} else if (j == 1) {
 	            button.className = "green";
 		        button.onclick = function(){
-		            window.location = tt_cancel_show;
+					if (this.getAttribute("link") == "") {
+		            	window.location = tt_cancel_show;
+					} else {
+						window.location = this.getAttribute("link");
+					}
 		        }
 			} else {
 	            button.className = "blue";
@@ -238,7 +255,7 @@ function generateHomepage(){
 }
 
 function generateDashboard(){
-    // Requires a container DIV with id "home"
+    // Requires a container DIV with id "dashboard"
     if(!__$('dashboard')) return;
 
     __$('dashboard').style.display = "none";
@@ -722,6 +739,10 @@ function generateTab(headings, target, content){
     __$("tabContainer2").style.width = __$("mainContainer").offsetWidth;
     
     repositionLayer("tabContainer");
+
+	if(__$(tt_active_tab)){
+		activate(tt_active_tab);
+	}
 }
 
 function loadBarcodePage() {
@@ -734,6 +755,11 @@ function focusForBarcodeInput(){
         barcodeId = "barcode";
     }
     var barcode = document.getElementById("barcode");
+
+    if (tstSuppressBarcode == true) {
+       barcode.style.border="0px solid white";
+    }
+
     if (barcode) {
         barcode.focus();
         if (!focusOnce) barcodeFocusTimeoutId = window.setTimeout("focusForBarcodeInput()", setFocusTimeout);

@@ -145,4 +145,47 @@ class Encounter < ActiveRecord::Base
 
     pregnancy_statuses
   end
+
+  def self.get_previous_symptoms(patient_id)
+    previous_symptoms = self.all(
+              :conditions => ["encounter.encounter_type = ? or encounter.encounter_type = ? and encounter.voided = ? and patient_id = ?",
+                  EncounterType.find_by_name('MATERNAL HEALTH SYMPTOMS').encounter_type_id, EncounterType.find_by_name('CHILD HEALTH SYMPTOMS').encounter_type_id, 0, patient_id],
+              :include => [:observations]
+            )
+
+    return previous_symptoms
+  end
+
+  def self.get_previous_encounters(patient_id)
+    previous_encounters = self.all(
+              :conditions => ["encounter.voided = ? and patient_id = ?", 0, patient_id],
+              :include => [:observations]
+            )
+    return previous_encounters
+  end
+
+  def self.get_recent_calls(patient_id)
+    recent_encounters = get_previous_encounters(patient_id)
+    call_list = Array.new
+    search_id = Concept.find_by_name("CALL ID").concept_id
+    for encounter in recent_encounters do
+      for obs in encounter.observations do
+        if obs.concept_id == search_id
+          call_list << obs.value_text
+        end
+      end
+    end
+
+    return call_list
+  end
+
+  def self.get_previous_tips_and_reminders(patient_id)
+   previous_tips_and_reminders = self.all(
+              :conditions => ["encounter.encounter_type = ? and encounter.voided = ? and patient_id = ?",
+                  EncounterType.find_by_name('TIPS AND REMINDERS ').encounter_type_id, 0, patient_id],
+              :include => [:observations]
+            )
+
+   return previous_tips_and_reminders
+  end
 end

@@ -258,7 +258,8 @@ class Person < ActiveRecord::Base
 
     if (!patient_params.nil?)
       patient = person.create_patient
-      patient.ivr_access_code
+      patient.create_national_id
+      patient.create_ivr_access_code
       
       patient_params["identifiers"].each{|identifier_type_name, identifier|
         identifier_type = PatientIdentifierType.find_by_name(identifier_type_name) || PatientIdentifierType.find_by_name("Unknown id")
