@@ -14,7 +14,8 @@ class PatientsController < ApplicationController
       @status = ""
       @date   = ""
     end
-    
+
+    session[:mnch_protocol_required] = false
    #added this to ensure that we are able to void the encounters
     void_encounter if (params[:void] && params[:void] == 'true')
     render :layout => 'clinic'

@@ -6,11 +6,11 @@ class Task < ActiveRecord::Base
   # Try to find the next task for the patient at the given location
   def self.next_task(location, patient, session_date = Date.today)
 
-    all_tasks               = self.all(:order => 'sort_weight ASC')
+    tasks                   = self.all(:conditions => ["location = ? OR location = ?", "MNCH Hotline Station", "*"], :order => 'sort_weight ASC')
     todays_encounters       = patient.encounters.find_by_date(session_date)
     todays_encounter_types  = todays_encounters.map{|e| e.type.name rescue ''}.uniq rescue []
 
-    all_tasks.each do |task|
+    tasks.each do |task|
 
       # By default, we don't want to skip this task
       skip = false
@@ -18,17 +18,21 @@ class Task < ActiveRecord::Base
       # Skip this task if we already run it
       next if todays_encounters.map{ | e | e.name }.include?(task.encounter_type)
       next if task.encounter_type.present? && todays_encounter_types.include?(task.encounter_type)
- 
-      next unless (task.location == "MNCH Hotline Station" || task.location == "*")
       if task.gender.present?
         #skip this task if patient is not a female adult
-        next if task.gender == "F" && !patient.female_adult?
+        skip = true if (task.gender == "F" && !patient.female_adult?)
 
         # skip this task if the patient is female_adult
         # because the question is for children of either sex
-        next if task.gender == "*" && patient.female_adult?
+        skip = true if task.gender == "*" && patient.female_adult?
+
       end
 
+      # skip if there is neither MATERNAL HEALTH SYMPTOMS nor CHILD HEALTH SYMPTOMS encounter
+      skip = true if (!(todays_encounter_types.include?("MATERNAL HEALTH SYMPTOMS") || todays_encounter_types.include?("CHILD HEALTH SYMPTOMS")))
+
+      # return to patient dashboard
+      skip = !skip if task.location == "*" && task.sort_weight == 1000
       # We need to skip this task for some reason
       next if skip
 
@@ -38,9 +42,11 @@ class Task < ActiveRecord::Base
       task.url = task.url.gsub(/\{location\}/, "#{location.location_id}")
 
       logger.debug "next_task: #{task.id} - #{task.description}"
-      
+
       return task
     end
+    # if all fails, return to the patient dashboard
+    return tasks.last
   end 
   
   def self.validate_task(patient, task, location, session_date = Date.today)
