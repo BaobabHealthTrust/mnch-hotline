@@ -44,7 +44,9 @@ class Task < ActiveRecord::Base
       return task
     end
     # if all fails, return to the patient dashboard
-    return tasks.last
+    task      = tasks.last
+    task.url  = task.url.gsub(/\{patient\}/, "#{patient.patient_id}")
+    return task
   end 
   
   def self.validate_task(patient, task, location, session_date = Date.today)
