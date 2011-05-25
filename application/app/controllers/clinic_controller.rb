@@ -110,7 +110,7 @@ class ClinicController < ApplicationController
       @task = params[:task]
      
       if @task == 'new'
-        session[:call_id] = GlobalProperty.next_call_id
+        session[:call_id] = GlobalProperty.next_call_id rescue nil
         session[:call_start_timestamp] = DateTime.now
         session[:call_end_timestamp] = ''
       end

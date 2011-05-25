@@ -125,6 +125,8 @@ class EncountersController < ApplicationController
       end
     end
 
+    session[:mnch_protocol_required] = true if (encounter && (encounter.name == "MATERNAL HEALTH SYMPTOMS" || encounter.name == "CHILD HEALTH SYMPTOMS"))
+
     # Go to the next task in the workflow (or dashboard)
     redirect_to next_task(@patient) 
   end
