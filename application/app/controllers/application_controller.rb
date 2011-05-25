@@ -22,9 +22,10 @@ class ApplicationController < ActionController::Base
   end if RAILS_ENV == 'production'
 
   def next_task(patient)
-    if session[:mnch_protocol_required]
-      session_date = session[:datetime].to_date rescue Date.today
-      task = Task.next_task(Location.current_location, patient,session_date)
+    session_date = session[:datetime].to_date rescue Date.today
+    todays_encounter_types = patient.encounters.find_by_date(session_date).map{|e| e.type.name rescue ''}.uniq rescue []
+    if (session[:mnch_protocol_required] || (!todays_encounter_types.include?"REGISTRATION"))
+      task = Task.next_task(Location.current_location, patient, session_date, todays_encounter_types)
       return task.url if task.present? && task.url.present?
     end
 
