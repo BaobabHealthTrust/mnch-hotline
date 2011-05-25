@@ -6,4 +6,3 @@ class ConceptNameTagMap < ActiveRecord::Base
   belongs_to :concept_name_tag, :conditions => {:voided => 0}
   belongs_to :concept_name, :conditions => {:retired => 0}
 end
-

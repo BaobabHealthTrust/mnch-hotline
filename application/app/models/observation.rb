@@ -130,11 +130,20 @@ class Observation < ActiveRecord::Base
 
     patients_data
   end
+
   def name_to_s(tags=[])
     formatted_name = self.concept_name.tagged(tags).name rescue nil
     formatted_name ||= self.concept_name.name rescue nil
     formatted_name ||= self.concept.concept_names.tagged(tags).first.name rescue nil
     formatted_name ||= self.concept.concept_names.first.name rescue 'Unknown concept name'
     "#{formatted_name}"
+  end
+
+  def to_s_with_bold_name(tags=[])
+    formatted_name = self.concept_name.tagged(tags).name rescue nil
+    formatted_name ||= self.concept_name.name rescue nil
+    formatted_name ||= self.concept.concept_names.tagged(tags).first.name rescue nil
+    formatted_name ||= self.concept.concept_names.first.name rescue 'Unknown concept name'
+    "<B>#{formatted_name.capitalize}</B>: #{self.answer_string(tags).capitalize}"
   end
 end

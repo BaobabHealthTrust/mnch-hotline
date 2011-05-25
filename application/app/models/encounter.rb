@@ -64,15 +64,47 @@ class Encounter < ActiveRecord::Base
       vitals << temp_str if temp_str                          
       vitals.join(', ')
     elsif name == 'MATERNAL HEALTH SYMPTOMS' || name == "CHILD HEALTH SYMPTOMS"
-      templist = []
-
+      danger_signs = []
+      health_information = []
+      health_symptoms = []
+      return_string = ""
       for obs in observations do
         if obs.name_to_s != "CALL ID"
-          templist << obs.name_to_s.capitalize
+           name_tag_id = ConceptNameTagMap.find(:all,
+                                                :conditions =>["concept_name_id = ?", obs.concept_id],
+                                                :select => "concept_name_tag_id"
+                                               ).last
+
+           symptom_type = ConceptNameTag.find(:all,
+                                              :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
+                                              :select => "tag"
+                                              ).uniq
+          symptom_type.each{|symptom|
+            if symptom.tag == "HEALTH INFORMATION"
+              health_information << obs.name_to_s.capitalize
+            elsif symptom.tag == "DANGER SIGN"
+              danger_signs << obs.name_to_s.capitalize
+            elsif symptom.tag == "HEALTH SYMPTOM"
+              health_symptoms << obs.name_to_s.capitalize
+            end
+          }
         end
       end
+       
+      if danger_signs.length != 0
+        return_string = "<B>Danger Signs : </B>" + danger_signs.join(", ").to_s
+      end
+      if health_information.length != 0
+        return_string =  return_string + " <B> Health Information : </B>" + health_information.join(", ").to_s
+      end
+      if health_symptoms.length != 0
+        return_string = return_string + " <B> Health Symptoms : </B>" + health_symptoms.join(", ").to_s
+      end
 
-      return templist.join(", ")
+      return return_string
+      
+    elsif name == 'TIPS AND REMINDERS'
+       observations.collect{|observation| observation.to_s_with_bold_name}.join(", ")
     else
       #changed the line below, from observation.answer_string to observation.to_s
       observations.collect{|observation| observation.to_s.capitalize}.join(", ")
@@ -148,7 +180,7 @@ class Encounter < ActiveRecord::Base
 
   def self.get_previous_symptoms(patient_id)
     previous_symptoms = self.all(
-              :conditions => ["encounter.encounter_type = ? or encounter.encounter_type = ? and encounter.voided = ? and patient_id = ?",
+              :conditions => ["(encounter.encounter_type = ? or encounter.encounter_type = ?) and encounter.voided = ? and patient_id = ?",
                   EncounterType.find_by_name('MATERNAL HEALTH SYMPTOMS').encounter_type_id, EncounterType.find_by_name('CHILD HEALTH SYMPTOMS').encounter_type_id, 0, patient_id],
               :include => [:observations]
             )
@@ -188,4 +220,5 @@ class Encounter < ActiveRecord::Base
 
    return previous_tips_and_reminders
   end
+
 end

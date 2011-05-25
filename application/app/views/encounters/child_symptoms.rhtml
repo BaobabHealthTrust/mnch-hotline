@@ -4,7 +4,7 @@
 
 var symptoms_values = [];
 
-function setConceptNamesAndValues(symptoms, observations, obs_type){
+function setConceptNamesAndValues(symptoms, observations, obs_type,symptomType){
 
     var values_string = selectedValue(observations);
 
@@ -13,9 +13,20 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
     var concept_name        = obs_type + index +"_concept_name";
     var value_coded_or_text = obs_type + index +"_value_coded_or_text";
 
+    var duplicateSymptoms= "CONVULSIONS";
 
     if(values_string.contains(symptoms[index]) && symptoms[index]!= ""){
       $(concept_name).value         = symptoms[index];
+      if (symptomType == "Danger") {
+        if (duplicateSymptoms.contains(symptoms[index])) {
+          $(concept_name).value += " SIGN";
+        }
+      } 
+      else if (symptomType == "Symptom") {
+         if (duplicateSymptoms.contains(symptoms[index])) {
+          $(concept_name).value += " SYMPTOM";
+        }
+      }
       $(value_coded_or_text).value  = 'YES';
     }
     else{
@@ -45,7 +56,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
 		{:id => "child_health_symptoms_id",
       :multiple     => true,
       :optional     => true,
-      :tt_onUnLoad  => "setConceptNamesAndValues(symptoms_values, 'child_health_symptoms_id', 'child_health_symptom');",
+      :tt_onUnLoad  => "setConceptNamesAndValues(symptoms_values, 'child_health_symptoms_id', 'child_health_symptom','Symptom');",
 		 :helptext      => "Experiencing any of the following symptoms?" } %>
 
   <%  @child_health_symptoms.each_with_index do |e, index| %>
@@ -67,7 +78,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
 		{:id          => "child_health_info_id",
      :multiple    => true,
      :optional    => true,
-     :tt_onUnLoad => "setConceptNamesAndValues(child_health_values, 'child_health_info_id', 'child_health_info');",
+     :tt_onUnLoad => "setConceptNamesAndValues(child_health_values, 'child_health_info_id', 'child_health_info','N/A');",
 		 :helptext    => "Does the caller want information on one of the following topics?" } %>
 
   <% @child_health_info.each_with_index do |e, index| %>
@@ -91,7 +102,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
 		{:id          => "danger_signs_id",
      :multiple    => true,
      :optional     => true,
-     :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'danger_signs_id', 'danger_sign');",
+     :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'danger_signs_id', 'danger_sign','Danger');",
 		 :helptext    => "Select the danger warning signs for children" } %>
 
   <% @danger_signs.each_with_index do |e, index| %>

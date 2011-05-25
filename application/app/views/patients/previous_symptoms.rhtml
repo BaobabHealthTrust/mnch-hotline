@@ -18,7 +18,7 @@
             header = true
             previous_encounter = ""
             i = 0
-            for encounter in @previous_symptoms_list do
+            for encounter in @previous_symptoms do
               i += 1
 
               if encounter.encounter_datetime.strftime("%d-%b-%Y").to_s == encounter_date.to_s %>
