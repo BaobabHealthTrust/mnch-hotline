@@ -55,6 +55,23 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
     <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
   <%end%>
 
+<% @danger_signs = ["", "FEVER OF 7 DAYS OR MORE", "DIARRHEA FOR 14 DAYS OR MORE",
+                      "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE",
+                      "CONVULSIONS", "NOT EATING OR DRINKING ANYTHING",
+                      "VOMITING EVERYTHING",
+                      "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
+                      "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"] %>
+
+  <script type="text/javascript" language="javascript">
+    danger_signs_values = <%= to_jsarray(@danger_signs) %> ;
+  </script>
+	<%= select_tag "first_danger_signs",options_for_select(@danger_signs),
+		{:id          => "first_danger_signs_id",
+     :multiple    => true,
+     :optional     => true,
+     :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'first_danger_signs_id', 'danger_sign'); setSelectedItems('second_danger_signs_id', selectedValue('first_danger_signs_id'));",
+		 :helptext    => "Select the danger warning signs" } %>
+
 <% @child_health_info = ["", "SLEEPING", "FEEDING PROBLEMS", "CRYING",
                             "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
                             "UMBILICUS INFECTION", "GROWTH MILESTONES",
@@ -77,22 +94,12 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
     <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
   <%end%>
 
-  <% @danger_signs = ["", "FEVER OF 7 DAYS OR MORE", "DIARRHEA FOR 14 DAYS OR MORE",
-                      "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE",
-                      "CONVULSIONS", "NOT EATING OR DRINKING ANYTHING",
-                      "VOMITING EVERYTHING",
-                      "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
-                      "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"] %>
-
-  <script type="text/javascript" language="javascript">
-    danger_signs_values = <%= to_jsarray(@danger_signs) %> ;
-  </script>
-	<%= select_tag "danger_signs",options_for_select(@danger_signs),
-		{:id          => "danger_signs_id",
+	<%= select_tag "second_danger_signs",options_for_select(@danger_signs),
+		{:id          => "second_danger_signs_id",
      :multiple    => true,
      :optional     => true,
-     :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'danger_signs_id', 'danger_sign');",
-		 :helptext    => "Select the danger warning signs for children" } %>
+     :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'second_danger_signs_id', 'danger_sign'); setSelectedItems('first_danger_signs_id', selectedValue('second_danger_signs_id'));",
+		 :helptext    => "Select additional danger warning signs if any" } %>
 
   <% @danger_signs.each_with_index do |e, index| %>
     <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "danger_sign#{index}_concept_name"}) %>
