@@ -178,4 +178,14 @@ class Encounter < ActiveRecord::Base
 
     return call_list
   end
+
+  def self.get_previous_tips_and_reminders(patient_id)
+   previous_tips_and_reminders = self.all(
+              :conditions => ["encounter.encounter_type = ? and encounter.voided = ? and patient_id = ?",
+                  EncounterType.find_by_name('TIPS AND REMINDERS ').encounter_type_id, 0, patient_id],
+              :include => [:observations]
+            )
+
+   return previous_tips_and_reminders
+  end
 end
