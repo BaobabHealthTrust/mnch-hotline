@@ -45,7 +45,8 @@
      :field_type => 'number',
      :validationJS => "validPhoneNum('phone_number')",
      :allowFreeText => true,
-     :validationMessage => "You must enter a valid number"
+     :validationMessage => "You must enter a valid number",
+     :condition    => "$('enrol_for_tips_and_reminders').value == 'YES'"
      } %>
 
   <%= text_field_tag "phone_number",  params[:cell_phone_number], options%>
