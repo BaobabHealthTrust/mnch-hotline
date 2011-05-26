@@ -209,3 +209,17 @@ function colorolizeTab(menu, tabId, newColor) {
           tabLinks[i].style.backgroundColor = newColor;
     }
 }
+
+/* set pre-selected values from a given list of values
+ * sets select_list.options[i].selected dependent on whether
+ * the values contain select_list.options[i].value or
+ * select_list.options[i].text
+ */
+function setSelectedItems(select_list_id, values) {
+  var select_list   = document.getElementById(select_list_id);
+
+  for ( var i = 0; i < select_list.options.length; i++ ) {
+      if(!(select_list.options[i].selected = values.contains(select_list.options[i].value)))
+      select_list.options[i].selected = values.contains(select_list.options[i].text);
+  }
+}

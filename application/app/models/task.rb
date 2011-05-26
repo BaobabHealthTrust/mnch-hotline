@@ -4,11 +4,10 @@ class Task < ActiveRecord::Base
   include Openmrs
 
   # Try to find the next task for the patient at the given location
-  def self.next_task(location, patient, session_date = Date.today)
+  def self.next_task(location, patient, session_date = Date.today, current_encounter_types = nil)
 
     tasks                   = self.all(:conditions => ["location = ? OR location = ?", "MNCH Hotline Station", "*"], :order => 'sort_weight ASC')
-    todays_encounters       = patient.encounters.find_by_date(session_date)
-    todays_encounter_types  = todays_encounters.map{|e| e.type.name rescue ''}.uniq rescue []
+    current_encounter_types = patient.encounters.find_by_date(session_date).map{|e| e.type.name rescue ''}.uniq rescue [] if current_encounter_types.nil?
 
     tasks.each do |task|
 
@@ -16,8 +15,7 @@ class Task < ActiveRecord::Base
       skip = false
 
       # Skip this task if we already run it
-      next if todays_encounters.map{ | e | e.name }.include?(task.encounter_type)
-      next if task.encounter_type.present? && todays_encounter_types.include?(task.encounter_type)
+      next if task.encounter_type.present? && current_encounter_types.include?(task.encounter_type)
       if task.gender.present?
         #skip this task if patient is not a female adult
         skip = true if (task.gender == "F" && !patient.female_adult?)
@@ -29,10 +27,10 @@ class Task < ActiveRecord::Base
       end
 
       # skip if there is neither MATERNAL HEALTH SYMPTOMS nor CHILD HEALTH SYMPTOMS encounter
-      skip = true if (!(todays_encounter_types.include?("MATERNAL HEALTH SYMPTOMS") || todays_encounter_types.include?("CHILD HEALTH SYMPTOMS")))
+      skip = true if (!(current_encounter_types.include?("MATERNAL HEALTH SYMPTOMS") || current_encounter_types.include?("CHILD HEALTH SYMPTOMS")))
 
       # return to patient dashboard
-      skip = !skip if task.location == "*" && task.sort_weight == 1000
+      skip = !skip if task.location == "*"
       # We need to skip this task for some reason
       next if skip
 
@@ -46,7 +44,9 @@ class Task < ActiveRecord::Base
       return task
     end
     # if all fails, return to the patient dashboard
-    return tasks.last
+    task      = tasks.last
+    task.url  = task.url.gsub(/\{patient\}/, "#{patient.patient_id}")
+    return task
   end 
   
   def self.validate_task(patient, task, location, session_date = Date.today)

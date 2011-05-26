@@ -4,7 +4,7 @@
 
 var symptoms_values = [];
 
-function setConceptNamesAndValues(symptoms, observations, obs_type,symptomType){
+function setConceptNamesAndValues(symptoms, observations, obs_type){
 
     var values_string = selectedValue(observations);
 
@@ -13,20 +13,8 @@ function setConceptNamesAndValues(symptoms, observations, obs_type,symptomType){
     var concept_name        = obs_type + index +"_concept_name";
     var value_coded_or_text = obs_type + index +"_value_coded_or_text";
 
-    var duplicateSymptoms= "CONVULSIONS";
-
-    if(values_string.contains(symptoms[index]) && symptoms[index]!= ""){
-      $(concept_name).value         = symptoms[index];
-      if (symptomType == "Danger") {
-        if (duplicateSymptoms.contains(symptoms[index])) {
-          $(concept_name).value += " SIGN";
-        }
-      } 
-      else if (symptomType == "Symptom") {
-         if (duplicateSymptoms.contains(symptoms[index])) {
-          $(concept_name).value += " SYMPTOM";
-        }
-      }
+    if(values_string.contains(symptoms[index][0]) && symptoms[index][1] != ""){
+      $(concept_name).value         = symptoms[index][1];
       $(value_coded_or_text).value  = 'YES';
     }
     else{
@@ -44,9 +32,9 @@ function setConceptNamesAndValues(symptoms, observations, obs_type,symptomType){
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 
-<% @child_health_symptoms = ["", "FEVER", "DIARRHEA", "COUGH", "CONVULSIONS",
-                            "NOT EATING", "VOMITING", "RED EYE",
-                            "FAST BREATHING", "VERY SLEEPY","UNCONSCIOUS"] %>
+<% @child_health_symptoms = [["",""], ["FEVER","FEVER"], ["DIARRHEA","DIARRHEA"], ["COUGH","COUGH"], ["CONVULSIONS","CONVULSIONS SYMPTOM"],
+                            ["NOT EATING","NOT EATING"], ["VOMITING","VOMITING"], ["RED EYE","RED EYE"],
+                            ["FAST BREATHING","FAST BREATHING"], ["VERY SLEEPY","VERY SLEEPY"], ["UNCONSCIOUS", "UNCONSCIOUS"]] %>
 
 <script type="text/javascript" language="javascript">
   symptoms_values = <%= to_jsarray(@child_health_symptoms) %> ;
@@ -56,7 +44,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type,symptomType){
 		{:id => "child_health_symptoms_id",
       :multiple     => true,
       :optional     => true,
-      :tt_onUnLoad  => "setConceptNamesAndValues(symptoms_values, 'child_health_symptoms_id', 'child_health_symptom','Symptom');",
+      :tt_onUnLoad  => "setConceptNamesAndValues(symptoms_values, 'child_health_symptoms_id', 'child_health_symptom');",
 		 :helptext      => "Experiencing any of the following symptoms?" } %>
 
   <%  @child_health_symptoms.each_with_index do |e, index| %>
@@ -65,6 +53,23 @@ function setConceptNamesAndValues(symptoms, observations, obs_type,symptomType){
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
     <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
   <%end%>
+
+<% @danger_signs = [["",""], ["FEVER OF 7 DAYS OR MORE","FEVER OF 7 DAYS OR MORE"], ["DIARRHEA FOR 14 DAYS OR MORE","DIARRHEA FOR 14 DAYS OR MORE"],
+                      ["BLOOD IN STOOL","BLOOD IN STOOL"], ["COUGH FOR 21 DAYS OR MORE","COUGH FOR 21 DAYS OR MORE"],
+                      ["CONVULSIONS","CONVULSIONS SIGN"], ["NOT EATING OR DRINKING ANYTHING","NOT EATING OR DRINKING ANYTHING"],
+                      ["VOMITING EVERYTHING","VOMITING EVERYTHING"],
+                      ["RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS", "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS"],
+                      ["VERY SLEEPY OR UNCONSCIOUS","VERY SLEEPY OR UNCONSCIOUS"], ["POTENTIAL CHEST INDRAWING","POTENTIAL CHEST INDRAWING"]] %>
+
+  <script type="text/javascript" language="javascript">
+    danger_signs_values = <%= to_jsarray(@danger_signs) %> ;
+  </script>
+	<%= select_tag "first_danger_signs",options_for_select(@danger_signs),
+		{:id          => "first_danger_signs_id",
+     :multiple    => true,
+     :optional     => true,
+     :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'first_danger_signs_id', 'danger_sign'); setSelectedItems('second_danger_signs_id', selectedValue('first_danger_signs_id'));",
+		 :helptext    => "Select the danger warning signs" } %>
 
 <% @child_health_info = ["", "SLEEPING", "FEEDING PROBLEMS", "CRYING",
                             "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
@@ -78,7 +83,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type,symptomType){
 		{:id          => "child_health_info_id",
      :multiple    => true,
      :optional    => true,
-     :tt_onUnLoad => "setConceptNamesAndValues(child_health_values, 'child_health_info_id', 'child_health_info','N/A');",
+     :tt_onUnLoad => "setConceptNamesAndValues(child_health_values, 'child_health_info_id', 'child_health_info');",
 		 :helptext    => "Does the caller want information on one of the following topics?" } %>
 
   <% @child_health_info.each_with_index do |e, index| %>
@@ -88,22 +93,12 @@ function setConceptNamesAndValues(symptoms, observations, obs_type,symptomType){
     <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
   <%end%>
 
-  <% @danger_signs = ["", "FEVER OF 7 DAYS OR MORE", "DIARRHEA FOR 14 DAYS OR MORE",
-                      "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE",
-                      "CONVULSIONS", "NOT EATING OR DRINKING ANYTHING",
-                      "VOMITING EVERYTHING",
-                      "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
-                      "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"] %>
-
-  <script type="text/javascript" language="javascript">
-    danger_signs_values = <%= to_jsarray(@danger_signs) %> ;
-  </script>
-	<%= select_tag "danger_signs",options_for_select(@danger_signs),
-		{:id          => "danger_signs_id",
+	<%= select_tag "second_danger_signs",options_for_select(@danger_signs),
+		{:id          => "second_danger_signs_id",
      :multiple    => true,
      :optional     => true,
-     :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'danger_signs_id', 'danger_sign','Danger');",
-		 :helptext    => "Select the danger warning signs for children" } %>
+     :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'second_danger_signs_id', 'danger_sign'); setSelectedItems('first_danger_signs_id', selectedValue('second_danger_signs_id'));",
+		 :helptext    => "Select additional danger warning signs if any" } %>
 
   <% @danger_signs.each_with_index do |e, index| %>
     <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "danger_sign#{index}_concept_name"}) %>

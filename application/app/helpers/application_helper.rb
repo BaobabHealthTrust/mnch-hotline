@@ -133,7 +133,7 @@ module ApplicationHelper
       if val.class == String
         str += "\"" + val + "\","
       elsif val.class == Array
-        to_jsarray(val)
+        str += to_jsarray(val)+ ","
       else
         str += val + ","
       end
