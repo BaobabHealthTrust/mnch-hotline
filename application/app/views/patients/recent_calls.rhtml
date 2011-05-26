@@ -27,7 +27,7 @@
                     <%= encounter.name.to_s.capitalize %>
                   </td>
                   <td align="right">
-                    <%= encounter.encounter_datetime.strftime("%d-%b-%Y").to_s.capitalize %>
+                    <%= encounter.encounter_datetime.strftime("%d-%b-%Y:%H:%M").to_s.capitalize %>
                   </td>
                 </tr>
                 <%break%>

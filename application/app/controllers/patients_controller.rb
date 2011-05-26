@@ -265,19 +265,16 @@ class PatientsController < ApplicationController
   end
 
   def previous_symptoms
-    @previous_symptoms_list  = Encounter.get_previous_symptoms(params[:patient_id])
-    @encounter_dates = @previous_symptoms_list.map{|encounter| encounter.encounter_datetime.strftime("%d-%b-%Y")}.uniq.reverse.first(5) rescue []
-
+    @previous_symptoms  = Encounter.get_previous_symptoms(params[:patient_id])
+    @encounter_dates = @previous_symptoms.map{|encounter| encounter.encounter_datetime.strftime("%d-%b-%Y")}.uniq.reverse.first(5) rescue []
+    
     render :layout => false
   end
 
   def recent_calls
     @recent_encounters_list = Encounter.get_previous_encounters(params[:patient_id])
     @recent_calls = Encounter.get_recent_calls(params[:patient_id]).uniq.sort.reverse.first(5)
-    #@search_id = Concept.find_by_name("CALL ID").concept_id
-    @encounters_list = Array.new
 
-    
     render :layout => false
   end
 
@@ -287,6 +284,17 @@ class PatientsController < ApplicationController
 
     render :layout => false
   end
+
+  def get_symptoms_concept_ids(concept_list)
+    concept_id_list = Array.new
+
+    concept_list.each{|concept|
+      concept_id_list << Concept.find_by_name(concept).concept_id
+    }
+
+    return concept_id_list
+  end
+  
   
 private
   

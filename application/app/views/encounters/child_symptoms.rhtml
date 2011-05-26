@@ -13,9 +13,8 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
     var concept_name        = obs_type + index +"_concept_name";
     var value_coded_or_text = obs_type + index +"_value_coded_or_text";
 
-
-    if(values_string.contains(symptoms[index]) && symptoms[index]!= ""){
-      $(concept_name).value         = symptoms[index];
+    if(values_string.contains(symptoms[index][0]) && symptoms[index][1] != ""){
+      $(concept_name).value         = symptoms[index][1];
       $(value_coded_or_text).value  = 'YES';
     }
     else{
@@ -33,9 +32,9 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 
-<% @child_health_symptoms = ["", "FEVER", "DIARRHEA", "COUGH", "CONVULSIONS",
-                            "NOT EATING", "VOMITING", "RED EYE",
-                            "FAST BREATHING", "VERY SLEEPY","UNCONSCIOUS"] %>
+<% @child_health_symptoms = [["",""], ["FEVER","FEVER"], ["DIARRHEA","DIARRHEA"], ["COUGH","COUGH"], ["CONVULSIONS","CONVULSIONS SYMPTOM"],
+                            ["NOT EATING","NOT EATING"], ["VOMITING","VOMITING"], ["RED EYE","RED EYE"],
+                            ["FAST BREATHING","FAST BREATHING"], ["VERY SLEEPY","VERY SLEEPY"], ["UNCONSCIOUS", "UNCONSCIOUS"]] %>
 
 <script type="text/javascript" language="javascript">
   symptoms_values = <%= to_jsarray(@child_health_symptoms) %> ;
@@ -55,12 +54,12 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
     <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
   <%end%>
 
-<% @danger_signs = ["", "FEVER OF 7 DAYS OR MORE", "DIARRHEA FOR 14 DAYS OR MORE",
-                      "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE",
-                      "CONVULSIONS", "NOT EATING OR DRINKING ANYTHING",
-                      "VOMITING EVERYTHING",
-                      "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
-                      "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"] %>
+<% @danger_signs = [["",""], ["FEVER OF 7 DAYS OR MORE","FEVER OF 7 DAYS OR MORE"], ["DIARRHEA FOR 14 DAYS OR MORE","DIARRHEA FOR 14 DAYS OR MORE"],
+                      ["BLOOD IN STOOL","BLOOD IN STOOL"], ["COUGH FOR 21 DAYS OR MORE","COUGH FOR 21 DAYS OR MORE"],
+                      ["CONVULSIONS","CONVULSIONS SIGN"], ["NOT EATING OR DRINKING ANYTHING","NOT EATING OR DRINKING ANYTHING"],
+                      ["VOMITING EVERYTHING","VOMITING EVERYTHING"],
+                      ["RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS", "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS"],
+                      ["VERY SLEEPY OR UNCONSCIOUS","VERY SLEEPY OR UNCONSCIOUS"], ["POTENTIAL CHEST INDRAWING","POTENTIAL CHEST INDRAWING"]] %>
 
   <script type="text/javascript" language="javascript">
     danger_signs_values = <%= to_jsarray(@danger_signs) %> ;

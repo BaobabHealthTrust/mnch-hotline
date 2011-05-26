@@ -7,15 +7,14 @@ var symptoms_values = [];
 function setConceptNamesAndValues(symptoms, observations, obs_type){
 
     var values_string = selectedValue(observations);
-
+   
     /* clear the fields*/
   for (var index = 0; index < symptoms.length; index++){
     var concept_name        = obs_type + index +"_concept_name";
-    var value_coded_or_text = obs_type + index +"_value_coded_or_text";
+    var value_coded_or_text = obs_type + index +"_value_coded_or_text";    
 
-    
-    if(values_string.contains(symptoms[index]) && symptoms[index]!= ""){
-      $(concept_name).value         = symptoms[index];
+    if(values_string.contains(symptoms[index][0]) && symptoms[index][1] != ""){
+      $(concept_name).value         = symptoms[index][1];
       $(value_coded_or_text).value  = 'YES';
     }
     else{
@@ -33,11 +32,11 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 
-<% @pregnancy_symptoms = ["", "VAGINAL BLEEDING DURING PREGNANCY",
-                        "POSTNATAL BLEEDING", "FEVER DURING PREGNANCY",
-                        "POSTNATAL FEVER", "HEADACHES", "FITS OR CONVULSIONS",
-                        "SWOLLEN HANDS OR FEET", "PALENESS OF THE SKIN AND TIREDNESS",
-                        "NO FETAL MOVEMENTS", "WATER BREAKS"] %>
+<% @pregnancy_symptoms = [["",""], ["VAGINAL BLEEDING DURING PREGNANCY","VAGINAL BLEEDING DURING PREGNANCY"],
+                        ["POSTNATAL BLEEDING","POSTNATAL BLEEDING"], ["FEVER DURING PREGNANCY","FEVER DURING PREGNANCY SYMPTOM"],
+                        ["POSTNATAL FEVER","POSTNATAL FEVER SYMPTOM"], ["HEADACHES","HEADACHES"], ["FITS OR CONVULSIONS","FITS OR CONVULSIONS SYMPTOM"],
+                        ["SWOLLEN HANDS OR FEET","SWOLLEN HANDS OR FEET SYMPTOM"], ["PALENESS OF THE SKIN AND TIREDNESS","PALENESS OF THE SKIN AND TIREDNESS SYMPTOM"],
+                        ["NO FETAL MOVEMENTS","NO FETAL MOVEMENTS SYMPTOM"], ["WATER BREAKS","WATER BREAKS SYMPTOM"]] %>
 
 <script type="text/javascript" language="javascript">
   symptoms_values = <%= to_jsarray(@pregnancy_symptoms) %> ;
@@ -57,11 +56,11 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
     <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
   <%end%>
 
-<% @danger_signs = ["", "HEAVY VAGINAL BLEEDING DURING PREGNANCY",
-                      "EXCESSIVE POSTNATAL BLEEDING", "FEVER DURING PREGNANCY",
-                      "POSTNATAL FEVER", "SEVERE HEADACHE", "FITS OR CONVULSIONS",
-                      "SWOLLEN HANDS OR FEET", "PALENESS OF THE SKIN AND TIREDNESS",
-                      "NO FETAL MOVEMENTS", "WATER BREAKS"] %>
+<% @danger_signs = [["",""], ["HEAVY VAGINAL BLEEDING DURING PREGNANCY","HEAVY VAGINAL BLEEDING DURING PREGNANCY"],
+                      ["EXCESSIVE POSTNATAL BLEEDING","EXCESSIVE POSTNATAL BLEEDING"], ["FEVER DURING PREGNANCY","FEVER DURING PREGNANCY SIGN"],
+                      ["POSTNATAL FEVER","POSTNATAL FEVER SIGN"], ["SEVERE HEADACHE","SEVERE HEADACHE"], ["FITS OR CONVULSIONS","FITS OR CONVULSIONS SIGN"],
+                      ["SWOLLEN HANDS OR FEET","SWOLLEN HANDS OR FEET SIGN"], ["PALENESS OF THE SKIN AND TIREDNESS","PALENESS OF THE SKIN AND TIREDNESS SIGN"],
+                      ["NO FETAL MOVEMENTS","NO FETAL MOVEMENTS SIGN"], ["WATER BREAKS","WATER BREAKS SIGN"]] %>
 
   <script type="text/javascript" language="javascript">
     danger_signs_values = <%= to_jsarray(@danger_signs) %> ;
@@ -95,9 +94,6 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
     <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
   <%end%>
 
-  <script type="text/javascript" language="javascript">
-    danger_signs_values = <%= to_jsarray(@danger_signs) %> ;
-  </script>
 	<%= select_tag "second_danger_signs",options_for_select(@danger_signs),
 		{:id          => "second_danger_signs_id",
      :multiple    => true,
