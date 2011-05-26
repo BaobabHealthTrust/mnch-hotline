@@ -262,6 +262,23 @@ class PatientsController < ApplicationController
             :type => 'text/csv; charset=iso-8859-1; header=present',
             :disposition => "attachment; filename=users.csv"
   end
+
+  def previous_symptoms
+    @previous_symptoms_list  = Encounter.get_previous_symptoms(params[:patient_id])
+    @encounter_dates = @previous_symptoms_list.map{|encounter| encounter.encounter_datetime.strftime("%d-%b-%Y")}.uniq.reverse.first(5) rescue []
+
+    render :layout => false
+  end
+
+  def recent_calls
+    @recent_encounters_list = Encounter.get_previous_encounters(params[:patient_id])
+    @recent_calls = Encounter.get_recent_calls(params[:patient_id]).uniq.sort.reverse.first(5)
+    #@search_id = Concept.find_by_name("CALL ID").concept_id
+    @encounters_list = Array.new
+
+    
+    render :layout => false
+  end
   
 private
   
