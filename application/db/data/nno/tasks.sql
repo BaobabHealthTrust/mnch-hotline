@@ -69,14 +69,14 @@ CREATE TABLE `task` (
 
 LOCK TABLES `task` WRITE;
 /*!40000 ALTER TABLE `task` DISABLE KEYS */;
-INSERT INTO `task` (url, description, encounter_type, location, has_obs_scopes, skips_if_has, sort_weights, gender,creator, date_created) VALUES 
-("/encounters/new/registration?patient_id={patient}", "Registration for every location", "REGISTRATION", "*", "*", "0", "1", nil, 1, NOW()),
+INSERT INTO `task` (url, description, encounter_type, location, has_obs_scope, skip_if_has, sort_weight, gender,creator, date_created) VALUES 
+("/encounters/new/registration?patient_id={patient}", "Registration for every location", "REGISTRATION", "*", "*", "0", "1", "nil", 1, NOW()),
 ("/encounters/new/female_symptoms?patient_id={patient}", "Get female health symptoms for all female adult patients", "MATERNAL HEALTH SYMPTOMS", "MNCH Hotline Station", "TODAY", "0", "2", "F", 1, NOW()),
 ("/encounters/new/pregnancy_status?patient_id={patient}", "Get pregnancy status if the patient is female adult", "PREGNANCY STATUS", "MNCH Hotline Station", "TODAY", "0", "3", "F", 1, NOW()),
 ("/encounters/new/child_symptoms?patient_id={patient}", "Get child health symptoms if the patient is a child (either gender)", "CHILD HEALTH SYMPTOMS", "MNCH Hotline Station", "TODAY", "0", "4", "*", 1, NOW()),
 ("/encounters/new/outcome?patient_id={patient}", "Record an outcome if symptoms have been collected", "UPDATE OUTCOME", "MNCH Hotline Station", "TODAY", "0", "5", "nil", 1, NOW()),
 ("/encounters/new/tips_and_reminders?patient_id={patient}", "Record tips and reminders preferences", "TIPS AND REMINDERS", "MNCH Hotline Station", "TODAY", "0", "6", "nil", 1, NOW()),
-("/patients/show/{patient}", "Everything is finished, go to the patient dashboard", nil, "*", "*", "0", "1000", "nil", 1, NOW());
+("/patients/show/{patient}", "Everything is finished, go to the patient dashboard", "nil", "*", "*", "0", "1000", "nil", 1, NOW());
 
 /*!40000 ALTER TABLE `task` ENABLE KEYS */;
 UNLOCK TABLES;
