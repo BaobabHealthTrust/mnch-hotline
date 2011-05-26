@@ -9,32 +9,30 @@
     background: #808080;
   }
 </style>
-
 <base target="_parent">
     <div id="recent-calls" style=" width: 680px; height: 320px; overflow: auto;">
-        <h3> Recent Calls</h3>
         <table width="90%">
+          <%  i = 0 %>
           <%@recent_calls.each{|call|%>
-
-            <%header_title = ("Call ID : " + call.to_s).humanize.titleize %>
+            <%header_title = ("Call ID : " + call.to_s + " " + @call_times[i].to_s).humanize.titleize %>
             <tr> <th class="visit-summary-header" colspan="2" style="height:2px;"><%=h(header_title)%></th> </tr>
             <%
+            encounter_entry = []
             for encounter in @recent_encounters_list do
               for obs in encounter.observations do
-                if obs.value_text == call %>
-                  <tr>
-                  <td>
-                    <%= encounter.name.to_s.capitalize %>
-                  </td>
-                  <td align="right">
-                    <%= encounter.encounter_datetime.strftime("%d-%b-%Y:%H:%M").to_s.capitalize %>
-                  </td>
-                </tr>
-                <%break%>
-                <%
+                if obs.value_text == call 
+                  encounter_entry << encounter.name.to_s.capitalize
+                  break
                 end 
               end
-            end
+            end %>
+            <tr>
+                  <td>
+                    <%= encounter_entry.join(", ").to_s %>
+                  </td>
+            </tr>
+            <% 
+            i += 1
           }%>
         </table>
       </div>
