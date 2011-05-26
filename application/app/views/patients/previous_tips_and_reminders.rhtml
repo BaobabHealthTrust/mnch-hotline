@@ -1,0 +1,53 @@
+<%= javascript_include_tag "touchscreen" %>
+<%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+
+<style type="text/css">
+  .visit-summary-header{
+    text-align: left;
+    font-size:  1em;
+    color:      #FFFFFF;
+    background: #808080;
+  }
+</style>
+
+<base target="_parent">
+    <div id="previous-tips" style=" width: 680px; height: 320px; overflow: auto;">
+        <h3> Previous Tips and Reminders</h3>
+        <table width="90%">
+          <%@encounter_dates.each{|encounter_date|
+            header = true
+            previous_encounter = ""
+            i = 0
+            for encounter in @previous_tips_and_reminders do
+              i += 1
+
+              if encounter.encounter_datetime.strftime("%d-%b-%Y").to_s == encounter_date.to_s %>
+                <% if encounter.name != previous_encounter
+                  header = true
+                   end
+                %>
+                <%if header == true %>
+                  <%header_title = ( encounter_date.to_s + " - " + encounter.name.to_s).humanize.titleize %>
+                  <tr> <th class="visit-summary-header" colspan="2" style="height:2px;"><%=h(header_title)%></th> </tr>
+                <%end%>
+                <% previous_encounter = encounter.name %>
+                <% header = false%>
+                <tr>
+                  <td>
+                    <%= encounter.to_s %>
+                  </td>
+                  <td>
+                  </td>
+                </tr>
+              <%end
+            end
+          }%>
+        </table>
+      </div>
+
+      <div id="graph">
+        <div id="choices" style="padding-top:5px;"> </div>
+        <div id="simplegraphholder" class="gadget-cell"></div>
+      </div>
+</base>
+
