@@ -24,7 +24,17 @@ class PatientsController < ApplicationController
   def visit_summary
     session[:mastercard_ids] = []
     session_date = session[:datetime].to_date rescue Date.today
-    @encounters = @patient.encounters.find_by_date(session_date)
+    @encounters_list = @patient.encounters.find_by_date(session_date).reverse
+    @encounters = []
+    for encounter in @encounters_list do
+      for obs in encounter.observations do
+        if obs.value_text == session[:call_id].to_s
+          @encounters << encounter
+          break
+        end
+      end
+    end
+
     @encounter_names = @encounters.map{|encounter| encounter.name}.uniq rescue []
     @prescriptions = @patient.orders.unfinished.prescriptions.all
     # This code is pretty hacky at the moment
@@ -274,7 +284,21 @@ class PatientsController < ApplicationController
   def recent_calls
     @recent_encounters_list = Encounter.get_previous_encounters(params[:patient_id])
     @recent_calls = Encounter.get_recent_calls(params[:patient_id]).uniq.sort.reverse.first(5)
-
+    @call_times =[]
+    @recent_calls.each{|call|
+      
+      if call.to_s == session[:call_id].to_s
+          @call_times << "Start: " + session[:call_start_timestamp].strftime("%d-%b-%Y:%H:%M").to_s + " End: Still Active"
+      else
+        selected_call = CallLog.find_by_call_log_id(call.to_i)
+        if selected_call != nil
+          @call_times << "Start: " + selected_call.start_time.strftime("%d-%b-%Y:%H:%M").to_s + " End: " + selected_call.end_time.strftime("%d-%b-%Y:%H:%M").to_s
+        else
+          @call_times << "Time not Logged"
+        end
+      end
+      
+    }
     render :layout => false
   end
 
