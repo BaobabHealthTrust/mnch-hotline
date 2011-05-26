@@ -279,6 +279,13 @@ class PatientsController < ApplicationController
     
     render :layout => false
   end
+
+  def previous_tips_and_reminders
+    @previous_tips_and_reminders = Encounter.get_previous_tips_and_reminders(params[:patient_id])
+    @encounter_dates = @previous_tips_and_reminders.map{|encounter| encounter.encounter_datetime.strftime("%d-%b-%Y")}.uniq.reverse.first(5) rescue []
+
+    render :layout => false
+  end
   
 private
   
