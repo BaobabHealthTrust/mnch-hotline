@@ -38,8 +38,8 @@
 
   <select id="tabs">
     <option value="/patients/visit_summary?patient_id=<%=@patient.id%>">Current Call</option>
-    <option value="">Symptoms History</option>
-    <option value="">Recent Calls</option>
+    <option value="/patients/previous_symptoms?patient_id=<%=@patient.id%>">Symptoms History</option>
+    <option value="/patients/recent_calls?patient_id=<%=@patient.id%>">Recent Calls</option>
     <option value="">Tips and Reminders</option>
   </select>
 
