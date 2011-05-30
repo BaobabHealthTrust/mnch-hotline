@@ -107,7 +107,7 @@ class Encounter < ActiveRecord::Base
        observations.collect{|observation| observation.to_s_with_bold_name}.join(", ")
     else
       #changed the line below, from observation.answer_string to observation.to_s
-      observations.collect{|observation| observation.to_s.capitalize}.join(", ")
+      observations.collect{|observation| observation.to_s_with_bold_name}.join(", ")
     end  
   end
 
