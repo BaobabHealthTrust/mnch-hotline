@@ -14,8 +14,8 @@
         <table width="90%">
           <%  i = 0 %>
           <%@recent_calls.each{|call|%>
-            <%header_title = ("Call ID : " + call.to_s + " " + @call_times[i].to_s).humanize.titleize %>
-            <tr> <th class="visit-summary-header" colspan="2" style="height:2px;"><%=h(header_title)%></th> </tr>
+            <%header_title = ("<div style='float:right;'>Call ID : " + call.to_s + "</div> <div style='float:left;'>" + @call_times[i].to_s).humanize.titleize + "</div>" %>
+            <tr> <th class="visit-summary-header" colspan="2" style="height:2px;"><%=(header_title)%></th> </tr>
             <%
             encounter_entry = []
             for encounter in @recent_encounters_list do
