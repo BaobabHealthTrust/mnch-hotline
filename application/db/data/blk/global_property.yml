@@ -921,13 +921,13 @@ global_property_00099:
   property_value: "false"
   description: Indicates whether or not the 'health center' attribute is shown when viewing/searching for patients
 global_property_00226: 
-  property: IVR_ACCESS_CODE_COUNTER 
+  property: ivr_access_code.counter
   uuid: 1d54b348-bd85-11df-9b35-00248c09418a
   id: 226
   property_value: "0"
   description: keeps track of the ivr access code.
 global_property_00227: 
-  property: CALL_ID_COUNTER  
+  property: call_id.counter
   uuid: 1d54b348-bd85-11df-9b35-00248c09418a
   id: 227
   property_value: "0"
