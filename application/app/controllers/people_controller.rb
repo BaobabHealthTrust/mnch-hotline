@@ -4,6 +4,8 @@ class PeopleController < ApplicationController
   end
  
   def new
+    @gender = {"" => "", "Male" => "M", "Female" => "F"}
+    @health_facilities = [""] + ClinicSchedule.health_facilities_list
   end
   
   def identifiers
