@@ -219,18 +219,18 @@ class Person < ActiveRecord::Base
   end
 
   def self.create_from_form(params)
-    address_params = params["addresses"]
-    names_params = params["names"]
-    patient_params = params["patient"]
-
-    params_to_process = params.reject{|key,value| key.match(/addresses|patient|names|relation|cell_phone_number|home_phone_number|office_phone_number/) }
-    birthday_params = params_to_process.reject{|key,value| key.match(/gender/) }
-    person_params = params_to_process.reject{|key,value| key.match(/birth_|age_estimate|occupation/) }
+    address_params    = params["addresses"]
+    attributes_params = params["attributes"]
+    birthday_params   = params["birth_details"]
+    names_params      = params["names"]
+    patient_params    = params["patient"]
+    person_params     = params["person"]
 
     person = Person.create(person_params)
 
     if birthday_params["birth_year"] == "Unknown"
-      person.set_birthdate_by_age(birthday_params["age_estimate"],self.session_datetime || Date.today)
+      date  = self.session_datetime || Date.today
+      person.set_birthdate_by_age(birthday_params["age_estimate"],date)
     else
       person.set_birthdate(birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"])
     end
@@ -238,21 +238,14 @@ class Person < ActiveRecord::Base
     person.names.create(names_params)
     person.addresses.create(address_params)
 
-    person.person_attributes.create(
-      :person_attribute_type_id => PersonAttributeType.find_by_name("Occupation").person_attribute_type_id,
-      :value => params["occupation"])
- 
-    person.person_attributes.create(
-      :person_attribute_type_id => PersonAttributeType.find_by_name("Cell Phone Number").person_attribute_type_id,
-      :value => params["cell_phone_number"])
- 
-    person.person_attributes.create(
-      :person_attribute_type_id => PersonAttributeType.find_by_name("Office Phone Number").person_attribute_type_id,
-      :value => params["office_phone_number"]) unless params["office_phone_number"].blank?
- 
-    person.person_attributes.create(
-      :person_attribute_type_id => PersonAttributeType.find_by_name("Home Phone Number").person_attribute_type_id,
-      :value => params["home_phone_number"]) unless params["home_phone_number"].blank?
+    if !attributes_params.blank?
+      attributes_params.map do |attribute, value|
+        attribute_name     = attribute.to_s.humanize.upcase
+        attribute_type_id  = PersonAttributeType.find_by_name(attribute_name).person_attribute_type_id
+
+        person.person_attributes.create(:person_attribute_type_id => attribute_type_id, :value => value)
+      end
+    end
  
 # TODO handle the birthplace attribute
 
