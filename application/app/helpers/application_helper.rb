@@ -53,7 +53,11 @@ module ApplicationHelper
 
   def ask_standard_art_side_effects
     GlobalProperty.find_by_property("art_visit.standard_art_side_effects").property_value == "yes" rescue false
-  end  
+  end
+
+ def ask_multiple_phone_numbers
+   GlobalProperty.find_by_property("ask_multiple_phone_numbers").property_value rescue false
+ end
 
   def month_name_options
     i=0
