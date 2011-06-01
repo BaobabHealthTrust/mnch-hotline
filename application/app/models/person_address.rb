@@ -6,7 +6,10 @@ class PersonAddress < ActiveRecord::Base
   belongs_to :person, :foreign_key => :person_id, :conditions => {:voided => 0}
   
   # Looks for the most commonly used element in the database and sorts the results based on the first part of the string
-  def self.find_most_common(field_name, search_string)
+  def self.find_most_common(column_name, search_text)
+    field_name    = column_name
+    search_string = search_text
+
     return self.find_by_sql(["SELECT DISTINCT #{field_name} AS #{field_name}, person_address_id AS id FROM person_address WHERE voided = 0 AND #{field_name} LIKE ? GROUP BY #{field_name} ORDER BY INSTR(#{field_name},\"#{search_string}\") ASC, COUNT(#{field_name}) DESC, #{field_name} ASC LIMIT 10", "%#{search_string}%"])
   end
   
