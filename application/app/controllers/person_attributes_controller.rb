@@ -1,0 +1,2 @@
+class PersonAttributesController < ApplicationController
+end
