@@ -1,6 +1,14 @@
 class Location < ActiveRecord::Base
   set_table_name "location"
   set_primary_key "location_id"
+  has_many :obs, :foreign_key => :location_id
+  has_many :patient_identifiers, :foreign_key => :location_id
+  has_many :encounters, :foreign_key => :location_id
+  belongs_to :parent, :foreign_key => :parent_location_id, :class_name => "Location"
+  has_many :children, :foreign_key => :parent_location_id, :class_name => "Location"
+  belongs_to :user, :foreign_key => :user_id
+  has_many :location_tag_map, :foreign_key => :location_id
+
   include Openmrs
 
   cattr_accessor :current_location
@@ -56,6 +64,16 @@ class Location < ActiveRecord::Base
 
   def self.current_arv_code
     current_health_center.neighborhood_cell rescue nil
+  end
+  
+  def Location.get_list
+    return @@location_list
+  end
+
+  def self.search(search_string)
+      field_name = "name"
+      @names = self.find_by_sql("SELECT * FROM location WHERE name LIKE '%#{search_string}%' ORDER BY name ASC").collect{|name| name.send(field_name)}
+
   end
 
 end

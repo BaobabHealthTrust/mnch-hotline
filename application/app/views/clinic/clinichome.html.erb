@@ -2,7 +2,7 @@
   tt_cancel_destination = "/logout";
   tt_cancel_show = "/clinic/call?task=new";
   tstSuppressBarcode = true;
-  tt_active_tab = <%="'#{@tt_active_tab}'"%>;
+   tt_active_tab = <%="'#{@tt_active_tab}'"%>;
 </script>
 
 <div id="home">
@@ -16,7 +16,7 @@
     <option value='/clinic/overview' target="_parent">Overview</option>
     <option value=''>Reports</option>
     <% if User.current_user.admin? %>
-      <option value='/clinic/administration' target="_parent">Admin</option>
+      <option value='/clinic/clinicadministration' target="_parent">Admin</option>
     <% end %>
   </select>
 

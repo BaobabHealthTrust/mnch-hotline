@@ -10,7 +10,7 @@ class GlobalProperty < ActiveRecord::Base
   def self.next_ivr_access_code
     site_location = Location.current_health_center.location_id
 
-    globalproperty = GlobalProperty.find_by_property("IVR_ACCESS_CODE_COUNTER")
+    globalproperty = GlobalProperty.find_by_property("ivr_access_code.counter")
     current_number = globalproperty.property_value.to_i + 1
     globalproperty.update_attribute('property_value', current_number)
     globalproperty.save
@@ -19,7 +19,7 @@ class GlobalProperty < ActiveRecord::Base
   end
 
   def self.next_call_id
-    globalproperty = GlobalProperty.find_by_property("CALL_ID_COUNTER")
+    globalproperty = GlobalProperty.find_by_property("call_id.counter")
     current_number = globalproperty.property_value.to_i + 1
     globalproperty.update_attribute('property_value', current_number)
     globalproperty.save

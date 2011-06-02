@@ -72,10 +72,10 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
      :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'first_danger_signs_id', 'danger_sign');setSelectedItems('second_danger_signs_id', selectedValue('first_danger_signs_id'));",
 		 :helptext    => "Select the danger signs" } %>
 
-<% @maternal_health_info = ["", "HEALTHCARE VISITS", "NUTRITION", "BODY CHANGES",
-                            "DISCOMFORT", "CONCERNS", "EMOTIONS",
-                            "WARNING SIGNS", "ROUTINES", "BELIEFS",
-                            "BABY'S GROWTH", "MILESTONES", "PREVENTION"] %>
+<% @maternal_health_info = [["", ""], ["HEALTHCARE VISITS", "HEALTHCARE VISITS"], ["NUTRITION", "NUTRITION"], ["BODY CHANGES", "BODY CHANGES"],
+                            ["DISCOMFORT", "DISCOMFORT"], ["CONCERNS", "CONCERNS"], ["EMOTIONS", "EMOTIONS"],
+                            ["WARNING SIGNS", "WARNING SIGNS"], ["ROUTINES", "ROUTINES"], ["BELIEFS", "BELIEFS"],
+                            ["BABY'S GROWTH", "BABY'S GROWTH"], ["MILESTONES", "MILESTONES"], ["PREVENTION", "PREVENTION"]] %>
 
   <script type="text/javascript" language="javascript">
     maternal_health_values = <%= to_jsarray(@maternal_health_info) %> ;
