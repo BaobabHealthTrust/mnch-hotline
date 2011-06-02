@@ -23,6 +23,13 @@ class ApplicationController < ActionController::Base
 
   def next_task(patient)
     session_date = session[:datetime].to_date rescue Date.today
+
+    # a fix to allow for redirections from outcome to clinic schedules
+    if session[:outcome_complete]
+      session.delete(:outcome_complete) # delete the session variable completely to avoid endless iterations
+      return "/clinic/schedules?patient_id="+ patient.patient_id.to_s + "&source_url=patient_dashboard"
+    end
+
     todays_encounter_types = patient.encounters.find_by_date(session_date).map{|e| e.type.name rescue ''}.uniq rescue []
     if (session[:mnch_protocol_required] || (!todays_encounter_types.include?"REGISTRATION"))
       task = Task.next_task(Location.current_location, patient, session_date, todays_encounter_types)

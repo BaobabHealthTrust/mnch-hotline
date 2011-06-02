@@ -3,8 +3,8 @@
 <script language="javascript">
   tt_cancel_destination = "<%= @destination %>";
   tt_cancel_show = "<%= @destination %>";
-
   var destination = "<%= @destination %>";
+  tstSuppressBarcode = true;
 
   jQuery(document).ready(function($) {
     $('#back').click(function() { window.location = destination })

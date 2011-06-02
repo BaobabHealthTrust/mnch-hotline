@@ -69,7 +69,9 @@ class ClinicController < ApplicationController
       render :template => "/clinic/select", :layout => "application"
     else
       if @source_url == "patient_dashboard"
-        @destination = "/patients/show/#{@patient_id}"
+        session.delete(:health_facility)
+        patient       = Patient.find(@patient_id)
+        @destination  = next_task(patient) and return # let the system resolve the next task to do and return sucessfully
       elsif @source_url =="clinic_dashboard"
         @destination = "/clinic"
       else

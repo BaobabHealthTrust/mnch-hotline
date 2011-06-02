@@ -125,7 +125,11 @@ class EncountersController < ApplicationController
       end
     end
 
-    session[:mnch_protocol_required] = true if (encounter && (encounter.name == "PREGNANCY STATUS" || encounter.name == "CHILD HEALTH SYMPTOMS"))
+    session[:mnch_protocol_required]  = true if (encounter && (encounter.name == "PREGNANCY STATUS" || encounter.name == "CHILD HEALTH SYMPTOMS"))
+    if (encounter && encounter.name == "UPDATE OUTCOME" && params["select_outcome"] == "REFERRED TO A HEALTH CENTRE")
+      session[:outcome_complete]  = true
+      session[:health_facility]   = params["health_center"]
+    end
 
     # Go to the next task in the workflow (or dashboard)
     redirect_to next_task(@patient) 
