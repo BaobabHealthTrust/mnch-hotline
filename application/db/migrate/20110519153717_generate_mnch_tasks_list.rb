@@ -1,12 +1,12 @@
 class GenerateMnchTasksList < ActiveRecord::Migration
   def self.up
-    encounter_types = ["REGISTRATION", "MATERNAL HEALTH SYMPTOMS",
-                        "PREGNANCY STATUS", "CHILD HEALTH SYMPTOMS",
+    encounter_types = ["REGISTRATION","PREGNANCY STATUS",
+                        "MATERNAL HEALTH SYMPTOMS", "CHILD HEALTH SYMPTOMS",
                         "UPDATE OUTCOME", "TIPS AND REMINDERS", nil]
 
     urls = ["/encounters/new/registration?patient_id={patient}",
+            "/encounters/new/pregnancy_status?patient_id={patient}",
             "/encounters/new/female_symptoms?patient_id={patient}",
-            "/encounters/new/pregnancy_status?patient_id={patient}", 
             "/encounters/new/child_symptoms?patient_id={patient}", 
             "/encounters/new/outcome?patient_id={patient}",
             "/encounters/new/tips_and_reminders?patient_id={patient}",
@@ -26,8 +26,8 @@ class GenerateMnchTasksList < ActiveRecord::Migration
     genders         = [nil, "F", "F", "*", nil, nil, nil]
 
     descriptions    = ["Registration for every location",
-                        "Get female health symptoms for all female adult patients",
                         "Get pregnancy status if the patient is female adult",
+                        "Get female health symptoms for all female adult patients",
                         "Get child health symptoms if the patient is a child (either gender)",
                         "Record an outcome if symptoms have been collected",
                         "Record tips and reminders preferences",

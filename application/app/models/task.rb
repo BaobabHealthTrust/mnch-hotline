@@ -26,8 +26,8 @@ class Task < ActiveRecord::Base
 
       end
 
-      # skip if there is neither MATERNAL HEALTH SYMPTOMS nor CHILD HEALTH SYMPTOMS encounter
-      skip = true if (!(current_encounter_types.include?("MATERNAL HEALTH SYMPTOMS") || current_encounter_types.include?("CHILD HEALTH SYMPTOMS")))
+      # skip if there is neither PREGNANCY STATUS nor CHILD HEALTH SYMPTOMS encounter
+      skip = true if (!(current_encounter_types.include?("PREGNANCY STATUS") || current_encounter_types.include?("CHILD HEALTH SYMPTOMS")))
 
       # return to patient dashboard
       skip = !skip if task.location == "*"

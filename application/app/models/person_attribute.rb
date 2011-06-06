@@ -29,4 +29,26 @@ class PersonAttribute < ActiveRecord::Base
 
     person_phone_numbers
   end
+
+  # Looks for the most commonly used elements in the given table 'column' and sorts the results based on the first part of the string
+  def self.find_most_common(column, search_text, attribute_type = nil)
+    field_name        = column
+    search_string     = search_text
+    attribute_type_id = PersonAttributeType.find_by_name(attribute_type).person_attribute_type_id rescue nil
+
+    unless (attribute_type.blank? || attribute_type_id.blank?)
+      attribute_details = "person_attribute_type_id = #{attribute_type_id} AND "
+    else
+      attribute_details = ""
+    end
+
+    most_common_attribute_type =  self.find(:all,
+                                            :select     => "DISTINCT #{field_name} AS #{field_name}, person_attribute_id AS id",
+                                            :conditions => ["#{attribute_details} voided = 0 AND #{field_name} LIKE ?","%#{search_string}%"],
+                                            :group      => "#{field_name}",
+                                            :order      => "INSTR(#{field_name},\"#{search_string}\") ASC, COUNT(#{field_name}) DESC, #{field_name} ASC ",
+                                            :limit      => 10)
+
+    return most_common_attribute_type
+  end
 end

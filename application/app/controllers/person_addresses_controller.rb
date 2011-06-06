@@ -3,6 +3,10 @@ class PersonAddressesController < ApplicationController
     search("city_village", params[:search_string])
   end
 
+  def group_village_head
+    search("subregion", params[:search_string])
+  end
+
   def traditional_authority
     search("county_district", params[:search_string])
   end

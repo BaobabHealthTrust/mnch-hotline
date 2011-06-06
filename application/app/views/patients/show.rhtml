@@ -45,8 +45,8 @@
 
   <select id="links">
     <%if @patient.female_adult?%>
-      <option value='/encounters/new/female_symptoms?patient_id=<%=@patient.id%>'>Symptoms</option>
       <option value='/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>'>Pregnancy Status</option>
+      <option value='/encounters/new/female_symptoms?patient_id=<%=@patient.id%>'>Symptoms</option>
     <%else%>
       <% if @patient.person.age <= 5 %>
         <option value='/encounters/new/child_symptoms?patient_id=<%=@patient.id%>'>Symptoms</option>
