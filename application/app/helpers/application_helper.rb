@@ -80,7 +80,7 @@ module ApplicationHelper
     "Hotline"
   end
   def system_date
-    return (session[:datetime].to_date rescue Date.today).strftime('%d-%b-%Y')
+    return (session[:datetime].to_date rescue Date.today).strftime('%Y-%m-%d')
   end
   def welcome_message
     "Muli bwanji, enter your user information or scan your id card. <span style='font-size:0.6em;float:right'>(#{version})</span>"  

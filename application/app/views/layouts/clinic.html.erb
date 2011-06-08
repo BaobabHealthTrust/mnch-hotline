@@ -7,7 +7,8 @@
     <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
     <%= stylesheet_link_tag "dashboard" %>
     <%= stylesheet_link_tag "graytabs" %>
-    <%= javascript_include_tag "dashboard" %>
+	<script src="/javascripts/dashboard.js" type="text/javascript"></script>
+    <%#= javascript_include_tag "touchScreenToolkit" :defer%>
   </head>
   <body id="container">
       <%= yield %>
