@@ -306,12 +306,12 @@ function generateHomepage(){
             button.style.margin = "0px";
             button.style.marginTop = "5px";
             button.innerHTML = "<span>" + childlinks[j].innerHTML.trim() + "</span>";
-            button.setAttribute("link", childlinks[j].getAttribute("link"));
+            button.setAttribute("link", childlinks[j].value);
             if (j == 0) {
                 button.className = "red left";
                 button.id = "btnCancel";
                 button.onclick = function(){
-                    if(__$("btnCancel").getAttribute("link") != null){
+                    if(__$("btnCancel").getAttribute("link") != ""){
                         window.location = __$("btnCancel").getAttribute("link");
                     } else {
                         window.location = tt_cancel_destination;
@@ -321,7 +321,7 @@ function generateHomepage(){
                 button.className = "green";
                 button.id = "btnNext";
                 button.onclick = function(){
-                    if(__$("btnNext").getAttribute("link") != null){
+                    if(__$("btnNext").getAttribute("link") != ""){
                         window.location = __$("btnNext").getAttribute("link");
                     } else {
                         window.location = tt_cancel_show;
@@ -548,35 +548,37 @@ function generateDashboard(){
 
     content.appendChild(nav);
 
-/*
-    var finish = document.createElement("button");
-    finish.id = "btnNext";
-    finish.innerHTML = "<span>Finish</span>";
-    finish.className = "green";
-    finish.style.cssFloat = "right";
-    finish.style.margin = "10px";
-    finish.onclick = function(){
-        if(tt_cancel_destination){
-            window.location = tt_cancel_destination;
+    if(tt_cancel_show){
+        var finish = document.createElement("button");
+        finish.id = "btnNext";
+        finish.innerHTML = "<span>Finish</span>";
+        finish.className = "green";
+        finish.style.cssFloat = "right";
+        finish.style.margin = "10px";
+        finish.onclick = function(){
+            if(tt_cancel_show){
+                window.location = tt_cancel_show;
+            }
         }
+
+        nav.appendChild(finish);
     }
-
-    nav.appendChild(finish);
-
-    var logout = document.createElement("button");
-    logout.id = "btnCancel";
-    logout.innerHTML = "<span>Cancel</span>";
-    logout.className = "red";
-    logout.style.cssFloat = "left";
-    logout.style.margin = "10px";
-    logout.onclick = function(){
-        if(tt_cancel_show){
-            window.location = tt_cancel_show;
+    
+    if(tt_cancel_destination){
+        var logout = document.createElement("button");
+        logout.id = "btnCancel";
+        logout.innerHTML = "<span>Cancel</span>";
+        logout.className = "red";
+        logout.style.cssFloat = "left";
+        logout.style.margin = "10px";
+        logout.onclick = function(){
+            if(tt_cancel_destination){
+                window.location = tt_cancel_destination;
+            }
         }
-    }
 
-    nav.appendChild(logout);
-*/
+        nav.appendChild(logout);
+    }
 
     if(__$("tabs")){
         var children = __$("tabs").options;
@@ -632,34 +634,40 @@ function generateDashboard(){
             button.innerHTML = "<span>" + childlinks[j].innerHTML.trim() + "</span>";
             button.setAttribute("link", childlinks[j].getAttribute("link"));
 
-			if (j == 0) {
-	            button.className = "red left";
-		        button.onclick = function() {
-					if (this.getAttribute("link") == "") {
-		            	window.location = tt_cancel_destination;
-					} else {
-						window.location = this.getAttribute("link");
-					}
-		        }
-			} else if (j == 1) {
-	            button.className = "green";
-		        button.onclick = function(){
-					if (this.getAttribute("link") == "") {
-		            	window.location = tt_cancel_show;
-					} else {
-						window.location = this.getAttribute("link");
-					}
-		        }
-			} else {
-	            button.className = "blue";
-		        button.onclick = function(){
-		            window.location = this.getAttribute("link");
-		        }
-			}
+            if (!tt_cancel_destination && childlinks[j].innerHTML.trim().toLowerCase() == "cancel") {
+                button.className = "red";
+                button.id = "btnCancel";
+                button.onclick = function() {
+                    if (this.getAttribute("link") == "") {
+                        window.location = tt_cancel_destination;
+                    } else {
+                        window.location = this.getAttribute("link");
+                    }
+                }
+            } else if ((j == 0 && tt_cancel_destination) || (!tt_cancel_show && !tt_cancel_destination && j == 1)) {
+                button.className = "green";
+                button.id = "btnNext";
+                button.style.cssFloat = "right";
+                button.onclick = function(){
+                    if (this.getAttribute("link") == "") {
+                        window.location = tt_cancel_show;
+                    } else {
+                        window.location = this.getAttribute("link");
+                    }
+                }
+            } else {
 
-			if (childlinks[j].getAttribute("ttSize")) {
-	            button.style.minWidth = childlinks[j].getAttribute("ttSize");
-			}
+                button.className = "blue";
+                button.style.cssFloat = "right";
+                button.onclick = function(){
+                    window.location = this.getAttribute("link");
+                }
+                
+            }
+
+            if (childlinks[j].getAttribute("ttSize")) {
+                button.style.minWidth = childlinks[j].getAttribute("ttSize");
+            }
             if (childlinks[j].getAttribute("ttSize")) {
                 button.style.minWidth = childlinks[j].getAttribute("ttSize");
             }
@@ -877,9 +885,9 @@ function generateTab(headings, target, content){
     tabSelected = true;
     shiftLayer(__$("tabContainer"), __$("mainContainer"));
 
-	if(__$(ttActiveTab)){
-		activate(ttActiveTab);
-	}
+    if(__$(ttActiveTab)){
+        activate(ttActiveTab);
+    }
 }
 
 function loadBarcodePage() {
@@ -895,7 +903,7 @@ function focusForBarcodeInput(){
     var barcode = document.getElementById("barcode");
 
     if (tstSuppressBarcode == true) {
-       barcode.style.border="0px solid white";
+        barcode.style.border="0px solid white";
     }
 
     if (barcode) {
