@@ -15,7 +15,7 @@
 		{:id => "pregnancy_status",
 		 :helptext => "Pregnancy Status" } %>
     <%= touch_text_field_tag "EXPECTED DUE DATE", @patient, nil,
-        {:id => "due_date",
+        {:id => "expected_due_date",
       :field_type => "date",
       :helptext => "Expected Due Date",
       :condition => "$('pregnancy_status').value == 'PREGNANT'" } %>
