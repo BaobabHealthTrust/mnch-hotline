@@ -26,13 +26,8 @@ class PatientsController < ApplicationController
     session_date = session[:datetime].to_date rescue Date.today
     @encounters_list = @patient.encounters.find_by_date(session_date).reverse
     @encounters = []
-    for encounter in @encounters_list do
-      for obs in encounter.observations do
-        if obs.value_text == session[:call_id].to_s
-          @encounters << encounter
-          break
-        end
-      end
+    @encounters_list.map do |encounter|
+      @encounters.push encounter if encounter.observations.map{|obs| obs.answer_string}.include? session[:call_id].to_s
     end
 
     @encounter_names = @encounters.map{|encounter| encounter.name}.uniq rescue []
