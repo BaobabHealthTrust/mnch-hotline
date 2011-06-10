@@ -153,6 +153,10 @@ class EncountersController < ApplicationController
       :show_other_regimen => show_other_regimen      == "true")
     redirect_to "/" and return unless @patient
 
+    @encounter_answers  = {}
+    (!params[:encounter_id].blank?) ? (@encounter_id = params[:encounter_id].to_i) : (@encounter_id = nil)
+    @encounter_answers  = Encounter.retrieve_previous_encounter(@encounter_id) unless @encounter_id.nil?
+
     redirect_to next_task(@patient) and return unless params[:encounter_type]
 
     redirect_to :action => :create, 'encounter[encounter_type_name]' => params[:encounter_type].upcase, 'encounter[patient_id]' => @patient.id and return if ['registration'].include?(params[:encounter_type])
