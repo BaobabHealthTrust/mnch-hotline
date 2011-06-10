@@ -221,4 +221,92 @@ class Encounter < ActiveRecord::Base
    return previous_tips_and_reminders
   end
 
+  def self.retrieve_previous_encounter(encounter_id)
+    encounter = Encounter.find(encounter_id)
+
+    case encounter.name
+      when "CHILD HEALTH SYMPTOMS", "MATERNAL HEALTH SYMPTOMS"
+        values_hash = health_symptoms_values(encounter)
+      when "PREGNANCY STATUS", "TIPS AND REMINDERS", "UPDATE OUTCOME"
+        values_hash = standard_encounter_values(encounter)
+      else
+        values_hash = {}
+    end
+
+    return values_hash
+  end
+
+  def self.health_symptoms_values(encounter)
+    # child health symptoms
+    child_health_symptoms = {:health_symptoms => ["FEVER", "DIARRHEA", "COUGH",
+                                              "CONVULSIONS SYMPTOM", "NOT EATING",
+                                              "VOMITING", "RED EYE", "FAST BREATHING",
+                                              "VERY SLEEPY", "UNCONSCIOUS"],
+                            :danger_warning_signs => ["FEVER OF 7 DAYS OR MORE","DIARRHEA FOR 14 DAYS OR MORE",
+                                        "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE", "CONVULSIONS SIGN",
+                                        "NOT EATING OR DRINKING ANYTHING", "VOMITING EVERYTHING",
+                                        "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
+                                        "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"],
+                            :health_info => ["FEVER OF 7 DAYS OR MORE", "DIARRHEA FOR 14 DAYS OR MORE",
+                                        "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE", "CONVULSIONS SIGN",
+                                        "NOT EATING OR DRINKING ANYTHING", "VOMITING EVERYTHING",
+                                        "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
+                                        "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"]
+                        }
+
+    #maternal_health_symptoms
+    maternal_health_symptoms = {:health_symptoms => ["VAGINAL BLEEDING DURING PREGNANCY", "POSTNATAL BLEEDING",
+                                        "FEVER DURING PREGNANCY SYMPTOM", "POSTNATAL FEVER SYMPTOM",
+                                        "HEADACHES", "FITS OR CONVULSIONS SYMPTOM", "SWOLLEN HANDS OR FEET SYMPTOM",
+                                        "PALENESS OF THE SKIN AND TIREDNESS SYMPTOM", "NO FETAL MOVEMENTS SYMPTOM",
+                                        "WATER BREAKS SYMPTOM"],
+                              :danger_warning_signs => ["HEAVY VAGINAL BLEEDING DURING PREGNANCY",
+                                        "EXCESSIVE POSTNATAL BLEEDING","FEVER DURING PREGNANCY SIGN", "POSTNATAL FEVER SIGN",
+                                        "SEVERE HEADACHE", "FITS OR CONVULSIONS SIGN", "SWOLLEN HANDS OR FEET SIGN",
+                                        "PALENESS OF THE SKIN AND TIREDNESS SIGN", "NO FETAL MOVEMENTS SIGN", "WATER BREAKS SIGN"],
+                              :health_info => ["HEALTHCARE VISITS","NUTRITION","BODY CHANGES",
+                                        "DISCOMFORT","CONCERNS","EMOTIONS","WARNING SIGNS",
+                                        "ROUTINES","BELIEFS","BABY'S GROWTH","MILESTONES","PREVENTION"]
+                        }
+
+    encounter.name == "CHILD HEALTH SYMPTOMS" ? health_symptoms = child_health_symptoms : health_symptoms = maternal_health_symptoms
+
+    observations        = encounter.observations.map{|obs| [obs.concept.name, obs.answer_string] } rescue nil
+    observation_names   = []
+    observation_answers = []
+
+    observations.map do |concept, value|
+      observation_names   << concept
+      observation_answers << value
+    end
+
+    values_string = {:health_symptoms => nil, :danger_warning_signs => nil, :health_info => nil }
+
+    observation_names.map do |value|
+      if health_symptoms[:health_symptoms].include? value
+        (values_string[:health_symptoms].nil?) ? (values_string[:health_symptoms] = [value]) : (values_string[:health_symptoms].push value)
+      elsif health_symptoms[:danger_warning_signs].include? value
+        (values_string[:danger_warning_signs].nil?) ? (values_string[:danger_warning_signs] = [value]) : (values_string[:danger_warning_signs].push value)
+      elsif health_symptoms[:health_info].include? value
+        (values_string[:health_info].nil?) ? (values_string[:health_info] = [value]) : (values_string[:health_info].push value)
+      end
+    end
+
+    values_string
+  end
+
+  def self.standard_encounter_values(encounter)
+    values_string = {}
+
+    observations  = encounter.observations.map{|obs| [obs.concept.name, obs.answer_string] } rescue nil
+
+    unless observations.nil?
+      observations.map do |obs_name, value|
+          values_string[obs_name.downcase.gsub(' ','_').to_sym] = value
+      end
+    end
+
+    values_string
+  end
+
 end
