@@ -5,7 +5,7 @@ class ClinicController < ApplicationController
       session[:call_end_timestamp] = DateTime.now
       log_call(0)
     end
-
+    @tt_active_tab = params[:active_tab]
     render :template => 'clinic/homemain', :layout => 'clinic'
   end
 
@@ -46,7 +46,7 @@ class ClinicController < ApplicationController
   end
 
   def users
-    render :template => 'clinic/users', :layout => 'clinic' 
+    render :template => 'clinic/showuserfunctions', :layout => 'clinic'
   end
 
   def administration
@@ -169,7 +169,7 @@ class ClinicController < ApplicationController
 
     def clinichome
        @tt_active_tab = params[:active_tab]
-       render :template => 'clinic/clinichome', :layout => 'clinic'
+       render :template => 'clinic/clinicadministration', :layout => 'clinic'
     end
 
     def clinicadministration

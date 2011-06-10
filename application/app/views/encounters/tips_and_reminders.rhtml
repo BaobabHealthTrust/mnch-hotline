@@ -30,7 +30,7 @@
     :condition    => "$('enrol_for_tips_and_reminders').value == 'YES'"
 	} %>
 
-  <%@phone_type = ["", "COMMUNITY PHONE", "PERSONAL PHONE", "FAMILY MEMBER PHONE"]%>
+  <%@phone_type = ["", "COMMUNITY PHONE", "PERSONAL PHONE", "FAMILY MEMBER PHONE", "NEIGHBOUR'S PHONE"]%>
 
   <%= select_tag("health_center", options_for_select(@phone_type),options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "PHONE TYPE", options) %>

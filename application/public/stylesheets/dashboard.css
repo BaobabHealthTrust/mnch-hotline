@@ -370,18 +370,19 @@ div.panel h2 {
     overflow: hidden;
 }
 
-#links {
+#buttonlinks {
     height: 90%;
     float: right;
     width: 26%;
     background-color: #fff;
+    z-index: 100;
 }
 
 #patient-dashboard-main {
     float: left;
     width: 73%;
     height: 57%;
-    background-color: #fff;
+    margin-left: 3px;
 }
 
 #detailscontainer {
@@ -462,17 +463,17 @@ div.panel h2 {
 
 #id {
     display: table-cell;
-    margin: 10px;
+    margin: 5px;
     font-size: 1em;
     font-weight: bold;
-    padding: 10px;
+    padding: 2px;
     width: 45%;
 }
 
 #idvalue {
     display: table-cell;
-    margin: 10px;
-    padding: 10px;
+    margin: 5px;
+    padding: 2px;
 }
 
 #residenceRow{
@@ -481,19 +482,19 @@ div.panel h2 {
 
 #residence {
     display: table-cell;
-    margin: 10px;
+    margin: 5px;
     margin-top: 0px;
     font-size: 1em;
     font-weight: bold;
-    padding: 10px;
+    padding: 2px;
     width: 45%;
 }
 
 #residencevalue {
     display: table-cell;
-    margin: 10px;
+    margin: 5px;
     margin-top: 0px;
-    padding: 10px;
+    padding: 2px;
 }
 
 .patientLabelRow{
@@ -502,19 +503,19 @@ div.panel h2 {
 
 .patientLabel {
     display: table-cell;
-    margin: 10px;
+    margin: 5px;
     margin-top: 0px;
     font-size: 1em;
     font-weight: bold;
-    padding: 10px;
+    padding: 2px;
     width: 45%;
 }
 
 .patientLabelValue {
     display: table-cell;
-    margin: 10px;
+    margin: 5px;
     margin-top: 0px;
-    padding: 10px;
+    padding: 2px;
 }
 
 #logininfo{
