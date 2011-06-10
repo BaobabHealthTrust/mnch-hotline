@@ -31,6 +31,13 @@ class PatientsController < ApplicationController
     end
 
     @encounter_names = @encounters.map{|encounter| encounter.name}.uniq rescue []
+
+    @editing_url = {"PREGNANCY STATUS"          => '/encounters/new/pregnancy_status?patient_id=',
+                    "CHILD HEALTH SYMPTOMS"     => '/encounters/new/child_symptoms?patient_id=',
+                    "MATERNAL HEALTH SYMPTOMS"  => '/encounters/new/female_symptoms?patient_id=',
+                    "UPDATE OUTCOME"            => '/encounters/new/outcome?patient_id=',
+                  }
+
     @prescriptions = @patient.orders.unfinished.prescriptions.all
     # This code is pretty hacky at the moment
     @restricted = ProgramLocationRestriction.all(:conditions => {:location_id => Location.current_health_center.id })
