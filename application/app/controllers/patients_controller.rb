@@ -36,6 +36,7 @@ class PatientsController < ApplicationController
                     "CHILD HEALTH SYMPTOMS"     => '/encounters/new/child_symptoms?patient_id=',
                     "MATERNAL HEALTH SYMPTOMS"  => '/encounters/new/female_symptoms?patient_id=',
                     "UPDATE OUTCOME"            => '/encounters/new/outcome?patient_id=',
+                    "TIPS AND REMINDERS"        => '/encounters/new/tips_and_reminders?patient_id='
                   }
 
     @prescriptions = @patient.orders.unfinished.prescriptions.all
