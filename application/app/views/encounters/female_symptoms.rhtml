@@ -32,26 +32,26 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 
-<% @maternal_health_info = [["",""], ["VAGINAL BLEEDING DURING PREGNANCY","VAGINAL BLEEDING DURING PREGNANCY"],
+<% @maternal_health_symptoms = [["",""], ["VAGINAL BLEEDING DURING PREGNANCY","VAGINAL BLEEDING DURING PREGNANCY"],
                         ["POSTNATAL BLEEDING","POSTNATAL BLEEDING"], ["FEVER DURING PREGNANCY","FEVER DURING PREGNANCY SYMPTOM"],
                         ["POSTNATAL FEVER","POSTNATAL FEVER SYMPTOM"], ["HEADACHES","HEADACHES"], ["FITS OR CONVULSIONS","FITS OR CONVULSIONS SYMPTOM"],
                         ["SWOLLEN HANDS OR FEET","SWOLLEN HANDS OR FEET SYMPTOM"], ["PALENESS OF THE SKIN AND TIREDNESS","PALENESS OF THE SKIN AND TIREDNESS SYMPTOM"],
                         ["NO FETAL MOVEMENTS","NO FETAL MOVEMENTS SYMPTOM"], ["WATER BREAKS","WATER BREAKS SYMPTOM"]] %>
 
 <script type="text/javascript" language="javascript">
-  symptoms_values = <%= to_jsarray(@maternal_health_info) %> ;
+  symptoms_values = <%= to_jsarray(@maternal_health_symptoms) %> ;
 </script>
 
-	<%= select_tag "maternal_health_info",options_for_select(@maternal_health_info),
-		{:id => "maternal_health_info_id",
+	<%= select_tag "maternal_health_symptoms",options_for_select(@maternal_health_symptoms, @encounter_answers[:health_symptoms]),
+		{:id => "maternal_health_symptoms_id",
       :multiple     => true,
       :optional     => true,
-      :tt_onUnLoad  => "setConceptNamesAndValues(symptoms_values, 'maternal_health_info_id', 'pregnancy_symptom');",
+      :tt_onUnLoad  => "setConceptNamesAndValues(symptoms_values, 'maternal_health_symptoms_id', 'health_symptom');",
 		 :helptext      => "Experiencing any of the following symptoms?" } %>
 
-  <%  @maternal_health_info.each_with_index do |e, index| %>
-    <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "pregnancy_symptom#{index}_concept_name"}) %>
-    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => "pregnancy_symptom#{index}_value_coded_or_text"} ) %>
+  <%  @maternal_health_symptoms.each_with_index do |e, index| %>
+    <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "health_symptom#{index}_concept_name"}) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => "health_symptom#{index}_value_coded_or_text"} ) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
     <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
   <%end%>
@@ -65,7 +65,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
   <script type="text/javascript" language="javascript">
     danger_signs_values = <%= to_jsarray(@danger_signs) %> ;
   </script>
-	<%= select_tag "first_danger_signs",options_for_select(@danger_signs),
+	<%= select_tag "first_danger_signs",options_for_select(@danger_signs, @encounter_answers[:danger_warning_signs]),
 		{:id          => "first_danger_signs_id",
      :multiple    => true,
      :optional     => true,
@@ -80,7 +80,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
   <script type="text/javascript" language="javascript">
     maternal_health_values = <%= to_jsarray(@maternal_health_info) %> ;
   </script>
-	<%= select_tag "maternal_health_info",options_for_select(@maternal_health_info),
+	<%= select_tag "maternal_health_info",options_for_select(@maternal_health_info, @encounter_answers[:health_info]),
 		{:id          => "maternal_health_info_id",
      :multiple    => true,
      :optional     => true,

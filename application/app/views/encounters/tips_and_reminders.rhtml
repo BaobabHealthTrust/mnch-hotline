@@ -4,7 +4,7 @@
 
 <form id='tips_and_reminders' action="/encounters/create" method='post'>
 
-  <%= hidden_field_tag "encounter[encounter_type_name]",  "TIPS AND REMINDERS " %>
+  <%= hidden_field_tag "encounter[encounter_type_name]",  "TIPS AND REMINDERS" %>
   <%= hidden_field_tag "encounter[patient_id]",           @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]",   DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]",          session[:user_id] %>
@@ -17,7 +17,7 @@
 
   <%@enrol_for_tips_and_reminders = ["", "YES", "NO"]%>
 
-  <%= select_tag("select_outcome", options_for_select(@enrol_for_tips_and_reminders), options)%>
+  <%= select_tag("select_outcome", options_for_select(@enrol_for_tips_and_reminders, @encounter_answers[:on_tips_and_reminders_program]), options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "ON TIPS AND REMINDERS PROGRAM") %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'enrol_for_tips_and_reminders_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -32,7 +32,7 @@
 
   <%@phone_type = ["", "COMMUNITY PHONE", "PERSONAL PHONE", "FAMILY MEMBER PHONE", "NEIGHBOUR'S PHONE"]%>
 
-  <%= select_tag("health_center", options_for_select(@phone_type),options)%>
+  <%= select_tag("health_center", options_for_select(@phone_type, @encounter_answers[:telephone_number_type_]),options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "PHONE TYPE", options) %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_type_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -49,7 +49,7 @@
      :condition    => "$('enrol_for_tips_and_reminders').value == 'YES'"
      } %>
 
-  <%= text_field_tag "phone_number",  params[:cell_phone_number], options%>
+  <%= text_field_tag "phone_number",  @encounter_answers[:telephone_number], options%>
   <%= hidden_field_tag("observations[][concept_name]",        "PHONE NUMBER", options) %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_number_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -64,7 +64,7 @@
 
   <%@language_type = ["", "CHICHEWA", "CHIYAO"]%>
 
-  <%= select_tag("language_type", options_for_select(@language_type),options)%>
+  <%= select_tag("language_type", options_for_select(@language_type, @encounter_answers[:language_preference]),options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "LANGUAGE PREFERENCE", options) %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'language_type_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -79,7 +79,7 @@
 
   <%@message_type = ["", "SMS", "VOICE"]%>
 
-  <%= select_tag("message_type", options_for_select(@message_type),options)%>
+  <%= select_tag("message_type", options_for_select(@message_type, @encounter_answers[:type_of_message]),options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "TYPE OF MESSAGE", options) %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'message_type_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -95,11 +95,16 @@
 
   <%@content_type = ["", "PREGNANCY", "POSTNATAL", "CHILD", "WCBA", "OBSERVER"]%>
 
-  <%= select_tag("content_type", options_for_select(@content_type),options)%>
+  <%= select_tag("content_type", options_for_select(@content_type, @encounter_answers[:type_of_message_content]),options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "TYPE OF MESSAGE CONTENT", options) %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'content_type_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
   <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+
+  <%unless @encounter_id.nil?%>
+    <%= hidden_field_tag("encounter_id",  @encounter_id) %>
+    <%= hidden_field_tag("editing",       true) %>
+  <%end%>
 
   <%= submit_tag "Finish" %>
  </form>

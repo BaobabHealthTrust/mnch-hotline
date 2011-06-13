@@ -40,7 +40,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
   symptoms_values = <%= to_jsarray(@child_health_symptoms) %> ;
 </script>
 
-	<%= select_tag "child_health_symptoms",options_for_select(@child_health_symptoms),
+	<%= select_tag "child_health_symptoms",options_for_select(@child_health_symptoms, @encounter_answers[:health_symptoms]),
 		{:id => "child_health_symptoms_id",
       :multiple     => true,
       :optional     => true,
@@ -64,7 +64,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
   <script type="text/javascript" language="javascript">
     danger_signs_values = <%= to_jsarray(@danger_signs) %> ;
   </script>
-	<%= select_tag "first_danger_signs",options_for_select(@danger_signs),
+	<%= select_tag "first_danger_signs",options_for_select(@danger_signs, @encounter_answers[:danger_warning_signs]),
 		{:id          => "first_danger_signs_id",
      :multiple    => true,
      :optional     => true,
@@ -79,7 +79,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
   <script type="text/javascript" language="javascript">
     child_health_values = <%= to_jsarray(@child_health_info) %> ;
   </script>
-	<%= select_tag "child_health_info",options_for_select(@child_health_info),
+	<%= select_tag "child_health_info",options_for_select(@child_health_info, @encounter_answers[:health_info]),
 		{:id          => "child_health_info_id",
      :multiple    => true,
      :optional    => true,
@@ -105,6 +105,11 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => "danger_sign#{index}_value_coded_or_text"} ) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
     <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+  <%end%>
+
+  <%unless @encounter_id.nil?%>
+    <%= hidden_field_tag("encounter_id",  @encounter_id) %>
+    <%= hidden_field_tag("editing",       true) %>
   <%end%>
 
 	<%= submit_tag 'Finish' %>

@@ -10,19 +10,25 @@
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 	<%session_date = session[:datetime] || Time.now() %>
 
-<% @pregnancy_status = ["", "PREGNANT", "NOT PREGNANT", "DELIVERED"] %>
-	<%= touch_select_tag "PREGNANCY STATUS", @patient, options_for_select(@pregnancy_status),
+  <% @pregnancy_status = ["", "PREGNANT", "NOT PREGNANT", "DELIVERED"] %>
+	<%= touch_select_tag "PREGNANCY STATUS", @patient, options_for_select(@pregnancy_status, @encounter_answers[:pregnancy_status]),
 		{:id => "pregnancy_status",
 		 :helptext => "Pregnancy Status" } %>
-    <%= touch_text_field_tag "EXPECTED DUE DATE", @patient, nil,
+    <%= touch_text_field_tag "EXPECTED DUE DATE", @patient,@encounter_answers[:expected_due_date],
         {:id => "expected_due_date",
       :field_type => "date",
       :helptext => "Expected Due Date",
       :condition => "$('pregnancy_status').value == 'PREGNANT'" } %>
-    <%= touch_text_field_tag "DELIVERY DATE", @patient, nil,
+    <%= touch_text_field_tag "DELIVERY DATE", @patient,@encounter_answers[:delivery_date],
         {:id => "delivery_date",
       :field_type => "date",
       :helptext => "Delivery Date",
-      :condition => "$('pregnancy_status').value == 'DELIVERED'" } %>  
+      :condition => "$('pregnancy_status').value == 'DELIVERED'" } %>
+
+  <%unless @encounter_id.nil?%>
+    <%= hidden_field_tag("encounter_id",  @encounter_id) %>
+    <%= hidden_field_tag("editing",       true) %>
+  <%end%>
+
 	<%= submit_tag 'Finish' %>
 <% end %>
