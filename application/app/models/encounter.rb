@@ -247,11 +247,10 @@ class Encounter < ActiveRecord::Base
                                         "NOT EATING OR DRINKING ANYTHING", "VOMITING EVERYTHING",
                                         "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
                                         "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"],
-                            :health_info => ["FEVER OF 7 DAYS OR MORE", "DIARRHEA FOR 14 DAYS OR MORE",
-                                        "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE", "CONVULSIONS SIGN",
-                                        "NOT EATING OR DRINKING ANYTHING", "VOMITING EVERYTHING",
-                                        "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
-                                        "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"]
+                            :health_info => ["SLEEPING", "FEEDING PROBLEMS", "CRYING",
+                                        "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
+                                        "UMBILICUS INFECTION", "GROWTH MILESTONES",
+                                        "ACCESSING HEALTHCARE SERVICES"]
                         }
 
     #maternal_health_symptoms
