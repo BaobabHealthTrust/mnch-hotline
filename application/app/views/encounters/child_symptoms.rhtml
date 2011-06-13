@@ -71,10 +71,10 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
      :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'first_danger_signs_id', 'danger_sign'); setSelectedItems('second_danger_signs_id', selectedValue('first_danger_signs_id'));",
 		 :helptext    => "Select the danger warning signs" } %>
 
-<% @child_health_info = ["", "SLEEPING", "FEEDING PROBLEMS", "CRYING",
-                            "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
-                            "UMBILICUS INFECTION", "GROWTH MILESTONES",
-                            "ACCESSING HEALTHCARE SERVICES"] %>
+<% @child_health_info = [["",""],["SLEEPING","SLEEPING"], ["FEEDING PROBLEMS","FEEDING PROBLEMS"], ["CRYING","CRYING"],
+                            ["BOWEL MOVEMENTS","BOWEL MOVEMENTS"], ["SKIN RASHES","SKIN RASHES"], ["SKIN INFECTIONS","SKIN INFECTIONS"],
+                            ["UMBILICUS INFECTION","UMBILICUS INFECTION"], ["GROWTH MILESTONES","GROWTH MILESTONES"],
+                            ["ACCESSING HEALTHCARE SERVICES","ACCESSING HEALTHCARE SERVICES"]]%>
 
   <script type="text/javascript" language="javascript">
     child_health_values = <%= to_jsarray(@child_health_info) %> ;
