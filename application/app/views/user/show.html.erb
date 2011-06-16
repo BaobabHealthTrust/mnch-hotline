@@ -1,5 +1,6 @@
 <script>
    var tt_cancel_destination = "/clinic?active_tab=tab3"
+   var tt_cancel_show = "/clinic?active_tab=tab3"
 </script>
 <style>
   h1 { padding-left:10px; }
@@ -65,6 +66,11 @@
   </tr>
 </table>
 <br />
-<button id="edit" class="silver" style="margin-top:10px;" onmousedown="document.location = '/user/edit/<%= @user.id -%>'"><span>Edit user</span></button> 
+  <button id="edit" class="silver" style="margin-top:10px;"
+        onmousedown="document.location = '/user/edit/<%= @user.id -%>'"><span>Edit User names</span>
+  </button>
+  <button id="change_password" class="silver" style="margin-top:10px;"
+        onmousedown="document.location = '/user/change_password?id=<%= @user.id -%>'"><span>Change Password</span>
+  </button>
 </div>
 
