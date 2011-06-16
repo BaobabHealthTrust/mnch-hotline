@@ -2030,8 +2030,8 @@ TTInput.prototype = {
 
         if (isDateElement(this.formElement)) {
             this.value.match(/(\d+)\/(\d+)\/(\d+)/);
-            // var thisDate = new Date(this.value);
-            var thisDate = new Date(RegExp.$3,parseFloat(RegExp.$2)-1, RegExp.$1);
+             var thisDate = new Date(this.value);
+            //var thisDate = new Date(RegExp.$3,parseFloat(RegExp.$2)-1, RegExp.$1);
             minValue = this.element.getAttribute("min");
             maxValue = this.element.getAttribute("max");
             absMinValue = this.element.getAttribute("absoluteMin");
