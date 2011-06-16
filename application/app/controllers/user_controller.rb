@@ -103,8 +103,19 @@ class UserController < ApplicationController
   end
 
   def create
+    session[:user_edit] = nil
+    existing_user = User.find(:first, :conditions => {:username => params[:user][:username]}) rescue nil
+
+    if existing_user
+      flash[:notice] = 'Username already in use'
+      redirect_to :action => 'new'
+      return
+    end
+    
     if (params[:user][:password] != params[:user_confirm][:password])
       flash[:notice] = 'Password Mismatch'
+      redirect_to :action => 'new'
+      return
     #  flash[:notice] = nil
       @user_first_name = params[:person_name][:given_name]
 #      @user_middle_name = params[:user][:middle_name]
@@ -112,8 +123,6 @@ class UserController < ApplicationController
       @user_role = params[:user_role][:role_id]
       @user_admin_role = params[:user_role_admin][:role]
       @user_name = params[:user][:username]
-      redirect_to :action => 'new'
-      return
     end
       
     person = Person.create()
