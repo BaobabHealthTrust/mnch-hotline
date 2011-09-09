@@ -1,0 +1,15 @@
+<script>
+  var tt_cancel_destination = '/clinic';
+</script>
+<form method='POST' action="reports" >
+<%= select_tag :report,   options_for_select(@report_date_range), {:helpText => "Select Date Range"} %>
+
+<%= select_tag :patient,  options_for_select(@patient_type), {:helpText => "Select Patient Type"} %>
+
+<%= select_tag :grouping, options_for_select(@grouping), {:helpText => "Select Grouping Criterion"} %>
+
+<%= hidden_field_tag :report_type, "#{@report_type}" %>
+
+</form>
+
+

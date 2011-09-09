@@ -167,6 +167,25 @@ class ReportController < ApplicationController
   end
   
   def select
+    @report_date_range  = [""]
+    @patient_type       = [""]
+    @grouping           = [""]
+
+    @report_type        = params[:report_type]
+    @report_sub_type    = params[:q]
+
+    start_date          = Encounter.initial_encounter.encounter_datetime
+    end_date            = Date.today
+
+    @report_date_range  += Report.generate_report_date_range(start_date, end_date)
+
+    case @report_type
+      when "patient_analysis"
+        @patient_type       += ["Woman", "Child", "All"]
+        @grouping           += [["By Week", "week"], ["By Month", "month"]]
+
+        render :template => "/report/patient_analysis_selection" , :layout => "application"
+    end
   end
 
   def select_remote_options
