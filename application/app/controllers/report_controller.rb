@@ -199,4 +199,30 @@ class ReportController < ApplicationController
   def mastercard
   end
 
+  def type
+    report_type = params[:q]
+    case  report_type
+      when 'patient_analysis'
+        @reports = ["Demographics",     "Ages Distribution", "Health Issues",
+                    "Patient Activity", "Referral Followup", "Call Feedback"]
+
+        @report_label = 'a Patient Analysis Report'
+        @report_type  = report_type
+
+      when 'tips'
+        @reports = ["Tips Activity", "Current Enrollment Totals",
+                    "Individual Current Enrollments"]
+
+        @report_label = 'a Tips Report'
+        @report_type  = report_type
+
+      when 'call_analysis'
+        @reports = ["Call Time of Day", "Call Day Distribution",
+                    "Call Lengths",     "Call Feedback"]
+
+        @report_label = 'a Call Analysis Report'
+        @report_type  = report_type
+    end
+    render :template => '/report/type', :layout => 'clinic'
+  end
 end
