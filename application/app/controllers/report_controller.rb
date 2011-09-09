@@ -199,34 +199,4 @@ class ReportController < ApplicationController
   def mastercard
   end
 
-  def data_cleaning
-
-      @reports = {
-                    'Missing Prescriptions'=>'dispensations_without_prescriptions',
-                    'Missing Dispensations'=>'prescriptions_without_dispensations',
-                    'Multiple Start Reasons at Different times'=>'patients_with_multiple_start_reasons',
-                    'Out of range ARV number'=>'out_of_range_arv_number',
-                    'Data Consistency Check'=>'data_consistency_check'
-                 }
-    @landing_dashboard = params[:dashboard]
-    render :template => 'report/data_cleaning', :layout => 'clinic'
-  end
-
-  def appointment_dates
-
-    if (!params[:date].blank?) # retrieve appointment dates for a given day
-      @date       = params[:date].to_date
-      @patients   = Patient.appointment_dates(@date)
-    elsif (!params[:start_date].blank? && !params[:end_date].blank?) # retrieve appointment dates for a given date range
-      @start_date = params[:start_date].to_date
-      @end_date   = params[:end_date].to_date
-      @patients   = Patient.appointment_dates(@start_date, @end_date)
-    elsif (!params[:quarter].blank?) # retrieve appointment dates for a quarter
-      date_range  = Report.generate_cohort_date_range(params[:quarter])
-      @start_date  = date_range.first.to_date
-      @end_date    = date_range.last.to_date
-      @patients   = Patient.appointment_dates(@start_date, @end_date)
-    end
-  end
-
 end
