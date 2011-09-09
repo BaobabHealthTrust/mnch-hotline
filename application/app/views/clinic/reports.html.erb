@@ -1,38 +1,35 @@
-<%= render :partial => 'clinic/nav', :locals => {:active => 'reports', :label => "Reports"} %>
-<script type="text/javascript">
-  jQuery(document).ready(function($) {
-  }) 
-</script>
-<style type="text/css">
-  #stats {
-    width:98%;
-    border:1px solid black;
-    margin:10px;    
-    background:white;
-  } 
-  #stats td{
-    text-align:right;
-  }
+<html>
+  <head>
+    <%= javascript_include_tag "jquery-1.3.2.min" %>
+    <%= stylesheet_link_tag "dashboard" %>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+      })
+    </script>
+    <style type="text/css">
+      #stats {
+        width:98%;
+        border:1px solid black;
+        margin:10px;
+        background:white;
+      }
+      #stats td, #stats th {
+        text-align:center;
+      }
+    </style>
+  </head>
 
-  #stats a { 
-    width:155px; 
-    float:right;
-  }
-</style>
-
-<div id="tab" style="height: 461px;">
-  <div class="panel" style="width:980px">
-    <h2>Select report to view</h2>
-    <div style="height:970px;overflow:auto;">
-    <table id="stats" style="height: 400px;" cellpadding="10">
-      <% if  Encounter.count > 0 %>
-        <% (@reports || []).each do |name,path| %>
-          <tr>
-            <td><a href="<%=path%>" class='report_button'><%=name%></a></td>
-          </tr>
+  <body style="background-color: #ffffff">
+    <div id="buttons" style="height: 304px;margin-top: 200px;margin-left: 20px;">
+      <h2>Select a report</h2>
+      <base target="_parent">
+        <% if  Encounter.count > 0 %>
+          <% (@reports || []).each do |name,path| %>
+            <button style="margin: 5px 0px 0px; min-width: 280px;" onMouseDown="window.location= '<%=path%>'" target="_parent "class="blue"><span><%=name%></span></button><br/>
+          <%end%>
         <%end%>
-      <%end%>
-    </table>
+      </base>
     </div>
-  </div>        
-</div>
+  </body>
+</html>
+
