@@ -252,9 +252,9 @@ class ReportController < ApplicationController
   end
 
   def reports
-    case  params[:report_type]
-      when 'patient_analysis'
-        redirect_to :action       => "patient_analysis_report",
+    case  params[:query]
+      when 'demographics'
+        redirect_to :action       => "patient_demographics_report",
                     :start_date   => params[:start_date],
                     :end_date     => params[:end_date],
                     :patient_type => params[:patient_type],
