@@ -263,4 +263,16 @@ class ReportController < ApplicationController
     end
   end
 
+  def patient_demographics_report
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+
+    @report_name  = "Patient Demographics"
+    @report       = Patient.demographics_report(@patient_type, @start_date, @end_date)
+    render :layout => false
+  end
+
 end
