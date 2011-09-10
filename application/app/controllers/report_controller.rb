@@ -167,23 +167,29 @@ class ReportController < ApplicationController
   end
   
   def select
+
     @report_date_range  = [""]
     @patient_type       = [""]
     @grouping           = [""]
 
     @report_type        = params[:report_type]
-    @report_sub_type    = params[:q]
+    @query              = params[:query]
 
     start_date          = Encounter.initial_encounter.encounter_datetime
-    end_date            = Date.today
+    end_date            = session[:datetime].to_date rescue Date.today
 
-    @report_date_range  += Report.generate_report_date_range(start_date, end_date)
+    report_date_ranges  = Report.generate_report_date_range(start_date, end_date)
+    @date_range_values  = [["",""]]
+    @report_date_range  = report_date_ranges.inject({}){|date_range, report_date_range|
+                            date_range[report_date_range.first]         = report_date_range.last["datetime"]
+                            @date_range_values.push([report_date_range.last["range"].first, report_date_range.first])
+                            date_range
+                          }
 
     case @report_type
       when "patient_analysis"
-        @patient_type       += ["Woman", "Child", "All"]
+        @patient_type       += ["Women", "Children", "All"]
         @grouping           += [["By Week", "week"], ["By Month", "month"]]
-
         render :template => "/report/patient_analysis_selection" , :layout => "application"
     end
   end
