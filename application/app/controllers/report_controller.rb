@@ -250,4 +250,17 @@ class ReportController < ApplicationController
     end
     render :template => '/report/type', :layout => 'clinic'
   end
+
+  def reports
+    case  params[:report_type]
+      when 'patient_analysis'
+        redirect_to :action       => "patient_analysis_report",
+                    :start_date   => params[:start_date],
+                    :end_date     => params[:end_date],
+                    :patient_type => params[:patient_type],
+                    :report_type  => params[:report_type],
+                    :query        => params[:query]
+    end
+  end
+
 end
