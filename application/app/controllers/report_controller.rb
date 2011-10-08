@@ -252,11 +252,13 @@ class ReportController < ApplicationController
   end
 
   def reports
+
     case  params[:query]
       when 'demographics'
         redirect_to :action       => "patient_demographics_report",
                     :start_date   => params[:start_date],
                     :end_date     => params[:end_date],
+                    :grouping     => params[:grouping],
                     :patient_type => params[:patient_type],
                     :report_type  => params[:report_type],
                     :query        => params[:query]
@@ -269,9 +271,10 @@ class ReportController < ApplicationController
     @patient_type = params[:patient_type]
     @report_type  = params[:report_type]
     @query        = params[:query]
+    @grouping     = params[:grouping]
 
     @report_name  = "Patient Demographics"
-    @report       = Patient.demographics_report(@patient_type, @start_date, @end_date)
+    @report       = Report.patient_demographics(@patient_type, @grouping, @start_date, @end_date)
     render :layout => false
   end
 
