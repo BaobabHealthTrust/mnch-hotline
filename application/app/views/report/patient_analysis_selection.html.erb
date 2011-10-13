@@ -1,14 +1,28 @@
 <script>
   var tt_cancel_destination = '/clinic';
+  var date_ranges = <%= @report_date_range.to_json%>;
+
+  function setDateRange(quarter){
+    var date_range;
+    quarter     = $(quarter).value;
+    date_range  = date_ranges[quarter];
+
+    $('start_date').value = date_range[0];
+    $('end_date').value   = date_range[1];
+  }
 </script>
 <form method='POST' action="reports" >
-<%= select_tag :report,   options_for_select(@report_date_range), {:helpText => "Select Date Range"} %>
+<%= select_tag :report_date_range, options_for_select(@date_range_values),
+    {:helpText => "Select Date Range", :tt_onUnLoad=>"setDateRange('report_date_range');"} %>
 
-<%= select_tag :patient,  options_for_select(@patient_type), {:helpText => "Select Patient Type"} %>
+<%= select_tag :patient_type, options_for_select(@patient_type), {:helpText => "Select Patient Type"} %>
 
-<%= select_tag :grouping, options_for_select(@grouping), {:helpText => "Select Grouping Criterion"} %>
+<%= select_tag :grouping,     options_for_select(@grouping), {:helpText => "Select Grouping Criterion"} %>
 
-<%= hidden_field_tag :report_type, "#{@report_type}" %>
+<%= hidden_field_tag :query, "#{@query}"%>
+<%= hidden_field_tag :start_date, "", {:id => 'start_date'}%>
+<%= hidden_field_tag :end_date,   "", {:id => 'end_date'}%>
+<%= hidden_field_tag :report_type, "#{@report_type}", {:id => 'report_type'}%>
 
 </form>
 
