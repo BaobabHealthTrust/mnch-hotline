@@ -220,4 +220,43 @@ module Report
     new_patients_data
   end
 
+  def self.women_demographics(patients_data, date_range)
+    nearest_health_centers  = []
+
+    mnch_health_facilities_list = Location.find_by_tag("mnch_health_facilities")
+    mnch_health_facilities_list.map do |facility|
+      nearest_health_centers.push([facility["name"].humanize, 0])
+    end
+
+    new_patients_data  = {:new_registrations  => 0,
+                          :catchment          => nearest_health_centers.sort,
+                          :start_date         => date_range.first,
+                          :end_date           => date_range.last}
+    pregnant      = 0
+    non_pregnant  = 1
+    delivered     = 2
+    new_patients_data[:pregnancy_status] = [["pregnant", 0], ["non_pregnant", 0], ["delivered", 0]]
+
+    unless patients_data.blank?
+      patients_data.map do|data|
+        catchment           = data.attributes["nearest_health_center"]
+        number_of_patients  = data.attributes["number_of_patients"].to_i
+        pregnancy_status    = data.attributes["pregnancy_status_text"]
+
+        new_patients_data[:new_registrations] += number_of_patients if(number_of_patients)
+        i = 0
+        new_patients_data[:catchment].map do |c|
+          if(c.first == catchment.humanize)
+            new_patients_data[:catchment][i][1]                   += number_of_patients
+            new_patients_data[:pregnancy_status][pregnant][1]     += number_of_patients if(pregnancy_status == "PREGNANT")
+            new_patients_data[:pregnancy_status][non_pregnant][1] += number_of_patients if(pregnancy_status == "NOT PREGNANT")
+            new_patients_data[:pregnancy_status][delivered][1]    += number_of_patients if(pregnancy_status == "DELIVERED")
+          end
+          i += 1
+        end
+      end
+    end
+    new_patients_data
+  end
+
 end
