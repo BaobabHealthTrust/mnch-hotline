@@ -173,7 +173,7 @@ class ReportController < ApplicationController
     @grouping           = [""]
 
     @report_type        = params[:report_type]
-    @query              = params[:query]
+    @query              = params[:query].gsub(" ", "_")
 
     start_date          = Encounter.initial_encounter.encounter_datetime
     end_date            = session[:datetime].to_date rescue Date.today
@@ -188,8 +188,17 @@ class ReportController < ApplicationController
 
     case @report_type
       when "patient_analysis"
-        @patient_type       += ["Women", "Children", "All"]
-        @grouping           += [["By Week", "week"], ["By Month", "month"]]
+        case @query
+          when "demographics"
+            @patient_type       += ["Women", "Children", "All"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+
+          when "health_issues"
+            @patient_type       += ["Women", "Children"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+            @health_task         = ["", "Health Symptoms", "Danger Warning Signs",
+                                    "Information Requested", "Outcomes"]
+        end
         render :template => "/report/patient_analysis_selection" , :layout => "application"
     end
   end
