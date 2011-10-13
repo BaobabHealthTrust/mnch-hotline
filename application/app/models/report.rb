@@ -64,4 +64,61 @@ module Report
     return grouping_date_ranges
   end
 
+  def self.patient_demographics_query_builder(patient_type, date_range)
+    child_maximum_age     = 9 # see definition of a female adult above
+    nearest_health_center = PersonAttributeType.find_by_name("NEAREST HEALTH FACILITY").id
+
+    case patient_type.downcase
+      when "women"
+        pregnancy_status_concept_id         = Concept.find_by_name("PREGNANCY STATUS").concept_id
+        pregnancy_status_encounter_type_id  = EncounterType.find_by_name("PREGNANCY STATUS").encounter_type_id
+
+        extra_parameters = ", pregnancy_status_table.pregnancy_status AS pregnancy_status_text "
+
+        extra_conditions = " AND pregnancy_status_table.person_id = patient.patient_id " +
+                           "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+
+        sub_query       = ", (SELECT  obs.person_id AS person_id, " +
+                              "concept.concept_id, concept_name.name AS name, obs.value_text AS pregnancy_status " +
+                              "FROM encounter, obs, concept, concept_name " +
+                            "WHERE encounter.encounter_type = #{pregnancy_status_encounter_type_id} " +
+                              "AND obs.encounter_id = encounter.encounter_id " +
+                              "AND concept.concept_id = #{pregnancy_status_concept_id} " +
+                              "AND obs.concept_id = concept.concept_id " +
+                              "AND concept_name.concept_id = concept.concept_id " +
+                              "AND concept.retired = 0 AND concept_name.voided = 0 " +
+                            "GROUP BY person_id " +
+                            "ORDER BY obs.person_id, obs.date_created DESC) pregnancy_status_table "
+
+      extra_group_by = ", pregnancy_status_table.pregnancy_status "
+
+      when "children"
+        extra_parameters  = ", person.gender AS gender "
+        extra_conditions  = "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+        sub_query         = ""
+        extra_group_by    = ", person.gender "
+      else
+      extra_parameters  = ", ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) AS adult "
+      extra_conditions  = ""
+      sub_query         = ""
+      extra_group_by    = ", ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age})"
+    end
+
+    query = "SELECT person_attribute.value AS nearest_health_center, "+
+      "COUNT(patient.patient_id) AS number_of_patients, " +
+      "DATE(patient.date_created) AS start_date " + extra_parameters +
+    "FROM person_attribute, patient, person " + sub_query +
+    "WHERE patient.patient_id = person.person_id " +
+      "AND person.person_id = person_attribute.person_id " + extra_conditions +
+      "AND DATE(patient.date_created) >= '#{date_range.first}' " +
+      "AND DATE(patient.date_created) <= '#{date_range.last}' " +
+      "AND patient.voided = 0 " +
+      "AND person.voided = 0 " +
+      "AND person_attribute.person_attribute_type_id = #{nearest_health_center} " +
+    "GROUP BY person_attribute.value " + extra_group_by
+    "ORDER BY patient.date_created"
+
+    return query
+  end
+
 end
