@@ -121,4 +121,28 @@ module Report
     return query
   end
 
+  def self.patient_demographics(patient_type, grouping, start_date, end_date)
+
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+
+    patients_data = []
+
+    date_ranges.map do |date_range|
+      query   = self.patient_demographics_query_builder(patient_type, date_range)
+      results = Patient.find_by_sql(query)
+
+      case patient_type.downcase
+        when "women"
+          new_patients_data = self.women_demographics(results, date_range)
+        when "children"
+          new_patients_data = self.children_demographics(results, date_range)
+        else
+          new_patients_data = self.all_patients_demographics(results, date_range)
+      end # end case
+      patients_data.push(new_patients_data)
+    end
+
+    patients_data
+  end
+
 end
