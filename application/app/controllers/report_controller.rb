@@ -197,7 +197,7 @@ class ReportController < ApplicationController
             @patient_type       += ["Women", "Children"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
             @health_task         = ["", "Health Symptoms", "Danger Warning Signs",
-                                    "Information Requested", "Outcomes"]
+                                    "Health Information Requested", "Outcomes"]
         end
         render :template => "/report/patient_analysis_selection" , :layout => "application"
     end
