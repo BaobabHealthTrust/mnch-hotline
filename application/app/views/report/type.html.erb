@@ -26,7 +26,7 @@
       <base target="_parent">
 
         <% (@reports || []).each do |name| %>
-          <button style="<%=style%>" onMouseDown="window.parent.location='/report/select?report_type=<%=@report_type%>&q=' + encodeURIComponent('<%=h name.downcase%>');" target="_parent" class="blue"><span><%=name%></span></button><br/>
+          <button style="<%=style%>" onMouseDown="window.parent.location='/report/select?report_type=<%=@report_type%>&query=' + encodeURIComponent('<%=h name.downcase%>');" target="_parent" class="blue"><span><%=name%></span></button><br/>
         <%end%>
         <%= hidden_field_tag :report_type, "#{@report_type}" %>
       </base>
