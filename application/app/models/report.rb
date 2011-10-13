@@ -145,4 +145,42 @@ module Report
     patients_data
   end
 
+  def self.all_patients_demographics(patients_data, date_range)
+    nearest_health_centers  = []
+
+    mnch_health_facilities_list = Location.find_by_tag("mnch_health_facilities")
+    mnch_health_facilities_list.map do |facility|
+      nearest_health_centers.push([facility["name"].humanize, 0])
+    end
+
+    new_patients_data  = {:new_registrations  => 0,
+                          :catchment          => nearest_health_centers.sort,
+                          :start_date         => date_range.first,
+                          :end_date           => date_range.last}
+    children = 0
+    women    = 1
+    new_patients_data[:patient_type] = [["children", 0], ["women", 0]]
+
+    unless patients_data.blank?
+      patients_data.map do|data|
+        catchment           = data.attributes["nearest_health_center"]
+        number_of_patients  = data.attributes["number_of_patients"].to_i
+        adult               = data.attributes["adult"].to_i
+
+        new_patients_data[:new_registrations] += number_of_patients if(number_of_patients)
+        i = 0
+        new_patients_data[:catchment].map do |c|
+
+          if(c.first == catchment.humanize)
+            new_patients_data[:catchment][i][1]           += number_of_patients
+            new_patients_data[:patient_type][children][1] += number_of_patients if(adult == children)
+            new_patients_data[:patient_type][women][1]    += number_of_patients if(adult == women)
+          end
+          i += 1
+        end
+      end
+    end
+    new_patients_data
+  end
+
 end
