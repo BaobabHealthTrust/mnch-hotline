@@ -259,4 +259,129 @@ module Report
     new_patients_data
   end
 
+  def self.patient_health_issues_query_builder(patient_type, health_task, date_range)
+    if health_task.humanize.downcase == "outcomes"
+      concepts_list       = ["OUTCOME"]
+      encounter_type_list = ["UPDATE OUTCOME"]
+      outcomes            = ["REFERRED TO A HEALTH CENTRE",
+                              "REFERRED TO NEAREST VILLAGE CLINIC",
+                              "PATIENT TRIAGED TO NURSE SUPERVISOR",
+                              "GIVEN ADVICE NO REFERRAL NEEDED"]
+
+      extra_parameters    = " obs.value_text AS concept_name, "
+      extra_conditions    = " obs.value_text, DATE(obs.date_created), "
+    else
+      extra_conditions = " DATE(obs.date_created), "
+      extra_parameters = " concept_name.name AS concept_name, "
+
+      if patient_type.downcase == "children"
+        encounter_type_list = ["CHILD HEALTH SYMPTOMS"]
+
+        case health_task.humanize.downcase
+          when "health symptoms"
+            concepts_list = ["FEVER", "DIARRHEA", "COUGH", "CONVULSIONS SYMPTOM",
+                              "NOT EATING", "VOMITING", "RED EYE",
+                              "FAST BREATHING", "VERY SLEEPY", "UNCONSCIOUS"]
+
+          when "danger warning signs"
+            concepts_list = ["FEVER OF 7 DAYS OR MORE",
+                              "DIARRHEA FOR 14 DAYS OR MORE",
+                              "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE",
+                              "CONVULSIONS SIGN", "NOT EATING OR DRINKING ANYTHING",
+                              "VOMITING EVERYTHING",
+                              "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
+                              "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"]
+
+          when "health information requested"
+            concepts_list = ["SLEEPING", "FEEDING PROBLEMS", "CRYING",
+                              "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
+                              "UMBILICUS INFECTION", "GROWTH MILESTONES",
+                              "ACCESSING HEALTHCARE SERVICES"]
+        end
+
+      elsif patient_type.downcase == "women"
+        encounter_type_list = ["MATERNAL HEALTH SYMPTOMS"]
+
+        case health_task.humanize.downcase
+          when "health symptoms"
+            concepts_list = ["VAGINAL BLEEDING DURING PREGNANCY",
+                              "POSTNATAL BLEEDING", "FEVER DURING PREGNANCY SYMPTOM",
+                              "POSTNATAL FEVER SYMPTOM", "HEADACHES",
+                              "FITS OR CONVULSIONS SYMPTOM",
+                              "SWOLLEN HANDS OR FEET SYMPTOM",
+                              "PALENESS OF THE SKIN AND TIREDNESS SYMPTOM",
+                              "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM"]
+
+          when "danger warning signs"
+            concepts_list = ["HEAVY VAGINAL BLEEDING DURING PREGNANCY",
+                              "EXCESSIVE POSTNATAL BLEEDING",
+                              "FEVER DURING PREGNANCY SIGN",
+                              "POSTNATAL FEVER SIGN", "SEVERE HEADACHE",
+                              "FITS OR CONVULSIONS SIGN",
+                              "SWOLLEN HANDS OR FEET SIGN",
+                              "PALENESS OF THE SKIN AND TIREDNESS SIGN",
+                              "NO FETAL MOVEMENTS SIGN", "WATER BREAKS SIGN"]
+
+          when "health information requested"
+            concepts_list = ["HEALTHCARE VISITS", "NUTRITION", "BODY CHANGES",
+                              "DISCOMFORT", "CONCERNS", "EMOTIONS",
+                              "WARNING SIGNS", "ROUTINES", "BELIEFS",
+                              "BABY'S GROWTH", "MILESTONES", "PREVENTION"]
+        end
+
+      end
+    end
+    concept_ids     = ""
+    concept_map     = []
+    call_count      = 0
+    call_percentage = 0
+    concepts_list.each do |concept_name|
+      concept_id = Concept.find_by_name("#{concept_name}").id rescue nil
+      next if concept_id.nil?
+
+      concept_ids += concept_id.to_s + ", "
+      if concept_name == "OUTCOME"
+        outcomes.each do |concept_name|
+          mapping = {:concept_name  => concept_name,  :concept_id       => concept_id,
+                     :call_count    => call_count,    :call_percentage  => call_percentage}
+
+          concept_map.push(mapping)
+        end
+      else
+        mapping = {:concept_name  => concept_name,  :concept_id       => concept_id,
+                     :call_count  => call_count,    :call_percentage  => call_percentage}
+
+          concept_map.push(mapping)
+      end
+    end
+
+    encounter_type_ids = ""
+    encounter_type_list.each do |encounter_type|
+      encounter_type_id = EncounterType.find_by_name("#{encounter_type}").id rescue nil
+      next if encounter_type_id.nil?
+      encounter_type_ids += encounter_type_id.to_s + ", "
+    end
+
+    concept_ids.strip!.chop!
+    encounter_type_ids.strip!.chop!
+
+    query = "SELECT encounter_type.name AS encounter_type_name, " +
+              "COUNT(obs.person_id) AS number_of_patients," + extra_parameters +
+              "concept.concept_id AS concept_id, DATE(encounter.date_created) AS start_date " +
+            "FROM encounter, encounter_type, obs, concept, concept_name " +
+            "WHERE encounter_type.encounter_type_id IN (#{encounter_type_ids}) " +
+              "AND concept.concept_id IN (#{concept_ids}) " +
+              "AND encounter_type.encounter_type_id = encounter.encounter_type " +
+              "AND obs.concept_id = concept_name.concept_id " +
+              "AND obs.concept_id = concept.concept_id " +
+              "AND encounter.encounter_id = obs.encounter_id " +
+              "AND DATE(obs.date_created) >= '#{date_range.first}' " +
+              "AND DATE(obs.date_created) <= '#{date_range.last}' " +
+              "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " +
+            "GROUP BY encounter_type.encounter_type_id," + extra_conditions + "obs.concept_id " +
+            "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
+
+    {:query => query, :concept_map => concept_map}
+  end
+
 end
