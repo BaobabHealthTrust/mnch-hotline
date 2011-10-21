@@ -384,4 +384,25 @@ module Report
     {:query => query, :concept_map => concept_map}
   end
 
+
+  def self.call_count(date_range)
+    call_id = Concept.find_by_name("CALL ID").id
+    query   = "SELECT COUNT(obs.person_id) AS call_count, " +
+                  "concept_name.name AS concept_name, " +
+                  "DATE(encounter.date_created) AS start_date " +
+                "FROM encounter, encounter_type, obs, concept, concept_name " +
+                "WHERE concept.concept_id = #{call_id} " +
+                  "AND encounter_type.encounter_type_id = encounter.encounter_type " +
+                  "AND obs.concept_id = concept_name.concept_id " +
+                  "AND obs.concept_id = concept.concept_id " +
+                  "AND encounter.encounter_id = obs.encounter_id " +
+                  "AND DATE(obs.date_created) >= '#{date_range.first}' " +
+                  "AND DATE(obs.date_created) <= '#{date_range.last}' " +
+                  "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " +
+                "GROUP BY obs.concept_id " +
+                "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
+
+    Patient.find_by_sql(query)
+  end
+
 end
