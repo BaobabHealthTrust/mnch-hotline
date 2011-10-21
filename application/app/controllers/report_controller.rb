@@ -271,6 +271,17 @@ class ReportController < ApplicationController
                     :patient_type => params[:patient_type],
                     :report_type  => params[:report_type],
                     :query        => params[:query]
+
+      when 'health_issues'
+        health_task = params[:health_task].downcase.gsub(" ", "_")
+        redirect_to :action       => "patient_health_issues_report",
+                    :start_date   => params[:start_date],
+                    :end_date     => params[:end_date],
+                    :grouping     => params[:grouping],
+                    :patient_type => params[:patient_type],
+                    :report_type  => params[:report_type],
+                    :health_task  => health_task,
+                    :query        => params[:query]
     end
   end
 
