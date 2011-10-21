@@ -405,4 +405,59 @@ module Report
     Patient.find_by_sql(query)
   end
 
+  def self.patient_health_issues(patient_type, grouping, health_task, start_date, end_date)
+    patients_data = []
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+      query_builder = self.patient_health_issues_query_builder(patient_type, health_task, date_range)
+      query         = query_builder[:query]
+      concept_map   = query_builder[:concept_map]
+
+      results               = Patient.find_by_sql(query)
+      total_call_count      = self.call_count(date_range)
+      total_number_of_calls = total_call_count.first.attributes["call_count"].to_i rescue 0
+
+      new_patients_data                 = {}
+      new_patients_data[:health_issues] = concept_map
+      new_patients_data[:start_date]    = date_range.first
+      new_patients_data[:end_date]      = date_range.last
+
+      unless results.blank?
+        (health_task.humanize.downcase == "outcomes")? outcomes = true : outcomes = false
+        results.map do|data|
+
+          concept_name        = data.attributes["concept_name"].upcase
+          concept_id          = data.attributes["concept_id"].to_i
+          number_of_patients  = data.attributes["number_of_patients"].to_i
+          i = 0
+
+          new_patients_data[:health_issues].each do |health_issue|
+            update_statistics = false
+            if outcomes
+              update_statistics = true if(health_issue[:concept_name] == concept_name)
+            else
+              update_statistics = true if(health_issue[:concept_id].to_i == concept_id)
+            end
+
+            next if !update_statistics
+
+            number_of_patients_so_far  = new_patients_data[:health_issues][i][:call_count]
+            number_of_patients_so_far += number_of_patients
+            call_percentage            = ((number_of_patients_so_far * 100.0)/total_number_of_calls).round(1) rescue 0
+
+            new_patients_data[:health_issues][i][:call_count]       = number_of_patients_so_far
+            new_patients_data[:health_issues][i][:call_percentage]  = call_percentage
+
+            break
+            i += 1
+          end
+        end
+      end
+
+      patients_data.push(new_patients_data)
+    end
+    patients_data
+  end
+
 end
