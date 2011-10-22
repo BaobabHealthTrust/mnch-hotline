@@ -19,6 +19,10 @@
 
 <%= select_tag :grouping,     options_for_select(@grouping), {:helpText => "Select Grouping Criterion"} %>
 
+<%if @query == "health_issues"%>
+  <%= select_tag :health_task, options_for_select(@health_task), {:helpText => "Select Health Task"} %>
+<%end%>
+
 <%= hidden_field_tag :query, "#{@query}"%>
 <%= hidden_field_tag :start_date, "", {:id => 'start_date'}%>
 <%= hidden_field_tag :end_date,   "", {:id => 'end_date'}%>
