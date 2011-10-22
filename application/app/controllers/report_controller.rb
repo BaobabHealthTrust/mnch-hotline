@@ -298,4 +298,20 @@ class ReportController < ApplicationController
     render :layout => false
   end
 
+  def patient_health_issues_report
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @health_task  = params[:health_task]
+
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+
+    @report_name  = "Patient Health Issues"
+    @report       = Report.patient_health_issues(@patient_type, @grouping, @health_task, @start_date, @end_date)
+    render :layout => false
+  end
+
 end
