@@ -259,7 +259,32 @@ module Report
     new_patients_data
   end
 
-  def self.patient_health_issues_query_builder(patient_type, health_task, date_range)
+  def self.patient_health_issues_query_builder(patient_type, health_task, date_range, essential_params)
+    concept_ids         = essential_params[:concept_ids]
+    encounter_type_ids  = essential_params[:encounter_type_ids]
+    extra_conditions    = essential_params[:extra_conditions]
+    extra_parameters    = essential_params[:extra_parameters]
+
+    query = "SELECT encounter_type.name AS encounter_type_name, " +
+              "COUNT(obs.person_id) AS number_of_patients," + extra_parameters +
+              "concept.concept_id AS concept_id, DATE(encounter.date_created) AS start_date " +
+            "FROM encounter, encounter_type, obs, concept, concept_name " +
+            "WHERE encounter_type.encounter_type_id IN (#{encounter_type_ids}) " +
+              "AND concept.concept_id IN (#{concept_ids}) " +
+              "AND encounter_type.encounter_type_id = encounter.encounter_type " +
+              "AND obs.concept_id = concept_name.concept_id " +
+              "AND obs.concept_id = concept.concept_id " +
+              "AND encounter.encounter_id = obs.encounter_id " +
+              "AND DATE(obs.date_created) >= '#{date_range.first}' " +
+              "AND DATE(obs.date_created) <= '#{date_range.last}' " +
+              "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " +
+            "GROUP BY encounter_type.encounter_type_id," + extra_conditions + "obs.concept_id " +
+            "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
+
+    query
+  end
+
+  def self.prepopulate_concept_ids_and_extra_parameters(patient_type, health_task)
     if health_task.humanize.downcase == "outcomes"
       concepts_list       = ["OUTCOME"]
       encounter_type_list = ["UPDATE OUTCOME"]
@@ -331,10 +356,12 @@ module Report
 
       end
     end
+
     concept_ids     = ""
     concept_map     = []
     call_count      = 0
     call_percentage = 0
+
     concepts_list.each do |concept_name|
       concept_id = Concept.find_by_name("#{concept_name}").id rescue nil
       next if concept_id.nil?
@@ -365,25 +392,14 @@ module Report
     concept_ids.strip!.chop!
     encounter_type_ids.strip!.chop!
 
-    query = "SELECT encounter_type.name AS encounter_type_name, " +
-              "COUNT(obs.person_id) AS number_of_patients," + extra_parameters +
-              "concept.concept_id AS concept_id, DATE(encounter.date_created) AS start_date " +
-            "FROM encounter, encounter_type, obs, concept, concept_name " +
-            "WHERE encounter_type.encounter_type_id IN (#{encounter_type_ids}) " +
-              "AND concept.concept_id IN (#{concept_ids}) " +
-              "AND encounter_type.encounter_type_id = encounter.encounter_type " +
-              "AND obs.concept_id = concept_name.concept_id " +
-              "AND obs.concept_id = concept.concept_id " +
-              "AND encounter.encounter_id = obs.encounter_id " +
-              "AND DATE(obs.date_created) >= '#{date_range.first}' " +
-              "AND DATE(obs.date_created) <= '#{date_range.last}' " +
-              "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " +
-            "GROUP BY encounter_type.encounter_type_id," + extra_conditions + "obs.concept_id " +
-            "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
+    params = {:concept_ids        => concept_ids,
+              :concept_map        => concept_map,
+              :encounter_type_ids => encounter_type_ids,
+              :extra_conditions   => extra_conditions,
+              :extra_parameters   => extra_parameters}
 
-    {:query => query, :concept_map => concept_map}
+    params
   end
-
 
   def self.call_count(date_range)
     call_id = Concept.find_by_name("CALL ID").id
@@ -409,11 +425,11 @@ module Report
     patients_data = []
     date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
 
-    date_ranges.map do |date_range|
-      query_builder = self.patient_health_issues_query_builder(patient_type, health_task, date_range)
-      query         = query_builder[:query]
-      concept_map   = query_builder[:concept_map]
+    essential_params  = self.prepopulate_concept_ids_and_extra_parameters(patient_type, health_task)
 
+    date_ranges.map do |date_range|
+      query = self.patient_health_issues_query_builder(patient_type, health_task, date_range, essential_params)
+      concept_map           = Marshal.load(Marshal.dump(essential_params[:concept_map]))
       results               = Patient.find_by_sql(query)
       total_call_count      = self.call_count(date_range)
       total_number_of_calls = total_call_count.first.attributes["call_count"].to_i rescue 0
@@ -430,9 +446,8 @@ module Report
           concept_name        = data.attributes["concept_name"].upcase
           concept_id          = data.attributes["concept_id"].to_i
           number_of_patients  = data.attributes["number_of_patients"].to_i
-          i = 0
 
-          new_patients_data[:health_issues].each do |health_issue|
+          new_patients_data[:health_issues].each_with_index do |health_issue, i|
             update_statistics = false
             if outcomes
               update_statistics = true if(health_issue[:concept_name] == concept_name)
@@ -450,7 +465,7 @@ module Report
             new_patients_data[:health_issues][i][:call_percentage]  = call_percentage
 
             break
-            i += 1
+
           end
         end
       end
