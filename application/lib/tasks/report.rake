@@ -3,6 +3,7 @@ require 'csv'
 
 F_DATE = '%Y-%m-%d'
 F_DATETIME = '%Y-%m-%d %H:%M:%S'
+F_TIME = '%H:%M:%S'
 REPORTS_DIR = File.join(Rails.root, 'tmp', 'reports')
 
 COMMON_COLUMNS = [
@@ -14,7 +15,42 @@ COMMON_COLUMNS = [
   ['NEAREST HC',  lambda { |c,p,e,oh| p.person.get_attribute('NEAREST HEALTH FACILITY') } ],
   'PREGNANCY STATUS',
   'EXPECTED DUE DATE',
+  [ 'CALL DATE', lambda { |c,p,e,oh| c.start_time.try(:strftime, F_DATE) } ],
 ]
+
+
+#unDRY:   concept names not available in model; defined but only inside Encounter#health_symptoms_values (!)
+#to avoid changing key model code (yet), copying and flattening here.  Anticipating a request to zip or reorder them.
+CHILD_SYMPTOMS = ["FEVER", "DIARRHEA", "COUGH",
+                                              "CONVULSIONS SYMPTOM", "NOT EATING",
+                                              "VOMITING", "RED EYE", "FAST BREATHING",
+                                              "VERY SLEEPY", "UNCONSCIOUS"]
+CHILD_SIGNS =  ["FEVER OF 7 DAYS OR MORE","DIARRHEA FOR 14 DAYS OR MORE",
+                                        "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE", "CONVULSIONS SIGN",
+                                        "NOT EATING OR DRINKING ANYTHING", "VOMITING EVERYTHING",
+                                        "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
+                                        "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"]
+CHILD_INFO = ["SLEEPING", "FEEDING PROBLEMS", "CRYING",
+                                        "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
+                                        "UMBILICUS INFECTION", "GROWTH MILESTONES",
+                                        "ACCESSING HEALTHCARE SERVICES"]
+MATERNAL_SYMPTOMS = ["VAGINAL BLEEDING DURING PREGNANCY", "POSTNATAL BLEEDING",
+                                        "FEVER DURING PREGNANCY SYMPTOM", "POSTNATAL FEVER SYMPTOM",
+                                        "HEADACHES", "FITS OR CONVULSIONS SYMPTOM", "SWOLLEN HANDS OR FEET SYMPTOM",
+                                        "PALENESS OF THE SKIN AND TIREDNESS SYMPTOM", "NO FETAL MOVEMENTS SYMPTOM",
+                                        "WATER BREAKS SYMPTOM"]
+MATERNAL_SIGNS = ["HEAVY VAGINAL BLEEDING DURING PREGNANCY",
+                                        "EXCESSIVE POSTNATAL BLEEDING","FEVER DURING PREGNANCY SIGN", "POSTNATAL FEVER SIGN",
+                                        "SEVERE HEADACHE", "FITS OR CONVULSIONS SIGN", "SWOLLEN HANDS OR FEET SIGN",
+                                        "PALENESS OF THE SKIN AND TIREDNESS SIGN", "NO FETAL MOVEMENTS SIGN", "WATER BREAKS SIGN"]
+MATERNAL_INFO = ["HEALTHCARE VISITS","NUTRITION","BODY CHANGES",
+                                        "DISCOMFORT","CONCERNS","EMOTIONS","WARNING SIGNS",
+                                        "ROUTINES","BELIEFS","BABY'S GROWTH","MILESTONES","PREVENTION"]
+
+# end copy from encounter.rb
+
+
+
 
 CSV_DEFINITIONS = [
   # {
@@ -32,9 +68,13 @@ CSV_DEFINITIONS = [
     :encounters  => :all,
     :filename    => 'call_log-%Y-%m-%d.csv',
     :columns     => COMMON_COLUMNS | [
-      [ 'START TIME', lambda { |c,p,e,oh| c.start_time.try(:strftime, F_DATETIME) } ],
-      [ 'END TIME',   lambda { |c,p,e,oh| c.end_time.try(:strftime, F_DATETIME) } ],
       [ 'CALL TYPE',  lambda { |c,p,e,oh| c.call_type } ],
+      [ 'CALL DAY',  lambda { |c,p,e,oh| c.start_time.try(:strftime, '%A') } ],
+      [ 'START TIME', lambda { |c,p,e,oh| c.start_time.try(:strftime, F_TIME) } ],
+      [ 'END TIME',   lambda { |c,p,e,oh| c.end_time.try(:strftime, F_TIME) } ],
+      [ 'DURATION SEC',   lambda { |c,p,e,oh| (c.start_time && c.end_time) ? (c.end_time - c.start_time).to_i  : nil } ],
+      [ 'DURATION M:S',   lambda { |c,p,e,oh| (c.start_time && c.end_time) ? 
+          "#{(c.end_time - c.start_time).to_i/60}:#{(c.end_time-c.start_time).to_i%60}" :  nil } ],
     ],
   },
   {
@@ -43,8 +83,9 @@ CSV_DEFINITIONS = [
     :columns     => COMMON_COLUMNS | [
       ['IVR ACCESS CODE', lambda { |c,p,e,oh| p.ivr_access_code } ],
       ['DATE CREATED', lambda { |c,p,e,oh| p.date_created.strftime(F_DATETIME) } ],
-      ['DATE CHANGED', lambda { |c,p,e,oh| p.date_changed.strftime(F_DATETIME) } ],
-      ['CHANGED BY', lambda { |c,p,e,oh| User.find(p.changed_by).username } ],
+#  n/a until actual editing is recorded
+#      ['DATE CHANGED', lambda { |c,p,e,oh| p.date_changed.strftime(F_DATETIME) } ],
+#      ['CHANGED BY', lambda { |c,p,e,oh| User.find(p.changed_by).username } ],
       ['CELL PHONE', lambda { |c,p,e,oh| p.person.get_attribute('CELL PHONE NUMBER') } ],
       ['OCCUPATION', lambda { |c,p,e,oh| p.person.get_attribute('OCCUPATION') } ],
     ],
@@ -61,52 +102,22 @@ CSV_DEFINITIONS = [
   {
     :encounters  => ['CHILD HEALTH SYMPTOMS'],
     :filename    => 'child_health_symptoms-%Y-%m-%d.csv',
-    :columns     => COMMON_COLUMNS | [
-      'DIARRHEA',
-      'COUGH',
-      'FAST BREATHING',
-      'FEVER',
-      'VOMITING',
-      'CONVULSIONS SIGN',
-      'CONVULSIONS SYMPTOM',
-      'NOT EATING',
-      'BOWEL MOVEMENTS',
-      'GROWTH MILESTONES',
-      'FEVER OF 7 DAYS OR MORE',
-      'BLOOD IN STOOL',
-      'NOT EATING OR DRINKING ANYTHING',
-    ],
+    :columns     => COMMON_COLUMNS | CHILD_SYMPTOMS | CHILD_SIGNS | CHILD_INFO
   },
   {
     :encounters  => ['MATERNAL HEALTH SYMPTOMS'],
     :filename    => 'maternal_health_symptoms-%Y-%m-%d.csv',
-    :columns     => COMMON_COLUMNS | [
-      'POSTNATAL BLEEDING',
-      'FEVER DURING PREGNANCY SIGN',
-      'FEVER DURING PREGNANCY SYMPTOM',
-      'POSTNATAL FEVER SYMPTOM',
-      'HEADACHES',
-      'FITS OR CONVULSIONS SYMPTOM',
-      'SWOLLEN HANDS OR FEET SYMPTOM',
-      'HEALTHCARE VISITS',
-      'NUTRITION',
-      'BODY CHANGES',
-      'DISCOMFORT',
-      'CONCERNS',
-      'WARNING SIGNS',
-      'HEAVY VAGINAL BLEEDING DURING PREGNANCY',
-      'EXCESSIVE POSTNATAL BLEEDING',
-      'SEVERE HEADACHE',
-    ],
+    :columns     => COMMON_COLUMNS | MATERNAL_SYMPTOMS | MATERNAL_SIGNS | MATERNAL_INFO
   },
   {
     :encounters  => ['TIPS AND REMINDERS'],
     :filename    => 'tips_and_reminders-%Y-%m-%d.csv',
-    :columns     => COMMON_COLUMNS | [
-      'TELEPHONE NUMBER',
+    :columns     => COMMON_COLUMNS | [      
       'ON TIPS AND REMINDERS PROGRAM',
-      'LANGUAGE PREFERENCE',
+      'TELEPHONE NUMBER',
+      'PHONE TYPE',
       'TYPE OF MESSAGE',
+      'LANGUAGE PREFERENCE',
       'TYPE OF MESSAGE CONTENT',
     ],
   },
