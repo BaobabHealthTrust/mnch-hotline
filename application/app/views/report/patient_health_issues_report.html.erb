@@ -48,6 +48,34 @@
               <%= @grouping.humanize + " beginning "+ data[:start_date] + " ending " + data[:end_date]%>
             </td>
           </tr>
+          <tr>
+            <td  class="cellleft cellbottom main-table-cell">
+                Total Callers
+            </td>
+            <td  class="cellleft cellbottom main-table-cell">
+              0
+            </td>
+            <td  class="cellleft cellbottom main-table-cell"> 
+              n/a
+            </td>
+          </tr>
+          <tr>
+            <td  class="cellleft cellbottom main-table-cell">
+                Total Callers with symptoms
+            </td>
+            <td  class="cellleft cellbottom main-table-cell">
+              0
+            </td>
+            <td  class="cellleft cellbottom main-table-cell">
+              na
+            </td>
+          </tr>
+          <tr>
+            <td width="25%" colspan = 3 class="cellleft cellbottom cellright main-table-cell" style="background-color:ddd; text-align:center;font-weight: bold; font-size: large; font-style: italic;">
+              below are the reported symptoms
+            </td>
+          </tr>
+          
           <% data[:health_issues].map do | health_issue|%>
           <tr>
             <td class="cellleft cellbottom main-table-cell">

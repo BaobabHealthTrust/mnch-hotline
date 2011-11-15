@@ -475,4 +475,184 @@ module Report
     patients_data
   end
 
+  def self.patient_age_distribution(patient_type, grouping, start_date, end_date)
+
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+
+    patients_data = []
+
+    date_ranges.map do |date_range|
+      query   = self.patient_demographics_query_builder(patient_type, date_range)
+      results = Patient.find_by_sql(query)
+      data_for_patients = {:patient_data => {}, :statistical_data => {}}
+      case patient_type.downcase
+        when "women"
+          new_patients_data = self.women_demographics(results, date_range)
+          statistical_data = Patient.find_by_sql(self.get_age_statistics(patient_type, date_range))
+
+          patient_statistics = self.create_patient_statistics(patient_type, statistical_data) unless statistical_data.empty?
+
+          data_for_patients[:patient_data] = new_patients_data
+          data_for_patients[:statistical_data] = patient_statistics rescue ''
+
+        when "children"
+          new_patients_data = self.children_demographics(results, date_range)
+          statistical_data = ''
+
+          data_for_patients[:patient_data] = new_patients_data
+          data_for_patients[:statistical_data] = patient_statistics rescue ''
+        else
+          new_patients_data = self.all_patients_demographics(results, date_range)
+          statistical_data ''
+
+          data_for_patients[:patient_data] = new_patients_data
+          data_for_patients[:statistical_data] = patient_statistics rescue ''
+
+      end # end case
+      patients_data.push(data_for_patients)
+    end
+
+    patients_data
+  end
+
+  def self.get_age_statistics(patient_type, date_range)
+
+    child_maximum_age     = 9 # see definition of a female adult above
+    nearest_health_center = PersonAttributeType.find_by_name("NEAREST HEALTH FACILITY").id
+
+    case patient_type.downcase
+      when "women"
+        pregnancy_status_concept_id         = Concept.find_by_name("PREGNANCY STATUS").concept_id
+        pregnancy_status_encounter_type_id  = EncounterType.find_by_name("PREGNANCY STATUS").encounter_type_id
+
+        extra_parameters = ", pregnancy_status_table.pregnancy_status AS pregnancy_status_text"
+
+        extra_conditions = " AND pregnancy_status_table.person_id = patient.patient_id " +
+                           "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+
+        sub_query       = ", (SELECT  obs.person_id AS person_id, " +
+                              "concept.concept_id, concept_name.name AS name, obs.value_text AS pregnancy_status " +
+                              "FROM encounter, obs, concept, concept_name " +
+                            "WHERE encounter.encounter_type = #{pregnancy_status_encounter_type_id} " +
+                              "AND obs.encounter_id = encounter.encounter_id " +
+                              "AND concept.concept_id = #{pregnancy_status_concept_id} " +
+                              "AND obs.concept_id = concept.concept_id " +
+                              "AND concept_name.concept_id = concept.concept_id " +
+                              "AND concept.retired = 0 AND concept_name.voided = 0 " +
+                            "GROUP BY person_id " +
+                            "ORDER BY obs.person_id, obs.date_created DESC) pregnancy_status_table "
+
+      extra_group_by = ", pregnancy_status_table.pregnancy_status "
+
+      when "children"
+        extra_parameters  = ", person.gender AS gender "
+        extra_conditions  = "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+        sub_query         = ""
+        extra_group_by    = ", person.gender "
+      else
+      extra_parameters  = ", ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) AS adult "
+      extra_conditions  = ""
+      sub_query         = ""
+      extra_group_by    = ", ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age})"
+    end
+
+    query = "SELECT (YEAR(patient.date_created) - YEAR(person.birthdate)) AS Age" + extra_parameters +
+    " FROM person_attribute, patient, person " + sub_query +
+    "WHERE patient.patient_id = person.person_id " +
+      "AND person.person_id = person_attribute.person_id " + extra_conditions +
+      "AND DATE(patient.date_created) >= '#{date_range.first}' " +
+      "AND DATE(patient.date_created) <= '#{date_range.last}' " +
+      "AND patient.voided = 0 " +
+      "AND person.voided = 0 " +
+      "AND person_attribute.person_attribute_type_id = #{nearest_health_center} " +
+    "ORDER BY patient.date_created"
+
+    return query
+  end
+
+  def self.create_patient_statistics(patient_type, patient_data)
+    statistical_info = {:total => 0, :percentage => 0,
+                        :average => 0, :min => 0, :max => 0, :sdev => 0
+                       }
+    statistical_info[:total] = patient_data.count
+
+    case patient_type.downcase
+      when 'women'
+        women_grouping = {:pregnant => {}, :nonpregnant => {},
+                          :delivered => {}
+        }
+        statistical_info[:total] = patient_data.count
+        pregnant_data = [], nonpregnant_data = [], delivered_data = []
+
+      #raise patient_data.first[:pregnancy_status_text].downcase
+        unless patient_data.empty?
+          patient_data.each do |value|
+            case value[:pregnancy_status_text].downcase
+            when 'pregnant'
+              pregnant_data << value[:Age].to_i 
+            when 'nonpregnant'
+              nonpregnant_data << value[:Age].to_i
+            when 'delivered'
+              delivered_data << value[:Age].to_i
+            end
+          end
+        end
+
+      unless pregnant_data.empty?
+          pregnant_statistics = statistical_info
+          pregnant_statistics[:min] = pregnant_data.flatten.min
+          pregnant_statistics[:max] = pregnant_data.flatten.max
+          pregnant_statistics[:percentage] = ((pregnant_data.flatten.count / patient_data.count ) * 100)
+          pregnant_statistics[:average] = self.calculate_average_age(pregnant_data.flatten)
+          pregnant_statistics[:sdev] = self.calculate_sdev_age(pregnant_data.flatten)
+
+          women_grouping[:pregnant][:statistical_info] = pregnant_statistics
+        end
+
+        unless nonpregnant_data.empty?
+          nonpregnant_statistics = statistical_info
+          nonpregnant_statistics[:min] = nonpregnant_data.flatten.min
+          nonpregnant_statistics[:max] = nonpregnant_data.flatten.max
+          nonpregnant_statistics[:percentage] = ((nonpregnant_data.flatten.count / patient_data.count) * 100)
+          nonpregnant_statistics[:average] = self.calculate_average_age(nonpregnant_data.flatten)
+          nonpregnant_statistics[:sdev] = self.calculate_sdev_age(nonpregnant_data.flatten)
+
+          women_grouping[:nonpregnant][:statistical_info] = nonpregnant_statistics
+
+        end
+        unless delivered_data.empty?
+          delivered = statistical_info
+          delivered[:min] = delivered_data.flatten.min
+          delivered[:max] = delivered_data.flatten.max
+          delivered[:percentage] = ((delivered_data.flatten.count / patient_data.count) * 100)
+          delivered[:average] = self.calculate_average_age(delivered_data.flatten)
+          delivered[:sdev] = self.calculate_sdev_age(delivered_data.flatten)
+
+          women_grouping[:delivered][:statistical_info] = delivered_statistics
+        end
+
+      when 'children'
+      else    
+    end
+
+    return women_grouping
+  end
+
+ def self.calculate_average_age(data)
+   return  (data.inject{ |sum, el| sum + el }.to_f / data.size).round(1)
+ end
+
+ def self.calculate_sdev_age(data)
+   mean = data.sum / data.length
+   new_data = []
+
+   data.each do |el|
+      new_data << ((el - mean) * (el - mean))
+   end
+
+   sdev = Math.sqrt(new_data.sum / (new_data.count - 1)).round(1)
+
+   return sdev
+ end
+
 end

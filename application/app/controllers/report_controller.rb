@@ -198,8 +198,12 @@ class ReportController < ApplicationController
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
             @health_task         = ["", "Health Symptoms", "Danger Warning Signs",
                                     "Health Information Requested", "Outcomes"]
+          when "ages_distribution"
+            @patient_type       += ["Women", "Children", "All"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
         end
-        render :template => "/report/patient_analysis_selection" , :layout => "application"
+        render :template => "/report/patient_analysis_selection" ,
+              :layout => "application"
     end
   end
 
@@ -214,7 +218,9 @@ class ReportController < ApplicationController
     e_day = params[:post]['end_date(3i)'].to_i #18
     e_month = params[:post]['end_date(2i)'].to_i #1
     e_year = params[:post]['end_date(1i)'].to_i # 2009
-    parameters = {'start_year' => s_year, 'start_month' => s_month, 'start_day' => s_day,'end_year' => e_year, 'end_month' => e_month, 'end_day' => e_day}
+    parameters = {'start_year' => s_year, 'start_month' => s_month, 
+                  'start_day' => s_day,'end_year' => e_year,
+                  'end_month' => e_month, 'end_day' => e_day}
 
     if params[:report] == 'Weekly report'
       redirect_to :action => 'weekly_report', :params => parameters
@@ -261,28 +267,38 @@ class ReportController < ApplicationController
   end
 
   def reports
-
     case  params[:query]
       when 'demographics'
         redirect_to :action       => "patient_demographics_report",
-                    :start_date   => params[:start_date],
-                    :end_date     => params[:end_date],
-                    :grouping     => params[:grouping],
-                    :patient_type => params[:patient_type],
-                    :report_type  => params[:report_type],
-                    :query        => params[:query]
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query]
 
       when 'health_issues'
         health_task = params[:health_task].downcase.gsub(" ", "_")
         redirect_to :action       => "patient_health_issues_report",
-                    :start_date   => params[:start_date],
-                    :end_date     => params[:end_date],
-                    :grouping     => params[:grouping],
-                    :patient_type => params[:patient_type],
-                    :report_type  => params[:report_type],
-                    :health_task  => health_task,
-                    :query        => params[:query]
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :health_task  => health_task,
+                  :query        => params[:query]
+
+      when 'ages_distribution'
+        redirect_to :action       => "patient_age_distribution_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query]
+       
     end
+
   end
 
   def patient_demographics_report
@@ -294,7 +310,8 @@ class ReportController < ApplicationController
     @grouping     = params[:grouping]
 
     @report_name  = "Patient Demographics"
-    @report       = Report.patient_demographics(@patient_type, @grouping, @start_date, @end_date)
+    @report       = Report.patient_demographics(@patient_type, @grouping,
+                                                @start_date, @end_date)
     render :layout => false
   end
 
@@ -310,7 +327,23 @@ class ReportController < ApplicationController
     @grouping     = params[:grouping]
 
     @report_name  = "Patient Health Issues"
-    @report       = Report.patient_health_issues(@patient_type, @grouping, @health_task, @start_date, @end_date)
+    @report       = Report.patient_health_issues(@patient_type, @grouping, 
+                                                  @health_task, @start_date,
+                                                  @end_date)
+    render :layout => false
+  end
+
+  def patient_age_distribution_report
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+
+    @report_name  = "Patient Age Distribution"
+    @report       = Report.patient_age_distribution(@patient_type, @grouping,
+                                                    @start_date, @end_date)
     render :layout => false
   end
 
