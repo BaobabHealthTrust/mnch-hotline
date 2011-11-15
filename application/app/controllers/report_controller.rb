@@ -344,6 +344,7 @@ class ReportController < ApplicationController
     @report_name  = "Patient Age Distribution"
     @report       = Report.patient_age_distribution(@patient_type, @grouping,
                                                     @start_date, @end_date)
+    #raise @report.to_yaml
     render :layout => false
   end
 

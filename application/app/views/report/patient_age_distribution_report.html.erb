@@ -59,19 +59,52 @@
           </tr>          
           <%if(@patient_type.downcase == 'children')%>
             <tr>
-              <td colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              <td colspan = 7 class="cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
                 Gender
               </td>
             </tr>
             <% data[:patient_data][:gender].map do | gender |%>
             <tr>
-              <td class="cellleft cellbottom main-table-cell">
+              <td class="cellleft cellbottom cellright main-table-cell">
               <%= gender.first.humanize %>
               </td>
               
               <td class="cellleft cellbottom main-table-cell">
               <%= gender.last %>
               </td>
+              <% if gender.first.downcase == 'female' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:female][:statistical_info][:percentage] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:female][:statistical_info][:min] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:female][:statistical_info][:max] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:female][:statistical_info][:average] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom cellright main-table-cell">
+                  <%= data[:statistical_data][:female][:statistical_info][:sdev] rescue 0 %>
+                </td>
+              <% elsif gender.first.downcase == 'male' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:male][:statistical_info][:percentage] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:male][:statistical_info][:min] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:male][:statistical_info][:max] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:male][:statistical_info][:average] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom cellright main-table-cell">
+                  <%= data[:statistical_data][:male][:statistical_info][:sdev] rescue 0 %>
+                </td>
+              <%  end %>
             </tr>
             <% end %>
 
