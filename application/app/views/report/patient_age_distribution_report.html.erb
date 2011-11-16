@@ -177,7 +177,7 @@
         
         <%elsif(@patient_type.downcase == 'all')%>
             <tr>
-              <td colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              <td colspan = 7 class="cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
                 Patient Type
               </td>
             </tr>
@@ -190,6 +190,40 @@
               <td class="cellleft cellbottom main-table-cell">
               <%= patient_type.last %>
               </td>
+              <% if patient_type.first.downcase == 'women' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:women][:statistical_info][:percentage] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:women][:statistical_info][:min] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:women][:statistical_info][:max] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:women][:statistical_info][:average] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom cellright main-table-cell">
+                  <%= data[:statistical_data][:women][:statistical_info][:sdev] rescue 0 %>
+                </td>
+              <% elsif patient_type.first.downcase == 'children' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:child][:statistical_info][:percentage] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:child][:statistical_info][:min] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:child][:statistical_info][:max] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:child][:statistical_info][:average] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom cellright main-table-cell">
+                  <%= data[:statistical_data][:child][:statistical_info][:sdev] rescue 0 %>
+                </td>
+              <%  end %>
+
             </tr>
             <% end %>
           <% end %>

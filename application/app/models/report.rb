@@ -507,7 +507,10 @@ module Report
           data_for_patients[:statistical_data] = patient_statistics rescue ''
         else
           new_patients_data = self.all_patients_demographics(results, date_range)
-          statistical_data ''
+          statistical_data = Patient.find_by_sql(self.get_age_statistics(patient_type, date_range))
+
+          patient_statistics = self.create_patient_statistics(patient_type,
+                                statistical_data) unless statistical_data.empty?
 
           data_for_patients[:patient_data] = new_patients_data
           data_for_patients[:statistical_data] = patient_statistics rescue ''
@@ -560,10 +563,17 @@ module Report
         sub_query         = ""
         extra_group_by    = ", person.gender "
       else
-      extra_parameters  = ", ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) AS adult "
+      extra_parameters  = "SELECT PERIOD_DIFF(CONCAT(YEAR(patient.date_created),
+                              IF(MONTH(patient.date_created)<10,'0',''),
+                              MONTH(patient.date_created)),
+                              CONCAT(YEAR(person.birthdate),
+                              IF(MONTH(person.birthdate)<10,'0',''),
+                              MONTH(person.birthdate))) AS age_in_months,
+                          (YEAR(patient.date_created) - YEAR(person.birthdate)) as age_in_years,
+                          ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) AS adult"
       extra_conditions  = ""
       sub_query         = ""
-      extra_group_by    = ", ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age})"
+      extra_group_by    = ",((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) "
     end
 
     query = extra_parameters +
@@ -607,7 +617,7 @@ module Report
 
       unless pregnant_data.empty?
           pregnant_statistics = {:total => 0, :percentage => 0,
-                        :average => 0, :min => 0, :max => 0, :sdev => 0
+                         :average => 0, :min => 0, :max => 0, :sdev => 0
                        }
           pregnant_statistics[:min] = pregnant_data.min
           pregnant_statistics[:max] = pregnant_data.max
@@ -685,7 +695,47 @@ module Report
         end
 
       return_data = child_grouping
-      else    
+      else
+        all_grouping = {:women=> {}, :child => {}}
+
+        child_data = []
+        women_data = []
+
+        unless patient_data.empty?
+          patient_data.each do |value|
+            women_data << value[:age_in_years].to_i if value[:adult].to_i == 1
+            child_data << value[:age_in_months].to_i if value[:adult].to_i == 0
+          end
+        end
+
+        unless child_data.empty?
+          child_statistics = {:total => 0, :percentage => 0,
+                        :average => 0, :min => 0, :max => 0, :sdev => 0
+                       }
+          child_statistics[:min] = child_data.min
+          child_statistics[:max] = child_data.max
+          child_statistics[:percentage] = (child_data.count.to_f / patient_data.count.to_f  * 100).round(1)
+          child_statistics[:average] = self.calculate_average_age(child_data)
+          child_statistics[:sdev] = self.calculate_sdev_age(child_data)
+
+          all_grouping[:child][:statistical_info] = child_statistics
+        end
+
+        unless women_data.empty?
+          women_statistics = {:total => 0, :percentage => 0,
+                        :average => 0, :min => 0, :max => 0, :sdev => 0
+                       }
+          women_statistics[:min] = women_data.min
+          women_statistics[:max] = women_data.max
+          women_statistics[:percentage] = (women_data.count.to_f / patient_data.count.to_f  * 100).round(1)
+          women_statistics[:average] = self.calculate_average_age(women_data)
+          women_statistics[:sdev] = self.calculate_sdev_age(women_data)
+
+          all_grouping[:women][:statistical_info] = women_statistics
+        end
+
+      return_data = all_grouping
+
     end
 
     return return_data
