@@ -282,6 +282,7 @@ module Report
             "GROUP BY encounter_type.encounter_type_id," + extra_conditions + "obs.concept_id " +
             "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
 
+    #raise query.to_yaml
     query
   end
 
@@ -336,7 +337,11 @@ module Report
                               "FITS OR CONVULSIONS SYMPTOM",
                               "SWOLLEN HANDS OR FEET SYMPTOM",
                               "PALENESS OF THE SKIN AND TIREDNESS SYMPTOM",
-                              "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM"]
+                              "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM",
+                              "FEVER", "DIARRHEA", "COUGH", "CONVULSIONS SYMPTOM",
+                              "NOT EATING", "VOMITING", "RED EYE",
+                              "FAST BREATHING", "VERY SLEEPY", "UNCONSCIOUS"
+                              ]
 
           when "danger warning signs"
             concepts_list = ["HEAVY VAGINAL BLEEDING DURING PREGNANCY",
@@ -353,6 +358,48 @@ module Report
                               "DISCOMFORT", "CONCERNS", "EMOTIONS",
                               "WARNING SIGNS", "ROUTINES", "BELIEFS",
                               "BABY'S GROWTH", "MILESTONES", "PREVENTION"]
+        end
+      else #all
+        encounter_type_list = ["MATERNAL HEALTH SYMPTOMS", "CHILD HEALTH SYMPTOMS"]
+
+        case health_task.humanize.downcase
+          when "health symptoms"
+            concepts_list = ["VAGINAL BLEEDING DURING PREGNANCY",
+                              "POSTNATAL BLEEDING", "FEVER DURING PREGNANCY SYMPTOM",
+                              "POSTNATAL FEVER SYMPTOM", "HEADACHES",
+                              "FITS OR CONVULSIONS SYMPTOM",
+                              "SWOLLEN HANDS OR FEET SYMPTOM",
+                              "PALENESS OF THE SKIN AND TIREDNESS SYMPTOM",
+                              "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM"]
+
+          when "danger warning signs"
+            concepts_list = ["HEAVY VAGINAL BLEEDING DURING PREGNANCY",
+                              "EXCESSIVE POSTNATAL BLEEDING",
+                              "FEVER DURING PREGNANCY SIGN",
+                              "POSTNATAL FEVER SIGN", "SEVERE HEADACHE",
+                              "FITS OR CONVULSIONS SIGN",
+                              "SWOLLEN HANDS OR FEET SIGN",
+                              "PALENESS OF THE SKIN AND TIREDNESS SIGN",
+                              "NO FETAL MOVEMENTS SIGN", "WATER BREAKS SIGN",
+                              "FEVER OF 7 DAYS OR MORE",
+                              "DIARRHEA FOR 14 DAYS OR MORE",
+                              "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE",
+                              "CONVULSIONS SIGN", "NOT EATING OR DRINKING ANYTHING",
+                              "VOMITING EVERYTHING",
+                              "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
+                              "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"
+                              ]
+
+          when "health information requested"
+            concepts_list = ["HEALTHCARE VISITS", "NUTRITION", "BODY CHANGES",
+                              "DISCOMFORT", "CONCERNS", "EMOTIONS",
+                              "WARNING SIGNS", "ROUTINES", "BELIEFS",
+                              "BABY'S GROWTH", "MILESTONES", "PREVENTION",
+                              "SLEEPING", "FEEDING PROBLEMS", "CRYING",
+                              "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
+                              "UMBILICUS INFECTION", "GROWTH MILESTONES",
+                              "ACCESSING HEALTHCARE SERVICES"
+                              ]
         end
 
       end
@@ -757,5 +804,131 @@ module Report
 
    return sdev
  end
+
+ def self.patient_activity(patient_type, grouping, start_date, end_date)
+  patients_data = []
+  date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+      
+      query   = self.patient_demographics_query_builder(patient_type, date_range)
+      results = Patient.find_by_sql(query)
+      #data_for_patients = {:patient_data => {}, :statistical_data => {}}
+      patient_statistics = {:start_date => date_range.first, 
+                            :end_date => date_range.last, :total => 0,
+                            :symptoms => 0, :symptoms_pct => 0,
+                            :danger => 0, :danger_pct => 0,
+                            :info => 0, :info_pct => 0
+      }
+      activity_type = ["symptoms","danger","info"]
+      case patient_type.downcase
+        when "women"
+          new_patients_data = self.women_demographics(results, date_range)
+          total_patients = 0
+          new_patients_data[:pregnancy_status].each do |status|
+            total_patients += status.last
+          end
+          patient_statistics[:total] = total_patients
+
+         activity_type.each do |type|
+          activity = 'health symptoms' if type == 'symptoms'
+          activity = 'danger warning signs' if type == 'danger'
+          activity = 'health information requested' if type == 'info'
+            essential_params  = self.prepopulate_concept_ids_and_extra_parameters(patient_type, activity)
+            data_query = self.patient_activity_query_builder(patient_type, activity, date_range, essential_params)
+            activity_data = Patient.find_by_sql(data_query)
+            if type == 'symptoms'
+              patient_statistics[:symptoms] = activity_data.first.number_of_patients.to_i
+              patient_statistics[:symptoms_pct] = (activity_data.first.number_of_patients.to_f / patient_statistics[:total].to_f * 100).round(1) if patient_statistics[:total].to_f != 0
+            elsif type == 'danger'
+              patient_statistics[:danger] = activity_data.first.number_of_patients.to_i
+              patient_statistics[:danger_pct] = (activity_data.first.number_of_patients.to_f / patient_statistics[:total].to_f * 100).round(1) if patient_statistics[:total].to_f != 0
+            elsif type == 'info'
+              patient_statistics[:info] = activity_data.first.number_of_patients.to_i
+              patient_statistics[:info_pct] = (activity_data.first.number_of_patients.to_f / patient_statistics[:total].to_f * 100).round(1) if patient_statistics[:total].to_f != 0
+            end
+         end
+
+        when "children"
+          new_patients_data = self.children_demographics(results, date_range)
+          total_patients = 0
+          new_patients_data[:gender].each do |status|
+            total_patients += status.last
+          end
+          patient_statistics[:total] = total_patients
+
+         activity_type.each do |type|
+          activity = 'health symptoms' if type == 'symptoms'
+          activity = 'danger warning signs' if type == 'danger'
+          activity = 'health information requested' if type == 'info'
+            essential_params  = self.prepopulate_concept_ids_and_extra_parameters(patient_type, activity)
+            data_query = self.patient_activity_query_builder(patient_type, activity, date_range, essential_params)
+            activity_data = Patient.find_by_sql(data_query)
+            if type == 'symptoms'
+              patient_statistics[:symptoms] = activity_data.first.number_of_patients.to_i
+              patient_statistics[:symptoms_pct] = (activity_data.first.number_of_patients.to_f / patient_statistics[:total].to_f * 100).round(1) if patient_statistics[:total].to_f != 0
+            elsif type == 'danger'
+              patient_statistics[:danger] = activity_data.first.number_of_patients.to_i
+              patient_statistics[:danger_pct] = (activity_data.first.number_of_patients.to_f / patient_statistics[:total].to_f * 100).round(1) if patient_statistics[:total].to_f != 0
+            elsif type == 'info'
+              patient_statistics[:info] = activity_data.first.number_of_patients.to_i
+              patient_statistics[:info_pct] = (activity_data.first.number_of_patients.to_f / patient_statistics[:total].to_f * 100).round(1) if patient_statistics[:total].to_f != 0
+            end
+         end
+        else
+          new_patients_data = self.all_patients_demographics(results, date_range)
+          total_patients = 0
+          new_patients_data[:patient_type].each do |status|
+            total_patients += status.last
+          end
+          patient_statistics[:total] = total_patients
+
+         activity_type.each do |type|
+          activity = 'health symptoms' if type == 'symptoms'
+          activity = 'danger warning signs' if type == 'danger'
+          activity = 'health information requested' if type == 'info'
+            essential_params  = self.prepopulate_concept_ids_and_extra_parameters(patient_type, activity)
+            data_query = self.patient_activity_query_builder(patient_type, activity, date_range, essential_params)
+            activity_data = Patient.find_by_sql(data_query)
+            if type == 'symptoms'
+              patient_statistics[:symptoms] = activity_data.first.number_of_patients.to_i
+              patient_statistics[:symptoms_pct] = (activity_data.first.number_of_patients.to_f / patient_statistics[:total].to_f * 100).round(1)  if patient_statistics[:total].to_f != 0
+            elsif type == 'danger'
+              patient_statistics[:danger] = activity_data.first.number_of_patients.to_i
+              patient_statistics[:danger_pct] = (activity_data.first.number_of_patients.to_f / patient_statistics[:total].to_f * 100).round(1) if patient_statistics[:total].to_f != 0
+            elsif type == 'info'
+              patient_statistics[:info] = activity_data.first.number_of_patients.to_i
+              patient_statistics[:info_pct] = (activity_data.first.number_of_patients.to_f / patient_statistics[:total].to_f * 100).round(1) if patient_statistics[:total].to_f != 0
+            end
+         end
+
+      end # end case
+      patients_data << patient_statistics
+    end
+    patients_data
+  end
+
+ def self.patient_activity_query_builder(patient_type, health_task, date_range, essential_params)
+    concept_ids         = essential_params[:concept_ids]
+    encounter_type_ids  = essential_params[:encounter_type_ids]
+    #extra_conditions    = essential_params[:extra_conditions]
+    #extra_parameters    = essential_params[:extra_parameters]
+
+    query = "SELECT COUNT(obs.person_id) AS number_of_patients "  +
+            "FROM encounter, encounter_type, obs, concept, concept_name " +
+            "WHERE encounter_type.encounter_type_id IN (#{encounter_type_ids}) " +
+              "AND concept.concept_id IN (#{concept_ids}) " +
+              "AND encounter_type.encounter_type_id = encounter.encounter_type " +
+              "AND obs.concept_id = concept_name.concept_id " +
+              "AND obs.concept_id = concept.concept_id " +
+              "AND encounter.encounter_id = obs.encounter_id " +
+              "AND DATE(obs.date_created) >= '#{date_range.first}' " +
+              "AND DATE(obs.date_created) <= '#{date_range.last}' " +
+              "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " +
+            "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
+
+    #raise query.to_yaml
+    query
+  end
 
 end

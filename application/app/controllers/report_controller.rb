@@ -201,6 +201,9 @@ class ReportController < ApplicationController
           when "ages_distribution"
             @patient_type       += ["Women", "Children", "All"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
+          when "patient_activity"
+            @patient_type       += ["Women", "Children", "All"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
         end
         render :template => "/report/patient_analysis_selection" ,
               :layout => "application"
@@ -296,6 +299,14 @@ class ReportController < ApplicationController
                   :patient_type => params[:patient_type],
                   :report_type  => params[:report_type],
                   :query        => params[:query]
+      when 'patient_activity'
+        redirect_to :action       => "patient_activity_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query]
        
     end
 
@@ -344,6 +355,23 @@ class ReportController < ApplicationController
     @report_name  = "Patient Age Distribution"
     @report       = Report.patient_age_distribution(@patient_type, @grouping,
                                                     @start_date, @end_date)
+    #raise @report.to_yaml
+    render :layout => false
+  end
+
+  def patient_activity_report
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+
+    @report_name  = "Patient Activity"
+    #@report       = Report.patient_activity(@patient_type, @grouping,
+    #                                                @start_date, @end_date)
+    @report    = Report.patient_activity(@patient_type, @grouping,
+                                         @start_date, @end_date)
     #raise @report.to_yaml
     render :layout => false
   end
