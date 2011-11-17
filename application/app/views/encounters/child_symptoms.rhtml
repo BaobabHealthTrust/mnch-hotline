@@ -1,7 +1,7 @@
 <script type="text/javascript">
   tt_cancel_show = "/patients/show/<%= @patient.id %>";
   tt_cancel_destination = "/patients/show/<%= @patient.id %>";
-
+  
   var symptoms_values = [];
 
   function setConceptNamesAndValues(symptoms, observations, obs_type){
@@ -33,10 +33,10 @@
 
   function summary() {
 
-    var symptomIds = ["fever","diarrhea","cough","convulsions","not_eating","red_eye","sleepy_or_unconcious","weight_change"];
     var display = "";
     var sympDisplay = "";
     var noSympDisplay = "";
+    var symptomIds = ["fever","diarrhea","cough","convulsions","not_eating","red_eye","sleepy_or_unconcious","weight_change"];
   
     sympDisplay += "<br /><div><span class='title' style='font-size:25px;'>Symptoms present</span></div>";
     sympDisplay += "<div><hr /><br />";
@@ -72,6 +72,38 @@
     $("clearButton").style.display = "none";
     //$('tt_staticControls').style.cssText = "height:670px !important";
     //                                                                                         
+  }
+
+  function loadDangerSigns() {
+
+    var dangerSignIds = ["cough_days","diarrhea_days","fever_days","red_eye_days","not_eating_anything","blood_in_stool",
+      "convulsions","vomiting_everything","visual_problems","unconcious","swollen_legs_or_face","dry_skin"]
+    var display = "<div><br />";
+
+    for (var i=0 ; i < dangerSignIds.length; ++i){
+     
+      if ((dangerSignIds[i] == "cough_days") && ($(dangerSignIds[i]).value >= 21)){
+        display += "<span class='title' style='font-size:22px;'>Cough >= 21 days </span><br />";
+      } else if  ((dangerSignIds[i] == "diarrhea_days") && ($(dangerSignIds[i]).value >= 14)){
+        display += "<span class='title' style='font-size:22px;'>Diarrhea >= 14 days </span><br />";
+      } else if  ((dangerSignIds[i] == "fever_days") && ($(dangerSignIds[i]).value >= 7)){
+        display += "<span class='title' style='font-size:22px;'>Fever >= 7 days </span><br />";
+      } else if  ((dangerSignIds[i] == "red_eye_days") && ($(dangerSignIds[i]).value >= 14)){
+        display += "<span class='title' style='font-size:22px;'>Red_eye >= 14 days </span><br />";
+      }else if  ((dangerSignIds[i] == "not_eating_anything") && ($(dangerSignIds[i]).value == "NO")){
+        display += "<span class='title' style='font-size:22px;'>" + humanize(dangerSignIds[i]) + "</span><br />";
+      }else if ($(dangerSignIds[i]).value == "YES"){
+        display += "<span class='title' style='font-size:22px;'>" + humanize(dangerSignIds[i]) + "</span><br />";
+      }
+    }
+
+    display += "</div>";
+   
+    //Display
+    $('inputFrame'+tstCurrentPage).innerHTML = '<div id="dangerSigns" style="height: 615px;">' + display + '</div>' ;
+    $("clearButton").style.display = "none";
+    //$('tt_staticControls').style.cssText = "height:670px !important";
+    //
   }
 
 </script>
@@ -212,7 +244,10 @@
   <%end%>
 
   <label for='summary'>Symptom Confirmation</label>
-  <%= text_field_tag :summary, nil, { :tt_onLoad => "setTimeout('summary();',1)", :optional => "true", :tt_pageStyleClass => "NoControls" } %>
+  <%= text_field_tag :summary, nil, { :tt_onLoad => "summary()", :optional => "true", :tt_pageStyleClass => "NoControls" } %>
+
+  <label for='dangerSigns'>Danger signs</label>
+  <%= text_field_tag :dangerSigns, nil, { :tt_onLoad => "loadDangerSigns()", :optional => "true", :tt_pageStyleClass => "NoControls" } %>
 
   <%= submit_tag 'Finish' %>
 <% end %>
