@@ -931,4 +931,139 @@ module Report
     query
   end
 
+ def self.patient_referral_followup(patient_type, grouping, outcome, start_date, end_date)
+    patient_data = []
+    youth_age = 9
+
+   #raise params.to_yaml
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+      patient_info = []
+      patient_data_elements = {:date_range => [], :patient_info => []}
+
+      if patient_type.downcase == "Women"
+        condition_options = ["encounter_type = ?
+                                    AND encounter_datetime >= ?
+                                    AND encounter_datetime <= ?
+                                    AND obs.concept_id = ?
+                                    AND obs.value_text = ?
+                                    AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) >= ?",
+                      EncounterType.find_by_name("Update Outcome").id,
+                      date_range.first, date_range.last,
+                      Concept.find_by_name("Outcome").id,
+                      outcome, youth_age]
+      elsif patient_type.downcase == 'children'
+        condition_options = ["encounter_type = ?
+                                    AND encounter_datetime >= ?
+                                    AND encounter_datetime <= ?
+                                    AND obs.concept_id = ?
+                                    AND obs.value_text = ?
+                                    AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) <= ?",
+                      EncounterType.find_by_name("Update Outcome").id,
+                      date_range.first, date_range.last,
+                      Concept.find_by_name("Outcome").id,
+                      outcome, youth_age]
+      else
+        condition_options = ["encounter_type = ?
+                                    AND encounter_datetime >= ?
+                                    AND encounter_datetime <= ?
+                                    AND obs.concept_id = ?
+                                    AND obs.value_text = ?",
+                      EncounterType.find_by_name("Update Outcome").id,
+                      date_range.first, date_range.last,
+                      Concept.find_by_name("Outcome").id,
+                      outcome]
+
+      end
+      
+      o_encounters = Encounter.find(:all,
+                   :joins =>"INNER JOIN obs ON encounter.encounter_id = obs.encounter_id
+                             INNER JOIN person ON patient_id = person.person_id",
+                   :conditions => condition_options
+                  )
+
+     #raise o_encounters.to_yaml
+      o_encounters.each do |a_encounter|
+
+         patient_information = {:name => '', :number => '', :visit_summary => ''}
+
+         a_person = Person.find(a_encounter.observations.first.person_id)
+
+         patient_information[:name] = a_person.name
+         patient_information[:number] = a_person.phone_numbers
+         patient_information[:visit_summary] = get_call_summary(a_person.id,
+                                                a_encounter.encounter_datetime.strftime("%Y-%m-%d"))
+
+        patient_info << patient_information
+      end
+      patient_data_elements[:date_range] = date_range
+      patient_data_elements[:patient_info] = patient_info
+
+     patient_data << patient_data_elements
+       
+    end
+
+    return patient_data
+  end
+
+ def self.get_call_summary(patient_id, encounter_date)
+
+   encounter_types = EncounterType.find(:all,
+                                 :conditions =>["name = ?
+                                  or name = ?", 'MATERNAL HEALTH SYMPTOMS',
+                                  "CHILD HEALTH SYMPTOMS"]).map{|e|
+                                                          e.encounter_type_id}
+
+   patient_encounters = Encounter.find(:all,
+                   :conditions =>["encounter_type IN (?)
+                                  AND encounter_datetime like ?
+                                  AND patient_id = ?",
+                                  encounter_types, "#{encounter_date}%", patient_id
+                  ])
+
+        danger_signs = []
+        health_information = []
+        health_symptoms = []
+        return_string = ""
+
+        patient_encounters.each do |a_encounter|
+          for obs in a_encounter.observations do
+            if obs.name_to_s != "CALL ID"
+               name_tag_id = ConceptNameTagMap.find(:all,
+                                                    :conditions =>["concept_name_id = ?", obs.concept_id],
+                                                    :select => "concept_name_tag_id"
+                                                   ).last
+
+               symptom_type = ConceptNameTag.find(:all,
+                                                  :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
+                                                  :select => "tag"
+                                                  ).uniq
+              symptom_type.each{|symptom|
+                if symptom.tag == "HEALTH INFORMATION"
+                  health_information << obs.name_to_s.capitalize
+                elsif symptom.tag == "DANGER SIGN"
+                  danger_signs << obs.name_to_s.capitalize
+                elsif symptom.tag == "HEALTH SYMPTOM"
+                  health_symptoms << obs.name_to_s.capitalize
+                end
+              }
+            end
+          end
+        end
+
+        if danger_signs.length != 0
+          return_string = "<B>Danger Signs : </B>" + danger_signs.join(", ").to_s
+        end
+        if health_information.length != 0
+          return_string =  return_string + " <B> Health Information : </B>" + health_information.join(", ").to_s
+        end
+        if health_symptoms.length != 0
+          return_string = return_string + " <B> Health Symptoms : </B>" + health_symptoms.join(", ").to_s
+        end
+
+        return_string = 'None' if return_string == ''
+        return return_string
+ end
+  
 end

@@ -23,6 +23,10 @@
   <%= select_tag :health_task, options_for_select(@health_task), {:helpText => "Select Health Task"} %>
 <%end%>
 
+  <%if @query == "referral_followup"%>
+  <%= select_tag :outcome, options_for_select(@outcomes), {:helpText => "Select Outcome"} %>
+<%end%>
+
 <%= hidden_field_tag :query, "#{@query}"%>
 <%= hidden_field_tag :start_date, "", {:id => 'start_date'}%>
 <%= hidden_field_tag :end_date,   "", {:id => 'end_date'}%>

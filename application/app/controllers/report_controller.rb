@@ -171,6 +171,7 @@ class ReportController < ApplicationController
     @report_date_range  = [""]
     @patient_type       = [""]
     @grouping           = [""]
+    @outcome            = [""]
 
     @report_type        = params[:report_type]
     @query              = params[:query].gsub(" ", "_")
@@ -203,6 +204,13 @@ class ReportController < ApplicationController
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
           when "patient_activity"
             @patient_type       += ["Women", "Children", "All"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+          when "referral_followup"
+            @patient_type       += ["Women", "Children", "All"]
+            @outcomes            = ["","REFERRED TO A HEALTH CENTRE",
+                                    "REFERRED TO NEAREST VILLAGE CLINIC",
+                                    "PATIENT TRIAGED TO NURSE SUPERVISOR",
+                                    "GIVEN ADVICE NO REFERRAL NEEDED"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
         end
         render :template => "/report/patient_analysis_selection" ,
@@ -307,7 +315,15 @@ class ReportController < ApplicationController
                   :patient_type => params[:patient_type],
                   :report_type  => params[:report_type],
                   :query        => params[:query]
-       
+    when 'referral_followup'
+        redirect_to :action       => "patient_referral_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query],
+                  :outcome      => params[:outcome]
     end
 
   end
@@ -368,11 +384,25 @@ class ReportController < ApplicationController
     @grouping     = params[:grouping]
 
     @report_name  = "Patient Activity"
-    #@report       = Report.patient_activity(@patient_type, @grouping,
-    #                                                @start_date, @end_date)
     @report    = Report.patient_activity(@patient_type, @grouping,
                                          @start_date, @end_date)
-    #raise @report.to_yaml
+    render :layout => false
+  end
+
+  def patient_referral_report
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @outcome      = params[:outcome]
+
+    #raise params.to_yaml
+    @report_name  = "Referral Followup"
+    @report    = Report.patient_referral_followup(@patient_type, @grouping, @outcome,
+                                         @start_date, @end_date)
+   # raise @report.to_yaml
     render :layout => false
   end
 
