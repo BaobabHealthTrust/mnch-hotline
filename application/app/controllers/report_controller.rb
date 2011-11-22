@@ -213,9 +213,24 @@ class ReportController < ApplicationController
                                     "GIVEN ADVICE NO REFERRAL NEEDED"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
         end
-        render :template => "/report/patient_analysis_selection" ,
-              :layout => "application"
+       when "call_analysis"
+        #case @query
+          #when "call_time_of_day"
+            @patient_type       += ["Women", "Children", "All"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+            @staff               = [["",""]] + get_staff_members_list + [["All","All"]]
+            @call_type           = ["","Normal", "Followup","Non-Patient Tips",
+                                    "Emergency","Irrelevant",
+                                    "All Patient Interaction",
+                                    "All Non-Patient"]
+            @call_status         = ["","Yes","No", "All"]
+          #when "call_lengths"
+
+        #end
     end
+
+     render :template => "/report/patient_analysis_selection" ,
+              :layout => "application"
   end
 
   def select_remote_options
@@ -324,6 +339,43 @@ class ReportController < ApplicationController
                   :report_type  => params[:report_type],
                   :query        => params[:query],
                   :outcome      => params[:outcome]
+
+    when 'call_time_of_day'
+        redirect_to :action       => "call_time_of_day_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query],
+                  :call_type    => params[:call_type],
+                  :call_status  => params[:call_status],
+                  :staff_member => params[:staff_member]
+
+    when 'call_day_distribution'
+        redirect_to :action       => "call_day_distribution_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query],
+                  :call_type    => params[:call_type],
+                  :call_status  => params[:call_status],
+                  :staff_member => params[:staff_member]
+
+    when 'call_lengths'
+        redirect_to :action       => "call_lengths_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query],
+                  :call_type    => params[:call_type],
+                  :call_status  => params[:call_status],
+                  :staff_member => params[:staff_member]
+
     end
 
   end
@@ -404,6 +456,12 @@ class ReportController < ApplicationController
                                          @start_date, @end_date)
    # raise @report.to_yaml
     render :layout => false
+  end
+
+  def get_staff_members_list
+    staff = User.find(:all).map{|u| ["#{u.username}", "#{u.user_id}"]}
+
+    return staff
   end
 
 end
