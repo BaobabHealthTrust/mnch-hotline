@@ -222,7 +222,7 @@ class ReportController < ApplicationController
             @call_type           = ["","Normal", "Followup","Non-Patient Tips",
                                     "Emergency","Irrelevant",
                                     "All Patient Interaction",
-                                    "All Non-Patient"]
+                                    "All Non-Patient", "All"]
             @call_status         = ["","Yes","No", "All"]
           #when "call_lengths"
 
@@ -341,7 +341,7 @@ class ReportController < ApplicationController
                   :outcome      => params[:outcome]
 
     when 'call_time_of_day'
-        redirect_to :action       => "call_time_of_day_report",
+        redirect_to :action       => "call_time_of_day",
                   :start_date   => params[:start_date],
                   :end_date     => params[:end_date],
                   :grouping     => params[:grouping],
@@ -462,6 +462,25 @@ class ReportController < ApplicationController
     staff = User.find(:all).map{|u| ["#{u.username}", "#{u.user_id}"]}
 
     return staff
+  end
+  def call_time_of_day
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @staff_member = params[:staff_member]
+    @call_status  = params[:call_status]
+    @call_type    = params[:call_type]
+
+    #raise params.to_yaml
+    @report_name  = "Call Time Of Day"
+    @report    = Report.call_time_of_day(@patient_type, @grouping, @call_type,
+                                         @call_status, @staff_member,
+                                         @start_date, @end_date)
+    #raise @report.to_yaml
+    render :layout => false
   end
 
 end
