@@ -1105,13 +1105,13 @@ module Report
 
      end
 
-     call_statistics[:monday]= (call_statistics[:monday].to_f / results.count.to_f * 100).round(1) if call_statistics[:monday] != 0
-     call_statistics[:tuesday] = (call_statistics[:tuesday].to_f / results.count.to_f * 100).round(1) if call_statistics[:tuesday] != 0
-     call_statistics[:wednesday] = (call_statistics[:wednesday].to_f / results.count.to_f * 100).round(1) if call_statistics[:wednesday] != 0
-     call_statistics[:thursday] = (call_statistics[:thursday].to_f / results.count.to_f * 100).round(1) if call_statistics[:thursday] != 0
-     call_statistics[:friday] = (call_statistics[:friday].to_f / results.count.to_f * 100).round(1) if call_statistics[:friday] != 0
-     call_statistics[:saturday] = (call_statistics[:saturday].to_f / results.count.to_f * 100).round(1) if call_statistics[:saturday] != 0
-     call_statistics[:sunday] = (call_statistics[:sunday].to_f / results.count.to_f * 100).round(1) if call_statistics[:sunday] != 0
+     call_statistics[:monday_pct]= (call_statistics[:monday].to_f / results.count.to_f * 100).round(1) if call_statistics[:monday] != 0
+     call_statistics[:tuesday_pct] = (call_statistics[:tuesday].to_f / results.count.to_f * 100).round(1) if call_statistics[:tuesday] != 0
+     call_statistics[:wednesday_pct] = (call_statistics[:wednesday].to_f / results.count.to_f * 100).round(1) if call_statistics[:wednesday] != 0
+     call_statistics[:thursday_pct] = (call_statistics[:thursday].to_f / results.count.to_f * 100).round(1) if call_statistics[:thursday] != 0
+     call_statistics[:friday_pct] = (call_statistics[:friday].to_f / results.count.to_f * 100).round(1) if call_statistics[:friday] != 0
+     call_statistics[:saturday_pct] = (call_statistics[:saturday].to_f / results.count.to_f * 100).round(1) if call_statistics[:saturday] != 0
+     call_statistics[:sunday_pct] = (call_statistics[:sunday].to_f / results.count.to_f * 100).round(1) if call_statistics[:sunday] != 0
 
      call_data << call_statistics
 
