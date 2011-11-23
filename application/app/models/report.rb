@@ -1066,7 +1066,7 @@ module Report
         return return_string
  end
 
- def self.call_time_of_day(patient_type, grouping, call_type, call_status,
+ def self.call_day_distribution(patient_type, grouping, call_type, call_status,
                                      staff_member, start_date, end_date)
   call_data = []
 
@@ -1080,34 +1080,38 @@ module Report
 
       results = CallLog.find_by_sql(query)
 
-      raise results.to_yaml
+      #raise results.to_yaml
 
       call_statistics = {:start_date => date_range.first,
                             :end_date => date_range.last, :total => results.count,
-                            :morning => 0, :morning_pct => 0,
-                            :midday => 0, :midday_pct => 0,
-                            :afternoon => 0, :afternoon_pct => 0,
-                            :evening => 0, :evening_pct => 0
+                            :monday => 0, :monday_pct => 0,
+                            :tuesday => 0, :tuesday_pct => 0,
+                            :wednesday => 0, :wednesday_pct => 0,
+                            :thursday => 0, :thursday_pct => 0,
+                            :friday => 0, :friday_pct=> 0,
+                            :saturday => 0, :saturday_pct => 0,
+                            :sunday => 0, :sunday_pct=> 0
                            }
 
      results.each do |call|
 
-       if Time.parse(call.call_start_time) >= Time.parse("07:00:00") && Time.parse(call.call_start_time) <= Time.parse("10:00:00")
-         call_statistics[:morning] += 1
-       elsif Time.parse(call.call_start_time) > Time.parse("10:00:00") && Time.parse(call.call_start_time) <= Time.parse("13:00:00")
-         call_statistics[:midday] += 1
-       elsif Time.parse(call.call_start_time) > Time.parse("13:00:00") && Time.parse(call.call_start_time) <= Time.parse("16:00:00")
-         call_statistics[:afternoon] += 1
-       elsif Time.parse(call.call_start_time) > Time.parse("16:00:00") && Time.parse(call.call_start_time) <= Time.parse("19:00:00")
-         call_statistics[:evening] += 1
-       end
-     end #end of results loop
+      call_statistics[:monday] += 1 if call.day_of_week == "Monday"
+      call_statistics[:tuesday] += 1 if call.day_of_week == "Tuesday"
+      call_statistics[:wednesday] += 1 if call.day_of_week == "Wednesday"
+      call_statistics[:thursday] += 1 if call.day_of_week == "Thursday"
+      call_statistics[:friday] += 1 if call.day_of_week == "Friday"
+      call_statistics[:saturday] += 1 if call.day_of_week == "Saturday"
+      call_statistics[:sunday] += 1 if call.day_of_week == "Sunday"
 
-     call_statistics[:morning_pct] = (call_statistics[:morning].to_f / results.count.to_f * 100).round(1) if call_statistics[:morning] != 0
-     call_statistics[:midday_pct] = (call_statistics[:midday].to_f / results.count.to_f * 100).round(1) if call_statistics[:midday] != 0
-     call_statistics[:afternoon_pct] = (call_statistics[:afternoon].to_f / results.count.to_f * 100).round(1) if call_statistics[:afternoon] != 0
-     call_statistics[:evening_pct] = (call_statistics[:evening].to_f / results.count.to_f * 100).round(1) if call_statistics[:evening] != 0
+     end
 
+     call_statistics[:monday]= (call_statistics[:monday].to_f / results.count.to_f * 100).round(1) if call_statistics[:monday] != 0
+     call_statistics[:tuesday] = (call_statistics[:tuesday].to_f / results.count.to_f * 100).round(1) if call_statistics[:tuesday] != 0
+     call_statistics[:wednesday] = (call_statistics[:wednesday].to_f / results.count.to_f * 100).round(1) if call_statistics[:wednesday] != 0
+     call_statistics[:thursday] = (call_statistics[:thursday].to_f / results.count.to_f * 100).round(1) if call_statistics[:thursday] != 0
+     call_statistics[:friday] = (call_statistics[:friday].to_f / results.count.to_f * 100).round(1) if call_statistics[:friday] != 0
+     call_statistics[:saturday] = (call_statistics[:saturday].to_f / results.count.to_f * 100).round(1) if call_statistics[:saturday] != 0
+     call_statistics[:sunday] = (call_statistics[:sunday].to_f / results.count.to_f * 100).round(1) if call_statistics[:sunday] != 0
 
      call_data << call_statistics
 
@@ -1169,11 +1173,11 @@ module Report
            " AND obs.voided = 0 " + extra_conditions +
            " GROUP BY call_log.call_log_id" + extra_grouping
 
-   raise query.to_s
+   #raise query.to_s
    return query
   end
 
- def self.call_day_distribution(patient_type, grouping, call_type, call_status,
+ def self.call_time_of_day(patient_type, grouping, call_type, call_status,
                                      staff_member, start_date, end_date)
   call_data = []
 
