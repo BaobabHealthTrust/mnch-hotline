@@ -1080,6 +1080,8 @@ module Report
 
       results = CallLog.find_by_sql(query)
 
+      raise results.to_yaml
+
       call_statistics = {:start_date => date_range.first,
                             :end_date => date_range.last, :total => results.count,
                             :morning => 0, :morning_pct => 0,
@@ -1118,6 +1120,7 @@ module Report
    child_maximum_age     = 9 # see definition of a female adult above
    call_concept_id = Concept.find_by_name('call id').id
    extra_conditions = " "
+   extra_grouping = " "
 
    case patient_type.downcase
      when 'women'
@@ -1128,6 +1131,8 @@ module Report
 
    if staff_id.downcase != 'all'
      extra_conditions += " AND obs.creator = '#{staff_id.to_i}' "
+   else
+     extra_grouping += ", users.username"
    end
 
    if call_type != 'All'
@@ -1150,7 +1155,9 @@ module Report
 
    query = "SELECT TIME(call_log.start_time) AS call_start_time, " +
            "TIME(call_log.end_time) AS call_end_time, " +
-           "users.username " +
+           "users.username, DATE_FORMAT(start_time,'%W') AS day_of_week, " +
+           "TIMESTAMPDIFF(SECOND, call_log.start_time, call_log.end_time) AS call_length_seconds, " +
+           "TIMESTAMPDIFF(MINUTE, call_log.start_time, call_log.end_time) AS call_length_minutes " +
            "FROM call_log " +
            "INNER JOIN obs ON obs.value_text = call_log.call_log_id " +
            "INNER JOIN person ON person.person_id = obs.person_id " +
@@ -1160,10 +1167,58 @@ module Report
            "AND DATE(call_log.start_time) >= '#{date_range.first}' " +
            "AND DATE(call_log.start_time) <= '#{date_range.last}' " +
            " AND obs.voided = 0 " + extra_conditions +
-           " GROUP BY call_log.call_log_id"
+           " GROUP BY call_log.call_log_id" + extra_grouping
 
-   #raise query.to_s
+   raise query.to_s
    return query
   end
+
+ def self.call_day_distribution(patient_type, grouping, call_type, call_status,
+                                     staff_member, start_date, end_date)
+  call_data = []
+
+  date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
+                                                      end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+
+      query   = self.call_analysis_query_builder(patient_type,
+                      date_range, staff_member, call_type, call_status)
+
+      results = CallLog.find_by_sql(query)
+
+      call_statistics = {:start_date => date_range.first,
+                            :end_date => date_range.last, :total => results.count,
+                            :morning => 0, :morning_pct => 0,
+                            :midday => 0, :midday_pct => 0,
+                            :afternoon => 0, :afternoon_pct => 0,
+                            :evening => 0, :evening_pct => 0
+                           }
+
+     results.each do |call|
+
+       if Time.parse(call.call_start_time) >= Time.parse("07:00:00") && Time.parse(call.call_start_time) <= Time.parse("10:00:00")
+         call_statistics[:morning] += 1
+       elsif Time.parse(call.call_start_time) > Time.parse("10:00:00") && Time.parse(call.call_start_time) <= Time.parse("13:00:00")
+         call_statistics[:midday] += 1
+       elsif Time.parse(call.call_start_time) > Time.parse("13:00:00") && Time.parse(call.call_start_time) <= Time.parse("16:00:00")
+         call_statistics[:afternoon] += 1
+       elsif Time.parse(call.call_start_time) > Time.parse("16:00:00") && Time.parse(call.call_start_time) <= Time.parse("19:00:00")
+         call_statistics[:evening] += 1
+       end
+     end #end of results loop
+
+     call_statistics[:morning_pct] = (call_statistics[:morning].to_f / results.count.to_f * 100).round(1) if call_statistics[:morning] != 0
+     call_statistics[:midday_pct] = (call_statistics[:midday].to_f / results.count.to_f * 100).round(1) if call_statistics[:midday] != 0
+     call_statistics[:afternoon_pct] = (call_statistics[:afternoon].to_f / results.count.to_f * 100).round(1) if call_statistics[:afternoon] != 0
+     call_statistics[:evening_pct] = (call_statistics[:evening].to_f / results.count.to_f * 100).round(1) if call_statistics[:evening] != 0
+
+
+     call_data << call_statistics
+
+    end #end of period loop
+
+   return call_data
+ end
 
 end

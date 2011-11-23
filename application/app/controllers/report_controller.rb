@@ -353,7 +353,7 @@ class ReportController < ApplicationController
                   :staff_member => params[:staff_member]
 
     when 'call_day_distribution'
-        redirect_to :action       => "call_day_distribution_report",
+        redirect_to :action       => "call_day_distribution",
                   :start_date   => params[:start_date],
                   :end_date     => params[:end_date],
                   :grouping     => params[:grouping],
@@ -365,7 +365,7 @@ class ReportController < ApplicationController
                   :staff_member => params[:staff_member]
 
     when 'call_lengths'
-        redirect_to :action       => "call_lengths_report",
+        redirect_to :action       => "call_lengths",
                   :start_date   => params[:start_date],
                   :end_date     => params[:end_date],
                   :grouping     => params[:grouping],
@@ -485,4 +485,25 @@ class ReportController < ApplicationController
     render :layout => false
   end
 
+  def call_day_distribution
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @staff_member = params[:staff_member]
+    @call_status  = params[:call_status]
+    @call_type    = params[:call_type]
+
+    @staff = User.find(@staff_member).username
+
+    #raise params.to_yaml
+    @report_name  = "Call Time Of Day"
+    @report    = Report.call_day_distribution(@patient_type, @grouping,
+                                              @call_type,@call_status,
+                                          @staff_member,@start_date, @end_date)
+    #raise @report.to_yaml
+    render :layout => false
+  end
 end
