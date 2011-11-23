@@ -474,6 +474,8 @@ class ReportController < ApplicationController
     @call_status  = params[:call_status]
     @call_type    = params[:call_type]
 
+    @staff = User.find(@staff_member).username
+
     #raise params.to_yaml
     @report_name  = "Call Time Of Day"
     @report    = Report.call_time_of_day(@patient_type, @grouping, @call_type,
