@@ -53,7 +53,7 @@
         } else if  (symptomIds[i] == "fever"){
           sympDisplay += "<span class='title' style='font-size:22px;'>Fever: " + $('fever_days').value + " days </span><br />";
         } else if  (symptomIds[i] == "red_eye"){
-          sympDisplay += "<span class='title' style='font-size:22px;'>Red_eye: " + $('red_eye_days').value + " days </span><br />";
+          sympDisplay += "<span class='title' style='font-size:22px;'>Red eye: " + $('red_eye_days').value + " days </span><br />";
         }else{
           sympDisplay += "<span class='title' style='font-size:22px;'>" + humanize(symptomIds[i]) + "</span><br />";
         }
@@ -213,7 +213,7 @@
   TODO Define the ajaxUrl below in patientrs controller
   %>
   <%= touch_text_field_tag "OTHER", @patient, nil,
-    {:id => "other_symptomw",
+    {:id => "other_symptom",
     :ajaxURL => '/patient/other_child_symptoms',
     :optional => true,
     :allowFreeText => true,
