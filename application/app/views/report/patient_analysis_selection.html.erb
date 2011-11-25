@@ -12,21 +12,32 @@
   }
 </script>
 <form method='POST' action="reports" >
-<%= select_tag :report_date_range, options_for_select(@date_range_values),
-    {:helpText => "Select Date Range", :tt_onUnLoad=>"setDateRange('report_date_range');"} %>
+  
+  <%= select_tag :report_date_range, options_for_select(@date_range_values),
+      {:helpText => "Select Date Range", :tt_onUnLoad=>"setDateRange('report_date_range');"} %>
 
-<%= select_tag :patient_type, options_for_select(@patient_type), {:helpText => "Select Patient Type"} %>
+  <%= select_tag :patient_type, options_for_select(@patient_type), {:helpText => "Select Patient Type"} %>
 
-<%= select_tag :grouping,     options_for_select(@grouping), {:helpText => "Select Grouping Criterion"} %>
+  <%= select_tag :grouping,     options_for_select(@grouping), {:helpText => "Select Grouping Criterion"} %>
 
-<%if @query == "health_issues"%>
-  <%= select_tag :health_task, options_for_select(@health_task), {:helpText => "Select Health Task"} %>
-<%end%>
+  <%if @query == "health_issues"%>
+    <%= select_tag :health_task, options_for_select(@health_task), {:helpText => "Select Health Task"} %>
+  <%end%>
 
-<%= hidden_field_tag :query, "#{@query}"%>
-<%= hidden_field_tag :start_date, "", {:id => 'start_date'}%>
-<%= hidden_field_tag :end_date,   "", {:id => 'end_date'}%>
-<%= hidden_field_tag :report_type, "#{@report_type}", {:id => 'report_type'}%>
+  <%if @query == "referral_followup"%>
+    <%= select_tag :outcome, options_for_select(@outcomes), {:helpText => "Select Outcome"} %>
+  <%end%>
+
+  <% if @report_type.downcase == 'call_analysis' %>
+    <%= select_tag :staff_member,     options_for_select(@staff), {:helpText => "Select a Staff member to report on"} %>
+    <%= select_tag :call_type,     options_for_select(@call_type), {:helpText => "Select Call type"} %>
+    <%= select_tag :call_status,     options_for_select(@call_status), {:helpText => "Select Call Status (dropped or not)"} %>
+  <% end %>
+
+  <%= hidden_field_tag :query, "#{@query}"%>
+  <%= hidden_field_tag :start_date, "", {:id => 'start_date'}%>
+  <%= hidden_field_tag :end_date,   "", {:id => 'end_date'}%>
+  <%= hidden_field_tag :report_type, "#{@report_type}", {:id => 'report_type'}%>
 
 </form>
 

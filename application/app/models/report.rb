@@ -931,4 +931,298 @@ module Report
     query
   end
 
+ def self.patient_referral_followup(patient_type, grouping, outcome, start_date, end_date)
+    patient_data = []
+    youth_age = 9
+
+   #raise params.to_yaml
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+      patient_info = []
+      patient_data_elements = {:date_range => [], :patient_info => []}
+
+      if patient_type.downcase == "Women"
+        condition_options = ["encounter_type = ?
+                                    AND encounter_datetime >= ?
+                                    AND encounter_datetime <= ?
+                                    AND obs.concept_id = ?
+                                    AND obs.value_text = ?
+                                    AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) >= ?",
+                      EncounterType.find_by_name("Update Outcome").id,
+                      date_range.first, date_range.last,
+                      Concept.find_by_name("Outcome").id,
+                      outcome, youth_age]
+      elsif patient_type.downcase == 'children'
+        condition_options = ["encounter_type = ?
+                                    AND encounter_datetime >= ?
+                                    AND encounter_datetime <= ?
+                                    AND obs.concept_id = ?
+                                    AND obs.value_text = ?
+                                    AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) <= ?",
+                      EncounterType.find_by_name("Update Outcome").id,
+                      date_range.first, date_range.last,
+                      Concept.find_by_name("Outcome").id,
+                      outcome, youth_age]
+      else
+        condition_options = ["encounter_type = ?
+                                    AND encounter_datetime >= ?
+                                    AND encounter_datetime <= ?
+                                    AND obs.concept_id = ?
+                                    AND obs.value_text = ?",
+                      EncounterType.find_by_name("Update Outcome").id,
+                      date_range.first, date_range.last,
+                      Concept.find_by_name("Outcome").id,
+                      outcome]
+
+      end
+      
+      o_encounters = Encounter.find(:all,
+                   :joins =>"INNER JOIN obs ON encounter.encounter_id = obs.encounter_id
+                             INNER JOIN person ON patient_id = person.person_id",
+                   :conditions => condition_options
+                  )
+
+     #raise o_encounters.to_yaml
+      o_encounters.each do |a_encounter|
+
+         patient_information = {:name => '', :number => '', :visit_summary => ''}
+
+         a_person = Person.find(a_encounter.observations.first.person_id)
+
+         patient_information[:name] = a_person.name
+         patient_information[:number] = a_person.phone_numbers
+         patient_information[:visit_summary] = get_call_summary(a_person.id,
+                                                a_encounter.encounter_datetime.strftime("%Y-%m-%d"))
+
+        patient_info << patient_information
+      end
+      patient_data_elements[:date_range] = date_range
+      patient_data_elements[:patient_info] = patient_info
+
+     patient_data << patient_data_elements
+       
+    end
+
+    return patient_data
+  end
+
+ def self.get_call_summary(patient_id, encounter_date)
+
+   encounter_types = EncounterType.find(:all,
+                                 :conditions =>["name = ?
+                                  or name = ?", 'MATERNAL HEALTH SYMPTOMS',
+                                  "CHILD HEALTH SYMPTOMS"]).map{|e|
+                                                          e.encounter_type_id}
+
+   patient_encounters = Encounter.find(:all,
+                   :conditions =>["encounter_type IN (?)
+                                  AND encounter_datetime like ?
+                                  AND patient_id = ?",
+                                  encounter_types, "#{encounter_date}%", patient_id
+                  ])
+
+        danger_signs = []
+        health_information = []
+        health_symptoms = []
+        return_string = ""
+
+        patient_encounters.each do |a_encounter|
+          for obs in a_encounter.observations do
+            if obs.name_to_s != "CALL ID"
+               name_tag_id = ConceptNameTagMap.find(:all,
+                                                    :conditions =>["concept_name_id = ?", obs.concept_id],
+                                                    :select => "concept_name_tag_id"
+                                                   ).last
+
+               symptom_type = ConceptNameTag.find(:all,
+                                                  :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
+                                                  :select => "tag"
+                                                  ).uniq
+              symptom_type.each{|symptom|
+                if symptom.tag == "HEALTH INFORMATION"
+                  health_information << obs.name_to_s.capitalize
+                elsif symptom.tag == "DANGER SIGN"
+                  danger_signs << obs.name_to_s.capitalize
+                elsif symptom.tag == "HEALTH SYMPTOM"
+                  health_symptoms << obs.name_to_s.capitalize
+                end
+              }
+            end
+          end
+        end
+
+        if danger_signs.length != 0
+          return_string = "<B>Danger Signs : </B>" + danger_signs.join(", ").to_s
+        end
+        if health_information.length != 0
+          return_string =  return_string + " <B> Health Information : </B>" + health_information.join(", ").to_s
+        end
+        if health_symptoms.length != 0
+          return_string = return_string + " <B> Health Symptoms : </B>" + health_symptoms.join(", ").to_s
+        end
+
+        return_string = 'None' if return_string == ''
+        return return_string
+ end
+
+ def self.call_day_distribution(patient_type, grouping, call_type, call_status,
+                                     staff_member, start_date, end_date)
+  call_data = []
+
+  date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
+                                                      end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+
+      query   = self.call_analysis_query_builder(patient_type,
+                      date_range, staff_member, call_type, call_status)
+
+      results = CallLog.find_by_sql(query)
+
+      #raise results.to_yaml
+
+      call_statistics = {:start_date => date_range.first,
+                            :end_date => date_range.last, :total => results.count,
+                            :monday => 0, :monday_pct => 0,
+                            :tuesday => 0, :tuesday_pct => 0,
+                            :wednesday => 0, :wednesday_pct => 0,
+                            :thursday => 0, :thursday_pct => 0,
+                            :friday => 0, :friday_pct=> 0,
+                            :saturday => 0, :saturday_pct => 0,
+                            :sunday => 0, :sunday_pct=> 0
+                           }
+
+     results.each do |call|
+
+      call_statistics[:monday] += 1 if call.day_of_week == "Monday"
+      call_statistics[:tuesday] += 1 if call.day_of_week == "Tuesday"
+      call_statistics[:wednesday] += 1 if call.day_of_week == "Wednesday"
+      call_statistics[:thursday] += 1 if call.day_of_week == "Thursday"
+      call_statistics[:friday] += 1 if call.day_of_week == "Friday"
+      call_statistics[:saturday] += 1 if call.day_of_week == "Saturday"
+      call_statistics[:sunday] += 1 if call.day_of_week == "Sunday"
+
+     end
+
+     call_statistics[:monday_pct]= (call_statistics[:monday].to_f / results.count.to_f * 100).round(1) if call_statistics[:monday] != 0
+     call_statistics[:tuesday_pct] = (call_statistics[:tuesday].to_f / results.count.to_f * 100).round(1) if call_statistics[:tuesday] != 0
+     call_statistics[:wednesday_pct] = (call_statistics[:wednesday].to_f / results.count.to_f * 100).round(1) if call_statistics[:wednesday] != 0
+     call_statistics[:thursday_pct] = (call_statistics[:thursday].to_f / results.count.to_f * 100).round(1) if call_statistics[:thursday] != 0
+     call_statistics[:friday_pct] = (call_statistics[:friday].to_f / results.count.to_f * 100).round(1) if call_statistics[:friday] != 0
+     call_statistics[:saturday_pct] = (call_statistics[:saturday].to_f / results.count.to_f * 100).round(1) if call_statistics[:saturday] != 0
+     call_statistics[:sunday_pct] = (call_statistics[:sunday].to_f / results.count.to_f * 100).round(1) if call_statistics[:sunday] != 0
+
+     call_data << call_statistics
+
+    end #end of period loop
+
+   return call_data
+ end
+
+ def self.call_analysis_query_builder(patient_type, date_range, staff_id, call_type, call_status)
+   child_maximum_age     = 9 # see definition of a female adult above
+   call_concept_id = Concept.find_by_name('call id').id
+   extra_conditions = " "
+   extra_grouping = " "
+
+   case patient_type.downcase
+     when 'women'
+        extra_conditions += " AND (YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+     when 'children'
+        extra_conditions += " AND (YEAR(patient.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+   end
+
+   if staff_id.downcase != 'all'
+     extra_conditions += " AND obs.creator = '#{staff_id.to_i}' "
+   else
+     extra_grouping += ", users.username"
+   end
+
+   if call_type != 'All'
+     case call_type.downcase
+     when 'normal'
+       call_type_code = 0
+     when 'emergency'
+       call_type_code = 1
+     when 'irrelevant'
+       call_type_code = 2
+     else
+       call_type_code = 0 #not sure as they have not been implemented yet
+     end
+     extra_conditions += " AND call_log.call_type = '#{call_type_code}' "
+   end
+
+   if call_status != 'All'
+     extra_conditions = extra_conditions
+   end
+
+   query = "SELECT TIME(call_log.start_time) AS call_start_time, " +
+           "TIME(call_log.end_time) AS call_end_time, " +
+           "users.username, DATE_FORMAT(start_time,'%W') AS day_of_week, " +
+           "TIMESTAMPDIFF(SECOND, call_log.start_time, call_log.end_time) AS call_length_seconds, " +
+           "TIMESTAMPDIFF(MINUTE, call_log.start_time, call_log.end_time) AS call_length_minutes " +
+           "FROM call_log " +
+           "INNER JOIN obs ON obs.value_text = call_log.call_log_id " +
+           "INNER JOIN person ON person.person_id = obs.person_id " +
+           "INNER JOIN users ON users.user_id = obs.creator " +
+           "INNER JOIN patient ON patient.patient_id = person.person_id " +
+           "WHERE obs.concept_id = #{call_concept_id} " +
+           "AND DATE(call_log.start_time) >= '#{date_range.first}' " +
+           "AND DATE(call_log.start_time) <= '#{date_range.last}' " +
+           " AND obs.voided = 0 " + extra_conditions +
+           " GROUP BY call_log.call_log_id" + extra_grouping
+
+   #raise query.to_s
+   return query
+  end
+
+ def self.call_time_of_day(patient_type, grouping, call_type, call_status,
+                                     staff_member, start_date, end_date)
+  call_data = []
+
+  date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
+                                                      end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+
+      query   = self.call_analysis_query_builder(patient_type,
+                      date_range, staff_member, call_type, call_status)
+
+      results = CallLog.find_by_sql(query)
+
+      call_statistics = {:start_date => date_range.first,
+                            :end_date => date_range.last, :total => results.count,
+                            :morning => 0, :morning_pct => 0,
+                            :midday => 0, :midday_pct => 0,
+                            :afternoon => 0, :afternoon_pct => 0,
+                            :evening => 0, :evening_pct => 0
+                           }
+
+     results.each do |call|
+
+       if Time.parse(call.call_start_time) >= Time.parse("07:00:00") && Time.parse(call.call_start_time) <= Time.parse("10:00:00")
+         call_statistics[:morning] += 1
+       elsif Time.parse(call.call_start_time) > Time.parse("10:00:00") && Time.parse(call.call_start_time) <= Time.parse("13:00:00")
+         call_statistics[:midday] += 1
+       elsif Time.parse(call.call_start_time) > Time.parse("13:00:00") && Time.parse(call.call_start_time) <= Time.parse("16:00:00")
+         call_statistics[:afternoon] += 1
+       elsif Time.parse(call.call_start_time) > Time.parse("16:00:00") && Time.parse(call.call_start_time) <= Time.parse("19:00:00")
+         call_statistics[:evening] += 1
+       end
+     end #end of results loop
+
+     call_statistics[:morning_pct] = (call_statistics[:morning].to_f / results.count.to_f * 100).round(1) if call_statistics[:morning] != 0
+     call_statistics[:midday_pct] = (call_statistics[:midday].to_f / results.count.to_f * 100).round(1) if call_statistics[:midday] != 0
+     call_statistics[:afternoon_pct] = (call_statistics[:afternoon].to_f / results.count.to_f * 100).round(1) if call_statistics[:afternoon] != 0
+     call_statistics[:evening_pct] = (call_statistics[:evening].to_f / results.count.to_f * 100).round(1) if call_statistics[:evening] != 0
+
+
+     call_data << call_statistics
+
+    end #end of period loop
+
+   return call_data
+ end
+
 end

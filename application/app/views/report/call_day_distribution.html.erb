@@ -1,0 +1,241 @@
+<html>
+  <head>
+    <title><%=@report_name%></title>
+    <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+    <link href="/stylesheets/report.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/report_print.css" media="print" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="btn-menu">
+      <%params[:format] = 'pdf'%>
+      <%select_report_criteria = '/report/select?report_type=' +@report_type +'&query=' + @query%>
+
+      <button id="back_button" class="button blue" onclick="window.location = '<%#=report_path(params)%>'"><span>PDF</span></button>
+      <!-- button id="regenerate_button" class="button blue" onclick="document.getElementById('frmMain').submit();"><span>Regenerate</span></button -->
+      <button id="print_button" class="button blue" onclick="window.print()"><span>Print</span></button>
+      <button id="finish_button" class="button green" onclick="window.location = '/clinic'"><span>Finish</span></button>
+      <button id="back_button" class="button red" onclick="window.location = '<%=select_report_criteria%>'"><span>Back</span></button>
+    </div>
+
+    <form id="frmMain" action="/report/patient_analysis_report" method="post">
+      <input type="hidden" id="start_date" name="start_date" value="<%= @start_date.to_date.strftime('%d-%m-%Y') %>" />
+      <input type="hidden" id="end_date" name="end_date" value="<%= @end_date.to_date.strftime('%d-%m-%Y') %>" />
+    </form>
+
+    <div>
+    <fieldset class="main_fieldset">
+      <legend class="main_legend" style="color:white; background-color:green;">
+        <%=@report_name +" - <i>"+ @patient_type +"</i>"%>
+      </legend>
+      <table cellspacing="0" width="100%">
+        <tr>
+          <%= "Filter Info: Grouping - #{@grouping.capitalize}, Staff Name - #{@staff.capitalize}, Call Status - #{@call_status}, Call Type - #{@call_type}"  %>
+        </tr>
+        <tr>
+          <td width="30%" colspan = 2 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
+              Total Calls
+          </td>
+          <td width="10%" colspan = 2 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Mon
+          </td>
+          <td width="10%" colspan = 2 class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold; text-align:center;">
+              Tues
+          </td>
+          <td width="10%" colspan = 2 class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold; text-align:center;">
+              Wed
+          </td>
+          <td width="10%" colspan = 2 class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold; text-align:center;">
+              Thurs
+          </td>
+          <td width="10%" colspan = 2 class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold; text-align:center;">
+              Fri
+          </td>
+          <td width="10%" colspan = 2 class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold; text-align:center;">
+              Sat
+          </td>
+          <td width="10%" colspan = 2 class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold; text-align:center;">
+              Sun
+          </td>
+        </tr>
+        <tr>
+          <td width="30%" class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              &nbsp;
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+        </tr>
+        <% total_calls = 0
+           total_monday = 0
+           total_tuesday = 0
+           total_wednesday = 0
+           total_thursday = 0
+           total_friday = 0
+           total_saturday = 0
+           total_sunday = 0
+        %>
+        <%@report.reverse.map do |data|
+          total_calls += data[:total]
+          total_monday += data[:monday]
+          total_tuesday += data[:tuesday]
+          total_wednesday += data[:wednesday]
+          total_thursday += data[:thursday]
+          total_friday += data[:friday]
+          total_saturday += data[:saturday]
+          total_sunday += data[:sunday]
+        %>
+          <tr>
+            <td class="cellleft cellbottom main-table-cell" style="text-align:left">
+              <%= @grouping.humanize + " ( "+ data[:start_date] + " - " + data[:end_date] + " )"%>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:total] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:monday] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:monday_pct] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:tuesday] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:tuesday_pct] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:wednesday] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:wednesday_pct] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:thursday] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:thursday_pct] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:friday] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom cellright main-table-cell">
+              <%=  data[:friday_pct] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:saturday] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:saturday_pct] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:sunday] rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom cellright main-table-cell">
+              <%=  data[:sunday_pct] rescue 0 %>
+            </td>
+          </tr>
+
+        <% end %>
+          <tr>
+            <td class="cellleft cellbottom main-table-cell" style="text-align:right">
+              Total
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  total_calls %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  total_monday %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%= (total_monday.to_f / total_calls.to_f * 100).round(1) %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  total_tuesday %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  (total_tuesday.to_f / total_calls.to_f * 100).round(1) %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  total_wednesday %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  (total_wednesday.to_f / total_calls.to_f * 100).round(1) %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%= total_thursday %>
+            </td>
+            <td class="cellleft cellbottom cellright main-table-cell">
+              <%=  (total_thursday.to_f / total_calls.to_f * 100).round(1) %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  total_friday %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  (total_friday.to_f / total_calls.to_f * 100).round(1) %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  total_saturday %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  (total_saturday.to_f / total_calls.to_f * 100).round(1) %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%= total_sunday %>
+            </td>
+            <td class="cellleft cellbottom cellright main-table-cell">
+              <%=  (total_sunday.to_f / total_calls.to_f * 100).round(1) %>
+            </td>
+          </tr>
+      </table>
+
+    </fieldset>
+      
+    </div>
+
+    <%# (1..2000).each{ %>
+    <%#= "<hr /><br />" %>
+    <%# } %>
+  </body>
+</html>
