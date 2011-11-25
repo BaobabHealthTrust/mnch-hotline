@@ -139,6 +139,8 @@ class EncountersController < ApplicationController
 
   def new
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    @child_danger_signs = @patient.child_danger_signs
+    @child_symptoms = @patient.child_symptoms
 
     # created a hash of 'upcased' health centers
     @health_facilities = ([""] + ClinicSchedule.health_facilities.map(&:name)).inject([]) do |facility_list, facilities|
@@ -257,4 +259,13 @@ class EncountersController < ApplicationController
 
     # raise answer_array.inspect
   end
+
+  def referral_reasons
+    search_string = (params[:search_string] || '').upcase
+    referral_reasons = ConceptName.find_by_name("REASON FOR REFERRAL").concept
+    previous_answers = []
+    previous_answers = Observation.find_most_common(referral_reasons, search_string)
+    render :text => "<li>" + previous_answers.join("</li><li>") + "</li>"
+  end
+
 end
