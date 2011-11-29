@@ -669,8 +669,8 @@ module Report
           pregnant_statistics[:min] = pregnant_data.min
           pregnant_statistics[:max] = pregnant_data.max
           pregnant_statistics[:percentage] = (pregnant_data.count.to_f / patient_data.count.to_f * 100).round(1)
-          pregnant_statistics[:average] = self.calculate_average_age(pregnant_data.flatten)
-          pregnant_statistics[:sdev] = self.calculate_sdev_age(pregnant_data)
+          pregnant_statistics[:average] = self.calculate_average(pregnant_data.flatten)
+          pregnant_statistics[:sdev] = self.calculate_sdev(pregnant_data)
 
           women_grouping[:pregnant][:statistical_info] = pregnant_statistics
         end
@@ -682,8 +682,8 @@ module Report
           nonpregnant_statistics[:min] = nonpregnant_data.min
           nonpregnant_statistics[:max] = nonpregnant_data.max
           nonpregnant_statistics[:percentage] = (nonpregnant_data.count.to_f / patient_data.count.to_f * 100).round(1)
-          nonpregnant_statistics[:average] = self.calculate_average_age(nonpregnant_data)
-          nonpregnant_statistics[:sdev] = self.calculate_sdev_age(nonpregnant_data)
+          nonpregnant_statistics[:average] = self.calculate_average(nonpregnant_data)
+          nonpregnant_statistics[:sdev] = self.calculate_sdev(nonpregnant_data)
 
           women_grouping[:nonpregnant][:statistical_info] = nonpregnant_statistics
 
@@ -695,8 +695,8 @@ module Report
           delivered[:min] = delivered_data.min
           delivered[:max] = delivered_data.max
           delivered[:percentage] = (delivered_data.count.to_f / patient_data.count.to_f * 100).round(1)
-          delivered[:average] = self.calculate_average_age(delivered_data)
-          delivered[:sdev] = self.calculate_sdev_age(delivered_data)
+          delivered[:average] = self.calculate_average(delivered_data)
+          delivered[:sdev] = self.calculate_sdev(delivered_data)
 
           women_grouping[:delivered][:statistical_info] = delivered_statistics
         end
@@ -722,8 +722,8 @@ module Report
           female_statistics[:min] = female_data.min
           female_statistics[:max] = female_data.max
           female_statistics[:percentage] = (female_data.count.to_f / patient_data.count.to_f * 100).round(1)
-          female_statistics[:average] = self.calculate_average_age(female_data)
-          female_statistics[:sdev] = self.calculate_sdev_age(female_data)
+          female_statistics[:average] = self.calculate_average(female_data)
+          female_statistics[:sdev] = self.calculate_sdev(female_data)
 
           child_grouping[:female][:statistical_info] = female_statistics
         end
@@ -735,8 +735,8 @@ module Report
           male_statistics[:min] = male_data.min
           male_statistics[:max] = male_data.max
           male_statistics[:percentage] = (male_data.count.to_f / patient_data.count.to_f  * 100).round(1)
-          male_statistics[:average] = self.calculate_average_age(male_data)
-          male_statistics[:sdev] = self.calculate_sdev_age(male_data)
+          male_statistics[:average] = self.calculate_average(male_data)
+          male_statistics[:sdev] = self.calculate_sdev(male_data)
 
           child_grouping[:male][:statistical_info] = male_statistics
         end
@@ -762,8 +762,8 @@ module Report
           child_statistics[:min] = child_data.min
           child_statistics[:max] = child_data.max
           child_statistics[:percentage] = (child_data.count.to_f / patient_data.count.to_f  * 100).round(1)
-          child_statistics[:average] = self.calculate_average_age(child_data)
-          child_statistics[:sdev] = self.calculate_sdev_age(child_data)
+          child_statistics[:average] = self.calculate_average(child_data)
+          child_statistics[:sdev] = self.calculate_sdev(child_data)
 
           all_grouping[:child][:statistical_info] = child_statistics
         end
@@ -775,8 +775,8 @@ module Report
           women_statistics[:min] = women_data.min
           women_statistics[:max] = women_data.max
           women_statistics[:percentage] = (women_data.count.to_f / patient_data.count.to_f  * 100).round(1)
-          women_statistics[:average] = self.calculate_average_age(women_data)
-          women_statistics[:sdev] = self.calculate_sdev_age(women_data)
+          women_statistics[:average] = self.calculate_average(women_data)
+          women_statistics[:sdev] = self.calculate_sdev(women_data)
 
           all_grouping[:women][:statistical_info] = women_statistics
         end
@@ -788,11 +788,13 @@ module Report
     return return_data
   end
 
- def self.calculate_average_age(data)
+ def self.calculate_average(data)
    return  (data.inject{ |sum, el| sum + el }.to_f / data.size).round(1)
  end
 
- def self.calculate_sdev_age(data)
+ def self.calculate_sdev(data)
+  return 0 if data.size == 1
+
    mean = data.sum / data.length
    new_data = []
 
@@ -1083,17 +1085,17 @@ module Report
       #raise results.to_yaml
 
       call_statistics = {:start_date => date_range.first,
-                            :end_date => date_range.last, :total => results.count,
-                            :monday => 0, :monday_pct => 0,
-                            :tuesday => 0, :tuesday_pct => 0,
-                            :wednesday => 0, :wednesday_pct => 0,
-                            :thursday => 0, :thursday_pct => 0,
-                            :friday => 0, :friday_pct=> 0,
-                            :saturday => 0, :saturday_pct => 0,
-                            :sunday => 0, :sunday_pct=> 0
+                          :end_date => date_range.last, :total => results.count,
+                          :monday => 0, :monday_pct => 0,
+                          :tuesday => 0, :tuesday_pct => 0,
+                          :wednesday => 0, :wednesday_pct => 0,
+                          :thursday => 0, :thursday_pct => 0,
+                          :friday => 0, :friday_pct=> 0,
+                          :saturday => 0, :saturday_pct => 0,
+                          :sunday => 0, :sunday_pct=> 0
                            }
-
-     results.each do |call|
+                           
+      results.each do |call|
 
       call_statistics[:monday] += 1 if call.day_of_week == "Monday"
       call_statistics[:tuesday] += 1 if call.day_of_week == "Tuesday"
@@ -1217,6 +1219,76 @@ module Report
      call_statistics[:afternoon_pct] = (call_statistics[:afternoon].to_f / results.count.to_f * 100).round(1) if call_statistics[:afternoon] != 0
      call_statistics[:evening_pct] = (call_statistics[:evening].to_f / results.count.to_f * 100).round(1) if call_statistics[:evening] != 0
 
+
+     call_data << call_statistics
+
+    end #end of period loop
+
+   return call_data
+ end
+
+  def self.call_lengths(patient_type, grouping, call_type, call_status,
+                                     staff_member, start_date, end_date)
+  call_data = []
+
+  date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
+                                                      end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+
+      query   = self.call_analysis_query_builder(patient_type,
+                      date_range, staff_member, call_type, call_status)
+
+      results = CallLog.find_by_sql(query)
+
+      call_statistics = {:start_date => date_range.first,
+                          :end_date => date_range.last, :total => results.count,
+                          :morning => 0, :m_len => [], :m_avg => 0, :m_sdev => 0, :m_min => 0,
+                          :midday => 0, :mid_len => [], :mid_avg => 0, :mid_sdev => 0, :mid_min => 0,
+                          :afternoon => 0, :a_len => [], :a_avg => 0, :a_sdev => 0, :a_min => 0,
+                          :evening => 0, :e_len => [], :e_avg => 0, :e_sdev => 0, :e_min => 0
+                         }
+
+     results.each do |call|
+
+       if Time.parse(call.call_start_time) >= Time.parse("07:00:00") && Time.parse(call.call_start_time) <= Time.parse("10:00:00")
+         call_statistics[:morning] += 1
+         call_statistics[:m_len] << call.call_length_seconds.to_i
+       elsif Time.parse(call.call_start_time) > Time.parse("10:00:00") && Time.parse(call.call_start_time) <= Time.parse("13:00:00")
+         call_statistics[:midday] += 1
+         call_statistics[:mid_len] << call.call_length_seconds.to_i
+       elsif Time.parse(call.call_start_time) > Time.parse("13:00:00") && Time.parse(call.call_start_time) <= Time.parse("16:00:00")
+         call_statistics[:afternoon] += 1
+         call_statistics[:a_len] << call.call_length_seconds.to_i
+       elsif Time.parse(call.call_start_time) > Time.parse("16:00:00") && Time.parse(call.call_start_time) <= Time.parse("19:00:00")
+         call_statistics[:evening] += 1
+         call_statistics[:e_len] << call.call_length_seconds.to_i
+       end
+     end #end of results loop
+
+     unless call_statistics[:m_len].empty?
+      call_statistics[:m_avg] = self.calculate_average(call_statistics[:m_len])
+      call_statistics[:m_sdev] = self.calculate_sdev(call_statistics[:m_len])
+      call_statistics[:m_min] = call_statistics[:m_len].min
+     end
+
+      unless call_statistics[:mid_len].empty?
+      call_statistics[:mid_avg] = self.calculate_average(call_statistics[:mid_len])
+      call_statistics[:mid_sdev] = self.calculate_sdev(call_statistics[:mid_len])
+      call_statistics[:mid_min] = call_statistics[:mid_len].min
+     end
+
+     unless call_statistics[:a_len].empty?
+      call_statistics[:a_avg] = self.calculate_average(call_statistics[:a_len])
+      call_statistics[:a_sdev] = self.calculate_sdev(call_statistics[:a_len])
+      call_statistics[:a_min] = call_statistics[:a_len].min
+     end
+
+     unless call_statistics[:e_len].empty?
+      call_statistics[:e_avg] = self.calculate_average(call_statistics[:e_len])
+      call_statistics[:e_sdev] = self.calculate_sdev(call_statistics[:e_len])
+      call_statistics[:e_min] = call_statistics[:e_len].min
+     end
 
      call_data << call_statistics
 

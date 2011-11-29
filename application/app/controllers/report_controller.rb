@@ -420,6 +420,18 @@ class ReportController < ApplicationController
     @query        = params[:query]
     @grouping     = params[:grouping]
 
+    case @patient_type.downcase
+    when 'women'
+      @special_message = "<I> -- (Please note that age is in <B> Years </B>) </I>"
+    when 'children'
+      @special_message = "<I> -- (Please note that age is in <B> Months </B>) </I>"
+    else
+      @special_message = "<I> -- (Please note that the Women age is in " +
+                         "<B> Years </B> and that of Children is in " +
+                         "<B> Months </B>)</I>"
+    end
+
+
     @report_name  = "Patient Age Distribution"
     @report       = Report.patient_age_distribution(@patient_type, @grouping,
                                                     @start_date, @end_date)
@@ -434,6 +446,7 @@ class ReportController < ApplicationController
     @report_type  = params[:report_type]
     @query        = params[:query]
     @grouping     = params[:grouping]
+    @special_message = ""
 
     @report_name  = "Patient Activity"
     @report    = Report.patient_activity(@patient_type, @grouping,
@@ -449,6 +462,7 @@ class ReportController < ApplicationController
     @query        = params[:query]
     @grouping     = params[:grouping]
     @outcome      = params[:outcome]
+    @special_message = ""
 
     #raise params.to_yaml
     @report_name  = "Referral Followup"
@@ -473,8 +487,13 @@ class ReportController < ApplicationController
     @staff_member = params[:staff_member]
     @call_status  = params[:call_status]
     @call_type    = params[:call_type]
+    @special_message = ""
 
-    @staff = User.find(@staff_member).username
+    if @staff_member == "All"
+      @staff = @staff_member
+    else
+      @staff = User.find(@staff_member).username
+    end
 
     #raise params.to_yaml
     @report_name  = "Call Time Of Day"
@@ -495,6 +514,7 @@ class ReportController < ApplicationController
     @staff_member = params[:staff_member]
     @call_status  = params[:call_status]
     @call_type    = params[:call_type]
+    @special_message = ""
 
     if @staff_member == "All"
       @staff = @staff_member
@@ -503,8 +523,35 @@ class ReportController < ApplicationController
     end
     
     #raise params.to_yaml
-    @report_name  = "Call Time Of Day"
+    @report_name  = "Call Day Distribution"
     @report    = Report.call_day_distribution(@patient_type, @grouping, @call_type,
+                                         @call_status, @staff_member,
+                                         @start_date, @end_date)
+    #raise @report.to_yaml
+    render :layout => false
+  end
+
+  def call_lengths
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @staff_member = params[:staff_member]
+    @call_status  = params[:call_status]
+    @call_type    = params[:call_type]
+    @special_message = "<I> -- (Please note that the call lengths are in <B>Seconds</B>)<I>"
+
+    if @staff_member == "All"
+      @staff = @staff_member
+    else
+      @staff = User.find(@staff_member).username
+    end
+
+    #raise params.to_yaml
+    @report_name  = "Call Length"
+    @report    = Report.call_lengths(@patient_type, @grouping, @call_type,
                                          @call_status, @staff_member,
                                          @start_date, @end_date)
     #raise @report.to_yaml

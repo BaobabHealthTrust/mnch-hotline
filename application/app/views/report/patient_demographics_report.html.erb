@@ -28,6 +28,9 @@
         <%=@report_name +" - <i>"+ @patient_type +"</i>"%>
       </legend>
       <table cellspacing="0" width="100%">
+        <tr>
+          <%= "Filter Info: Grouping - #{@grouping.capitalize} #{@special_message} "  %>
+        </tr>
         <%@report.reverse.map do |data|%>
           <tr>
             <td width="25%" colspan = 2 class="cellleft cellbottom main-table-cell" style="background-color:ddd; text-align:center;font-weight: bold; font-size: large; font-style: italic;">
