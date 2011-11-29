@@ -213,7 +213,7 @@ class ReportController < ApplicationController
                                     "GIVEN ADVICE NO REFERRAL NEEDED"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
         end
-       when "call_analysis"
+      when "call_analysis"
         #case @query
           #when "call_time_of_day"
             @patient_type       += ["Women", "Children", "All"]
@@ -224,9 +224,16 @@ class ReportController < ApplicationController
                                     "All Patient Interaction",
                                     "All Non-Patient", "All"]
             @call_status         = ["","Yes","No", "All"]
-          #when "call_lengths"
 
-        #end
+      when "tips"
+        @grouping           += [["",""],["By Week", "week"], ["By Month", "month"]]
+        @content_type       = [["",""],["Pregnancy", "pregnancy"],["Child","child"]]
+        @phone_type         = [["",""],["Community", "community"],["Personal","personal"],
+                               ["Family","family"],["Neighbour","Neighbour"]]
+        @language           = [["",""],["Yao","yao"],["Chichewa","chichewa"]]
+        @delivery           = [["",""],["SMS","sms"],["Voice","voice"]]
+        @network_prefix     = [["",""],["09","airtel"],["08","tnm"],["Other","other"]]
+
     end
 
      render :template => "/report/patient_analysis_selection" ,
@@ -375,6 +382,18 @@ class ReportController < ApplicationController
                   :call_type    => params[:call_type],
                   :call_status  => params[:call_status],
                   :staff_member => params[:staff_member]
+
+    when 'call_lengths'
+      redirect_to :action        => "tips_activity",
+                :start_date    => params[:start_date],
+                :end_date      => params[:end_date],
+                :grouping      => params[:grouping],
+                :content_type  => params[:content_type],
+                :language      => params[:language],
+                :query         => params[:query],
+                :phone_type    => params[:phone_type],
+                :delivery      => params[:delivery],
+                :number_prefix => params[:number_prefix]
 
     end
 
@@ -541,7 +560,8 @@ class ReportController < ApplicationController
     @staff_member = params[:staff_member]
     @call_status  = params[:call_status]
     @call_type    = params[:call_type]
-    @special_message = "<I> -- (Please note that the call lengths are in <B>Seconds</B>)<I>"
+    @special_message = "<I> -- (Please note that the call lengths " +
+                       "are in <B>Seconds</B>)<I>"
 
     if @staff_member == "All"
       @staff = @staff_member
@@ -549,12 +569,31 @@ class ReportController < ApplicationController
       @staff = User.find(@staff_member).username
     end
 
-    #raise params.to_yaml
     @report_name  = "Call Length"
     @report    = Report.call_lengths(@patient_type, @grouping, @call_type,
                                          @call_status, @staff_member,
                                          @start_date, @end_date)
-    #raise @report.to_yaml
+    render :layout => false
+  end
+
+  def tips_activity
+    @start_date     =  params[:start_date]
+    @end_date       = params[:end_date]
+    @grouping       = params[:grouping]
+    @content_type   = params[:content_type]
+    @language       = params[:language]
+    @query          = params[:query]
+    @phone_type     = params[:phone_type]
+    @delivery       = params[:delivery]
+    @number_prefix  = params[:number_prefix]
+
+    @special_message = "<I> -- (Please note that the call lengths " +
+                       "are in <B>Seconds</B>)<I>"
+
+    @report_name  = "Call Length"
+    @report    = Report.tips_activity(@start_date, @end_date, @grouping,
+                                      @content_type, @language, @phone_type,
+                                      @delivery, @number_prefix)
     render :layout => false
   end
 end

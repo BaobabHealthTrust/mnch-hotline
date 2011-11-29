@@ -1228,7 +1228,7 @@ module Report
  end
 
   def self.call_lengths(patient_type, grouping, call_type, call_status,
-                                     staff_member, start_date, end_date)
+                     staff_member, start_date, end_date)
   call_data = []
 
   date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
@@ -1241,26 +1241,31 @@ module Report
 
       results = CallLog.find_by_sql(query)
 
-      call_statistics = {:start_date => date_range.first,
-                          :end_date => date_range.last, :total => results.count,
-                          :morning => 0, :m_len => [], :m_avg => 0, :m_sdev => 0, :m_min => 0,
-                          :midday => 0, :mid_len => [], :mid_avg => 0, :mid_sdev => 0, :mid_min => 0,
-                          :afternoon => 0, :a_len => [], :a_avg => 0, :a_sdev => 0, :a_min => 0,
-                          :evening => 0, :e_len => [], :e_avg => 0, :e_sdev => 0, :e_min => 0
+      call_statistics = {
+      :start_date => date_range.first,
+      :end_date => date_range.last, :total => results.count,
+      :morning => 0, :m_len => [], :m_avg => 0, :m_sdev => 0, :m_min => 0,
+      :midday => 0, :mid_len => [], :mid_avg => 0, :mid_sdev => 0, :mid_min => 0,
+      :afternoon => 0, :a_len => [], :a_avg => 0, :a_sdev => 0, :a_min => 0,
+      :evening => 0, :e_len => [], :e_avg => 0, :e_sdev => 0, :e_min => 0
                          }
 
      results.each do |call|
 
-       if Time.parse(call.call_start_time) >= Time.parse("07:00:00") && Time.parse(call.call_start_time) <= Time.parse("10:00:00")
+       if Time.parse(call.call_start_time) >= Time.parse("07:00:00") &&
+          Time.parse(call.call_start_time) <= Time.parse("10:00:00")
          call_statistics[:morning] += 1
          call_statistics[:m_len] << call.call_length_seconds.to_i
-       elsif Time.parse(call.call_start_time) > Time.parse("10:00:00") && Time.parse(call.call_start_time) <= Time.parse("13:00:00")
+       elsif Time.parse(call.call_start_time) > Time.parse("10:00:00") &&
+             Time.parse(call.call_start_time) <= Time.parse("13:00:00")
          call_statistics[:midday] += 1
          call_statistics[:mid_len] << call.call_length_seconds.to_i
-       elsif Time.parse(call.call_start_time) > Time.parse("13:00:00") && Time.parse(call.call_start_time) <= Time.parse("16:00:00")
+       elsif Time.parse(call.call_start_time) > Time.parse("13:00:00") &&
+             Time.parse(call.call_start_time) <= Time.parse("16:00:00")
          call_statistics[:afternoon] += 1
          call_statistics[:a_len] << call.call_length_seconds.to_i
-       elsif Time.parse(call.call_start_time) > Time.parse("16:00:00") && Time.parse(call.call_start_time) <= Time.parse("19:00:00")
+       elsif Time.parse(call.call_start_time) > Time.parse("16:00:00") &&
+             Time.parse(call.call_start_time) <= Time.parse("19:00:00")
          call_statistics[:evening] += 1
          call_statistics[:e_len] << call.call_length_seconds.to_i
        end
@@ -1295,6 +1300,15 @@ module Report
     end #end of period loop
 
    return call_data
+ end
+ def self.tips_activity(start_date, end_date, grouping, content_type, language,
+                        phone_type, delivery, number_prefix)
+ call_data = []
+
+ date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
+                                                      end_date)[:date_ranges]
+
+ 
  end
 
 end
