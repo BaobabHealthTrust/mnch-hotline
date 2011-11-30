@@ -383,7 +383,7 @@ class ReportController < ApplicationController
                   :call_status  => params[:call_status],
                   :staff_member => params[:staff_member]
 
-    when 'call_lengths'
+    when 'tips_activity'
       redirect_to :action        => "tips_activity",
                 :start_date    => params[:start_date],
                 :end_date      => params[:end_date],
