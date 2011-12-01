@@ -14,9 +14,14 @@
 <form id='relationship' action="/relationships/create" method='post'> 
   <%= hidden_field_tag :patient_id, @patient.id %>
   <%= hidden_field_tag :relation, params[:relation] %>
-
+<%= 
+@relationships = RelationshipType.all.inject({}){|result, element| result[element.b_is_to_a] = element.relationship_type_id; result }.sort
+%>
   <%= select_tag :relationship, options_for_select(
-    RelationshipType.all.inject({}){|result, element| result[element.b_is_to_a] = element.relationship_type_id; result }, params[:relationship]), 
-    {:helpText => "How is #{Person.find(params[:relation]).name rescue 'this person'} related to the patient"} %> 
+    @relationships.map{|relation| relation if !relation.include?("TB contact Person") && !relation.include?("TB Index Person") && !relation.include?("Child") && !relation.include?("Patient") && !relation.include?("treatment suportee")}, params[:relationship]), 
+    {:helpText => "How is #{Person.find(params[:relation]).name rescue 'this person'} related to the child"} %> 
+    
+
+</form>
 
 </form>

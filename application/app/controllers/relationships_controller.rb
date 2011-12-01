@@ -8,6 +8,8 @@ class RelationshipsController < ApplicationController
   def search
     session[:return_to] = nil
     session[:return_to] = params[:return_to] unless params[:return_to].blank?
+    session[:guardian_added] = nil
+    session[:guardian_added] = params[:guardian_added] unless params[:guardian_added].blank?
     render :layout => 'relationships'
   end
   

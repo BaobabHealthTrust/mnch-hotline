@@ -25,6 +25,40 @@
       return 'false';
     }
   }
+
+  function new_relationship() {
+    var current = '/encounters/new/tips_and_reminders?patient_id=<%= @patient.patient_id %>';
+    window.location = "/relationships/search?patient_id=<%= @patient.patient_id %>&return_to=" + escape(current) + "&guardian_added=true"
+  }
+
+  function show_new_relationship_button() {
+    var button = "<button onmousedown='new_relationship();' class='button navButton'><span>New Guardian</span></button>";
+    $('tt_extraButtons').innerHTML = button
+  }
+
+ function hide_new_relationship_button() {
+    $('tt_extraButtons').innerHTML = "";
+ }
+
+  // Don't save Guardian: None. We might later want to start saving this answer
+  function cleanup_guardian_options() {
+    var options = $('guardian_present').options;
+    //alert(options);
+    for (var i=0; i<options.length; i++) {
+      if (options[i].selected && options[i].value == 'Yes') {
+        return new_relationship();
+      } else {
+        return null;
+      }
+    }
+  }
+
+  // Disable option No on Patient Present if Guardian is not present (or Unknown)
+  function forcePatientPresentYes() {
+    if ($('guardian_present').value == 'No') {
+      $('patient_present').value == 'Yes';
+    }
+  }
 </script>
 
 <form id='tips_and_reminders' action="/encounters/create" method='post'>
@@ -33,6 +67,34 @@
   <%= hidden_field_tag "encounter[patient_id]",           @patient.id %>
   <%= hidden_field_tag "encounter[encounter_datetime]",   DateTime.now() %>
   <%= hidden_field_tag "encounter[provider_id]",          session[:user_id] %>
+
+  <!-- 
+      Checking if the subscriber is a child so that should enter guardian details
+    -->
+    <% if @patient.person.age <= 13 %>
+      <% if Person.find(@patient.patient_id).relationships.first.blank? %>
+        <label for='guardian_present'>Guardian Present</label>
+        <%= select_tag "observations[][value_text]", relationship_options(@patient),
+          {:id => "guardian_present",
+           :multiple => false,
+           :optional => false,
+           :tt_onUnLoad => "cleanup_guardian_options()" } %>
+        <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
+        <%= hidden_field_tag("observations[][concept_name]", "GUARDIAN PRESENT") %>
+        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+      <% else %>
+        <label for='guardian_present'>Guardian Present (<%= patient_guardian(@patient) rescue ''%>)</label>
+        <%= select_tag "observations[][value_text]", relationship_options(@patient),
+          {:id => "guardian_present",
+           :multiple => false,
+           :optional => false} %>
+        <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
+        <%= hidden_field_tag("observations[][concept_name]", "GUARDIAN PRESENT") %>
+        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+      <% end %>
+    <% end %>
 
   <% options = {
      :id          => "enrol_for_tips_and_reminders",
@@ -79,7 +141,7 @@
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_number_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
     <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
-    
+
     <% options = {
       :id           => "language_type",
       :helptext     => "Language preference",
