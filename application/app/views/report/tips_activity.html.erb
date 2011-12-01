@@ -1,0 +1,178 @@
+<html>
+  <head>
+    <title><%=@report_name%></title>
+    <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+    <link href="/stylesheets/report.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/report_print.css" media="print" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="btn-menu">
+      <%params[:format] = 'pdf'%>
+      <%select_report_criteria = '/report/select?report_type=' +@report_type +'&query=' + @query%>
+
+      <button id="back_button" class="button blue" onclick="window.location = '<%#=report_path(params)%>'"><span>PDF</span></button>
+      <!-- button id="regenerate_button" class="button blue" onclick="document.getElementById('frmMain').submit();"><span>Regenerate</span></button -->
+      <button id="print_button" class="button blue" onclick="window.print()"><span>Print</span></button>
+      <button id="finish_button" class="button green" onclick="window.location = '/clinic'"><span>Finish</span></button>
+      <button id="back_button" class="button red" onclick="window.location = '<%=select_report_criteria%>'"><span>Back</span></button>
+    </div>
+
+    <form id="frmMain" action="/report/patient_analysis_report" method="post">
+      <input type="hidden" id="start_date" name="start_date" value="<%= @start_date.to_date.strftime('%d-%m-%Y') %>" />
+      <input type="hidden" id="end_date" name="end_date" value="<%= @end_date.to_date.strftime('%d-%m-%Y') %>" />
+    </form>
+
+    <div>
+    <fieldset class="main_fieldset">
+      <legend class="main_legend" style="color:white; background-color:green;">
+        <%=@report_name %>
+      </legend>
+      <table cellspacing="0" width="100%">
+        <tr>
+          <%= "Filter Info: Content - #{@content_type.capitalize}, Delivery" +
+            " - #{@delivery.capitalize}, grouping - #{@grouping.capitalize}," +
+            " Phone Type - #{@phone_type}, Number Prefix - #{@number_prefix}" +
+            " Language - #{@language}-- (#{@special_message}) "  %>
+        </tr>
+        <tr>
+          <td width="28%" colspan = 2 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
+              Total Calls
+          </td>
+          <td width="24%" colspan = 4 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Content
+          </td>
+          <td width="24%" colspan = 4 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Language
+          </td>
+          <td width="24%" colspan = 4 class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Delivery
+          </td>
+        </tr>
+        <tr>
+          <td width="25%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
+              &nbsp;
+          </td>
+          <td width="12%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Pregnancy
+          </td>
+          <td width="12%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Child
+          </td>
+          <td width="12%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Chiyao
+          </td>
+          <td width="12%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Chichewa
+          </td>
+          <td width="12%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              SMS
+          </td>
+          <td width="12%" colspan = 2 class="cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Voice
+          </td>
+        </tr>
+        
+        <tr>
+          <td width="22%" class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              &nbsp;
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class=" cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <td class="cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
+              %age
+          </td>
+          
+        </tr>
+        <%@report.reverse.map do |data| %>
+          <tr>
+            <td class="cellleft cellbottom main-table-cell" style="text-align:left">
+              <%= @grouping.humanize + " ( "+ data[:start_date] + " - " + data[:end_date] + " )"%>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%= data[:total] rescue 0  %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+               <%= data[:pregnancy]  rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+                <%= data[:pregnancy_pct]  rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+                <%= data[:child] rescue 0  %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+               <%= data[:child_pct] rescue 0  %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+                <%= data[:yao]  rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+                <%= data[:yao_pct] rescue 0  %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+                <%= data[:chewa] rescue 0  %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+                <%= data[:chewa_pct]  rescue 0 %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+                <%= data[:sms] rescue 0  %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+                <%= data[:sms_pct] rescue 0  %>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+                <%= data[:voice] rescue 0  %>
+            </td>
+            <td class="cellleft cellbottom cellright main-table-cell">
+                <%= data[:voice_pct] rescue 0  %>
+            </td>
+          </tr>
+
+        <% end %>
+          
+      </table>
+
+    </fieldset>
+      
+    </div>
+
+    <%# (1..2000).each{ %>
+    <%#= "<hr /><br />" %>
+    <%# } %>
+  </body>
+</html>

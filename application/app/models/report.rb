@@ -938,7 +938,8 @@ module Report
     youth_age = 9
 
    #raise params.to_yaml
-    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
+                                                        end_date)[:date_ranges]
 
     date_ranges.map do |date_range|
       patient_info = []
@@ -946,32 +947,32 @@ module Report
 
       if patient_type.downcase == "Women"
         condition_options = ["encounter_type = ?
-                                    AND encounter_datetime >= ?
-                                    AND encounter_datetime <= ?
-                                    AND obs.concept_id = ?
-                                    AND obs.value_text = ?
-                                    AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) >= ?",
+                              AND encounter_datetime >= ?
+                              AND encounter_datetime <= ?
+                              AND obs.concept_id = ?
+                              AND obs.value_text = ?
+                              AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) >= ?",
                       EncounterType.find_by_name("Update Outcome").id,
                       date_range.first, date_range.last,
                       Concept.find_by_name("Outcome").id,
                       outcome, youth_age]
       elsif patient_type.downcase == 'children'
         condition_options = ["encounter_type = ?
-                                    AND encounter_datetime >= ?
-                                    AND encounter_datetime <= ?
-                                    AND obs.concept_id = ?
-                                    AND obs.value_text = ?
-                                    AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) <= ?",
+                              AND encounter_datetime >= ?
+                              AND encounter_datetime <= ?
+                              AND obs.concept_id = ?
+                              AND obs.value_text = ?
+                              AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) <= ?",
                       EncounterType.find_by_name("Update Outcome").id,
                       date_range.first, date_range.last,
                       Concept.find_by_name("Outcome").id,
                       outcome, youth_age]
       else
         condition_options = ["encounter_type = ?
-                                    AND encounter_datetime >= ?
-                                    AND encounter_datetime <= ?
-                                    AND obs.concept_id = ?
-                                    AND obs.value_text = ?",
+                              AND encounter_datetime >= ?
+                              AND encounter_datetime <= ?
+                              AND obs.concept_id = ?
+                              AND obs.value_text = ?",
                       EncounterType.find_by_name("Update Outcome").id,
                       date_range.first, date_range.last,
                       Concept.find_by_name("Outcome").id,
@@ -1011,11 +1012,10 @@ module Report
 
  def self.get_call_summary(patient_id, encounter_date)
 
-   encounter_types = EncounterType.find(:all,
-                                 :conditions =>["name = ?
-                                  or name = ?", 'MATERNAL HEALTH SYMPTOMS',
-                                  "CHILD HEALTH SYMPTOMS"]).map{|e|
-                                                          e.encounter_type_id}
+
+   encounter_type_list = ["MATERNAL HEALTH SYMPTOMS",
+                           "CHILD HEALTH SYMPTOMS"]
+   encounter_types = self.get_encounter_types(encounter_type_list)
 
    patient_encounters = Encounter.find(:all,
                    :conditions =>["encounter_type IN (?)
@@ -1165,10 +1165,10 @@ module Report
            "TIMESTAMPDIFF(SECOND, call_log.start_time, call_log.end_time) AS call_length_seconds, " +
            "TIMESTAMPDIFF(MINUTE, call_log.start_time, call_log.end_time) AS call_length_minutes " +
            "FROM call_log " +
-           "INNER JOIN obs ON obs.value_text = call_log.call_log_id " +
-           "INNER JOIN person ON person.person_id = obs.person_id " +
-           "INNER JOIN users ON users.user_id = obs.creator " +
-           "INNER JOIN patient ON patient.patient_id = person.person_id " +
+           "LEFT JOIN obs ON obs.value_text = call_log.call_log_id " +
+           "LEFT JOIN person ON person.person_id = obs.person_id " +
+           "LEFT JOIN users ON users.user_id = obs.creator " +
+           "LEFT JOIN patient ON patient.patient_id = person.person_id " +
            "WHERE obs.concept_id = #{call_concept_id} " +
            "AND DATE(call_log.start_time) >= '#{date_range.first}' " +
            "AND DATE(call_log.start_time) <= '#{date_range.last}' " +
@@ -1304,11 +1304,84 @@ module Report
  def self.tips_activity(start_date, end_date, grouping, content_type, language,
                         phone_type, delivery, number_prefix)
  call_data = []
+ 
+ # main obs conceps
+ content_concept = Concept.find_by_name('TYPE OF MESSAGE CONTENT').id
+ language_concept = Concept.find_by_name('LANGUAGE PREFERENCE').id
+ delivery_concept = Concept.find_by_name('TYPE OF MESSAGE').id
+ #data elements concepts
+ pregnancy_concept = Concept.find_by_name('pregnancy').id
+ child_concept = Concept.find_by_name('child').id
+ yao_concept = Concept.find_by_name('chiyao').id
+ chewa_concept = Concept.find_by_name('chichewa').id
+ sms_concept = Concept.find_by_name('sms').id
+ voice_concept = Concept.find_by_name('voice').id
+
 
  date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
                                                       end_date)[:date_ranges]
+  date_ranges.map do |date_range|
+   encounters = self.get_tips_data(date_range)
 
- 
+   row_data = {:start_date => date_range.first,:end_date => date_range.last,
+              :total => encounters.size,
+              :pregnancy => 0, :pregnancy_pct => 0,:child => 0,:child_pct => 0,
+              :yao => 0, :yao_pct => 0, :chewa => 0, :chewa_pct => 0,
+              :sms => 0, :sms_pct => 0, :voice => 0, :voice_pct => 0
+            }
+
+   encounters.each do |encounter|
+     encounter.observations.each do |observation|
+       if observation.concept_id == content_concept then
+         row_data[:pregnancy] += 1 if observation.value_coded == pregnancy_concept
+         row_data[:child] += 1 if observation.value_coded == child_concept
+       elsif observation.concept_id == language_concept
+         row_data[:yao] += 1 if observation.value_coded == yao_concept
+         row_data[:chewa] += 1 if observation.value_coded == chewa_concept
+       elsif observation.concept_id == delivery_concept then
+         row_data[:sms] += 1 if observation.value_coded == sms_concept
+         row_data[:voice] += 1 if observation.value_coded == voice_concept
+       end
+     end
+   end
+   #calculate percentages
+   row_data[:pregnancy_pct] = (row_data[:pregnancy].to_f / encounters.count.to_f * 100).round(1) if row_data[:pregnancy] != 0
+   row_data[:child_pct] = (row_data[:child].to_f / encounters.count.to_f * 100).round(1) if row_data[:child] != 0
+   row_data[:yao_pct] = (row_data[:yao].to_f / encounters.count.to_f * 100).round(1) if row_data[:yao] != 0
+   row_data[:chewa_pct] = (row_data[:chewa].to_f / encounters.count.to_f * 100).round(1) if row_data[:chewa] != 0
+   row_data[:sms_pct] = (row_data[:sms].to_f / encounters.count.to_f * 100).round(1) if row_data[:sms] != 0
+   row_data[:voice_pct] = (row_data[:voice].to_f / encounters.count.to_f * 100).round(1) if row_data[:voice] != 0
+   #add to the call_data array
+
+   call_data << row_data
+  end
+
+  return call_data
+ end
+
+ def self.get_tips_data(date_range)
+
+  encounter_type_list = ["TIPS AND REMINDERS"]
+  encounter_types = self.get_encounter_types(encounter_type_list)
+
+  encounters_list = Encounter.find(:all,
+                                   :conditions => ["encounter_type IN (?) AND
+                                                    encounter_datetime >= ? AND
+                                                    encounter_datetime <= ?",
+                                                   encounter_types,
+                                                   date_range.first,
+                                                   date_range.last])
+
+  return encounters_list
+
+ end
+
+ def self.get_encounter_types(type_names)
+   encounter_types = EncounterType.find(:all,
+                                 :conditions =>["name IN (?)",
+                                   type_names]).map{|e| e.encounter_type_id}
+
+   return encounter_types
  end
 
 end
