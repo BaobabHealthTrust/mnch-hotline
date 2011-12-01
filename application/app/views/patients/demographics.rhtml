@@ -1,0 +1,77 @@
+<style type="text/css">
+  table { margin: 15px;}
+  td {
+    background: #F0F0F0;
+    font-size: 1.4em;
+    width: 250px;
+  }
+   a {text-decoration: none;}
+   a:visited{color:green;}
+  .label {
+    font-weight: bold;
+    padding: 25px;
+  }
+
+</style>
+
+<script type="text/javascript">
+  tt_cancel_destination = '<%=  "/patients/show/#{@patient.id}" %>';
+  tt_cancel_show = '<%=  "/patients/show/#{@patient.id}" %>';
+</script>
+<center><h2><%= "Demographics for #{@patient.person.name} (#{@patient.national_id_with_dashes})"%></h2></center>
+<h3> (You can update/change any detail by touching on the indicator and going through the update process)</h3>
+<%#= raise @person.to_yaml %>
+<table>
+  <tr>
+    <td>
+    <%= link_to "Name:", "/patients/edit_demographics?field=name&id=#{@patient.patient_id}" -%>
+    </td>
+    <td class="label"><%= @patient.person.name  %></td>
+    <td>
+      <%= link_to "Age:", "/patients/edit_demographics?field=age&id=#{@patient.patient_id}" -%>
+    </td>
+    <td class="label"><%= @patient.person.age %></td>
+  </tr>
+  <tr>
+    <td>
+      <%= link_to "Gender:", "/patients/edit_demographics?field=gender&id=#{@patient.patient_id}" -%>
+    </td>
+    <td class="label"><%= @patient.person.sex %></td>
+    <td>
+      <%= link_to "Occupation:", "/patients/edit_demographics?field=occupation&id=#{@patient.patient_id}" -%>
+    </td>
+    <td class="label"><%= @patient.person.get_attribute("Occupation") %></td>
+  </tr>
+  <tr>
+    <td>
+      <%= link_to "Home District:", "/patients/edit_demographics?field=home_district&id=#{@patient.patient_id}" -%>
+    </td>
+    <td class="label"><%= @patient.person.addresses.first.address2 %></td>
+    <td>
+      <%= link_to "Current District:", "/patients/edit_demographics?field=current_district&id=#{@patient.patient_id}" -%>
+    </td>
+    <td class="label"><%= @patient.person.addresses.first.city_village %></td>
+  </tr>
+  <tr>
+    <td>
+      <%= link_to "Current T/A:", "/patients/edit_demographics?field=current_ta&id=#{@patient.patient_id}" -%>
+    </td>
+    <td class="label"><%= @patient.person.addresses.first.county_district %></td>
+    <td>
+      <%= link_to "Cell phone Number:", "/patients/edit_demographics?field=primary_phone&id=#{@patient.patient_id}" -%>
+    </td>
+    <td class="label"><%= @patient.person.phone_numbers[:cell_phone_number_] %></td>
+  </tr>
+<!--  
+  <tr>
+    <td>
+      <%= link_to "Group V/Head:", "/patients/edit_demographics?field=group_village_head&id=#{@patient.patient_id}" -%>
+    </td>
+    <td class="label"><%= @patient.person.addresses.first.subregion %></td>
+    <td>
+      <%= link_to "Mothers Surname:", "/patients/edit_demographics?field=mothers_name&id=#{@patient.patient_id}" -%>
+    </td>
+    <td class="label"><%= @patient.person.names.first.family_name2 %></td>
+  </tr>
+-->  
+</table>

@@ -1,5 +1,30 @@
+<style>
+  .tt_controls_tips_and_reminders_phone_number #num , #plus, #apostrophe, #star,
+     #char, #abc, #date, #slash, #minus, #comma, #percent, #decimal, #Unknown { display:none; }
+</style>
 <script>
   var tt_cancel_destination = "/patients/show/<%= @patient.id %>"
+
+  function getRemindersContent(){
+    var options = $('content_type').options;
+    var symptoms = 0;
+    var myArray = [];
+
+    <% @side_effects = @tips_and_reminders_enrolled_in %>
+    var myArray = "<%= @side_effects %>";
+    for (var i=0; i < options.length; i++) {
+      if (options[i].selected && options[i].value != "") {
+       if (myArray.indexOf(options[i].value) != -1) {
+        symptoms =  symptoms + 1;
+       }
+      }
+    }
+    if(symptoms >= 1){
+      return 'true';
+    } else {
+      return 'false';
+    }
+  }
 </script>
 
 <form id='tips_and_reminders' action="/encounters/create" method='post'>
@@ -15,7 +40,7 @@
      :helpText    => "Enrol for Tips and Reminders Program"
      } %>
 
-  <%@enrol_for_tips_and_reminders = ["", "YES", "NO"]%>
+  <%@enrol_for_tips_and_reminders = ["", "Yes", "No"]%>
 
   <%= select_tag("select_outcome", options_for_select(@enrol_for_tips_and_reminders, @encounter_answers[:on_tips_and_reminders_program]), options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "ON TIPS AND REMINDERS PROGRAM") %>
@@ -23,88 +48,87 @@
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
   <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
 
-  <% options = {
-    :id           => "phone_type",
-    :helptext     => "Select type of phone",
-    :tt_onUnLoad  => "$('phone_type_value_coded_or_text').value = $('phone_type').value",
-    :condition    => "$('enrol_for_tips_and_reminders').value == 'YES'"
-	} %>
+    <% options = {
+      :id           => "phone_type",
+      :helptext     => "Select type of phone",
+      :tt_onUnLoad  => "$('phone_type_value_coded_or_text').value = $('phone_type').value",
+      :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
+	  } %>
 
-  <%@phone_type = ["", "COMMUNITY PHONE", "PERSONAL PHONE", "FAMILY MEMBER PHONE", "NEIGHBOUR'S PHONE"]%>
+    <%@phone_type = ["", "Community phone", "Personal phone", "Family member phone", "Neighbour's phone"]%>
 
-  <%= select_tag("health_center", options_for_select(@phone_type, @encounter_answers[:telephone_number_type_]),options)%>
-  <%= hidden_field_tag("observations[][concept_name]",        "PHONE TYPE", options) %>
-  <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_type_value_coded_or_text'}) %>
-  <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+    <%= select_tag("health_center", options_for_select(@phone_type, @encounter_answers[:telephone_number_type_]),options)%>
+    <%= hidden_field_tag("observations[][concept_name]",        "PHONE TYPE", options) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_type_value_coded_or_text'}) %>
+    <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
 
-  <% options = {
-     :id          => "tips_and_reminders_phone_number",
-     :tt_onUnLoad => "$('phone_number_value_coded_or_text').value = $('tips_and_reminders_phone_number').value",
-     :helpText    => "Enter Phone Number",
-     :field_type => 'number',
-     :validationJS => "validPhoneNum('phone_number')",
-     :allowFreeText => true,
-     :validationMessage => "You must enter a valid number",
-     :condition    => "$('enrol_for_tips_and_reminders').value == 'YES'"
-     } %>
+    <% options = {
+       :id          => "tips_and_reminders_phone_number",
+       :tt_onUnLoad => "$('phone_number_value_coded_or_text').value = $('tips_and_reminders_phone_number').value",
+       :helpText    => "Enter Phone Number",
+       :field_type => 'number',
+       :validationRule => "^0\\d{7}$|Unknown|Not Available|N\/A|^0\\d{9}$",
+       :validationMessage => "You must enter a valid number",
+       :allowFreeText => true,
+       :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
+       } %>
 
-  <%= text_field_tag "phone_number",  @encounter_answers[:telephone_number], options%>
-  <%= hidden_field_tag("observations[][concept_name]",        "PHONE NUMBER", options) %>
-  <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_number_value_coded_or_text'}) %>
-  <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
-  
-  <% options = {
-    :id           => "language_type",
-    :helptext     => "Language preference",
-    :tt_onUnLoad  => "$('language_type_value_coded_or_text').value = $('language_type').value",
-    :condition    => "$('enrol_for_tips_and_reminders').value == 'YES'"
-	} %>
+    <%= text_field_tag "phone_number",  @encounter_answers[:telephone_number], options%>
+    <%= hidden_field_tag("observations[][concept_name]",        "PHONE NUMBER", options) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_number_value_coded_or_text'}) %>
+    <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+    
+    <% options = {
+      :id           => "language_type",
+      :helptext     => "Language preference",
+      :tt_onUnLoad  => "$('language_type_value_coded_or_text').value = $('language_type').value",
+      :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
+	  } %>
 
-  <%@language_type = ["", "CHICHEWA", "CHIYAO"]%>
+    <%@language_type = ["", "Chichewa", "Chiyao"]%>
 
-  <%= select_tag("language_type", options_for_select(@language_type, @encounter_answers[:language_preference]),options)%>
-  <%= hidden_field_tag("observations[][concept_name]",        "LANGUAGE PREFERENCE", options) %>
-  <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'language_type_value_coded_or_text'}) %>
-  <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+    <%= select_tag("language_type", options_for_select(@language_type, @encounter_answers[:language_preference]),options)%>
+    <%= hidden_field_tag("observations[][concept_name]",        "LANGUAGE PREFERENCE", options) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'language_type_value_coded_or_text'}) %>
+    <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
 
-  <% options = {
-    :id           => "message_type",
-    :helptext     => "Select message type",
-    :tt_onUnLoad  => "$('message_type_value_coded_or_text').value = $('message_type').value",
-    :condition    => "$('enrol_for_tips_and_reminders').value == 'YES'"
-	} %>
+    <% options = {
+      :id           => "message_type",
+      :helptext     => "Select message type",
+      :tt_onUnLoad  => "$('message_type_value_coded_or_text').value = $('message_type').value",
+      :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
+	  } %>
 
-  <%@message_type = ["", "SMS", "VOICE"]%>
+    <%@message_type = ["", "SMS", "Voice"]%>
 
-  <%= select_tag("message_type", options_for_select(@message_type, @encounter_answers[:type_of_message]),options)%>
-  <%= hidden_field_tag("observations[][concept_name]",        "TYPE OF MESSAGE", options) %>
-  <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'message_type_value_coded_or_text'}) %>
-  <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+    <%= select_tag("message_type", options_for_select(@message_type, @encounter_answers[:type_of_message]),options)%>
+    <%= hidden_field_tag("observations[][concept_name]",        "TYPE OF MESSAGE", options) %>
+    <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'message_type_value_coded_or_text'}) %>
+    <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+    <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
 
-  <% options = {
-    :id           => "content_type",
-    :helptext     => "Select content type",
-    :multiple     => "true",
-    :tt_onUnLoad  => "$('content_type_value_coded_or_text').value = $('content_type').value",
-    :condition    => "$('enrol_for_tips_and_reminders').value == 'YES'"
-	} %>
+    <!--
+      Added a statement to get all the current tips and reminders program the
+      patient is currently inrolled in.
+     -->
+    <% @tips_and_reminders = @tips_and_reminders_enrolled_in.collect{|k| "#{k}"}.sort.join(",")%>
 
-  <%@content_type = ["", "PREGNANCY", "POSTNATAL", "CHILD", "WCBA", "OBSERVER"]%>
+     <%= touch_select_tag "TYPE OF MESSAGE CONTENT", @patient, options_for_select([['Pregnancy', 'Pregnancy'], ['Postnatal', 'Postnatal'], ['Child', 'Child'], ['WCBA', 'WCBA'], ['Observer', 'Observer']]),
+        {:id => 'content_type',
+         :optional => true,
+         :multiple => true,
+         :helpText => "Select content type",
+         :validationCode => "getRemindersContent() == 'false'",
+         :validationMessage => "Patient has already enrolled in #{@tips_and_reminders} tips and reminders content",
+         :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'" } %>
 
-  <%= select_tag("content_type", options_for_select(@content_type, @encounter_answers[:type_of_message_content]),options)%>
-  <%= hidden_field_tag("observations[][concept_name]",        "TYPE OF MESSAGE CONTENT", options) %>
-  <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'content_type_value_coded_or_text'}) %>
-  <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
-
-  <%unless @encounter_id.nil?%>
-    <%= hidden_field_tag("encounter_id",  @encounter_id) %>
-    <%= hidden_field_tag("editing",       true) %>
-  <%end%>
+    <%unless @encounter_id.nil?%>
+      <%= hidden_field_tag("encounter_id",  @encounter_id) %>
+      <%= hidden_field_tag("editing",       true) %>
+    <%end%>
 
   <%= submit_tag "Finish" %>
  </form>
