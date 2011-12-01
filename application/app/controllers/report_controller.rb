@@ -390,6 +390,7 @@ class ReportController < ApplicationController
                 :grouping      => params[:grouping],
                 :content_type  => params[:content_type],
                 :language      => params[:language],
+                :report_type   => params[:report_type],
                 :query         => params[:query],
                 :phone_type    => params[:phone_type],
                 :delivery      => params[:delivery],
@@ -577,8 +578,10 @@ class ReportController < ApplicationController
   end
 
   def tips_activity
-    @start_date     =  params[:start_date]
+    @start_date     = params[:start_date]
     @end_date       = params[:end_date]
+    @report_type    = params[:report_type]
+    @query          = params[:query]
     @grouping       = params[:grouping]
     @content_type   = params[:content_type]
     @language       = params[:language]
@@ -587,13 +590,14 @@ class ReportController < ApplicationController
     @delivery       = params[:delivery]
     @number_prefix  = params[:number_prefix]
 
-    @special_message = "<I> -- (Please note that the call lengths " +
-                       "are in <B>Seconds</B>)<I>"
+    @special_message = ""
 
-    @report_name  = "Call Length"
+    @report_name  = "Tips Activity"
     @report    = Report.tips_activity(@start_date, @end_date, @grouping,
                                       @content_type, @language, @phone_type,
                                       @delivery, @number_prefix)
+    #raise @report.to_yaml
+
     render :layout => false
   end
 end

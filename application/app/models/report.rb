@@ -1303,41 +1303,60 @@ module Report
  end
  def self.tips_activity(start_date, end_date, grouping, content_type, language,
                         phone_type, delivery, number_prefix)
-call_data = []
+ call_data = []
  
-row_data = {:total => 0, 
-            :pregnancy => 0, :pregnancy_pct => 0,:child => 0,:child_pct => 0,  
-            :yao => 0, :yao_pct => 0, :chewa => 0, :chewa_pct => 0,
-            :sms => 0, :sms_pct => 0, :voice => 0, :voice_pct => 0
-            }
-            
  # main obs conceps
- content_concept = ConceptName.find_by_name('TYPE OF MESSAGE CONTENT').first.id
- language_concept = ConceptName.find_by_name('LANGUAGE PREFERENCE').first.id
- delivery_concept = ConceptName.find_by_name('TYPE OF MESSAGE').first.id
+ content_concept = Concept.find_by_name('TYPE OF MESSAGE CONTENT').id
+ language_concept = Concept.find_by_name('LANGUAGE PREFERENCE').id
+ delivery_concept = Concept.find_by_name('TYPE OF MESSAGE').id
  #data elements concepts
- pregnancy_concept = ConceptName.find_by_name('pregnancy').first.id
- child_concept = ConceptName.find_by_name('child').first.id
- yao_concept = ConceptName.find_by_name('yao').first.id
- chewa_concept = ConceptName.find_by_name('chichewa').first.id
- sms_concept = ConceptName.find_by_name('sms').first.id
- voice_concept = ConceptName.find_by_name('voice').first.id
-
+ pregnancy_concept = Concept.find_by_name('pregnancy').id
+ child_concept = Concept.find_by_name('child').id
+ yao_concept = Concept.find_by_name('chiyao').id
+ chewa_concept = Concept.find_by_name('chichewa').id
+ sms_concept = Concept.find_by_name('sms').id
+ voice_concept = Concept.find_by_name('voice').id
 
 
  date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
                                                       end_date)[:date_ranges]
-date_ranges.map do |date_range|
-    encounters = self.get_tips_data(date_range)
-    
-     encounters.each do |encounter|
-       encounter.observations.each do |observation|
-         
+  date_ranges.map do |date_range|
+   encounters = self.get_tips_data(date_range)
+
+   row_data = {:start_date => date_range.first,:end_date => date_range.last,
+              :total => encounters.size,
+              :pregnancy => 0, :pregnancy_pct => 0,:child => 0,:child_pct => 0,
+              :yao => 0, :yao_pct => 0, :chewa => 0, :chewa_pct => 0,
+              :sms => 0, :sms_pct => 0, :voice => 0, :voice_pct => 0
+            }
+
+   encounters.each do |encounter|
+     encounter.observations.each do |observation|
+       if observation.concept_id == content_concept then
+         row_data[:pregnancy] += 1 if observation.value_coded == pregnancy_concept
+         row_data[:child] += 1 if observation.value_coded == child_concept
+       elsif observation.concept_id == language_concept
+         row_data[:yao] += 1 if observation.value_coded == yao_concept
+         row_data[:chewa] += 1 if observation.value_coded == chewa_concept
+       elsif observation.concept_id == delivery_concept then
+         row_data[:sms] += 1 if observation.value_coded == sms_concept
+         row_data[:voice] += 1 if observation.value_coded == voice_concept
        end
      end
+   end
+   #calculate percentages
+   row_data[:pregnancy_pct] = (row_data[:pregnancy].to_f / encounters.count.to_f * 100).round(1) if row_data[:pregnancy] != 0
+   row_data[:child_pct] = (row_data[:child].to_f / encounters.count.to_f * 100).round(1) if row_data[:child] != 0
+   row_data[:yao_pct] = (row_data[:yao].to_f / encounters.count.to_f * 100).round(1) if row_data[:yao] != 0
+   row_data[:chewa_pct] = (row_data[:chewa].to_f / encounters.count.to_f * 100).round(1) if row_data[:chewa] != 0
+   row_data[:sms_pct] = (row_data[:sms].to_f / encounters.count.to_f * 100).round(1) if row_data[:sms] != 0
+   row_data[:voice_pct] = (row_data[:voice].to_f / encounters.count.to_f * 100).round(1) if row_data[:voice] != 0
+   #add to the call_data array
 
+   call_data << row_data
   end
 
+  return call_data
  end
 
  def self.get_tips_data(date_range)
