@@ -147,6 +147,14 @@ class EncountersController < ApplicationController
       facility_list.push(facilities.upcase)
     end
 
+    # find if the patient is enrolled on any tips and reminders content
+    @tips_and_reminders_enrolled_in = []
+
+    Observation.find(:all, :conditions => ["concept_id = ? AND person_id = ? AND voided = 0",
+      ConceptName.find_by_name("TYPE OF MESSAGE CONTENT").concept_id, @patient.id]).map do |obs|
+        @tips_and_reminders_enrolled_in << ConceptName.find_by_concept_id(obs.value_coded).name.capitalize
+      end
+
     use_regimen_short_names = GlobalProperty.find_by_property(
       "use_regimen_short_names").property_value rescue "false"
     show_other_regimen = GlobalProperty.find_by_property(
