@@ -1082,8 +1082,7 @@ module Report
 
       results = CallLog.find_by_sql(query)
 
-      #raise results.to_yaml
-
+      # create row template
       call_statistics = {:start_date => date_range.first,
                           :end_date => date_range.last, :total => results.count,
                           :monday => 0, :monday_pct => 0,
@@ -1094,28 +1093,13 @@ module Report
                           :saturday => 0, :saturday_pct => 0,
                           :sunday => 0, :sunday_pct=> 0
                            }
-                           
-      results.each do |call|
 
-      call_statistics[:monday] += 1 if call.day_of_week == "Monday"
-      call_statistics[:tuesday] += 1 if call.day_of_week == "Tuesday"
-      call_statistics[:wednesday] += 1 if call.day_of_week == "Wednesday"
-      call_statistics[:thursday] += 1 if call.day_of_week == "Thursday"
-      call_statistics[:friday] += 1 if call.day_of_week == "Friday"
-      call_statistics[:saturday] += 1 if call.day_of_week == "Saturday"
-      call_statistics[:sunday] += 1 if call.day_of_week == "Sunday"
+      results.group_by(&:day_of_week).each do |day, data|
+        call_statistics[:"#{day.downcase}"] = data.count
+        call_statistics[:"#{day.downcase}_pct"] = (call_statistics[:"#{day.downcase}"].to_f / results.count.to_f * 100).round(1) if call_statistics[:"#{day.downcase}"] != 0
+      end
 
-     end
-
-     call_statistics[:monday_pct]= (call_statistics[:monday].to_f / results.count.to_f * 100).round(1) if call_statistics[:monday] != 0
-     call_statistics[:tuesday_pct] = (call_statistics[:tuesday].to_f / results.count.to_f * 100).round(1) if call_statistics[:tuesday] != 0
-     call_statistics[:wednesday_pct] = (call_statistics[:wednesday].to_f / results.count.to_f * 100).round(1) if call_statistics[:wednesday] != 0
-     call_statistics[:thursday_pct] = (call_statistics[:thursday].to_f / results.count.to_f * 100).round(1) if call_statistics[:thursday] != 0
-     call_statistics[:friday_pct] = (call_statistics[:friday].to_f / results.count.to_f * 100).round(1) if call_statistics[:friday] != 0
-     call_statistics[:saturday_pct] = (call_statistics[:saturday].to_f / results.count.to_f * 100).round(1) if call_statistics[:saturday] != 0
-     call_statistics[:sunday_pct] = (call_statistics[:sunday].to_f / results.count.to_f * 100).round(1) if call_statistics[:sunday] != 0
-
-     call_data << call_statistics
+      call_data << call_statistics
 
     end #end of period loop
 
@@ -1193,12 +1177,12 @@ module Report
 
       results = CallLog.find_by_sql(query)
 
-      call_statistics = {:start_date => date_range.first,
-                            :end_date => date_range.last, :total => results.count,
-                            :morning => 0, :morning_pct => 0,
-                            :midday => 0, :midday_pct => 0,
-                            :afternoon => 0, :afternoon_pct => 0,
-                            :evening => 0, :evening_pct => 0
+      call_statistics = { :start_date => date_range.first,
+                          :end_date => date_range.last, :total => results.count,
+                          :morning => 0, :morning_pct => 0,
+                          :midday => 0, :midday_pct => 0,
+                          :afternoon => 0, :afternoon_pct => 0,
+                          :evening => 0, :evening_pct => 0
                            }
 
      results.each do |call|
@@ -1363,14 +1347,14 @@ module Report
 
   encounter_type_list = ["TIPS AND REMINDERS"]
   encounter_types = self.get_encounter_types(encounter_type_list)
-
   encounters_list = Encounter.find(:all,
                                    :conditions => ["encounter_type IN (?) AND
                                                     encounter_datetime >= ? AND
                                                     encounter_datetime <= ?",
                                                    encounter_types,
                                                    date_range.first,
-                                                   date_range.last])
+                                                   date_range.last],
+                                  :include => 'observations')
 
   return encounters_list
 
@@ -1379,9 +1363,17 @@ module Report
  def self.get_encounter_types(type_names)
    encounter_types = EncounterType.find(:all,
                                  :conditions =>["name IN (?)",
-                                   type_names]).map{|e| e.encounter_type_id}
+                                   type_names]).map(&:encounter_type_id)
 
    return encounter_types
  end
+=begin
+
+   result = CallLog.select("user.username,
+                            cl.start_time.strftime('%A') as day_of_week,
+                            cl.start_time as call_start_time,
+                            cl.end_time as call_end_time")
+   
+=end
 
 end

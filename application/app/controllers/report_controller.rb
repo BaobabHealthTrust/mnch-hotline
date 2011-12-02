@@ -596,8 +596,6 @@ class ReportController < ApplicationController
     @report    = Report.tips_activity(@start_date, @end_date, @grouping,
                                       @content_type, @language, @phone_type,
                                       @delivery, @number_prefix)
-    #raise @report.to_yaml
-
     render :layout => false
   end
 end
