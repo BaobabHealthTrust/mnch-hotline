@@ -135,11 +135,24 @@ class Person < ActiveRecord::Base
   end
 
   def self.search_by_identifier(identifier)
-    PatientIdentifier.find_all_by_identifier(identifier).map{|id| id.patient.person} unless identifier.blank? rescue nil
+    #Added this check to differenciate between national_id and subscribers
+    #TODO to be improved
+    if identifier.length >= 13
+      PatientIdentifier.find_all_by_identifier(identifier).map{|id| id.patient.person} unless identifier.blank? rescue nil
+    else
+      all_subcribers_with_this_number = []
+      Observation.find(:all, :conditions => ["concept_id = ? AND voided = 0",
+          ConceptName.find_by_name("TELEPHONE NUMBER").concept_id]).map do |obs|
+             if obs.value_text == identifier
+              all_subcribers_with_this_number << obs
+             end
+      end
+      all_subcribers_with_this_number.map{|obs| Person.find_by_person_id(obs.person_id)}
+    end
   end
 
   def self.search(params)
-    people = Person.search_by_identifier(params[:identifier])
+    people = Person.search_by_identifier(params[:identifier]) rescue nil
 
     return people.first.id unless people.blank? || people.size > 1
     people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patient], :conditions => [
@@ -383,6 +396,7 @@ class Person < ActiveRecord::Base
     end
 
   end
+
   def age_in_years_months
     number_of_months = age_in_months
     result = number_of_months.divmod(12)
