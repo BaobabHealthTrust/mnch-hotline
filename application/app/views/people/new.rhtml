@@ -8,7 +8,24 @@
 
   .tt_controls_current_village_residence #space { display:inline; }
 
-  .tt_controls_cell_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+  .tt_controls_year_of_birth #char { display:none }
+
+  .tt_controls_year_of_birth #Unknown { display:inline }
+
+  .tt_controls_age_estimate #char, #Unknown { display:none }
+
+  .tt_controls_month_of_birth .keyboard{display:none;}
+  #tt_page_month_of_birth .options{height:560px;}
+  #tt_page_month_of_birth .options li{font-size:30px;}
+
+  .tt_controls_occupation .keyboard{display:none;}
+    #tt_page_occupation .options{height:500px;}
+    #tt_page_occupation .options li{font-size:30px;}
+    #space {display:inline;}
+
+  .tt_controls_cell_phone_number #num , #plus, #char, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+
+  .tt_controls_cell_phone_number #Unknown { display:inline }
 
   .tt_controls_home_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
 
@@ -81,7 +98,18 @@
     #:ajaxURL => '/person_attributes/nearest_health_facility?search_string=',
     :allowFreeText => true}%>
 
-  <%= text_field_tag "person[attributes][cell_phone_number]",  params[:cell_phone_number], {:field_type => 'number',:validationJS =>"validPhoneNum('cell_phone_number')", :helpText => 'Cell Phone Number', :allowFreeText => true, :validationMessage => "You must enter a valid number" }%>
+  <%#= text_field_tag "person[attributes][cell_phone_number]",  params[:cell_phone_number], {:field_type => 'number',:validationJS =>"validPhoneNum('cell_phone_number')", :helpText => 'Cell Phone Number', :allowFreeText => true, :validationMessage => "You must enter a valid number" }%>
+
+  <%= text_field_tag "person[attributes][cell_phone_number]",  params[:cell_phone_number],
+      {
+        :field_type => 'number',
+        :helpText => 'Cell Phone Number',
+        :validationRule => "^0\\d{7}$|Unknown|Not Available|N\/A|^0\\d{9}$",
+        :validationMessage => "Not a valid phone number",
+        :tt_pageStyleClass => "nota",
+        :id => 'cellphone'
+      }
+  %>
 
   <% if ask_multiple_phone_numbers%>
   <%= text_field_tag "person[attributes][office_phone_number]",  params[:office_phone_number], {:field_type => 'number', :helpText => 'Office Phone Number', :allowFreeText => true }%>

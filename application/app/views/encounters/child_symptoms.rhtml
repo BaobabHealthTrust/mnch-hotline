@@ -221,10 +221,7 @@
 
   <%#TODO May be there could be a better way to handle the below select?%>
 
-  <% @child_health_info = [["",""],["SLEEPING","SLEEPING"], ["FEEDING PROBLEMS","FEEDING PROBLEMS"], ["CRYING","CRYING"],
-    ["BOWEL MOVEMENTS","BOWEL MOVEMENTS"], ["SKIN RASHES","SKIN RASHES"], ["SKIN INFECTIONS","SKIN INFECTIONS"],
-    ["UMBILICUS INFECTION","UMBILICUS INFECTION"], ["GROWTH MILESTONES","GROWTH MILESTONES"],
-    ["ACCESSING HEALTHCARE SERVICES","ACCESSING HEALTHCARE SERVICES"]]%>
+  <% @child_health_info = @select_options['child_health_infosss'].sort %>
 
   <script type="text/javascript" language="javascript">
     child_health_values = <%= to_jsarray(@child_health_info) %> ;

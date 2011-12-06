@@ -16,24 +16,12 @@
      } %>
 
   <%if @child_danger_signs.length > 0
-     @outcome = ["REFERRED TO A HEALTH CENTRE",
-              "HOSPITAL",
-              "REFERRED TO NEAREST VILLAGE CLINIC",
-              "GIVEN ADVICE NO REFERRAL NEEDED"]
+     @outcome = @select['child_danger_signs_greater_zero_outcome']
+
     elsif @child_symptoms.length > 0
-      @outcome = [
-              "REFERRED TO NEAREST VILLAGE CLINIC",
-              "REFERRED TO A HEALTH CENTRE",
-              "HOSPITAL",
-              "GIVEN ADVICE NO REFERRAL NEEDED"
-      ]
+      @outcome = @select['child_symptoms_greater_zero_outcome']
     else
-      @outcome = [
-              "GIVEN ADVICE NO REFERRAL NEEDED",
-              "REFERRED TO NEAREST VILLAGE CLINIC",
-              "REFERRED TO A HEALTH CENTRE",
-              "HOSPITAL"
-      ]
+      @outcome = @select_options['general_outcome']
     end
     %>
   <%= select_tag("select_outcome", options_for_select(@outcome, @encounter_answers[:outcome]), options)%>

@@ -32,7 +32,7 @@ class ClinicSchedule < ActiveRecord::Base
 
   def self.health_facilities_list
     facilities = ClinicSchedule.health_facilities.map(&:name).inject([]) do |facility_list, facilities|
-      facility_list.push(facilities.upcase)
+      facility_list.push(facilities)
     end
     facilities
   end

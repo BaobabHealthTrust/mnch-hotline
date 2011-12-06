@@ -12,6 +12,7 @@
 
     <% @side_effects = @tips_and_reminders_enrolled_in %>
     var myArray = "<%= @side_effects %>";
+    
     for (var i=0; i < options.length; i++) {
       if (options[i].selected && options[i].value != "") {
        if (myArray.indexOf(options[i].value) != -1) {
@@ -59,6 +60,7 @@
       $('patient_present').value == 'Yes';
     }
   }
+
 </script>
 
 <form id='tips_and_reminders' action="/encounters/create" method='post'>
@@ -71,7 +73,7 @@
   <!-- 
       Checking if the subscriber is a child so that should enter guardian details
     -->
-    <% if @patient.person.age <= 13 %>
+    <% if @patient.person.age <= 9 %>
       <% if Person.find(@patient.patient_id).relationships.first.blank? %>
         <label for='guardian_present'>Guardian Present</label>
         <%= select_tag "observations[][value_text]", relationship_options(@patient),
@@ -117,9 +119,7 @@
       :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
 	  } %>
 
-    <%@phone_type = ["", "Community phone", "Personal phone", "Family member phone", "Neighbour's phone"]%>
-
-    <%= select_tag("health_center", options_for_select(@phone_type, @encounter_answers[:telephone_number_type_]),options)%>
+    <%= select_tag("health_center", options_for_select(@select_options['phone_type'].sort, @encounter_answers[:telephone_number_type_]),options)%>
     <%= hidden_field_tag("observations[][concept_name]",        "PHONE TYPE", options) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_type_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -136,7 +136,7 @@
        :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
        } %>
 
-    <%= text_field_tag "phone_number",  @encounter_answers[:telephone_number], options%>
+    <%= text_field_tag "phone_number",  @phone_numbers, options%>
     <%= hidden_field_tag("observations[][concept_name]",        "PHONE NUMBER", options) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_number_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -149,9 +149,7 @@
       :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
 	  } %>
 
-    <%@language_type = ["", "Chichewa", "Chiyao"]%>
-
-    <%= select_tag("language_type", options_for_select(@language_type, @encounter_answers[:language_preference]),options)%>
+    <%= select_tag("language_type", options_for_select(@select_options['language_type'].sort, @encounter_answers[:language_preference]),options)%>
     <%= hidden_field_tag("observations[][concept_name]",        "LANGUAGE PREFERENCE", options) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'language_type_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -164,9 +162,7 @@
       :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
 	  } %>
 
-    <%@message_type = ["", "SMS", "Voice"]%>
-
-    <%= select_tag("message_type", options_for_select(@message_type, @encounter_answers[:type_of_message]),options)%>
+    <%= select_tag("message_type", options_for_select(@select_options['message_type'].sort, @encounter_answers[:type_of_message]),options)%>
     <%= hidden_field_tag("observations[][concept_name]",        "TYPE OF MESSAGE", options) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'message_type_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -174,11 +170,11 @@
 
     <!--
       Added a statement to get all the current tips and reminders program the
-      patient is currently inrolled in.
+      patient is currently enrolled in.
      -->
     <% @tips_and_reminders = @tips_and_reminders_enrolled_in.collect{|k| "#{k}"}.sort.join(",")%>
 
-     <%= touch_select_tag "TYPE OF MESSAGE CONTENT", @patient, options_for_select([['Pregnancy', 'Pregnancy'], ['Postnatal', 'Postnatal'], ['Child', 'Child'], ['WCBA', 'WCBA'], ['Observer', 'Observer']]),
+     <%= touch_select_tag "TYPE OF MESSAGE CONTENT", @patient, options_for_select(@select_options['type_of_message_content'].sort),
         {:id => 'content_type',
          :optional => true,
          :multiple => true,
