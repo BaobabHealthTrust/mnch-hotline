@@ -48,6 +48,7 @@
     :ajaxURL => '/encounters/referral_reasons',
     :optional => true,
     :allowFreeText => true,
+    :condition    => "$('select_outcome').value != 'GIVEN ADVICE NO REFERRAL NEEDED'",
     :helpText => 'Referral reason'} %>
 
   <%unless @encounter_id.nil?%>
