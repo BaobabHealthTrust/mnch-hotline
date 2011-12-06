@@ -62,6 +62,35 @@ class ApplicationController < ActionController::Base
     end
     return
   end
+
+  # find if the patient is enrolled on any tips and reminders content
+  def type_of_reminder_enrolled_in(patient)
+    @patient = Patient.find(patient.patient_id)
+    @tips_and_reminders_enrolled_in = []
+
+    Observation.find(:all, :conditions => ["concept_id = ? AND person_id = ? AND voided = 0",
+      ConceptName.find_by_name("TYPE OF MESSAGE CONTENT").concept_id, @patient.id]).map do |obs|
+        @tips_and_reminders_enrolled_in << ConceptName.find_by_concept_id(obs.value_coded).name.capitalize
+      end
+    return @tips_and_reminders_enrolled_in
+  end
+
+  #find the subscriber's number.
+  def patient_reminders_phone_number(patient)
+    @patient = @patient = Patient.find(patient.patient_id)
+    @numbers = Observation.find(:all, :conditions => ["concept_id = ? AND person_id = ? AND voided = 0",
+      ConceptName.find_by_name("TELEPHONE NUMBER").concept_id, @patient.id]).map {|obs| obs.value_text}
+
+    if @numbers.blank?
+      number = @patient.person.phone_numbers[:cell_phone_number_]
+      if number != "Unknown" and number != ""
+        @number = number
+      end
+    else
+      @number = @numbers.last
+    end
+    return @number
+  end
   
 private
 

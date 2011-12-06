@@ -4,9 +4,9 @@ class PatientsController < ApplicationController
   def show
     #get the pregnancy status for the particular female patient and display
     #either expected due date or delivery date. as for the others, leave it blank
+    @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
+
     pregnancy_status = @patient.pregnancy_status rescue []
-    #raise @patient.to_yaml
-    #raise Mastercard.demographics(Patient.find(@patient.patient_id)).to_yaml
     if pregnancy_status.length != 0
       @status = pregnancy_status[0]
       @date   = pregnancy_status[1]

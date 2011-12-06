@@ -143,20 +143,14 @@ class EncountersController < ApplicationController
     @child_danger_signs = @patient.child_danger_signs
     @child_symptoms = @patient.child_symptoms
     @select_options = select_options
-    @phone_numbers = patient_reminders_phone_number
+    @phone_numbers = patient_reminders_phone_number(@patient)
 
     # created a hash of 'upcased' health centers
     @health_facilities = ([""] + ClinicSchedule.health_facilities.map(&:name)).inject([]) do |facility_list, facilities|
       facility_list.push(facilities)
     end
 
-    # find if the patient is enrolled on any tips and reminders content
-    @tips_and_reminders_enrolled_in = []
-
-    Observation.find(:all, :conditions => ["concept_id = ? AND person_id = ? AND voided = 0",
-      ConceptName.find_by_name("TYPE OF MESSAGE CONTENT").concept_id, @patient.id]).map do |obs|
-        @tips_and_reminders_enrolled_in << ConceptName.find_by_concept_id(obs.value_coded).name.capitalize
-      end
+    @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
 
     use_regimen_short_names = GlobalProperty.find_by_property(
       "use_regimen_short_names").property_value rescue "false"
@@ -221,46 +215,18 @@ class EncountersController < ApplicationController
     render :text => "<li>" + locations.map{|location| location.name }.join("</li><li>") + "</li>"
   end
 
-  #find the subscriber's number.
-  def patient_reminders_phone_number
-    @patient = Patient.find(params[:patient_id])
-    @numbers = Observation.find(:all, :conditions => ["concept_id = ? AND person_id = ? AND voided = 0",
-      ConceptName.find_by_name("TELEPHONE NUMBER").concept_id, @patient.id]).map {|obs| obs.value_text}
-
-    if @numbers.blank?
-      number = @patient.person.phone_numbers[:cell_phone_number_]
-      if number != "Unknown" and number != ""
-        @number = number
-      end
-    else
-      @number = @numbers.last
-    end
-
-    return @number
-  end
-  
-  # find if the patient is enrolled on any tips and reminders content
-  def type_of_reminder_enrolled_in
-    @patient = Patient.find(params[:patient_id])
-    @tips_and_reminders_enrolled_in = []
-
-    Observation.find(:all, :conditions => ["concept_id = ? AND person_id = ? AND voided = 0",
-      ConceptName.find_by_name("TYPE OF MESSAGE CONTENT").concept_id, @patient.id]).map do |obs|
-        @tips_and_reminders_enrolled_in << ConceptName.find_by_concept_id(obs.value_coded).name.capitalize
-      end
-  end
-
-  #find the most recent tip and reminder of the subscriber
+  #find the most recent tip and reminder of the subscriber to be edited.
   def recent_tip_and_reminder_program
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
     @select_options = select_options
-    @phone_numbers = patient_reminders_phone_number
-    @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in
+    @phone_numbers = patient_reminders_phone_number(@patient)
+    @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
 
     @encounter_answers  = {}
     (!params[:encounter_id].blank?) ? (@encounter_id = params[:encounter_id].to_i) : (@encounter_id = nil)
     @encounter_answers  = Encounter.retrieve_previous_encounter(@encounter_id) unless @encounter_id.nil?
 
-    @encounter_id = Encounter.find(:last, :conditions => ["encounter_type = ? and patient_id = ? AND voided = 0",EncounterType.find_by_name("TIPS AND REMINDERS").id,params[:patient_id]]).encounter_id
+    @encounter_id = Encounter.find(:last, :conditions => ["encounter_type = ? and patient_id = ? AND voided = 0",EncounterType.find_by_name("TIPS AND REMINDERS").id,@patient.id]).encounter_id
     render :layout => true
   end
 
@@ -401,9 +367,9 @@ class EncountersController < ApplicationController
       ],
       'pregnancy_status' => [
          ['', ''],
-         ['Pregnant', 'PREGNANT'],
-         ['NOT pregnant', 'NOT PREGNANT'],
-         ['Delivered', 'DELIVERED']
+         ['Pregnant', 'Pregnant'],
+         ['NOT pregnant', 'NOT pregnant'],
+         ['Delivered', 'Delivered']
       ],
       'child_danger_signs_greater_zero_outcome' => [
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
