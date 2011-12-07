@@ -125,7 +125,7 @@ class ClinicController < ApplicationController
     end
 
     def irrelevant_call_action
-       if params[:confirmation] == 'YES'
+       if params[:confirmation] == 'Yes'
          session[:call_end_timestamp] = DateTime.now
          log_call(2)
          redirect_to "/clinic"
@@ -136,7 +136,7 @@ class ClinicController < ApplicationController
     end
     
     def emergency_call_action
-      if params[:confirmation] == 'YES'
+      if params[:confirmation] == 'Yes'
         session[:call_end_timestamp] = DateTime.now
         log_call(1)
         redirect_to "/clinic"
@@ -156,9 +156,12 @@ class ClinicController < ApplicationController
       calllog.end_time = session[:call_end_timestamp]
       calllog.call_type = call_log_type.to_i
 
-      calllog.save
-
-      reset_session_variables
+      if calllog.call_log_id != 0
+        calllog.save
+        reset_session_variables
+      else
+        reset_session_variables
+      end
     end
 
     def reset_session_variables
