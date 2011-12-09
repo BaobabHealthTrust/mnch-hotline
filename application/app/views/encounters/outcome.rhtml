@@ -16,10 +16,10 @@
      } %>
 
   <%if @child_danger_signs.length > 0
-     @outcome = @select['child_danger_signs_greater_zero_outcome']
+     @outcome = @select_options['child_danger_signs_greater_zero_outcome']
 
     elsif @child_symptoms.length > 0
-      @outcome = @select['child_symptoms_greater_zero_outcome']
+      @outcome = @select_options['child_symptoms_greater_zero_outcome']
     else
       @outcome = @select_options['general_outcome']
     end
