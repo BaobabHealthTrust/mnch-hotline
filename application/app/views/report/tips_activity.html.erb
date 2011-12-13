@@ -52,24 +52,12 @@
           <td width="25%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
               &nbsp;
           </td>
-          <td width="12%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
-              Pregnancy
-          </td>
-          <td width="12%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
-              Child
-          </td>
-          <td width="12%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
-              Chiyao
-          </td>
-          <td width="12%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
-              Chichewa
-          </td>
-          <td width="12%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
-              SMS
-          </td>
-          <td width="12%" colspan = 2 class="cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
-              Voice
-          </td>
+          <%= pregnancy_data_cell(@content_type) %>
+          <%= child_data_cell(@content_type) %>
+          <%= chiyao_data_cell(@language) %>
+          <%= chichewa_data_cell(@language) %>
+          <%= sms_data_cell(@delivery) %>
+          <%= voice_data_cell(@delivery) %>
         </tr>
         
         <tr>
@@ -79,43 +67,12 @@
           <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
               Count
           </td>
-          <td class=" cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              Count
-          </td>
-          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              %age
-          </td>
-          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              Count
-          </td>
-          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              %age
-          </td>
-          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              Count
-          </td>
-          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              %age
-          </td>
-          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              Count
-          </td>
-          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              %age
-          </td>
-          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              Count
-          </td>
-          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              %age
-          </td>
-          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
-              Count
-          </td>
-          <td class="cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
-              %age
-          </td>
-          
+          <%= pregnancy_count_and_percent_header(@content_type) %>
+          <%= child_count_and_percent_header(@content_type) %>
+          <%= chiyao_count_and_percent_header(@language) %>
+          <%= chichewa_count_and_percent_header(@language) %>
+          <%= sms_count_and_percent_header(@delivery) %>
+          <%= voice_count_and_percent_header(@delivery) %>
         </tr>
         <%@report.reverse.map do |data| %>
           <tr>
@@ -125,54 +82,18 @@
             <td class="cellleft cellbottom main-table-cell">
               <%= data[:total] rescue 0  %>
             </td>
-            <td class="cellleft cellbottom main-table-cell">
-               <%= data[:pregnancy]  rescue 0 %>
-            </td>
-            <td class="cellleft cellbottom main-table-cell">
-                <%= data[:pregnancy_pct]  rescue 0 %>
-            </td>
-            <td class="cellleft cellbottom main-table-cell">
-                <%= data[:child] rescue 0  %>
-            </td>
-            <td class="cellleft cellbottom main-table-cell">
-               <%= data[:child_pct] rescue 0  %>
-            </td>
-            <td class="cellleft cellbottom main-table-cell">
-                <%= data[:yao]  rescue 0 %>
-            </td>
-            <td class="cellleft cellbottom main-table-cell">
-                <%= data[:yao_pct] rescue 0  %>
-            </td>
-            <td class="cellleft cellbottom main-table-cell">
-                <%= data[:chewa] rescue 0  %>
-            </td>
-            <td class="cellleft cellbottom main-table-cell">
-                <%= data[:chewa_pct]  rescue 0 %>
-            </td>
-            <td class="cellleft cellbottom main-table-cell">
-                <%= data[:sms] rescue 0  %>
-            </td>
-            <td class="cellleft cellbottom main-table-cell">
-                <%= data[:sms_pct] rescue 0  %>
-            </td>
-            <td class="cellleft cellbottom main-table-cell">
-                <%= data[:voice] rescue 0  %>
-            </td>
-            <td class="cellleft cellbottom cellright main-table-cell">
-                <%= data[:voice_pct] rescue 0  %>
-            </td>
+            <%= pregnancy_count_and_percent_values(@content_type, data[:pregnancy], data[:pregnancy_pct]) %>
+            <%= child_count_and_percent_values(@content_type, data[:child], data[:child_pct]) %>
+            <%= chiyao_count_and_percent_values(@language, data[:yao], data[:yao_pct]) %>
+            <%= chichewa_count_and_percent_values(@language, data[:chewa], data[:chewa_pct]) %>
+            <%= sms_count_and_percent_values(@delivery, data[:sms], data[:sms_pct]) %>
+            <%= voice_count_and_percent_values(@delivery, data[:voice], data[:voice_pct]) %>
           </tr>
-
-        <% end %>
-          
+         <% end %>                    
       </table>
 
     </fieldset>
       
     </div>
-
-    <%# (1..2000).each{ %>
-    <%#= "<hr /><br />" %>
-    <%# } %>
   </body>
 </html>

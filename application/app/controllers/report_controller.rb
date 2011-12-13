@@ -227,12 +227,12 @@ class ReportController < ApplicationController
 
       when "tips"
         @grouping           += [["",""],["By Week", "week"], ["By Month", "month"]]
-        @content_type       = [["",""],["Pregnancy", "pregnancy"],["Child","child"]]
+        @content_type       = [["",""],["Pregnancy", "pregnancy"],["Child","child"],["All", "all"]]
         @phone_type         = [["",""],["Community", "community"],["Personal","personal"],
-                               ["Family","family"],["Neighbour","Neighbour"]]
-        @language           = [["",""],["Yao","yao"],["Chichewa","chichewa"]]
-        @delivery           = [["",""],["SMS","sms"],["Voice","voice"]]
-        @network_prefix     = [["",""],["09","airtel"],["08","tnm"],["Other","other"]]
+                               ["Family","family"],["Neighbour","Neighbour"],["All", "all"]]
+        @language           = [["",""],["Yao","yao"],["Chichewa","chichewa"],["All", "all"]]
+        @delivery           = [["",""],["SMS","sms"],["Voice","voice"],["All", "all"]]
+        @network_prefix     = [["",""],["09","airtel"],["08","tnm"],["Other","other"],["All", "all"]]
 
     end
 

@@ -193,7 +193,7 @@ class ClinicController < ApplicationController
             location_tag_map.location_tag_id = LocationTag.find_by_tag("mnch_health_facilities").id
             result = location_tag_map.save rescue (result = false)
 
-            if result = true then
+            if result == true then
                flash[:notice] = "Clinic : #{clinic_name[:clinic_name]} added successfully"
             else
                flash[:notice] = "Clinic : #{clinic_name[:clinic_name]} addition failed"
@@ -204,7 +204,7 @@ class ClinicController < ApplicationController
             location_tag_map.location_tag_id = LocationTag.find_by_tag("mnch_health_facilities").id
             result = location_tag_map.save rescue (result = false)
 
-            if result = true then
+            if result == true then
                flash[:notice] = "Clinic : #{clinic_name[:clinic_name]} added successfully"
             else
                flash[:notice] = "Clinic : #{clinic_name[:clinic_name]} addition failed"
