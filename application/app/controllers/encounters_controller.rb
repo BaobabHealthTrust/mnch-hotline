@@ -282,7 +282,7 @@ class EncountersController < ApplicationController
 
   def referral_reasons
     search_string = (params[:search_string] || '').upcase
-    referral_reasons = ConceptName.find_by_name("REASON FOR REFERRAL").concept
+    referral_reasons = ConceptName.find_by_name("REASON FOR REFERRAL").id
     previous_answers = []
     previous_answers = Observation.find_most_common(referral_reasons, search_string)
     render :text => "<li>" + previous_answers.join("</li><li>") + "</li>"
