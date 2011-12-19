@@ -212,11 +212,11 @@
   <%#TODO Replace the OTHER concept below with an appropriate one
   TODO Define the ajaxUrl below in patientrs controller
   %>
-  <%= touch_text_field_tag "OTHER", @patient, nil,
+  <%= touch_yes_no_tag "OTHER", @patient, nil,
     {:id => "other_symptom",
-    :ajaxURL => '/patient/other_child_symptoms',
-    :optional => true,
-    :allowFreeText => true,
+    #:ajaxURL => '/patient/other_child_symptoms',
+    #:optional => true,
+    #:allowFreeText => true,
     :helpText => 'Is the caller reporting any other symptom?'} %>
 
   <%#TODO May be there could be a better way to handle the below select?%>
