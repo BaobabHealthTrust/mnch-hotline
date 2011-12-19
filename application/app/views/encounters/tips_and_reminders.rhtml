@@ -194,7 +194,7 @@
        <%= touch_select_tag "TYPE OF MESSAGE CONTENT", @patient, options_for_select(@select_options['type_of_message_content'].sort),
           {:id => 'content_type',
            :optional => true,
-           :multiple => true,
+           :multiple => false,
            :helpText => "Select content type",
            :validationCode => "getRemindersContent() == 'false'",
            :validationMessage => "Patient has already enrolled in #{@tips_and_reminders} tips and reminders content",
