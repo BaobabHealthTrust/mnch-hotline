@@ -45,7 +45,7 @@
 
   <%= touch_text_field_tag "REASON FOR REFERRAL", @patient, nil,
     {:id => "referral_reason",
-    :ajaxURL => '/encounters/referral_reasons',
+    :ajaxURL => '/encounters/referral_reasons?search_string=',
     :optional => true,
     :allowFreeText => true,
     :condition    => "$('select_outcome').value != 'GIVEN ADVICE NO REFERRAL NEEDED'",
