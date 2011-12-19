@@ -282,7 +282,7 @@ class EncountersController < ApplicationController
 
   def referral_reasons
     search_string = (params[:search_string] || '').upcase
-    referral_reasons = ConceptName.find_by_name("REASON FOR REFERRAL").id
+    referral_reasons = ConceptName.find_by_name("REASON FOR REFERRAL").concept
     previous_answers = []
     #previous_answers = Observation.find_most_common(referral_reasons, search_string)
     previous_answers = Observation.find(:all, :conditions => ["concept_id = ? AND value_text like ?", referral_reasons.id, "#{search_string}%"]).collect{|obs| obs.value_text.humanize }.uniq rescue []
