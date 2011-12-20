@@ -19,7 +19,7 @@ module ReportHelper
   end  
   
   def chiyao_data_cell(language)
-    if (language.capitalize == "All" ||  language.capitalize == "Chiyao" )
+    if (language.capitalize == "All" ||  language.capitalize == "Yao" )
       language.capitalize == "All" ? colspan = '2': colspan = '4'
       table_cell = "<td width=\"12%\" colspan = #{colspan} class=\"cellleft cellbottom main-table-cell\" style=\"font-weight: bold; text-align:center;\">" + "Chiyao" +"</td>"
     end
@@ -66,8 +66,8 @@ module ReportHelper
   end
   
   def chiyao_count_and_percent_header(language)
-    if (language.capitalize == "All" ||  language.capitalize == "Chiyao" )
-        language.capitalize == "Chiyao" ? colspan = '2' : colspan = '1'
+    if (language.capitalize == "All" ||  language.capitalize == "Yao" )
+        language.capitalize == "Yao" ? colspan = '2' : colspan = '1'
         table_cell = "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" style=\"font-weight: bold;\">" +"Count" + "</td>" + "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" style=\"font-weight: bold;\">" + "%age" + "</td>"
     end
     table_cell
@@ -114,8 +114,8 @@ module ReportHelper
   end
   
   def chiyao_count_and_percent_values(language, chiyao_count, chiyao_pct_value)
-    if (language.capitalize == "All" ||  language.capitalize == "Chiyao" )
-        language.capitalize == "Chiyao" ? colspan = '2' : colspan = '1'
+    if (language.capitalize == "All" ||  language.capitalize == "Yao" )
+        language.capitalize == "Yao" ? colspan = '2' : colspan = '1'
         table_cell = "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" >" +"#{chiyao_count}" + "</td>" + "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\">" + "#{chiyao_pct_value}" + "</td>"
     end 
     table_cell

@@ -340,7 +340,8 @@ class EncountersController < ApplicationController
         ['Skin infections','SKIN INFECTIONS'],
         ['Umbilicus infection','UMBILICUS INFECTION'],
         ['Growth milestones','GROWTH MILESTONES'],
-        ['Accessing healthcare services','ACCESSING HEALTHCARE SERVICES']
+        ['Accessing healthcare services','ACCESSING HEALTHCARE SERVICES'],
+        ['Other','OTHER']
       ],
       'type_of_message_content' => [
         ['Pregnancy', 'Pregnancy'],
@@ -376,19 +377,22 @@ class EncountersController < ApplicationController
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
          ['Hospital', 'HOSPITAL'],
          ['Referred to nearest village clinic', 'REFERRED TO NEAREST VILLAGE CLINIC'],
-         ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED']
+         ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED'],
+         ['Nurse consultation', 'NURSE CONSULTATION']
       ],
       'child_symptoms_greater_zero_outcome' => [
          ['Referred to nearest village clinic', 'REFERRED TO NEAREST VILLAGE CLINIC'],
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
          ['Hospital', 'HOSPITAL'],
-         ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED']
+         ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED'],
+         ['Nurse consultation', 'NURSE CONSULTATION']
       ],
       'general_outcome' => [
          ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED'],
          ['Referred to nearest village clinic', 'REFERRED TO NEAREST VILLAGE CLINIC'],
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
-         ['Hospital', 'HOSPITAL']
+         ['Hospital', 'HOSPITAL'],
+         ['Nurse consultation', 'NURSE CONSULTATION']
       ]
     }
   end

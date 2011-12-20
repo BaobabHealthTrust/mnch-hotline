@@ -32,7 +32,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 
-<% @maternal_health_symptoms = @select_options['maternal_health_info'].sort %>
+<% @maternal_health_symptoms = @select_options['maternal_health_symptoms'].sort %>
 
 <script type="text/javascript" language="javascript">
   symptoms_values = <%= to_jsarray(@maternal_health_symptoms) %> ;
