@@ -19,7 +19,7 @@
           :helptext => "Expected Due Date",
           :condition => "$('pregnancy_status').value == 'Pregnant'",
           :absoluteMin => "#{session_date.advance(:days => 1).strftime('%Y-%m-%d')}",
-          :absoluteMax => "#{session_date.advance(:months => 10).strftime('%Y-%m-%d')}"} %>
+          :absoluteMax => "#{session_date.advance(:months => 10, :days => +1 ).strftime('%Y-%m-%d')}"} %>
     <%= touch_text_field_tag "DELIVERY DATE", @patient,@encounter_answers[:delivery_date],
         { :id => "delivery_date",
           :field_type => "date",
