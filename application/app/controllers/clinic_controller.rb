@@ -1,10 +1,14 @@
 class ClinicController < ApplicationController
   def index
-
-    if params[:status]== 'endcall'
-      session[:call_end_timestamp] = DateTime.now
-      log_call(0)
+    if session[:house_keeping_mode] == false
+      if params[:status]== 'endcall'
+        session[:call_end_timestamp] = DateTime.now
+        log_call(0)
+      end
+    else
+      session[:house_keeping_mode] == false
     end
+    
     @tt_active_tab = params[:active_tab]
     render :template => 'clinic/homemain', :layout => 'clinic'
   end
@@ -260,5 +264,22 @@ class ClinicController < ApplicationController
         else
            flash[:notice] = "location #{clinic_name[:clinic_name]} deletion failed"
         end
+    end
+    def housekeeping
+      start_housekeeping_mode(params[:task])
+    end
+    def start_housekeeping_mode(task)
+      @task = task
+
+      if @task == 'housekeeping'
+        session[:house_keeping_mode] = true
+      end
+
+      render :template => 'clinic/home', :layout => 'clinic'
+    end
+
+    def end_housekeeping_mode
+      session[:house_keeping_mode] = false
+      redirect_to "/clinic"
     end
 end
