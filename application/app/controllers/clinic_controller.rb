@@ -6,9 +6,8 @@ class ClinicController < ApplicationController
         log_call(0)
       end
     else
-      session[:house_keeping_mode] == false
+      session[:house_keeping_mode] = false
     end
-    
     @tt_active_tab = params[:active_tab]
     render :template => 'clinic/homemain', :layout => 'clinic'
   end
