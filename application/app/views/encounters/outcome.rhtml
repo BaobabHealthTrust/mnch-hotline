@@ -11,15 +11,20 @@
 
   <% options = {
      :id          => "select_outcome",
+     :multiple => true,
      :tt_onUnLoad => "$('outcome_value_coded_or_text').value = $('select_outcome').value",
-     :helpText    => "Select outcome"
+     :helpText    => "Recommended Referral"
      } %>
 
-  <%@outcome = ["","REFERRED TO A HEALTH CENTRE",
-              "REFERRED TO NEAREST VILLAGE CLINIC",
-              "PATIENT TRIAGED TO NURSE SUPERVISOR",
-              "GIVEN ADVICE NO REFERRAL NEEDED"]%>
+  <%if @child_danger_signs.length > 0
+     @outcome = @select_options['child_danger_signs_greater_zero_outcome']
 
+    elsif @child_symptoms.length > 0
+      @outcome = @select_options['child_symptoms_greater_zero_outcome']
+    else
+      @outcome = @select_options['general_outcome']
+    end
+    %>
   <%= select_tag("select_outcome", options_for_select(@outcome, @encounter_answers[:outcome]), options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "OUTCOME") %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'outcome_value_coded_or_text'}) %>
@@ -39,20 +44,13 @@
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
   <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
 
-  <% options = {
-     :id          => "referral_reason",
-     :tt_onUnLoad => "$('referral_reason_value_coded_or_text').value = $('referral_reason').value",
-     :helpText    => "Select reason for refferal",
-     :condition => "$('select_outcome').value != 'GIVEN ADVICE NO REFERRAL NEEDED'"
-     } %>
-
-  <%@reasons_for_referral = ["","DANGER SIGNS OBSERVED", "PHYSICAL EXAMINATION NEEDED"]%>
-
-  <%= select_tag("referral_reason", options_for_select(@reasons_for_referral, @encounter_answers[:reason_for_referral]), options)%>
-  <%= hidden_field_tag("observations[][concept_name]",        "REASON FOR REFERRAL") %>
-  <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'referral_reason_value_coded_or_text'}) %>
-  <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
-  <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+  <%= touch_text_field_tag "REASON FOR REFERRAL", @patient, nil,
+    {:id => "referral_reason",
+    :ajaxURL => '/encounters/referral_reasons?search_string=',
+    :optional => true,
+    :allowFreeText => true,
+    :condition    => "$('select_outcome').value != 'GIVEN ADVICE NO REFERRAL NEEDED'",
+    :helpText => 'Referral reason'} %>
 
   <%unless @encounter_id.nil?%>
     <%= hidden_field_tag("encounter_id",  @encounter_id) %>

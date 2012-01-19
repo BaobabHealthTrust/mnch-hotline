@@ -1,9 +1,12 @@
 class ClinicController < ApplicationController
   def index
-
-    if params[:status]== 'endcall'
-      session[:call_end_timestamp] = DateTime.now
-      log_call(0)
+    if session[:house_keeping_mode] == false
+      if params[:status]== 'endcall'
+        session[:call_end_timestamp] = DateTime.now
+        log_call(0)
+      end
+    else
+      session[:house_keeping_mode] = false
     end
     @tt_active_tab = params[:active_tab]
     render :template => 'clinic/homemain', :layout => 'clinic'
@@ -22,7 +25,7 @@ class ClinicController < ApplicationController
   end
 
   def reports
-    @reports = [["Cohort","/cohort_tool/cohort_menu"],["Supervision","/clinic/supervision"], ["Data Cleaning Tools", "/report/data_cleaning"], ["Stock report","/drug/date_select"]]
+    @reports = [["Patient Analysis","/report/type?q=patient_analysis"],["Tips","/report/type?q=tips"], ["Call Analysis", "/report/type?q=call_analysis"]]
     render :template => 'clinic/reports', :layout => 'clinic' 
   end
 
@@ -125,7 +128,7 @@ class ClinicController < ApplicationController
     end
 
     def irrelevant_call_action
-       if params[:confirmation] == 'YES'
+       if params[:confirmation] == 'Yes'
          session[:call_end_timestamp] = DateTime.now
          log_call(2)
          redirect_to "/clinic"
@@ -136,7 +139,7 @@ class ClinicController < ApplicationController
     end
     
     def emergency_call_action
-      if params[:confirmation] == 'YES'
+      if params[:confirmation] == 'Yes'
         session[:call_end_timestamp] = DateTime.now
         log_call(1)
         redirect_to "/clinic"
@@ -156,9 +159,12 @@ class ClinicController < ApplicationController
       calllog.end_time = session[:call_end_timestamp]
       calllog.call_type = call_log_type.to_i
 
-      calllog.save
-
-      reset_session_variables
+      if calllog.call_log_id != 0
+        calllog.save
+        reset_session_variables
+      else
+        reset_session_variables
+      end
     end
 
     def reset_session_variables
@@ -190,7 +196,7 @@ class ClinicController < ApplicationController
             location_tag_map.location_tag_id = LocationTag.find_by_tag("mnch_health_facilities").id
             result = location_tag_map.save rescue (result = false)
 
-            if result = true then
+            if result == true then
                flash[:notice] = "Clinic : #{clinic_name[:clinic_name]} added successfully"
             else
                flash[:notice] = "Clinic : #{clinic_name[:clinic_name]} addition failed"
@@ -201,7 +207,7 @@ class ClinicController < ApplicationController
             location_tag_map.location_tag_id = LocationTag.find_by_tag("mnch_health_facilities").id
             result = location_tag_map.save rescue (result = false)
 
-            if result = true then
+            if result == true then
                flash[:notice] = "Clinic : #{clinic_name[:clinic_name]} added successfully"
             else
                flash[:notice] = "Clinic : #{clinic_name[:clinic_name]} addition failed"
@@ -257,5 +263,22 @@ class ClinicController < ApplicationController
         else
            flash[:notice] = "location #{clinic_name[:clinic_name]} deletion failed"
         end
+    end
+    def housekeeping
+      start_housekeeping_mode(params[:task])
+    end
+    def start_housekeeping_mode(task)
+      @task = task
+
+      if @task == 'housekeeping'
+        session[:house_keeping_mode] = true
+      end
+
+      render :template => 'clinic/home', :layout => 'clinic'
+    end
+
+    def end_housekeeping_mode
+      session[:house_keeping_mode] = false
+      redirect_to "/clinic"
     end
 end

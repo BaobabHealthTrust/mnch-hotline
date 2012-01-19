@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <title><%=@report_name%></title>
+    <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+    <link href="/stylesheets/report.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/report_print.css" media="print" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="btn-menu">
+      <%params[:format] = 'pdf'%>
+      <%select_report_criteria = '/report/select?report_type=' +@report_type +'&query=' + @query%>
+
+      <button id="back_button" class="button blue" onclick="window.location = '<%#=report_path(params)%>'"><span>PDF</span></button>
+      <!-- button id="regenerate_button" class="button blue" onclick="document.getElementById('frmMain').submit();"><span>Regenerate</span></button -->
+      <button id="print_button" class="button blue" onclick="window.print()"><span>Print</span></button>
+      <button id="finish_button" class="button green" onclick="window.location = '/clinic'"><span>Finish</span></button>
+      <button id="back_button" class="button red" onclick="window.location = '<%=select_report_criteria%>'"><span>Back</span></button>
+    </div>
+
+    <form id="frmMain" action="/report/patient_analysis_report" method="post">
+      <input type="hidden" id="start_date" name="start_date" value="<%= @start_date.to_date.strftime('%d-%m-%Y') %>" />
+      <input type="hidden" id="end_date" name="end_date" value="<%= @end_date.to_date.strftime('%d-%m-%Y') %>" />
+    </form>
+
+    <div>
+    <fieldset class="main_fieldset">
+      <legend class="main_legend" style="color:white; background-color:green;">
+        <%=@report_name +" - <i>"+ @patient_type +"</i>"%>
+      </legend>
+      <table cellspacing="0" width="100%">
+        <tr>
+          <%= "Filter Info: Grouping - #{@grouping.capitalize} #{@special_message} "  %>
+        </tr>
+        <tr>
+          <td width="20%" class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:left;">
+              Caller Name
+          </td>
+          <td width="10%" class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Phone
+          </td>
+          <td width="70%" class="celltop cellleft cellbottom cellright main-table-cell" style="font-weight: bold;">
+              Call Summary
+          </td>
+        </tr>
+
+        <%@report.reverse.map do |data|%>
+          <tr>
+            <td colspan="3" class="cellleft cellbottom cellright main-table-cell" style="text-align:left; background-color:ddd">
+              <%= @grouping.humanize + " ( " + data[:date_range].first + " - " + data[:date_range].last + " )"%>
+            </td>
+          </tr>
+            <% data[:patient_info].each do |info| %>
+            <% empty_space = '&nbsp;' %>
+              <tr>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%=  info[:name]%>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%=  info[:number][:cell_phone_number_] %>
+                </td>
+                <td class="cellleft cellbottom cellright main-table-cell">
+                  <%=  info[:visit_summary] %>
+                </td>
+
+              </tr>
+            <% end  %>
+        <% end %>
+      </table>
+
+    </fieldset>
+      
+    </div>
+
+    <%# (1..2000).each{ %>
+    <%#= "<hr /><br />" %>
+    <%# } %>
+  </body>
+</html>

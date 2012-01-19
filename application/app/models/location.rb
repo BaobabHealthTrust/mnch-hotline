@@ -76,4 +76,14 @@ class Location < ActiveRecord::Base
 
   end
 
+  def self.find_by_tag(location_tag)
+    query  = "SELECT name FROM location, location_tag_map, location_tag " +
+    "WHERE location.location_id = location_tag_map.location_id " +
+      "AND location_tag.location_tag_id = location_tag_map.location_tag_id " +
+      "AND location_tag.tag = '" + location_tag + "'"
+
+      locations = Location.find_by_sql(query)
+      locations
+  end
+
 end

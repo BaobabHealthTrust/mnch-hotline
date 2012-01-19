@@ -452,16 +452,79 @@ EOF
     id ||= PatientIdentifierType.find_by_name("IVR Access Code").next_identifier(:patient => self).identifier
     id
   end
+
   def ivr_access_code
     create_ivr_access_code(force = true)
   end
+
   def create_national_id(force = true)
     id = self.patient_identifiers.find_by_identifier_type(PatientIdentifierType.find_by_name("National id").id).identifier rescue nil
     return id unless force
     id ||= PatientIdentifierType.find_by_name("National id").next_identifier(:patient => self).identifier
     id
   end
+
   def male_adult?
     (gender == "Male" && self.person.age > 5) ? true : false
   end
+
+  def child_danger_signs
+  	symptoms_obs = Hash.new
+  	recorded_danger_signs = Array.new
+ 
+  	danger_signs = ["FEVER OF 7 DAYS OR MORE","DIARRHEA FOR 14 DAYS OR MORE",
+					"COUGH FOR 21 DAYS OR MORE", "CONVULSIONS","BLOOD IN STOOL",
+					"NOT EATING OR DRINKING ANYTHING","VOMITING EVERYTHING",
+ 					"RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
+ 					"RED EYE", "UNCONSCIOUS","FLAKY SKIN","SWOLLEN HANDS OR FEET SIGN"]
+ 					
+ 	type = EncounterType.find_by_name("CHILD HEALTH SYMPTOMS")
+    encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
+    
+    encounter.observations.all.each{|obs| symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip}  rescue nil 
+  
+ 	danger_signs.each do |sign|
+ 		if (sign == "COUGH FOR 21 DAYS OR MORE" && symptoms_obs[sign].to_i >= 21)
+        	recorded_danger_signs << sign
+       elsif  (sign == "DIARRHEA FOR 14 DAYS OR MORE" &&  symptoms_obs[sign].to_i >= 14)
+        recorded_danger_signs << sign
+       elsif  (sign == "FEVER OF 7 DAYS OR MORE" &&  symptoms_obs[sign].to_i >= 7)
+        recorded_danger_signs << sign
+       elsif  (sign == "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS" && symptoms_obs[sign].to_i >= 14)
+        recorded_danger_signs << sign
+      elsif  (sign == "NOT EATING OR DRINKING ANYTHING" && symptoms_obs[sign] == "NO")
+        recorded_danger_signs << sign
+      elsif (symptoms_obs[sign] == "YES")
+        recorded_danger_signs << sign
+      
+    end
+    
+ 	end
+  return recorded_danger_signs
+  end
+  
+  def child_symptoms
+  	symptoms_obs = Hash.new
+  	recorded_symptoms = Array.new
+ 
+  	symptoms = ["FEVER", "DIARRHEA", "COUGH", "CONVULSIONS", "NOT EATING OR DRINKING ANYTHING", 
+  		    "RED EYE", "VERY SLEEPY OR UNCONSCIOUS","WEIGHT CHANGE"]
+ 					
+    encounter = self.encounters.current.find(:first, 
+                                             :conditions =>["encounter_type = ?",
+                                             EncounterType.find_by_name("CHILD HEALTH SYMPTOMS").id])
+    
+    encounter.observations.all.each{|obs| symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip} rescue nil 
+  
+ 	symptoms_obs.each{|k,v|
+ 		if symptoms.include?(k) && k != "NOT EATING OR DRINKING ANYTHING" && v == "YES"
+ 			recorded_symptoms << k
+ 		elsif k == "NOT EATING OR DRINKING ANYTHING" && v == "NO"
+ 			recorded_symptoms << k
+ 			end
+ 	}
+  return recorded_symptoms
+  end
+  
+  
 end

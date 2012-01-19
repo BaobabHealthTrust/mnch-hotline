@@ -1,12 +1,12 @@
 class PatientsController < ApplicationController
   before_filter :find_patient, :except => [:void]
 
-  
   def show
     #get the pregnancy status for the particular female patient and display
     #either expected due date or delivery date. as for the others, leave it blank
-    pregnancy_status = @patient.pregnancy_status rescue []
+    @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
 
+    pregnancy_status = @patient.pregnancy_status rescue []
     if pregnancy_status.length != 0
       @status = pregnancy_status[0]
       @date   = pregnancy_status[1]
@@ -321,8 +321,23 @@ class PatientsController < ApplicationController
 
     return concept_id_list
   end
-  
-  
+
+  def demographics
+    @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) rescue nil
+    render :template => 'patients/demographics', :layout => 'menu'
+  end
+
+  def edit_demographics
+    @patient = Patient.find(params[:patient_id]  || params[:id] || session[:patient_id]) rescue nil
+    @field = params[:field]
+    render :partial => "edit_demographics", :field =>@field, :layout => true and return
+  end
+
+  def update_demographics
+    Person.update_demographics(params)
+    redirect_to :action => 'demographics', :patient_id => params['person_id'] and return
+  end
+
 private
   
   

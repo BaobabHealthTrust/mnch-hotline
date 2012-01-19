@@ -1,0 +1,131 @@
+<html>
+  <head>
+    <title><%=@report_name%></title>
+    <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+    <link href="/stylesheets/report.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/report_print.css" media="print" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="btn-menu">
+      <%params[:format] = 'pdf'%>
+      <%select_report_criteria = '/report/select?report_type=' +@report_type +'&query=' + @query%>
+
+      <button id="back_button" class="button blue" onclick="window.location = '<%#=report_path(params)%>'"><span>PDF</span></button>
+      <!-- button id="regenerate_button" class="button blue" onclick="document.getElementById('frmMain').submit();"><span>Regenerate</span></button -->
+      <button id="print_button" class="button blue" onclick="window.print()"><span>Print</span></button>
+      <button id="finish_button" class="button green" onclick="window.location = '/clinic'"><span>Finish</span></button>
+      <button id="back_button" class="button red" onclick="window.location = '<%=select_report_criteria%>'"><span>Back</span></button>
+    </div>
+
+    <form id="frmMain" action="/report/patient_analysis_report" method="post">
+      <input type="hidden" id="start_date" name="start_date" value="<%= @start_date.to_date.strftime('%d-%m-%Y') %>" />
+      <input type="hidden" id="end_date" name="end_date" value="<%= @end_date.to_date.strftime('%d-%m-%Y') %>" />
+    </form>
+
+    <div>
+    <fieldset class="main_fieldset">
+      <legend class="main_legend" style="color:white; background-color:green;">
+        <%=@report_name +" - <i>"+ @patient_type +"</i>"%>
+      </legend>
+      <table cellspacing="0" width="100%">
+        <tr>
+          <%= "Filter Info: Grouping - #{@grouping.capitalize} #{@special_message} "  %>
+        </tr>
+        <%@report.reverse.map do |data|%>
+          <tr>
+            <td width="25%" colspan = 2 class="cellleft cellbottom main-table-cell" style="background-color:ddd; text-align:center;font-weight: bold; font-size: large; font-style: italic;">
+              <%= @grouping.humanize + " beginning "+ data[:start_date] + " ending " + data[:end_date]%>
+            </td>
+          </tr>
+          <tr>
+            <td class="cellleft cellbottom main-table-cell">
+              New Registrations
+            </td>
+            
+            <td class="cellleft cellbottom main-table-cell">
+            <%= data[:new_registrations]%>
+            </td>
+          </tr>
+          <tr>
+            <td colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Catchment (Nearest Health Centre)
+            </td>
+          </tr>
+          <% data[:catchment].map do | catchment |%>
+          <tr>
+            <td class="cellleft cellbottom main-table-cell">
+            <%= catchment.first %>
+            </td>
+            
+            <td class="cellleft cellbottom main-table-cell">
+            <%= catchment.last %>
+            </td>
+          </tr>
+          <% end %>
+          
+          <%if(@patient_type.downcase == 'children')%>
+            <tr>
+              <td colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+                Gender
+              </td>
+            </tr>
+            <% data[:gender].map do | gender |%>
+            <tr>
+              <td class="cellleft cellbottom main-table-cell">
+              <%= gender.first.humanize %>
+              </td>
+              
+              <td class="cellleft cellbottom main-table-cell">
+              <%= gender.last %>
+              </td>
+            </tr>
+            <% end %>
+
+        <%elsif(@patient_type.downcase == 'women')%>
+            <tr>
+              <td colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+                Pregnancy Status
+              </td>
+            </tr>
+            <% data[:pregnancy_status].map do | pregnancy_status |%>
+            <tr>
+              <td class="cellleft cellbottom main-table-cell">
+              <%= pregnancy_status.first.humanize %>
+              </td>
+              
+              <td class="cellleft cellbottom main-table-cell">
+              <%= pregnancy_status.last %>
+              </td>
+            </tr>
+            <% end %>
+        
+        <%elsif(@patient_type.downcase == 'all')%>
+            <tr>
+              <td colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+                Patient Type
+              </td>
+            </tr>
+            <% data[:patient_type].map do | patient_type |%>
+            <tr>
+              <td class="cellleft cellbottom main-table-cell">
+              <%= patient_type.first.humanize %>
+              </td>
+              
+              <td class="cellleft cellbottom main-table-cell">
+              <%= patient_type.last %>
+              </td>
+            </tr>
+            <% end %>
+          <% end %>
+        <% end %>
+      </table>
+
+    </fieldset>
+      
+    </div>
+
+    <%# (1..2000).each{ %>
+    <%#= "<hr /><br />" %>
+    <%# } %>
+  </body>
+</html>

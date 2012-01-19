@@ -1,6 +1,7 @@
 class EncountersController < ApplicationController
 
   def create
+
     Encounter.find(params[:encounter_id].to_i).void if(params[:editing] && params[:encounter_id])
 
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
@@ -139,11 +140,17 @@ class EncountersController < ApplicationController
 
   def new
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    @child_danger_signs = @patient.child_danger_signs
+    @child_symptoms = @patient.child_symptoms
+    @select_options = select_options
+    @phone_numbers = patient_reminders_phone_number(@patient)
 
     # created a hash of 'upcased' health centers
     @health_facilities = ([""] + ClinicSchedule.health_facilities.map(&:name)).inject([]) do |facility_list, facilities|
-      facility_list.push(facilities.upcase)
+      facility_list.push(facilities)
     end
+
+    @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
 
     use_regimen_short_names = GlobalProperty.find_by_property(
       "use_regimen_short_names").property_value rescue "false"
@@ -208,6 +215,21 @@ class EncountersController < ApplicationController
     render :text => "<li>" + locations.map{|location| location.name }.join("</li><li>") + "</li>"
   end
 
+  #find the most recent tip and reminder of the subscriber to be edited.
+  def recent_tip_and_reminder_program
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    @select_options = select_options
+    @phone_numbers = patient_reminders_phone_number(@patient)
+    @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
+
+    @encounter_answers  = {}
+    (!params[:encounter_id].blank?) ? (@encounter_id = params[:encounter_id].to_i) : (@encounter_id = nil)
+    @encounter_answers  = Encounter.retrieve_previous_encounter(@encounter_id) unless @encounter_id.nil?
+
+    @encounter_id = Encounter.find(:last, :conditions => ["encounter_type = ? and patient_id = ? AND voided = 0",EncounterType.find_by_name("TIPS AND REMINDERS").id,@patient.id]).encounter_id
+    render :layout => true
+  end
+
   def observations
     # We could eventually include more here, maybe using a scope with includes
     @encounter = Encounter.find(params[:id], :include => [:observations])
@@ -256,5 +278,122 @@ class EncountersController < ApplicationController
     answer_array
 
     # raise answer_array.inspect
+  end
+
+  def referral_reasons
+    search_string = (params[:search_string] || '').upcase
+    referral_reasons = ConceptName.find_by_name("REASON FOR REFERRAL").concept
+    previous_answers = []
+    #previous_answers = Observation.find_most_common(referral_reasons, search_string)
+    previous_answers = Observation.find(:all, :conditions => ["concept_id = ? AND value_text like ?", referral_reasons.id, "#{search_string}%"]).collect{|obs| obs.value_text.humanize }.uniq rescue []
+    render :text => "<li>" + previous_answers.join("</li><li>") + "</li>"
+  end
+
+  def select_options
+    select_options = {
+      'maternal_health_info' => [
+        ['', ''],
+        ['Healthcare visits', 'HEALTHCARE VISITS'],
+        ['Nutrition', 'NUTRITION'],
+        ['Body changes', 'BODY CHANGES'],
+        ['Discomfort', 'DISCOMFORT'],
+        ['Concerns', 'CONCERNS'],
+        ['Emotions', 'EMOTIONS'],
+        ['Warning signs', 'WARNING SIGNS'],
+        ['Routines', 'ROUTINES'],
+        ['Beliefs', 'BELIEFS'],
+        ['Baby\'s growth', 'BABY\'S GROWTH'],
+        ['Milestones', 'MILESTONES'],
+        ['Prevention', 'PREVENTION']
+      ],
+      'maternal_health_symptoms' => [
+        ['',''],
+        ['Vaginal Bleeding during pregnancy','VAGINAL BLEEDING DURING PREGNANCY'],
+        ['Postnatal bleeding','POSTNATAL BLEEDING'],
+        ['Fever during pregnancy','FEVER DURING PREGNANCY SYMPTOM'],
+        ['Postnatal fever','POSTNATAL FEVER SYMPTOM'],
+        ['Headaches','HEADACHES'],
+        ['Fits or convulsions','FITS OR CONVULSIONS SYMPTOM'],
+        ['Swollen hands or feet','SWOLLEN HANDS OR FEET SYMPTOM'],
+        ['Paleness of the skin and tiredness','PALENESS OF THE SKIN AND TIREDNESS SYMPTOM']
+      ],
+      'danger_signs' => [
+        ['',''],
+        ['Hevay vaginal bleeding during pregnancy','HEAVY VAGINAL BLEEDING DURING PREGNANCY'],
+        ['Excessive postnatal bleeding','EXCESSIVE POSTNATAL BLEEDING'],
+        ['Fever during pregnancy','FEVER DURING PREGNANCY SIGN'],
+        ['Postanatal fever','POSTNATAL FEVER SIGN'],
+        ['Severe headache','SEVERE HEADACHE'],
+        ['Fits or convulsions','FITS OR CONVULSIONS SIGN'],
+        ['Swollen hands or feet','SWOLLEN HANDS OR FEET SIGN'],
+        ['Paleness of the skin and tiredness','PALENESS OF THE SKIN AND TIREDNESS SIGN'],
+        ['No fetal movements','NO FETAL MOVEMENTS SIGN'],
+        ['Water breaks','WATER BREAKS SIGN']
+      ],
+      'child_health_info' => [
+        ['',''],
+        ['Sleeping','SLEEPING'],
+        ['Feeding problems','FEEDING PROBLEMS'],
+        ['crying','CRYING'],
+        ['Bowel movements','BOWEL MOVEMENTS'],
+        ['Skin rashes','SKIN RASHES'],
+        ['Skin infections','SKIN INFECTIONS'],
+        ['Umbilicus infection','UMBILICUS INFECTION'],
+        ['Growth milestones','GROWTH MILESTONES'],
+        ['Accessing healthcare services','ACCESSING HEALTHCARE SERVICES'],
+        ['Other','OTHER']
+      ],
+      'type_of_message_content' => [
+        ['Pregnancy', 'Pregnancy'],
+        ['Postnatal', 'Postnatal'],
+        ['Child', 'Child'],
+        ['WCBA', 'WCBA'],
+        ['Observer', 'Observer']
+      ],
+      'message_type' => [
+        ['', ''],
+        ['SMS', 'SMS'],
+        ['Voice','VOICE']
+      ],
+      'phone_type' => [
+        ['', ''],
+        ['Community phone', 'COMMUNITY PHONE'],
+        ['Personal phone', 'PERSONAL PHONE'],
+        ['Family member phone', 'FAMILY MEMBER PHONE'],
+        ['Neighbour\'s phone', 'NEIGHBOUR\'S PHONE']
+      ],
+      'language_type' => [
+        ['', ''],
+        ['Chichewa', 'CHICHEWA'],
+        ['Chiyao', 'CHIYAO']
+      ],
+      'pregnancy_status' => [
+         ['', ''],
+         ['Pregnant', 'Pregnant'],
+         ['NOT pregnant', 'NOT pregnant'],
+         ['Delivered', 'Delivered']
+      ],
+      'child_danger_signs_greater_zero_outcome' => [
+         ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
+         ['Hospital', 'HOSPITAL'],
+         ['Referred to nearest village clinic', 'REFERRED TO NEAREST VILLAGE CLINIC'],
+         ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED'],
+         ['Nurse consultation', 'NURSE CONSULTATION']
+      ],
+      'child_symptoms_greater_zero_outcome' => [
+         ['Referred to nearest village clinic', 'REFERRED TO NEAREST VILLAGE CLINIC'],
+         ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
+         ['Hospital', 'HOSPITAL'],
+         ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED'],
+         ['Nurse consultation', 'NURSE CONSULTATION']
+      ],
+      'general_outcome' => [
+         ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED'],
+         ['Referred to nearest village clinic', 'REFERRED TO NEAREST VILLAGE CLINIC'],
+         ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
+         ['Hospital', 'HOSPITAL'],
+         ['Nurse consultation', 'NURSE CONSULTATION']
+      ]
+    }
   end
 end

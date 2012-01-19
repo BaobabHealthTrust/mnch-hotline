@@ -135,11 +135,24 @@ class Person < ActiveRecord::Base
   end
 
   def self.search_by_identifier(identifier)
-    PatientIdentifier.find_all_by_identifier(identifier).map{|id| id.patient.person} unless identifier.blank? rescue nil
+    #Added this check to differenciate between national_id and subscribers
+    #TODO to be improved
+    if identifier.length >= 13
+      PatientIdentifier.find_all_by_identifier(identifier).map{|id| id.patient.person} unless identifier.blank? rescue nil
+    else
+      all_subcribers_with_this_number = []
+      Observation.find(:all, :conditions => ["concept_id = ? AND voided = 0",
+          ConceptName.find_by_name("TELEPHONE NUMBER").concept_id]).map do |obs|
+             if obs.value_text == identifier
+              all_subcribers_with_this_number << obs
+             end
+      end
+      all_subcribers_with_this_number.map{|obs| Person.find_by_person_id(obs.person_id)}
+    end
   end
 
   def self.search(params)
-    people = Person.search_by_identifier(params[:identifier])
+    people = Person.search_by_identifier(params[:identifier]) rescue nil
 
     return people.first.id unless people.blank? || people.size > 1
     people = Person.find(:all, :include => [{:names => [:person_name_code]}, :patient], :conditions => [
@@ -307,6 +320,53 @@ class Person < ActiveRecord::Base
 
   end
 
+  def self.update_demographics(params)
+    person = Person.find(params['person_id'])
+
+    if params.has_key?('person')
+      params = params['person']
+    end
+
+    address_params = params["addresses"]
+    names_params = params["names"]
+    patient_params = params["patient"]
+    person_attribute_params = params["attributes"]
+
+    params_to_process = params.reject{|key,value| key.match(/addresses|patient|names|attributes/) }
+    birthday_params = params_to_process.reject{|key,value| key.match(/gender/) }
+
+    person_params = params_to_process.reject{|key,value| key.match(/birth_|age_estimate/) }
+
+    if !birthday_params.empty?
+
+      if birthday_params["birth_year"] == "Unknown"
+        person.set_birthdate_by_age(birthday_params["age_estimate"])
+      else
+        person.set_birthdate(birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"])
+      end
+
+      person.birthdate_estimated = 1 if params["birthdate_estimated"] == 'true'
+      person.save
+    end
+
+    person.update_attributes(person_params) if !person_params.empty?
+    person.names.first.update_attributes(names_params) if names_params
+    person.addresses.first.update_attributes(address_params) if address_params
+
+    #update or add new person attribute
+    person_attribute_params.each{|attribute_type_name, attribute|
+      attribute_type = PersonAttributeType.find_by_name(attribute_type_name.humanize.titleize) || PersonAttributeType.find_by_name("Unknown id")
+      #find if attribute already exists
+      exists_person_attribute = PersonAttribute.find(:first, :conditions => ["person_id = ? AND person_attribute_type_id = ?", person.id, attribute_type.person_attribute_type_id]) rescue nil
+      if exists_person_attribute
+        exists_person_attribute.update_attributes({'value' => attribute})
+      else
+        person.person_attributes.create("value" => attribute, "person_attribute_type_id" => attribute_type.person_attribute_type_id)
+      end
+    } if person_attribute_params
+
+  end
+
   def get_attribute(attribute)
     PersonAttribute.find(:first,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND person_id = ?",
         PersonAttributeType.find_by_name(attribute).id,self.id]).value rescue nil
@@ -336,6 +396,7 @@ class Person < ActiveRecord::Base
     end
 
   end
+
   def age_in_years_months
     number_of_months = age_in_months
     result = number_of_months.divmod(12)

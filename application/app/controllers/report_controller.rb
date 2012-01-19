@@ -167,6 +167,77 @@ class ReportController < ApplicationController
   end
   
   def select
+
+    @report_date_range  = [""]
+    @patient_type       = [""]
+    @grouping           = [""]
+    @outcome            = [""]
+
+    @report_type        = params[:report_type]
+    @query              = params[:query].gsub(" ", "_")
+
+    start_date          = Encounter.initial_encounter.encounter_datetime
+    end_date            = session[:datetime].to_date rescue Date.today
+
+    report_date_ranges  = Report.generate_report_date_range(start_date, end_date)
+    @date_range_values  = [["",""]]
+    @report_date_range  = report_date_ranges.inject({}){|date_range, report_date_range|
+                            date_range[report_date_range.first]         = report_date_range.last["datetime"]
+                            @date_range_values.push([report_date_range.last["range"].first, report_date_range.first])
+                            date_range
+                          }
+
+    case @report_type
+      when "patient_analysis"
+        case @query
+          when "demographics"
+            @patient_type       += ["Women", "Children", "All"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+
+          when "health_issues"
+            @patient_type       += ["Women", "Children"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+            @health_task         = ["", "Health Symptoms", "Danger Warning Signs",
+                                    "Health Information Requested", "Outcomes"]
+          when "ages_distribution"
+            @patient_type       += ["Women", "Children", "All"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+          when "patient_activity"
+            @patient_type       += ["Women", "Children", "All"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+          when "referral_followup"
+            @patient_type       += ["Women", "Children", "All"]
+            @outcomes            = ["","REFERRED TO A HEALTH CENTRE",
+                                    "REFERRED TO NEAREST VILLAGE CLINIC",
+                                    "PATIENT TRIAGED TO NURSE SUPERVISOR",
+                                    "GIVEN ADVICE NO REFERRAL NEEDED"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+        end
+      when "call_analysis"
+        #case @query
+          #when "call_time_of_day"
+            @patient_type       += ["Women", "Children", "All"]
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+            @staff               = [["",""]] + get_staff_members_list + [["All","All"]]
+            @call_type           = ["","Normal", "Followup","Non-Patient Tips",
+                                    "Emergency","Irrelevant",
+                                    "All Patient Interaction",
+                                    "All Non-Patient", "All"]
+            @call_status         = ["","Yes","No", "All"]
+
+      when "tips"
+        @grouping           += [["",""],["By Week", "week"], ["By Month", "month"]]
+        @content_type       = [["",""],["Pregnancy", "pregnancy"],["Child","child"],["All", "all"]]
+        @phone_type         = [["",""],["Community", "community"],["Personal","personal"],
+                               ["Family","family"],["Neighbour","Neighbour"],["All", "all"]]
+        @language           = [["",""],["Yao","yao"],["Chichewa","chichewa"],["All", "all"]]
+        @delivery           = [["",""],["SMS","sms"],["Voice","voice"],["All", "all"]]
+        @network_prefix     = [["",""],["09","airtel"],["08","tnm"],["Other","other"],["All", "all"]]
+
+    end
+
+     render :template => "/report/patient_analysis_selection" ,
+              :layout => "application"
   end
 
   def select_remote_options
@@ -180,7 +251,9 @@ class ReportController < ApplicationController
     e_day = params[:post]['end_date(3i)'].to_i #18
     e_month = params[:post]['end_date(2i)'].to_i #1
     e_year = params[:post]['end_date(1i)'].to_i # 2009
-    parameters = {'start_year' => s_year, 'start_month' => s_month, 'start_day' => s_day,'end_year' => e_year, 'end_month' => e_month, 'end_day' => e_day}
+    parameters = {'start_year' => s_year, 'start_month' => s_month, 
+                  'start_day' => s_day,'end_year' => e_year,
+                  'end_month' => e_month, 'end_day' => e_day}
 
     if params[:report] == 'Weekly report'
       redirect_to :action => 'weekly_report', :params => parameters
@@ -199,34 +272,330 @@ class ReportController < ApplicationController
   def mastercard
   end
 
-  def data_cleaning
+  def type
+    report_type = params[:q]
+    case  report_type
+      when 'patient_analysis'
+        @reports = ["Demographics",     "Ages Distribution", "Health Issues",
+                    "Patient Activity", "Referral Followup", "Call Feedback"]
 
-      @reports = {
-                    'Missing Prescriptions'=>'dispensations_without_prescriptions',
-                    'Missing Dispensations'=>'prescriptions_without_dispensations',
-                    'Multiple Start Reasons at Different times'=>'patients_with_multiple_start_reasons',
-                    'Out of range ARV number'=>'out_of_range_arv_number',
-                    'Data Consistency Check'=>'data_consistency_check'
-                 }
-    @landing_dashboard = params[:dashboard]
-    render :template => 'report/data_cleaning', :layout => 'clinic'
-  end
+        @report_label = 'a Patient Analysis Report'
+        @report_type  = report_type
 
-  def appointment_dates
+      when 'tips'
+        @reports = ["Tips Activity", "Current Enrollment Totals",
+                    "Individual Current Enrollments"]
 
-    if (!params[:date].blank?) # retrieve appointment dates for a given day
-      @date       = params[:date].to_date
-      @patients   = Patient.appointment_dates(@date)
-    elsif (!params[:start_date].blank? && !params[:end_date].blank?) # retrieve appointment dates for a given date range
-      @start_date = params[:start_date].to_date
-      @end_date   = params[:end_date].to_date
-      @patients   = Patient.appointment_dates(@start_date, @end_date)
-    elsif (!params[:quarter].blank?) # retrieve appointment dates for a quarter
-      date_range  = Report.generate_cohort_date_range(params[:quarter])
-      @start_date  = date_range.first.to_date
-      @end_date    = date_range.last.to_date
-      @patients   = Patient.appointment_dates(@start_date, @end_date)
+        @report_label = 'a Tips Report'
+        @report_type  = report_type
+
+      when 'call_analysis'
+        @reports = ["Call Time of Day", "Call Day Distribution",
+                    "Call Lengths",     "Call Feedback"]
+
+        @report_label = 'a Call Analysis Report'
+        @report_type  = report_type
     end
+    render :template => '/report/type', :layout => 'clinic'
   end
 
+  def reports
+    case  params[:query]
+      when 'demographics'
+        redirect_to :action       => "patient_demographics_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query]
+
+      when 'health_issues'
+        health_task = params[:health_task].downcase.gsub(" ", "_")
+        redirect_to :action       => "patient_health_issues_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :health_task  => health_task,
+                  :query        => params[:query]
+
+      when 'ages_distribution'
+        redirect_to :action       => "patient_age_distribution_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query]
+      when 'patient_activity'
+        redirect_to :action       => "patient_activity_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query]
+    when 'referral_followup'
+        redirect_to :action       => "patient_referral_report",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query],
+                  :outcome      => params[:outcome]
+
+    when 'call_time_of_day'
+        redirect_to :action       => "call_time_of_day",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query],
+                  :call_type    => params[:call_type],
+                  :call_status  => params[:call_status],
+                  :staff_member => params[:staff_member]
+
+    when 'call_day_distribution'
+        redirect_to :action       => "call_day_distribution",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query],
+                  :call_type    => params[:call_type],
+                  :call_status  => params[:call_status],
+                  :staff_member => params[:staff_member]
+
+    when 'call_lengths'
+        redirect_to :action       => "call_lengths",
+                  :start_date   => params[:start_date],
+                  :end_date     => params[:end_date],
+                  :grouping     => params[:grouping],
+                  :patient_type => params[:patient_type],
+                  :report_type  => params[:report_type],
+                  :query        => params[:query],
+                  :call_type    => params[:call_type],
+                  :call_status  => params[:call_status],
+                  :staff_member => params[:staff_member]
+
+    when 'tips_activity'
+      redirect_to :action        => "tips_activity",
+                :start_date    => params[:start_date],
+                :end_date      => params[:end_date],
+                :grouping      => params[:grouping],
+                :content_type  => params[:content_type],
+                :language      => params[:language],
+                :report_type   => params[:report_type],
+                :query         => params[:query],
+                :phone_type    => params[:phone_type],
+                :delivery      => params[:delivery],
+                :number_prefix => params[:number_prefix]
+
+    end
+
+  end
+
+  def patient_demographics_report
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+
+    @report_name  = "Patient Demographics"
+    @report       = Report.patient_demographics(@patient_type, @grouping,
+                                                @start_date, @end_date)
+    render :layout => false
+  end
+
+  def patient_health_issues_report
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @health_task  = params[:health_task]
+
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+
+    @report_name  = "Patient Health Issues"
+    @report       = Report.patient_health_issues(@patient_type, @grouping, 
+                                                  @health_task, @start_date,
+                                                  @end_date)
+    render :layout => false
+  end
+
+  def patient_age_distribution_report
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+
+    case @patient_type.downcase
+    when 'women'
+      @special_message = "<I> -- (Please note that age is in <B> Years </B>) </I>"
+    when 'children'
+      @special_message = "<I> -- (Please note that age is in <B> Months </B>) </I>"
+    else
+      @special_message = "<I> -- (Please note that the Women age is in " +
+                         "<B> Years </B> and that of Children is in " +
+                         "<B> Months </B>)</I>"
+    end
+
+
+    @report_name  = "Patient Age Distribution"
+    @report       = Report.patient_age_distribution(@patient_type, @grouping,
+                                                    @start_date, @end_date)
+    #raise @report.to_yaml
+    render :layout => false
+  end
+
+  def patient_activity_report
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @special_message = ""
+
+    @report_name  = "Patient Activity"
+    @report    = Report.patient_activity(@patient_type, @grouping,
+                                         @start_date, @end_date)
+    render :layout => false
+  end
+
+  def patient_referral_report
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @outcome      = params[:outcome]
+    @special_message = ""
+
+    #raise params.to_yaml
+    @report_name  = "Referral Followup"
+    @report    = Report.patient_referral_followup(@patient_type, @grouping, @outcome,
+                                         @start_date, @end_date)
+   # raise @report.to_yaml
+    render :layout => false
+  end
+
+  def get_staff_members_list
+    staff = User.find(:all).map{|u| ["#{u.username}", "#{u.user_id}"]}
+
+    return staff
+  end
+  def call_time_of_day
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @staff_member = params[:staff_member]
+    @call_status  = params[:call_status]
+    @call_type    = params[:call_type]
+    @special_message = ""
+
+    if @staff_member == "All"
+      @staff = @staff_member
+    else
+      @staff = User.find(@staff_member).username
+    end
+
+    #raise params.to_yaml
+    @report_name  = "Call Time Of Day"
+    @report    = Report.call_time_of_day(@patient_type, @grouping, @call_type,
+                                         @call_status, @staff_member,
+                                         @start_date, @end_date)
+    #raise @report.to_yaml
+    render :layout => false
+  end
+
+  def call_day_distribution
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @staff_member = params[:staff_member]
+    @call_status  = params[:call_status]
+    @call_type    = params[:call_type]
+    @special_message = ""
+
+    if @staff_member == "All"
+      @staff = @staff_member
+    else
+      @staff = User.find(@staff_member).username
+    end
+    
+    #raise params.to_yaml
+    @report_name  = "Call Day Distribution"
+    @report    = Report.call_day_distribution(@patient_type, @grouping, @call_type,
+                                         @call_status, @staff_member,
+                                         @start_date, @end_date)
+    #raise @report.to_yaml
+    render :layout => false
+  end
+
+  def call_lengths
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @staff_member = params[:staff_member]
+    @call_status  = params[:call_status]
+    @call_type    = params[:call_type]
+    @special_message = "<I> -- (Please note that the call lengths " +
+                       "are in <B>Seconds</B>)<I>"
+
+    if @staff_member == "All"
+      @staff = @staff_member
+    else
+      @staff = User.find(@staff_member).username
+    end
+
+    @report_name  = "Call Length"
+    @report    = Report.call_lengths(@patient_type, @grouping, @call_type,
+                                         @call_status, @staff_member,
+                                         @start_date, @end_date)
+    render :layout => false
+  end
+
+  def tips_activity
+    @start_date     = params[:start_date]
+    @end_date       = params[:end_date]
+    @report_type    = params[:report_type]
+    @query          = params[:query]
+    @grouping       = params[:grouping]
+    @content_type   = params[:content_type]
+    @language       = params[:language]
+    @query          = params[:query]
+    @phone_type     = params[:phone_type]
+    @delivery       = params[:delivery]
+    @number_prefix  = params[:number_prefix]
+
+    @special_message = ""
+
+    @report_name  = "Tips Activity"
+    @report    = Report.tips_activity(@start_date, @end_date, @grouping,
+                                      @content_type, @language, @phone_type,
+                                      @delivery, @number_prefix)
+    render :layout => false
+  end
 end
