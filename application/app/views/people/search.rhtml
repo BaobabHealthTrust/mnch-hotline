@@ -52,10 +52,12 @@
           <%=h ' Died' if person.dead == 1 rescue '' -%>
         </option>
       <% end -%>
-      <% if params[:identifier] %>
-        <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the identifier <%=h params[:identifier] -%></option>
-      <% else %>
-        <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option>
+      <% if session[:house_keeping_mode] == false %>
+        <% if params[:identifier] %>
+          <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the identifier <%=h params[:identifier] -%></option>
+        <% else %>
+          <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option>
+        <% end %>
       <% end %>
     </select>
     <input type="hidden" name="identifier" value="<%=h params[:identifier] -%>" />
