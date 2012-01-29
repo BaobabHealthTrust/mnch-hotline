@@ -319,7 +319,7 @@ class EncountersController < ApplicationController
       ],
       'danger_signs' => [
         ['',''],
-        ['Hevay vaginal bleeding during pregnancy','HEAVY VAGINAL BLEEDING DURING PREGNANCY'],
+        ['Heavy vaginal bleeding during pregnancy','HEAVY VAGINAL BLEEDING DURING PREGNANCY'],
         ['Excessive postnatal bleeding','EXCESSIVE POSTNATAL BLEEDING'],
         ['Fever during pregnancy','FEVER DURING PREGNANCY SIGN'],
         ['Postanatal fever','POSTNATAL FEVER SIGN'],
