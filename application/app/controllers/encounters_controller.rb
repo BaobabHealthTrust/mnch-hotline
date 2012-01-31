@@ -29,6 +29,21 @@ class EncountersController < ApplicationController
     
     @patient = Patient.find(params[:encounter][:patient_id])
 
+    #we have to void the previous Tips and reminders encounters
+    if params['encounter']['encounter_type_name'] == 'TIPS AND REMINDERS'
+      if session[:house_keeping_mode] == true;
+        tips_encounters = Encounter.find(:all,
+           :conditions => ["patient_id = ? AND encounter_type = ? AND voided = 0",
+                           params[:encounter][:patient_id],
+                         EncounterType.find_by_name('TIPS AND REMINDERS').id])
+        unless tips_encounters.blank?
+          tips_encounters.each do |encounter|
+            encounter.void('editing tips and and reminders')
+          end
+        end
+      end
+    end
+
     # Go to the dashboard if this is a non-encounter
     redirect_to "/patients/show/#{@patient.id}" unless params[:encounter]
 
