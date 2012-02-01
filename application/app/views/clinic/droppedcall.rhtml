@@ -1,0 +1,12 @@
+<script type="text/javascript">
+  tt_cancel_destination = "/patients/show/<%=@patient_id%>";
+  tt_cancel_show = "/clinic";
+</script>
+
+<form id='confirm' action="/clinic/dropped_call_action" method='post'>
+
+  <%@confirmation_options = ["","Yes", "No"]%>
+  <%= select_tag "confirmation", options_for_select(@confirmation_options), {:helpText => 'Is this really a dropped call?', :id => "confirmation"}%>
+  <%= hidden_field_tag("patient_id",  @patient_id) %>
+  <%= submit_tag "Finish" %>
+</form>

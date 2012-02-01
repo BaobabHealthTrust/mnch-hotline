@@ -281,4 +281,19 @@ class ClinicController < ApplicationController
       session[:house_keeping_mode] = false
       redirect_to "/clinic"
     end
+
+    def droppedcall
+      @patient_id = params[:patient_id]
+      render :template => 'clinic/droppedcall', :layout => 'application'
+    end
+
+    def dropped_call_action
+       if params[:confirmation] == 'Yes'
+         session[:call_end_timestamp] = DateTime.now
+         log_call(3)
+         redirect_to "/clinic"
+       else
+         redirect_to "/patients/show/#{params[:patient_id]}"
+       end
+    end
 end

@@ -91,6 +91,14 @@ class ApplicationController < ActionController::Base
     end
     return @number
   end
+
+  def get_obs_value(value_coded, value_coded_id)
+    obs_value = ConceptName.find(:first,
+                  :conditions => ["concept_id = ? AND concept_name_id = ? AND voided = 0",
+                  value_coded, value_coded_id]).name
+
+    return obs_value.to_s
+  end
   
 private
 

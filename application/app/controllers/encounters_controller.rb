@@ -2,7 +2,7 @@ class EncountersController < ApplicationController
 
   def create
 
-    Encounter.find(params[:encounter_id].to_i).void if(params[:editing] && params[:encounter_id])
+    Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
 
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
       if params[:observations][0]['concept_name'] == 'EVER RECEIVED ART' and params[:observations][0]['value_coded_or_text'] == 'NO'
@@ -28,21 +28,6 @@ class EncountersController < ApplicationController
     end
     
     @patient = Patient.find(params[:encounter][:patient_id])
-
-    #we have to void the previous Tips and reminders encounters
-    if params['encounter']['encounter_type_name'] == 'TIPS AND REMINDERS'
-      if session[:house_keeping_mode] == true;
-        tips_encounters = Encounter.find(:all,
-           :conditions => ["patient_id = ? AND encounter_type = ? AND voided = 0",
-                           params[:encounter][:patient_id],
-                         EncounterType.find_by_name('TIPS AND REMINDERS').id])
-        unless tips_encounters.blank?
-          tips_encounters.each do |encounter|
-            encounter.void('editing tips and and reminders')
-          end
-        end
-      end
-    end
 
     # Go to the dashboard if this is a non-encounter
     redirect_to "/patients/show/#{@patient.id}" unless params[:encounter]
@@ -180,6 +165,8 @@ class EncountersController < ApplicationController
     @encounter_answers  = {}
     (!params[:encounter_id].blank?) ? (@encounter_id = params[:encounter_id].to_i) : (@encounter_id = nil)
     @encounter_answers  = Encounter.retrieve_previous_encounter(@encounter_id) unless @encounter_id.nil?
+     
+    @tips_answer = {}
 
     redirect_to next_task(@patient) and return unless params[:encounter_type]
 
@@ -240,8 +227,45 @@ class EncountersController < ApplicationController
     @encounter_answers  = {}
     (!params[:encounter_id].blank?) ? (@encounter_id = params[:encounter_id].to_i) : (@encounter_id = nil)
     @encounter_answers  = Encounter.retrieve_previous_encounter(@encounter_id) unless @encounter_id.nil?
+    @encounter_id = Encounter.find(:last, :conditions => ["encounter_type = ? and patient_id = ? AND voided = 0",
+                    EncounterType.find_by_name("TIPS AND REMINDERS").id,
+                    @patient.id]).encounter_id rescue nil
 
-    @encounter_id = Encounter.find(:last, :conditions => ["encounter_type = ? and patient_id = ? AND voided = 0",EncounterType.find_by_name("TIPS AND REMINDERS").id,@patient.id]).encounter_id
+    @tips_answer = {}
+
+    tips_observations = Encounter.find(:last,
+           :conditions => ["patient_id = ? AND encounter_type = ? AND voided = 0",
+                          @patient.id,
+                         EncounterType.find_by_name('TIPS AND REMINDERS').id]).observations rescue nil
+        unless tips_observations.blank?
+          tips_observations.each do |observation|
+            if observation.concept_id == Concept.find_by_name("ON TIPS AND REMINDERS PROGRAM").id
+              @tips_answer[:on_tips] = get_obs_value(observation.value_coded,
+                                                   observation.value_coded_name_id)
+            elsif observation.concept_id == Concept.find_by_name("TELEPHONE NUMBER TYPE ").id
+              @tips_answer[:telephone_number_type] = get_obs_value(observation.value_coded,
+                                                   observation.value_coded_name_id)
+            elsif observation.concept_id == Concept.find_by_name("TELEPHONE NUMBER").id
+              @tips_answer[:telephone_number] = observation.value_text
+            elsif observation.concept_id == Concept.find_by_name("LANGUAGE PREFERENCE").id
+              @tips_answer[:language_preference] = get_obs_value(observation.value_coded,
+                                                   observation.value_coded_name_id)
+            elsif observation.concept_id == Concept.find_by_name("TYPE OF MESSAGE").id
+              @tips_answer[:type_of_message] = get_obs_value(observation.value_coded,
+                                                   observation.value_coded_name_id)
+              if @tips_answer[:type_of_message] != "SMS"
+                @tips_answer[:type_of_message] = @tips_answer[:type_of_message].to_s.capitalize
+              end
+            elsif observation.concept_id == Concept.find_by_name("TYPE OF MESSAGE CONTENT").id
+              @tips_answer[:message_content] = get_obs_value(observation.value_coded,
+                                                   observation.value_coded_name_id)
+              if @tips_answer[:message_content] != "WCBA"
+                @tips_answer[:message_content] = @tips_answer[:message_content].to_s.capitalize
+              end
+            end
+          end
+        end
+
     render :layout => true
   end
 
@@ -359,6 +383,7 @@ class EncountersController < ApplicationController
         ['Other','OTHER']
       ],
       'type_of_message_content' => [
+        ['',''],
         ['Pregnancy', 'Pregnancy'],
         ['Postnatal', 'Postnatal'],
         ['Child', 'Child'],

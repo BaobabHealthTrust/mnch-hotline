@@ -106,7 +106,7 @@
 
   <%@enrol_for_tips_and_reminders = ["", "Yes", "No"]%>
 
-  <%= select_tag("select_outcome", options_for_select(@enrol_for_tips_and_reminders, @encounter_answers[:on_tips_and_reminders_program]), options)%>
+  <%= select_tag("select_outcome", options_for_select(@enrol_for_tips_and_reminders, @tips_answer[:on_tips].to_s.capitalize.to_a), options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "ON TIPS AND REMINDERS PROGRAM") %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'enrol_for_tips_and_reminders_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -119,7 +119,7 @@
       :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
 	  } %>
 
-    <%= select_tag("health_center", options_for_select(@select_options['phone_type'].sort, @encounter_answers[:telephone_number_type_]),options)%>
+        <%= select_tag("health_center", options_for_select(@select_options['phone_type'].sort, @tips_answer[:telephone_number_type].to_a),options)%>
     <%= hidden_field_tag("observations[][concept_name]",        "PHONE TYPE", options) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_type_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -136,7 +136,7 @@
        :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
        } %>
 
-    <%= text_field_tag "phone_number",  @phone_numbers, options%>
+    <%= text_field_tag "phone_number",  @tips_answer[:telephone_number], options%>
     <%= hidden_field_tag("observations[][concept_name]",        "PHONE NUMBER", options) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_number_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -149,7 +149,7 @@
       :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
 	  } %>
 
-    <%= select_tag("language_type", options_for_select(@select_options['language_type'].sort, @encounter_answers[:language_preference]),options)%>
+    <%= select_tag("language_type", options_for_select(@select_options['language_type'].sort, @tips_answer[:language_preference].to_a),options)%>
     <%= hidden_field_tag("observations[][concept_name]",        "LANGUAGE PREFERENCE", options) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'language_type_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -162,7 +162,7 @@
       :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
 	  } %>
 
-    <%= select_tag("message_type", options_for_select(@select_options['message_type'].sort, @encounter_answers[:type_of_message]),options)%>
+    <%= select_tag("message_type", options_for_select(@select_options['message_type'].sort, @tips_answer[:type_of_message].to_a), options)%>
     <%= hidden_field_tag("observations[][concept_name]",        "TYPE OF MESSAGE", options) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'message_type_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -174,7 +174,7 @@
      -->
     <% @tips_and_reminders = @tips_and_reminders_enrolled_in.collect{|k| "#{k}"}.sort.join(",")%>
 
-     <%= touch_select_tag "TYPE OF MESSAGE CONTENT", @patient, options_for_select(@select_options['type_of_message_content'].sort),
+     <%= touch_select_tag "TYPE OF MESSAGE CONTENT", @patient, options_for_select(@select_options['type_of_message_content'].sort, @tips_answer[:message_content].to_a),
         {:id => 'content_type',
          :optional => true,
          :multiple => false,
