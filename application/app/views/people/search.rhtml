@@ -1,5 +1,5 @@
 <script type="text/javascript">
-  <% if params[:relation] %>
+  <% if params[:relation] != '' %>
   var tt_cancel_destination = "/encounters/new/tips_and_reminders?patient_id=<%=h params[:relation] -%>"
   <% else %>
   var tt_cancel_destination = "/clinic/call"
