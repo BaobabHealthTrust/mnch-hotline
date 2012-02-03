@@ -1,8 +1,9 @@
 <script type="text/javascript">
-  <% if params[:relation] != '' %>
-  var tt_cancel_destination = "/encounters/new/tips_and_reminders?patient_id=<%=h params[:relation] -%>"
+
+<% if params[:relation].blank? %>
+    var tt_cancel_destination = "/clinic/call"
   <% else %>
-  var tt_cancel_destination = "/clinic/call"
+    var tt_cancel_destination = "/encounters/new/tips_and_reminders?patient_id=<%=h params[:relation] -%>"
   <% end %>
 
   function changeNextButtonText(text){

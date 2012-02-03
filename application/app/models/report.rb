@@ -486,6 +486,8 @@ module Report
       new_patients_data[:health_issues] = concept_map
       new_patients_data[:start_date]    = date_range.first
       new_patients_data[:end_date]      = date_range.last
+      new_patients_data[:total_calls]   = total_number_of_calls
+      new_patients_data[:total_number_of_calls]   = 0
 
       unless results.blank?
         (health_task.humanize.downcase == "outcomes")? outcomes = true : outcomes = false

@@ -253,7 +253,7 @@ class Person < ActiveRecord::Base
 
     if !attributes_params.blank?
       attributes_params.map do |attribute, value|
-        attribute_name     = attribute.to_s.humanize.upcase
+        attribute_name     = attribute.gsub("_", " ").to_s.humanize.upcase
         attribute_type_id  = PersonAttributeType.find_by_name(attribute_name).person_attribute_type_id
 
         person.person_attributes.create(:person_attribute_type_id => attribute_type_id, :value => value)
