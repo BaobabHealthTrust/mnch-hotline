@@ -226,10 +226,18 @@ class ReportController < ApplicationController
             @call_status         = ["","Yes","No", "All"]
 
       when "tips"
+        case @query
+        when "tips_activity"
+           @phone_type         = [["",""],["Community", "community"],["Personal","personal"],
+                               ["Family","family"],["Neighbour","Neighbour"],["All", "all"]]
+        when "current_enrollment_totals"
+
+        when "individual_current_enrollments"
+           @phone_type         = [["",""],["Community", "community"],["Personal","personal"],
+                               ["Family","family"],["Neighbour","Neighbour"],["All", "all"]]
+        end
         @grouping           += [["",""],["By Week", "week"], ["By Month", "month"]]
         @content_type       = [["",""],["Pregnancy", "pregnancy"],["Child","child"],["All", "all"]]
-        @phone_type         = [["",""],["Community", "community"],["Personal","personal"],
-                               ["Family","family"],["Neighbour","Neighbour"],["All", "all"]]
         @language           = [["",""],["Yao","yao"],["Chichewa","chichewa"],["All", "all"]]
         @delivery           = [["",""],["SMS","sms"],["Voice","voice"],["All", "all"]]
         @network_prefix     = [["",""],["09","airtel"],["08","tnm"],["Other","other"],["All", "all"]]
@@ -395,7 +403,29 @@ class ReportController < ApplicationController
                 :phone_type    => params[:phone_type],
                 :delivery      => params[:delivery],
                 :number_prefix => params[:number_prefix]
-
+    when 'current_enrollment_totals'
+      redirect_to :action        => "current_enrollment_totals",
+                :start_date    => params[:start_date],
+                :end_date      => params[:end_date],
+                :grouping      => params[:grouping],
+                :content_type  => params[:content_type],
+                :language      => params[:language],
+                :report_type   => params[:report_type],
+                :query         => params[:query],
+                :delivery      => params[:delivery],
+                :number_prefix => params[:number_prefix]
+     when 'individual_current_enrollments'
+      redirect_to :action        => "individual_current_enrollments",
+                :start_date    => params[:start_date],
+                :end_date      => params[:end_date],
+                :grouping      => params[:grouping],
+                :content_type  => params[:content_type],
+                :language      => params[:language],
+                :report_type   => params[:report_type],
+                :query         => params[:query],
+                :phone_type    => params[:phone_type],
+                :delivery      => params[:delivery],
+                :number_prefix => params[:number_prefix]
     end
 
   end
@@ -598,4 +628,48 @@ class ReportController < ApplicationController
                                       @delivery, @number_prefix)
     render :layout => false
   end
+
+  def current_enrollment_totals
+    @start_date     = params[:start_date]
+    @end_date       = params[:end_date]
+    @report_type    = params[:report_type]
+    @query          = params[:query]
+    @grouping       = params[:grouping]
+    @content_type   = params[:content_type]
+    @language       = params[:language]
+    @query          = params[:query]
+    @phone_type     = params[:phone_type]
+    @delivery       = params[:delivery]
+    @number_prefix  = params[:number_prefix]
+
+    @special_message = ""
+
+    @report_name  = "Current Enrollment Totals"
+    @report    = Report.current_enrollment_totals(@start_date, @end_date, @grouping,
+                                      @content_type, @language, @delivery, @number_prefix)
+    render :layout => false
+  end
+
+  def individual_current_enrollments
+    @start_date     = params[:start_date]
+    @end_date       = params[:end_date]
+    @report_type    = params[:report_type]
+    @query          = params[:query]
+    @grouping       = params[:grouping]
+    @content_type   = params[:content_type]
+    @language       = params[:language]
+    @query          = params[:query]
+    @phone_type     = params[:phone_type]
+    @delivery       = params[:delivery]
+    @number_prefix  = params[:number_prefix]
+
+    @special_message = ""
+
+    @report_name  = "Individual Current Enrollments"
+    @report    = Report.individual_current_enrollments(@start_date, @end_date, @grouping,
+                                      @content_type, @language, @phone_type,
+                                      @delivery, @number_prefix)
+    render :layout => false
+  end
+  
 end

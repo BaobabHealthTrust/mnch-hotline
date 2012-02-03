@@ -47,8 +47,10 @@
                 {:helpText => "Select the Content to report on"} %>
     <%= select_tag :language,     options_for_select(@language),
                 {:helpText => "Select the language to report on"} %>
-    <%= select_tag :phone_type,     options_for_select(@phone_type),
-                {:helpText => "Select Phone type"} %>
+    <% if @query != 'current_enrollment_totals' %>
+      <%= select_tag :phone_type,     options_for_select(@phone_type),
+                  {:helpText => "Select Phone type"} %>
+    <% end %>
     <%= select_tag :delivery,     options_for_select(@delivery),
                 {:helpText => "Select tips delivery method"} %>
     <%= select_tag :network_prefix,     options_for_select(@network_prefix),

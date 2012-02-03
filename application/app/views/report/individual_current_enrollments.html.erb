@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <title><%=@report_name%></title>
+    <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+    <link href="/stylesheets/report.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/report_print.css" media="print" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="btn-menu">
+      <%params[:format] = 'pdf'%>
+      <%select_report_criteria = '/report/select?report_type=' +@report_type +'&query=' + @query%>
+
+      <button id="back_button" class="button blue" onclick="window.location = '<%#=report_path(params)%>'"><span>PDF</span></button>
+      <!-- button id="regenerate_button" class="button blue" onclick="document.getElementById('frmMain').submit();"><span>Regenerate</span></button -->
+      <button id="print_button" class="button blue" onclick="window.print()"><span>Print</span></button>
+      <button id="finish_button" class="button green" onclick="window.location = '/clinic'"><span>Finish</span></button>
+      <button id="back_button" class="button red" onclick="window.location = '<%=select_report_criteria%>'"><span>Back</span></button>
+    </div>
+
+    <form id="frmMain" action="/report/patient_analysis_report" method="post">
+      <input type="hidden" id="start_date" name="start_date" value="<%= @start_date.to_date.strftime('%d-%m-%Y') %>" />
+      <input type="hidden" id="end_date" name="end_date" value="<%= @end_date.to_date.strftime('%d-%m-%Y') %>" />
+    </form>
+
+    <div>
+    <fieldset class="main_fieldset">
+      <legend class="main_legend" style="color:white; background-color:green;">
+        <%=@report_name %>
+      </legend>
+      <table cellspacing="0" width="100%">
+        <tr>
+          <%= "Filter Info: Content - #{@content_type.capitalize}, Delivery" +
+            " - #{@delivery.capitalize}, grouping - #{@grouping.capitalize}," +
+            " Phone Type - #{@phone_type}, Number Prefix - #{@number_prefix}" +
+            " Language - #{@language}-- (#{@special_message}) "  %>
+        </tr>
+        <tr>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
+              Full Name
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              On Tips
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Phone Type
+          </td>
+          <td class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Phone Number
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Language
+          </td>
+          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Message Type
+          </td>
+          <td class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Content
+          </td>
+        </tr>
+     
+        <%@report.reverse.map do |data| %>
+        <% added= 'no' %>
+          <% data.each do |period_data| %>
+            <% if added == 'no' %>
+                <tr>
+                <td colspan = 7  class="cellleft cellbottom main-table-cell" style="text-align:left; font-weight: bold;">
+                  <%= @grouping.humanize + " ( "+ period_data[:start_date] + " - " + period_data[:end_date] + " )" + ": Total Calls  =  "+ period_data[:total].to_s %>
+                </td>
+                </tr>
+                <% added = 'yes' %>
+            <% end %>
+            <tr>
+              <td class="celltop cellleft cellbottom main-table-cell" style="text-align:left;">
+                  <%= period_data[:person_name] %>
+              </td>
+              <td class="celltop cellleft cellbottom main-table-cell" style="text-align:center;">
+                  <%= period_data[:on_tips].to_s.capitalize rescue ' ' %>
+              </td>
+              <td class="celltop cellleft cellbottom cellright main-table-cell" style="text-align:center;">
+                  <%= period_data[:phone_type].to_s.capitalize rescue ' ' %>
+              </td>
+              <td class="celltop cellleft cellbottom cellright main-table-cell" style="text-align:center;">
+                  <%= period_data[:phone_number] rescue ' ' %>
+              </td>
+              <td  class="celltop cellleft cellbottom cellright main-table-cell" style="text-align:center;">
+                  <%= period_data[:language].to_s.capitalize rescue ' ' %>
+              </td>
+              <td class="celltop cellleft cellbottom cellright main-table-cell" style="text-align:center;">
+                  <%= period_data[:content].to_s.capitalize rescue ' ' %>
+              </td>
+              <td class="celltop cellleft cellbottom cellright main-table-cell" style="text-align:center;">
+                  <%= period_data[:message_type].to_s.capitalize rescue ' ' %>
+              </td>
+            </tr>
+         <% end %>
+         <% end %>                    
+      </table>
+
+    </fieldset>
+      
+    </div>
+  </body>
+</html>

@@ -1360,6 +1360,41 @@ module Report
 
  end
 
+ def self.get_tips_data_by_catchment_area(date_range)
+
+  nearest_health_center = PersonAttributeType.find_by_name("NEAREST HEALTH FACILITY").id
+  encounter_type_list = ["TIPS AND REMINDERS"]
+  encounter_types = self.get_encounter_types(encounter_type_list)
+
+   query = "SELECT pa.value AS catchment, o.*
+            FROM obs o
+              INNER JOIN encounter e
+              ON e.encounter_id = o.encounter_id
+              LEFT JOIN person_attribute pa
+              ON e.patient_id = pa.person_id
+            WHERE pa.person_attribute_type_id = #{nearest_health_center} AND
+                  e.encounter_datetime >= '#{date_range.first}' AND
+                  e.encounter_datetime <= '#{date_range.last}' AND
+                  e.encounter_type IN (#{encounter_types})"
+=begin
+  encounters_list = Encounter.find(:all,
+                                   :joins => "LEFT JOIN person_attribute ON person_attribute.person_id = encounter.patient_id",
+                                   :conditions => ["encounter.encounter_type IN (?) AND
+                                                    encounter.encounter_datetime >= ? AND
+                                                    encounter.encounter_datetime <= ? AND
+                                                    person_attribute.person_attribute_type_id = ?",
+                                                   encounter_types,
+                                                   date_range.first,
+                                                   date_range.last,
+                                                   nearest_health_center],
+                                   :include => 'observations')
+=end
+   
+  data_list = Encounter.find_by_sql(query)
+  
+  return data_list
+ end
+
  def self.get_encounter_types(type_names)
    encounter_types = EncounterType.find(:all,
                                  :conditions =>["name IN (?)",
@@ -1375,5 +1410,179 @@ module Report
                             cl.end_time as call_end_time")
    
 =end
+
+ def self.current_enrollment_totals(start_date, end_date, grouping, content_type, language,
+                        delivery, number_prefix)
+   call_data = []
+
+   # main obs conceps
+   content_concept = Concept.find_by_name('TYPE OF MESSAGE CONTENT').id
+   language_concept = Concept.find_by_name('LANGUAGE PREFERENCE').id
+   delivery_concept = Concept.find_by_name('TYPE OF MESSAGE').id
+   #data elements concepts
+   pregnancy_concept = Concept.find_by_name('pregnancy').id
+   child_concept = Concept.find_by_name('child').id
+   yao_concept = Concept.find_by_name('chiyao').id
+   chewa_concept = Concept.find_by_name('chichewa').id
+   sms_concept = Concept.find_by_name('sms').id
+   voice_concept = Concept.find_by_name('voice').id
+
+   date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
+                                                      end_date)[:date_ranges]
+
+   @date_ranges = date_ranges.reverse
+    period_data = []
+   count = 0
+   date_ranges.map do |date_range|
+     period_data = []
+     count += 1
+     encounters_count = self.get_total_tips_encounters(date_range)
+     encounters = self.get_tips_data_by_catchment_area(date_range)
+
+     encounters.group_by(&:catchment).each do |area, data|
+
+     row_data = {:start_date => date_range.first,:end_date => date_range.last,
+               :catchment => area,
+               :total => encounters_count,
+               :pregnancy => 0, :pregnancy_pct => 0,:child => 0,:child_pct => 0,
+               :yao => 0, :yao_pct => 0, :chewa => 0, :chewa_pct => 0,
+               :sms => 0, :sms_pct => 0, :voice => 0, :voice_pct => 0
+            }
+    data.each do |observation|
+      if observation.concept_id.to_i == content_concept then
+         row_data[:pregnancy] += 1 if observation.value_coded.to_i == pregnancy_concept
+         row_data[:child] += 1 if observation.value_coded.to_i == child_concept
+       elsif observation.concept_id.to_i == language_concept
+         row_data[:yao] += 1 if observation.value_coded.to_i == yao_concept
+         row_data[:chewa] += 1 if observation.value_coded.to_i == chewa_concept
+       elsif observation.concept_id.to_i == delivery_concept then
+         row_data[:sms] += 1 if observation.value_coded.to_i == sms_concept
+         row_data[:voice] += 1 if observation.value_coded.to_i == voice_concept
+       end
+    end
+      #calculate percentages
+     row_data[:pregnancy_pct] = (row_data[:pregnancy].to_f / encounters_count.to_f * 100).round(1) rescue 0 if row_data[:pregnancy] != 0
+     row_data[:child_pct] = (row_data[:child].to_f / encounters_count.to_f * 100).round(1) rescue 0 if row_data[:child] != 0
+     row_data[:yao_pct] = (row_data[:yao].to_f / encounters_count.to_f * 100).round(1) rescue 0 if row_data[:yao] != 0
+     row_data[:chewa_pct] = (row_data[:chewa].to_f / encounters_count.to_f * 100).round(1) rescue 0 if row_data[:chewa] != 0
+     row_data[:sms_pct] = (row_data[:sms].to_f / encounters_count.to_f * 100).round(1) rescue 0 if row_data[:sms] != 0
+     row_data[:voice_pct] = (row_data[:voice].to_f / encounters_count.to_f * 100).round(1) rescue 0 if row_data[:voice] != 0
+     #add to the call_data array
+
+     period_data << row_data
+   end
+    call_data << period_data
+  end
+
+  return call_data
+ end
+
+ def self.individual_current_enrollments(start_date, end_date, grouping, content_type, language,
+                        phone_type, delivery, number_prefix)
+ call_data = []
+
+   # main obs conceps
+   content_concept = Concept.find_by_name('TYPE OF MESSAGE CONTENT').id
+   language_concept = Concept.find_by_name('LANGUAGE PREFERENCE').id
+   delivery_concept = Concept.find_by_name('TYPE OF MESSAGE').id
+   phone_type_concept = Concept.find_by_name('PHONE TYPE').id
+   phone_number_concept = Concept.find_by_name('PHONE NUMBER').id
+   on_tips_concept = Concept.find_by_name('ON TIPS AND REMINDERS PROGRAM').id
+   #data elements concepts
+   pregnancy_concept = Concept.find_by_name('pregnancy').id
+   child_concept = Concept.find_by_name('child').id
+   yao_concept = Concept.find_by_name('chiyao').id
+   chewa_concept = Concept.find_by_name('chichewa').id
+   sms_concept = Concept.find_by_name('sms').id
+   voice_concept = Concept.find_by_name('voice').id
+
+   date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
+                                                      end_date)[:date_ranges]
+
+   period_data = []
+
+   date_ranges.map do |date_range|
+     period_data = []
+     encounters_count = self.get_total_tips_encounters(date_range)
+     encounters = self.get_tips_data_by_name(date_range)
+
+     encounters.group_by(&:patient_name).each do |name, data|
+
+     row_data = {:start_date => date_range.first,:end_date => date_range.last,
+               :person_name => name,
+               :total => encounters_count,
+               :on_tips => '', :phone_type => '',:phone_number => 0,
+               :language => '', :message_type => '', :content => ''
+            }
+    data.each do |observation|
+       if observation.concept_id.to_i == content_concept then
+          row_data[:content] = Concept.find(observation.value_coded.to_i).fullname 
+       elsif observation.concept_id.to_i == language_concept
+          row_data[:language] = Concept.find(observation.value_coded.to_i).fullname 
+       elsif observation.concept_id.to_i == delivery_concept then
+          row_data[:message_type] = Concept.find(observation.value_coded.to_i).fullname 
+       elsif observation.concept_id.to_i == phone_type_concept
+          row_data[:phone_type] = Concept.find(observation.value_coded.to_i).fullname
+       elsif observation.concept_id.to_i == phone_number_concept then
+          row_data[:phone_number] = observation.value_text 
+       elsif observation.concept_id.to_i == on_tips_concept then
+          row_data[:on_tips] = Concept.find(observation.value_coded.to_i).fullname 
+       end
+    end
+    period_data << row_data
+   end
+   call_data << period_data
+  end
+
+  return call_data
+   
+ end
+
+ def self.get_total_tips_encounters(date_range)
+  encounter_type_list = ["TIPS AND REMINDERS"]
+  encounter_types = self.get_encounter_types(encounter_type_list)
+
+  encounters_list = Encounter.find(:all,
+                                   :conditions => ["encounter_type IN (?) AND
+                                                    encounter_datetime >= ? AND
+                                                    encounter_datetime <= ?",
+                                                   encounter_types,
+                                                   date_range.first,
+                                                   date_range.last])
+  encounters_list.count
+ end
+
+ def self.get_tips_data_by_name(date_range)
+
+  encounter_type_list = ["TIPS AND REMINDERS"]
+  encounter_types = self.get_encounter_types(encounter_type_list)
+
+   query = "SELECT CONCAT_WS(' ',pn.given_name, pn.family_name) AS patient_name, o.*
+            FROM obs o
+              INNER JOIN encounter e
+              ON e.encounter_id = o.encounter_id
+              LEFT JOIN person_name pn
+              ON e.patient_id = pn.person_id
+            WHERE e.encounter_datetime >= '#{date_range.first}' AND
+                  e.encounter_datetime <= '#{date_range.last}' AND
+                  e.encounter_type IN (#{encounter_types})"
+=begin
+  encounters_list = Encounter.find(:all,
+                                   :joins => "LEFT JOIN person_attribute ON person_attribute.person_id = encounter.patient_id",
+                                   :conditions => ["encounter.encounter_type IN (?) AND
+                                                    encounter.encounter_datetime >= ? AND
+                                                    encounter.encounter_datetime <= ? AND
+                                                    person_attribute.person_attribute_type_id = ?",
+                                                   encounter_types,
+                                                   date_range.first,
+                                                   date_range.last,
+                                                   nearest_health_center],
+                                   :include => 'observations')
+=end
+
+  data_list = Encounter.find_by_sql(query)
+
+  data_list
+ end
 
 end
