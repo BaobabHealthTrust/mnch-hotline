@@ -11,7 +11,7 @@
 
   <% options = {
      :id          => "select_outcome",
-     :multiple => true,
+     :multiple => false,
      :tt_onUnLoad => "$('outcome_value_coded_or_text').value = $('select_outcome').value",
      :helpText    => "Recommended Referral"
      } %>
@@ -49,7 +49,7 @@
     :ajaxURL => '/encounters/referral_reasons?search_string=',
     :optional => true,
     :allowFreeText => true,
-    :condition    => "$('select_outcome').value != 'GIVEN ADVICE NO REFERRAL NEEDED'",
+    :condition    => "$('select_outcome').value != 'GIVEN ADVICE'",
     :helpText => 'Referral reason'} %>
 
   <%unless @encounter_id.nil?%>
