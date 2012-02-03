@@ -285,7 +285,7 @@ class ReportController < ApplicationController
     case  report_type
       when 'patient_analysis'
         @reports = ["Demographics",     "Ages Distribution", "Health Issues",
-                    "Patient Activity", "Referral Followup", "Call Feedback"]
+                    "Patient Activity", "Referral Followup"]
 
         @report_label = 'a Patient Analysis Report'
         @report_type  = report_type
@@ -299,7 +299,7 @@ class ReportController < ApplicationController
 
       when 'call_analysis'
         @reports = ["Call Time of Day", "Call Day Distribution",
-                    "Call Lengths",     "Call Feedback"]
+                    "Call Lengths"]
 
         @report_label = 'a Call Analysis Report'
         @report_type  = report_type
