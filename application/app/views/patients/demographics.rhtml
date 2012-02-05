@@ -44,11 +44,11 @@
   </tr>
   <tr>
     <td>
-      <%= link_to "Home District:", "/patients/edit_demographics?field=home_district&id=#{@patient.patient_id}" -%>
+      <%= link_to "Home Village:", "/patients/edit_demographics?field=home_district&id=#{@patient.patient_id}" -%>
     </td>
     <td class="label"><%= @patient.person.addresses.first.address2 %></td>
     <td>
-      <%= link_to "Current District:", "/patients/edit_demographics?field=current_district&id=#{@patient.patient_id}" -%>
+      <%= link_to "Current Village:", "/patients/edit_demographics?field=current_district&id=#{@patient.patient_id}" -%>
     </td>
     <td class="label"><%= @patient.person.addresses.first.city_village %></td>
   </tr>
@@ -60,7 +60,7 @@
     <td>
       <%= link_to "Cell phone Number:", "/patients/edit_demographics?field=primary_phone&id=#{@patient.patient_id}" -%>
     </td>
-    <td class="label"><%= @patient.person.phone_numbers[:cell_phone_number_] %></td>
+    <td class="label"><%= @patient.person.phone_numbers[:cell_phone_number] %></td>
   </tr>
 <!--  
   <tr>
