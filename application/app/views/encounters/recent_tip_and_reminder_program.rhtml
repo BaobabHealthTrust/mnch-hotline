@@ -119,7 +119,7 @@
       :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
 	  } %>
 
-        <%= select_tag("health_center", options_for_select(@select_options['phone_type'].sort, @tips_answer[:telephone_number_type].to_a),options)%>
+    <%= select_tag("health_center", options_for_select(@select_options['phone_type'].sort, @tips_answer[:telephone_number_type].to_a),options)%>
     <%= hidden_field_tag("observations[][concept_name]",        "PHONE TYPE", options) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_type_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>

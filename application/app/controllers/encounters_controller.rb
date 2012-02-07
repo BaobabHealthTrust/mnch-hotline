@@ -243,13 +243,18 @@ class EncountersController < ApplicationController
               @tips_answer[:on_tips] = get_obs_value(observation.value_coded,
                                                    observation.value_coded_name_id)
             elsif observation.concept_id == Concept.find_by_name("TELEPHONE NUMBER TYPE ").id
-              @tips_answer[:telephone_number_type] = get_obs_value(observation.value_coded,
+              obs_value = get_obs_value(observation.value_coded,
                                                    observation.value_coded_name_id)
+              @tips_answer[:telephone_number_type] = [obs_value,
+                                                      obs_value.to_s.upcase
+              ]
             elsif observation.concept_id == Concept.find_by_name("TELEPHONE NUMBER").id
               @tips_answer[:telephone_number] = observation.value_text
             elsif observation.concept_id == Concept.find_by_name("LANGUAGE PREFERENCE").id
-              @tips_answer[:language_preference] = get_obs_value(observation.value_coded,
+              obs_value = get_obs_value(observation.value_coded,
                                                    observation.value_coded_name_id)
+              @tips_answer[:language_preference] = [obs_value,
+                                                    obs_value.to_s.upcase]
             elsif observation.concept_id == Concept.find_by_name("TYPE OF MESSAGE").id
               @tips_answer[:type_of_message] = get_obs_value(observation.value_coded,
                                                    observation.value_coded_name_id)
@@ -265,7 +270,6 @@ class EncountersController < ApplicationController
             end
           end
         end
-        raise @tips_answer.to_yaml
 
     render :layout => true
   end
