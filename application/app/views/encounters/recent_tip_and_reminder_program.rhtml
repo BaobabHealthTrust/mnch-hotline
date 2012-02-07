@@ -179,8 +179,8 @@
          :optional => true,
          :multiple => false,
          :helpText => "Select content type",
-         :validationCode => "getRemindersContent() == 'false'",
-         :validationMessage => "Patient has already enrolled in #{@tips_and_reminders} tips and reminders content",
+         #:validationCode => "getRemindersContent() == 'false'",
+         #:validationMessage => "Patient has already enrolled in #{@tips_and_reminders} tips and reminders content",
          :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'" } %>
 
     <%unless @encounter_id.nil?%>

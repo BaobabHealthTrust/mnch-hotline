@@ -232,11 +232,11 @@ class EncountersController < ApplicationController
                     @patient.id]).encounter_id rescue nil
 
     @tips_answer = {}
-
+   
     tips_observations = Encounter.find(:last,
            :conditions => ["patient_id = ? AND encounter_type = ? AND voided = 0",
                           @patient.id,
-                         EncounterType.find_by_name('TIPS AND REMINDERS').id]).observations rescue nil
+                         EncounterType.find_by_name('TIPS AND REMINDERS').id]).observations
         unless tips_observations.blank?
           tips_observations.each do |observation|
             if observation.concept_id == Concept.find_by_name("ON TIPS AND REMINDERS PROGRAM").id
@@ -265,6 +265,7 @@ class EncountersController < ApplicationController
             end
           end
         end
+        raise @tips_answer.to_yaml
 
     render :layout => true
   end
@@ -433,6 +434,15 @@ class EncountersController < ApplicationController
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
          ['Hospital', 'HOSPITAL'],
          ['Nurse consultation', 'NURSE CONSULTATION']
+      ],
+      'referral_reasons' => [
+         ['',''],
+         ['Danger signs observed', 'DANGER SIGNS OBSERVED'],
+         ['Physical exam needed', 'PHYSICAL EXAM NEEDED'],
+         ['Village clinic not accessible', 'VILLAGE CLINIC NOT ACCESSIBLE'],
+         ['Follow-up on previous treatment', 'FOLLOW-UP ON PREVIOUS TREATMENT'],
+         ['No health center or Hospital referral', 'NO HEALTH CENTER OR HOSPITAL REFERRAL'],
+         ['Other', 'OTHER']
       ]
     }
   end
