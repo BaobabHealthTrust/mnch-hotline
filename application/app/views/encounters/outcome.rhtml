@@ -25,7 +25,7 @@
       @outcome = @select_options['general_outcome']
     end
     %>
-  <%= select_tag("select_outcome", options_for_select(@outcome, @encounter_answers[:outcome]), options)%>
+  <%= select_tag("select_outcome", options_for_select(@outcome, @selected_value), options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "OUTCOME") %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'outcome_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
