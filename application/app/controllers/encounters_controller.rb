@@ -3,7 +3,7 @@ class EncountersController < ApplicationController
   def create
 
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
-
+    #raise params.to_yaml
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
       if params[:observations][0]['concept_name'] == 'EVER RECEIVED ART' and params[:observations][0]['value_coded_or_text'] == 'NO'
         observations = []
@@ -139,17 +139,29 @@ class EncountersController < ApplicationController
   end
 
   def new
+    @selected_value = []
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     @child_danger_signs = @patient.child_danger_signs
     @child_symptoms = @patient.child_symptoms
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
 
+    @female_danger_signs = @patient.female_danger_signs
+    @female_symptoms = @patient.female_symptoms
+    
+    if (@child_danger_signs.length > 0 || @female_danger_signs.length > 0)
+      @selected_value = ["REFERRED TO A HEALTH CENTRE"]
+    elsif (@child_symptoms.length > 0 || @female_symptoms.length > 0)
+      @selected_value = ["REFERRED TO NEAREST VILLAGE CLINIC"]
+    else
+      @selected_value = ["GIVEN ADVICE"]
+    end
+
     # created a hash of 'upcased' health centers
     @health_facilities = ([""] + ClinicSchedule.health_facilities.map(&:name)).inject([]) do |facility_list, facilities|
       facility_list.push(facilities)
     end
-
+    #raise @select_options['danger_signs'].to_yaml
     @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
 
     use_regimen_short_names = GlobalProperty.find_by_property(
