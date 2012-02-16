@@ -525,6 +525,64 @@ EOF
  	}
   return recorded_symptoms
   end
+
+  def female_danger_signs
+    symptoms_obs = Array.new
+  	recorded_danger_signs = Array.new
+
+  	danger_signs =  ['HEAVY VAGINAL BLEEDING DURING PREGNANCY',
+                    'EXCESSIVE POSTNATAL BLEEDING',
+                    'FEVER DURING PREGNANCY SIGN',
+                    'POSTNATAL FEVER SIGN',
+                    'SEVERE HEADACHE',
+                    'FITS OR CONVULSIONS SIGN',
+                    'SWOLLEN HANDS OR FEET SIGN',
+                    'PALENESS OF THE SKIN AND TIREDNESS SIGN',
+                    'NO FETAL MOVEMENTS SIGN',
+                    'WATER BREAKS SIGN']
+
+ 	type = EncounterType.find_by_name("MATERNAL HEALTH SYMPTOMS")
+    encounter = self.encounters.current.find(:first,
+                  :conditions =>["encounter_type = ?",type.id])
+
+    encounter.observations.all.each{|obs| 
+      symptoms_obs << obs.to_s.split(':')[0].strip.upcase}  rescue nil
+
+ 	danger_signs.each do |sign|
+ 		if symptoms_obs.include?(sign)
+        recorded_danger_signs << sign
+    end
+ 	end
+
+  return recorded_danger_signs
+  end
+
+  def female_symptoms
+    symptoms_obs = Array.new
+  	recorded_symptoms = Array.new
+
+  	danger_signs =  ['VAGINAL BLEEDING DURING PREGNANCY',
+                    'POSTNATAL BLEEDING',
+                    'FEVER DURING PREGNANCY SYMPTOM',
+                    'POSTNATAL FEVER SYMPTOM',
+                    'HEADACHES',
+                    'FITS OR CONVULSIONS SYMPTOM',
+                    'SWOLLEN HANDS OR FEET SYMPTOM',
+                    'PALENESS OF THE SKIN AND TIREDNESS SYMPTOM']
+
+ 	type = EncounterType.find_by_name("MATERNAL HEALTH SYMPTOMS")
+    encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
+
+    encounter.observations.all.each{|obs|
+      symptoms_obs << obs.to_s.split(':')[0].strip.upcase}  rescue nil
+
+ 	danger_signs.each do |symptom|
+ 		if symptoms_obs.include?(symptom)
+        recorded_symptoms << symptom
+    end
+ 	end
   
+  return recorded_symptoms
+  end
   
 end
