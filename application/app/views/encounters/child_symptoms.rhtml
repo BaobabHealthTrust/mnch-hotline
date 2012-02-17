@@ -82,14 +82,18 @@
 
     for (var i=0 ; i < dangerSignIds.length; ++i){
      
-      if ((dangerSignIds[i] == "cough_days") && ($(dangerSignIds[i]).value >= 21)){
+      if ((dangerSignIds[i] == "cough_days") && ($(dangerSignIds[i]).value >= 21)) {
+        $("cough_21_days").value = "YES";
         display += "<span class='title' style='font-size:22px;'>Cough >= 21 days </span><br />";
-      } else if  ((dangerSignIds[i] == "diarrhea_days") && ($(dangerSignIds[i]).value >= 14)){
+      } else if  ((dangerSignIds[i] == "diarrhea_days") && ($(dangerSignIds[i]).value >= 14)) {
+        $("diarrhea_14_days").value = "YES";
         display += "<span class='title' style='font-size:22px;'>Diarrhea >= 14 days </span><br />";
-      } else if  ((dangerSignIds[i] == "fever_days") && ($(dangerSignIds[i]).value >= 7)){
+      } else if  ((dangerSignIds[i] == "fever_days") && ($(dangerSignIds[i]).value >= 7)) {
+        $("fever_7_days").value = "YES";
         display += "<span class='title' style='font-size:22px;'>Fever >= 7 days </span><br />";
-      } else if  ((dangerSignIds[i] == "red_eye_days") && ($(dangerSignIds[i]).value >= 14)){
-        display += "<span class='title' style='font-size:22px;'>Red_eye >= 14 days </span><br />";
+      } else if  ((dangerSignIds[i] == "red_eye_days") && ($(dangerSignIds[i]).value >= 4)) {
+        $("red_eye_4_days").value = "YES";
+        display += "<span class='title' style='font-size:22px;'>Red_eye >= 4 days </span><br />";
       }else if  ((dangerSignIds[i] == "not_eating_anything") && ($(dangerSignIds[i]).value == "NO")){
         display += "<span class='title' style='font-size:22px;'>" + humanize(dangerSignIds[i]) + "</span><br />";
       }else if ($(dangerSignIds[i]).value == "YES"){
@@ -126,19 +130,23 @@
     { :id => "fever",
     :helpText => "Does the child have fever?" } %>
 
-  <%= touch_numeric_tag "FEVER OF 7 DAYS OR MORE", @patient, nil,
+  <%= touch_numeric_tag "SEVERITY OF FEVER", @patient, nil,
     {:id => "fever_days",
     :condition => '$("fever").value == "YES"',
     :helpText => "How many days has the child had fever?"} %>
+
+  <%= touch_hidden_tag "FEVER OF 7 DAYS OR MORE", @patient, "NO", :id => "fever_7_days" %>
 
   <%= touch_yes_no_tag "DIARRHEA", @patient,  nil,
     { :id => "diarrhea",
     :helpText => "Does the child have diarrhea?" } %>
 
-  <%= touch_numeric_tag "DIARRHEA FOR 14 DAYS OR MORE", @patient, nil,
+  <%= touch_numeric_tag "SEVERITY OF DIARRHEA", @patient, nil,
     {:id => "diarrhea_days",
     :condition => '$("diarrhea").value == "YES"',
     :helpText => "How many days has the child had diarrhea?"} %>
+
+  <%= touch_hidden_tag "DIARRHEA FOR 14 DAYS OR MORE", @patient, "NO", :id => "diarrhea_14_days" %>
 
   <%= touch_yes_no_tag "BLOOD IN STOOL", @patient,  nil,
     { :id => "blood_in_stool",
@@ -149,10 +157,12 @@
     { :id => "cough",
     :helpText => "Is the child coughing?" } %>
 
-  <%= touch_numeric_tag "COUGH FOR 21 DAYS OR MORE", @patient, nil,
+  <%= touch_numeric_tag "SEVERITY OF COUGH", @patient, nil,
     {:id => "cough_days",
     :condition => '$("cough").value == "YES"',
     :helpText => "How many days has the child been coughing?"} %>
+
+  <%= touch_hidden_tag "COUGH FOR 21 DAYS OR MORE", @patient, "NO", :id => "cough_21_days" %>
 
   <%= touch_yes_no_tag "CONVULSIONS", @patient,  nil,
     { :id => "convulsions",
@@ -176,10 +186,12 @@
     { :id => "red_eye",
     :helpText => "Does the child have red eyes?" } %>
 
-  <%= touch_numeric_tag "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS", @patient, nil,
+  <%= touch_numeric_tag "SEVERITY OF RED EYE", @patient, nil,
     {:id => "red_eye_days",
     :condition => '$("red_eye").value == "YES"',
     :helpText => "How many days has the child had red eyes?"} %>
+
+ <%= touch_hidden_tag "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS", @patient, "NO", :id => "red_eye_4_days" %>
 
   <%#TODO Need to change the below concept name to something which talks about child having visual problems%>
   <%= touch_yes_no_tag "RED EYE", @patient,  nil,

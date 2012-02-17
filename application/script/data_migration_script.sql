@@ -1,9 +1,9 @@
 
 #LOCK TABLES `openmrs_mnch2.concept_name_tag` WRITE;
-INSERT INTO openmrs_mnch.concept_name_tag(tag,description,creator,date_created,voided, uuid) VALUES
-  ('DANGER SIGN', 'Tag for Danger Signs',1,'2004-01-01T00:00:00',0, (SELECT UUID())), 
-  ('HEALTH INFORMATION', 'Tag for Health Information',1,'2004-01-01T00:00:00',0, (SELECT UUID())), 
-  ('HEALTH SYMPTOM', 'Tag for Health Symptoms',1,'2004-01-01T00:00:00',0, (SELECT UUID()));
+INSERT INTO openmrs_mnch.concept_name_tag(tag, escription, creator, date_created, voided, uuid) VALUES
+  ('DANGER SIGN', 'Tag for Danger Signs', 1, '2004-01-01T00:00:00', 0, (SELECT UUID())), 
+  ('HEALTH INFORMATION', 'Tag for Health Information', 1, '2004-01-01T00:00:00', 0, (SELECT UUID())), 
+  ('HEALTH SYMPTOM', 'Tag for Health Symptoms', 1, '2004-01-01T00:00:00', 0, (SELECT UUID()));
 #UNLOCK TABLES;
 
 #LOCK TABLES `openmrs_mnch2.concept_name_tag_map` WRITE;
@@ -87,21 +87,53 @@ UPDATE openmrs_mnch.encounter SET encounter_type = (SELECT encounter_type_id FRO
 
 #update the obs table;
 
-UPDATE openmrs_mnch.obs o
-SET o.concept_id = (SELECT DISTINCT cn2.concept_id FROM openmrs_mnch.concept_name cn2 WHERE cn2.name = (SELECT cn1.name FROM openmrs_mnch1.concept_name cn1 WHERE cn1.concept_id = o.concept_id AND cn1.voided = 0 LIMIT 1) AND cn2.voided = 0 LIMIT 1),
-o.value_coded = CASE o.value_coded
-		WHEN NULL THEN NULL
-		ELSE
-			(SELECT DISTINCT cn22.concept_id FROM openmrs_mnch.concept_name cn22 WHERE cn22.name = (SELECT cn11.name FROM openmrs_mnch1.concept_name cn11 WHERE
-			cn11.concept_id = o.value_coded AND cn11.voided = 0 LIMIT 1) AND cn22.voided = 0 LIMIT 1)
-		END,
-o.value_coded_name_id = CASE o.value_coded_name_id
-		WHEN NULL THEN NULL
-		ELSE
-			(SELECT DISTINCT cn222.concept_name_id FROM openmrs_mnch.concept_name cn222 WHERE cn222.name = (SELECT cn111.name FROM openmrs_mnch1.concept_name cn111 WHERE
-		 	cn111.concept_id = o.value_coded AND cn111.voided = 0 LIMIT 1) AND cn222.voided = 0 LIMIT 1)
-		END
+#delete this concept, as it is a duplicate;
+
+DELETE FROM mnch_hotline_new.concept_name_tag_map WHERE concept_name_id = 11403;
+
+DELETE FROM mnch_hotline_new.concept_word WHERE concept_name_id = 11403;
+
+DELETE FROM mnch_hotline_new.concept_name WHERE concept_name_id = 11403;
+
+#end of delete
+
+DROP TABLE IF EXISTS mnch_hotline_new.concept_link;
+
+CREATE TABLE mnch_hotline_new.concept_link (
+  new_concept_id int(11),
+  description text,
+  old_concept_id int(11),
+  concept_name_id int(11)
+);
+
+INSERT INTO mnch_hotline_new.concept_link 
+(SELECT cn1.concept_id AS new_concept_id, cn1.name AS description, old.concept_id AS old_concept_id, cn1.concept_name_id AS concept_name_id
+FROM mnch_hotline_new.concept_name cn1
+	INNER JOIN (
+		SELECT distinct cn.name, cn.concept_id
+		FROM mnch_hotline_old.concept_name cn
+			INNER JOIN mnch_hotline_old.obs o
+			ON o.concept_id = cn.concept_id
+		where o.concept_id > 7000) old
+	ON old.name = cn1.name
+);
+
+SET FOREIGN_KEY_CHECKS=0;
+
+UPDATE mnch_hotline_new.obs o
+SET o.concept_id = (SELECT new_concept_id FROM mnch_hotline_new.concept_link cl WHERE cl.old_concept_id = o.concept_id LIMIT 1)
 WHERE o.concept_id > 7000;
+ 
+UPDATE mnch_hotline_new.obs o
+SET o.value_coded = (SELECT new_concept_id FROM mnch_hotline_new.concept_link cl WHERE cl.old_concept_id = o.concept_id LIMIT 1),
+    o.value_coded_name_id = (SELECT concept_name_id FROM mnch_hotline_new.concept_link cl WHERE cl.old_concept_id = o.concept_id LIMIT 1)
+WHERE o.value_coded > 7000 ;
+
+SET FOREIGN_KEY_CHECKS=1;
+
+DROP TABLE mnch_hotline_new.concept_link;
+
+#end of obs table update
 
 INSERT INTO openmrs_mnch.person_attribute_type (name, description, creator, uuid) VALUES 
 ('NEAREST HEALTH FACILITY', "The person's nearest health facility", 1, (SELECT UUID()));
