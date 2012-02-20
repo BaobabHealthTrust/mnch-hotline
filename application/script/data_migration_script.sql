@@ -6,7 +6,7 @@
 */
 
 #LOCK TABLES `mnch_hotline_new.concept_name_tag` WRITE;
-INSERT INTO mnch_hotline_new.concept_name_tag(tag, escription, creator, date_created, voided, uuid) VALUES
+INSERT INTO mnch_hotline_new.concept_name_tag(tag, description, creator, date_created, voided, uuid) VALUES
   ('DANGER SIGN', 'Tag for Danger Signs', 1, '2004-01-01T00:00:00', 0, (SELECT UUID())), 
   ('HEALTH INFORMATION', 'Tag for Health Information', 1, '2004-01-01T00:00:00', 0, (SELECT UUID())), 
   ('HEALTH SYMPTOM', 'Tag for Health Symptoms', 1, '2004-01-01T00:00:00', 0, (SELECT UUID()));
@@ -89,11 +89,11 @@ INSERT INTO mnch_hotline_new.relationship_type (a_is_to_b, b_is_to_a, descriptio
 
 #DELETE FROM encounter_type where encounter_type_id in (108,109,110);
 	
-UPDATE mnch_hotline_new.encounter SET encounter_type = (SELECT encounter_type_id FROM mnch_hotline_new.encounter_type WHERE name = (SELECT name from openmrs_mnch1.encounter_type where encounter_type_id = encounter_type));
+UPDATE mnch_hotline_new.encounter SET encounter_type = (SELECT encounter_type_id FROM mnch_hotline_new.encounter_type WHERE name = (SELECT name from mnch_hotline_old.encounter_type where encounter_type_id = encounter_type));
 
 #update the obs table;
 
-#delete this concept, as it is a duplicate;
+#delete this concept, as it is a duplicate. To be removed when we get new meta data from concept server;
 
 DELETE FROM mnch_hotline_new.concept_name_tag_map WHERE concept_name_id = 11403;
 
