@@ -471,7 +471,7 @@ class ReportController < ApplicationController
 
     if params[:destination] == 'csv'
       report_header = ['', 'Catchment area', 'Count', 'Total']
-      export_to_csv('patient_demographics_report',report_header,@report, @patient_type)
+      export_to_csv('patient_demographics_report',report_header,@report, @patient_type,@grouping)
       redirect_to "/clinic"
     else
       render :layout => false
@@ -496,7 +496,7 @@ class ReportController < ApplicationController
                                                   @end_date)
     if params[:destination] == 'csv'
       report_header = ["", "#{@health_task.gsub(/_/, " ").capitalize}", "Count", "Percentage"]
-      export_to_csv('patient_health_issues_report',report_header,@report, @patient_type)
+      export_to_csv('patient_health_issues_report',report_header,@report, @patient_type,@grouping)
       redirect_to "/clinic"
     else
       render :layout => false
@@ -527,8 +527,14 @@ class ReportController < ApplicationController
     @report_name  = "Patient Age Distribution"
     @report       = Report.patient_age_distribution(@patient_type, @grouping,
                                                     @start_date, @end_date)
-    #raise @report.to_yaml
-    render :layout => false
+    
+    if params[:destination] == 'csv'
+      report_header = ["", "Count", "%age", "Min","Max","Avg","S.Dev"]
+      export_to_csv('patient_age_distribution_report',report_header,@report, @patient_type,@grouping)
+      redirect_to "/clinic"
+    else
+      render :layout => false
+    end
   end
 
   def patient_activity_report
