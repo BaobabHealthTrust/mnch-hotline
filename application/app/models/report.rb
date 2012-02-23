@@ -1033,9 +1033,11 @@ module Report
 
         patient_encounters.each do |a_encounter|
           for obs in a_encounter.observations do
-            if obs.name_to_s != "CALL ID"
-               name_tag_id = ConceptNameTagMap.find(:all,
-                                                    :conditions =>["concept_name_id = ?", obs.concept_id],
+            if obs.name_to_s != "Call ID"
+              name_tag_id = ConceptNameTagMap.find(:all,
+                                                    :joins => "INNER JOIN concept_name
+                                                              ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
+                                                    :conditions =>["concept_name.concept_id = ?", obs.concept_id],
                                                     :select => "concept_name_tag_id"
                                                    ).last
 
@@ -1043,6 +1045,7 @@ module Report
                                                   :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
                                                   :select => "tag"
                                                   ).uniq
+
               symptom_type.each{|symptom|
                 if symptom.tag == "HEALTH INFORMATION"
                   health_information << obs.name_to_s.capitalize
@@ -1053,7 +1056,7 @@ module Report
                 end
               }
             end
-          end
+        end
         end
 
         if danger_signs.length != 0
