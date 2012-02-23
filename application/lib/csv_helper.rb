@@ -16,7 +16,7 @@ module CSVHelper
       FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
       csv << report_headers
          report_data.reverse.map do |data|
-           csv << ["beginning : #{data[:start_date]} ending : #{data[:end_date]}","",""]
+           csv << ["Date beginning : #{data[:start_date]} ending : #{data[:end_date]}","",""]
            csv << ["New Registrations","","","#{data[:new_registrations]}"]
            data[:catchment].map do | catchment |
              csv << ["","#{catchment.first}","#{catchment.last}",""]
@@ -40,6 +40,21 @@ module CSVHelper
       end
       
     when 'patient_health_issues_report'
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+           csv << ["Date beginning : #{data[:start_date]} ending : #{data[:end_date]}","",""]
+           csv << ["Total Callers","","#{data[:total_calls]}","n/a"]
+           csv << ["Total Callers with Symptoms","","#{data[:total_number_of_calls]}","n/a"]
+           csv << ["Below are the #{report_headers[1]}","","",""]
+
+           data[:health_issues].map do | health_issue|
+             csv << ["","#{health_issue[:concept_name].titleize}",
+             "#{health_issue[:call_count]}","#{health_issue[:call_percentage]}"]
+           end
+           csv << ["","","",""]
+         end
+      end
 
     when 'patient_age_distribution_report'
 
