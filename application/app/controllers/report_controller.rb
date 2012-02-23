@@ -1,6 +1,7 @@
 class ReportController < ApplicationController
 
   include PdfHelper
+  include CSVHelper
 
   def weekly_report
     @start_date = Date.new(params[:start_year].to_i,params[:start_month].to_i,params[:start_day].to_i) rescue nil
@@ -471,7 +472,7 @@ class ReportController < ApplicationController
    # raise @report.reverse.to_yaml
     if params[:destination] == 'csv'
       report_header = ['catchment area', 'total']
-      CSVHelper.export_to_csv('patient_demographics_report',report_header,@report )
+      export_to_csv('patient_demographics_report',report_header,@report )
       redirect_to "/clinic"
     else
       render :layout => false
