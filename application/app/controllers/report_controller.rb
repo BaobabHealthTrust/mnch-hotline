@@ -799,7 +799,17 @@ class ReportController < ApplicationController
     @report    = Report.individual_current_enrollments(@start_date, @end_date, @grouping,
                                       @content_type, @language, @phone_type,
                                       @delivery, @number_prefix)
-    render :layout => false
+
+    if params[:destination] == 'csv'
+      report_header = ["Full Name", "On Tips", "Phone Type", "Phone Number",
+                       "Language", "Message Type", "Content"
+                       ]
+      export_to_csv('individual_current_enrollments', report_header, @report, @patient_type,
+                  @grouping)
+      redirect_to "/clinic"
+    else
+      render :layout => false
+    end
   end
   
 end
