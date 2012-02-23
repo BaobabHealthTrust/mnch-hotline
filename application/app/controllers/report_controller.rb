@@ -469,10 +469,9 @@ class ReportController < ApplicationController
     @report       = Report.patient_demographics(@patient_type, @grouping,
                                                 @start_date, @end_date)
 
-   # raise @report.reverse.to_yaml
     if params[:destination] == 'csv'
-      report_header = ['catchment area', 'total']
-      export_to_csv('patient_demographics_report',report_header,@report )
+      report_header = ['Date', 'Catchment area', 'Count', 'Total']
+      export_to_csv('patient_demographics_report',report_header,@report, @patient_type)
       redirect_to "/clinic"
     else
       render :layout => false
@@ -495,7 +494,14 @@ class ReportController < ApplicationController
     @report       = Report.patient_health_issues(@patient_type, @grouping, 
                                                   @health_task, @start_date,
                                                   @end_date)
-    render :layout => false
+    if params[:destination] == 'csv'
+      report_header = ["Date", "#{@health_task}", "Count", "Percentage"]
+      export_to_csv('patient_health_issues_report',report_header,@report, @patient_type)
+      redirect_to "/clinic"
+    else
+      render :layout => false
+    end
+
   end
 
   def patient_age_distribution_report
