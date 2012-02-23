@@ -1521,17 +1521,17 @@ module Report
             }
     data.each do |observation|
        if observation.concept_id.to_i == content_concept then
-          row_data[:content] = Concept.find(observation.value_coded.to_i).fullname 
+          row_data[:content] = Concept.find(observation.value_coded.to_i).fullname rescue nil
        elsif observation.concept_id.to_i == language_concept
-          row_data[:language] = Concept.find(observation.value_coded.to_i).fullname 
+          row_data[:language] = Concept.find(observation.value_coded.to_i).fullname rescue nil
        elsif observation.concept_id.to_i == delivery_concept then
-          row_data[:message_type] = Concept.find(observation.value_coded.to_i).fullname 
+          row_data[:message_type] = Concept.find(observation.value_coded.to_i).fullname rescue nil
        elsif observation.concept_id.to_i == phone_type_concept
-          row_data[:phone_type] = Concept.find(observation.value_coded.to_i).fullname
+          row_data[:phone_type] = Concept.find(observation.value_coded.to_i).fullname rescue nil
        elsif observation.concept_id.to_i == phone_number_concept then
           row_data[:phone_number] = observation.value_text 
        elsif observation.concept_id.to_i == on_tips_concept then
-          row_data[:on_tips] = Concept.find(observation.value_coded.to_i).fullname 
+          row_data[:on_tips] = Concept.find(observation.value_coded.to_i).fullname rescue nil
        end
     end
     period_data << row_data
