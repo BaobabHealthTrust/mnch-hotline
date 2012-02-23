@@ -243,7 +243,41 @@ module CSVHelper
       end
 
     when 'call_lengths'
+=begin
+      total_calls = 0
+      total_morning = 0
+      total_midday = 0
+      total_afternoon = 0
+      total_evening = 0
+=end
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+=begin
+          total_calls += data[:total]
+          total_morning += data[:morning]
+          total_midday += data[:midday]
+          total_afternoon += data[:afternoon]
+          total_evening += data[:evening]
+=end
+          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}",
+                  "#{data[:total] rescue 0}",
+                  "#{data[:morning] rescue 0}", "#{data[:m_avg] rescue 0}", "#{data[:m_min] rescue 0}", "#{data[:m_sdev] rescue 0}",
+                  "#{data[:midday] rescue 0}", "#{data[:mid_avg] rescue 0}", "#{data[:mid_min] rescue 0}", "#{data[:mid_sdev] rescue 0}",
+                  "#{data[:afternoon] rescue 0}", "#{data[:a_avg] rescue 0}", "#{data[:a_min] rescue 0}", "#{data[:a_sdev] rescue 0}",
+                  "#{data[:evening] rescue 0}",  "#{data[:e_avg] rescue 0}", "#{data[:e_min] rescue 0}", "#{data[:e_sdev] rescue 0}"
+                  ]
 
+         end
+=begin
+         csv << ["Total","#{total_calls}", "#{total_morning}",
+                 "#{(total_morning.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_midday}", "#{(total_midday.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_afternoon}", "#{(total_afternoon.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_evening}", "#{(total_evening.to_f / total_calls.to_f * 100).round(1)}"
+                ]
+=end
+      end
     when 'tips_activity'
 
     when 'current_enrollment_totals'
