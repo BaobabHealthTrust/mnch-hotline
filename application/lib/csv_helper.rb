@@ -151,12 +151,96 @@ module CSVHelper
             "#{data[:info_pct] rescue 0}"]
          end
       end
-
+      
     when 'patient_referral_report'
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+           csv << ["#{grouping} beginning : #{data[:date_range].first} ending : #{data[:date_range].last}"]
 
+           data[:patient_info].each do |info|
+             csv << ["#{info[:name]}","#{info[:number][:cell_phone_number]}",
+                      "#{info[:visit_summary].gsub(/[<B><\/B>]/,"")}"
+             ]
+           end
+           csv << ["","",""]
+         end
+      end
     when 'call_time_of_day'
+      total_calls = 0
+      total_morning = 0
+      total_midday = 0
+      total_afternoon = 0
+      total_evening = 0
 
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+          total_calls += data[:total]
+          total_morning += data[:morning]
+          total_midday += data[:midday]
+          total_afternoon += data[:afternoon]
+          total_evening += data[:evening]
+           
+          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}",
+                  "#{data[:total] rescue 0}", "#{data[:morning] rescue 0}",
+                  "#{data[:morning_pct] rescue 0}", "#{data[:midday] rescue 0}",
+                  "#{data[:midday_pct] rescue 0}", "#{data[:afternoon] rescue 0}",
+                  "#{data[:afternoon_pct] rescue 0}", "#{data[:evening] rescue 0}",
+                  "#{data[:evening_pct] rescue 0}"]
+
+         end
+         csv << ["Total","#{total_calls}", "#{total_morning}",
+                 "#{(total_morning.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_midday}", "#{(total_midday.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_afternoon}", "#{(total_afternoon.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_evening}", "#{(total_evening.to_f / total_calls.to_f * 100).round(1)}"
+                ]
+      end
     when 'call_day_distribution'
+      total_calls = 0
+      total_monday = 0
+      total_tuesday = 0
+      total_wednesday = 0
+      total_thursday = 0
+      total_friday = 0
+      total_saturday = 0
+      total_sunday = 0
+
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+          total_calls += data[:total]
+          total_monday += data[:monday]
+          total_tuesday += data[:tuesday]
+          total_wednesday += data[:wednesday]
+          total_thursday += data[:thursday]
+          total_friday += data[:friday]
+          total_saturday += data[:saturday]
+          total_sunday += data[:sunday]
+
+          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}",
+                  "#{data[:total] rescue 0}", "#{data[:monday] rescue 0}",
+                  "#{data[:monday_pct] rescue 0}", "#{data[:tuesday] rescue 0}",
+                  "#{data[:tuesday_pct] rescue 0}", "#{data[:wednesday] rescue 0}",
+                  "#{data[:wednesday_pct] rescue 0}", "#{data[:thursday] rescue 0}",
+                  "#{data[:thursday_pct] rescue 0}",  "#{data[:friday] rescue 0}",
+                  "#{data[:friday_pct] rescue 0}",  "#{data[:saturday] rescue 0}",
+                  "#{data[:saturday_pct] rescue 0}",  "#{data[:sunday] rescue 0}",
+                  "#{data[:sunday_pct] rescue 0}"
+                  ]
+
+         end
+         csv << ["Total","#{total_calls}", "#{total_monday}",
+                 "#{(total_monday.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_tuesday}", "#{(total_tuesday.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_wednesday}", "#{(total_wednesday.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_thursday}", "#{(total_thursday.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_friday}", "#{(total_friday.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_saturday}", "#{(total_saturday.to_f / total_calls.to_f * 100).round(1)}",
+                 "#{total_sunday}", "#{(total_sunday.to_f / total_calls.to_f * 100).round(1)}"
+                ]
+      end
 
     when 'call_lengths'
 
