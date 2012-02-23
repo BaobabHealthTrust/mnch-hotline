@@ -141,6 +141,16 @@ module CSVHelper
       end
 
     when 'patient_activity_report'
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}",
+            "#{data[:total] rescue 0}", "#{data[:symptoms] rescue 0}",
+            "#{data[:symptoms_pct] rescue 0}", "#{data[:danger] rescue 0}",
+            "#{data[:danger_pct] rescue 0}", "#{data[:info] rescue 0}",
+            "#{data[:info_pct] rescue 0}"]
+         end
+      end
 
     when 'patient_referral_report'
 
