@@ -57,6 +57,9 @@
                 {:helpText => "Select the number prefix"} %>
   <% end %>
 
+  <%= select_tag :report_destination,     options_for_select(@destination),
+                {:helpText => "Select report destination"} %>
+
   <%= hidden_field_tag :query, "#{@query}"%>
   <%= hidden_field_tag :start_date, "", {:id => 'start_date'}%>
   <%= hidden_field_tag :end_date,   "", {:id => 'end_date'}%>
