@@ -698,7 +698,7 @@ class ReportController < ApplicationController
       report_header = ["","Count", "Morning Count", "Morning Avg", "Morning Min", "Morning SDev",
                        "Midday Count", "Midday Avg", "Midday Min", "Midday SDev",
                        "Afternoon Count", "Afternoon Avg", "Afternoon Min", "Afternoon SDev",
-                       "Evening Count", "Evening Avg", "Evening Min", "Evening SDev",]
+                       "Evening Count", "Evening Avg", "Evening Min", "Evening SDev"]
       export_to_csv('call_lengths', report_header, @report, @patient_type,
                   @grouping)
       redirect_to "/clinic"
@@ -726,7 +726,22 @@ class ReportController < ApplicationController
     @report    = Report.tips_activity(@start_date, @end_date, @grouping,
                                       @content_type, @language, @phone_type,
                                       @delivery, @number_prefix)
-    render :layout => false
+
+    if params[:destination] == 'csv'
+      report_header = ["","Count", "Content Pregnancy Count",
+                       "Content Pregnancy %age", "Content Child Count",
+                       "Content Child %age", "Language Chiyao Count",
+                       "Language Chiyao %age", "Language Chichewa Count",
+                       "Language Chichewa %age", "Delivery SMS Count",
+                       "Delivery SMS %age", "Language Voice Count",
+                       "Language Voice %age"
+                       ]
+      export_to_csv('tips_activity', report_header, @report, @patient_type,
+                  @grouping)
+      redirect_to "/clinic"
+    else
+      render :layout => false
+    end
   end
 
   def current_enrollment_totals
@@ -747,7 +762,22 @@ class ReportController < ApplicationController
     @report_name  = "Current Enrollment Totals"
     @report    = Report.current_enrollment_totals(@start_date, @end_date, @grouping,
                                       @content_type, @language, @delivery, @number_prefix)
-    render :layout => false
+
+    if params[:destination] == 'csv'
+      report_header = ["","Count", "Content Pregnancy Count",
+                       "Content Pregnancy %age", "Content Child Count",
+                       "Content Child %age", "Language Chiyao Count",
+                       "Language Chiyao %age", "Language Chichewa Count",
+                       "Language Chichewa %age", "Delivery SMS Count",
+                       "Delivery SMS %age", "Language Voice Count",
+                       "Language Voice %age"
+                       ]
+      export_to_csv('current_enrollment_totals', report_header, @report, @patient_type,
+                  @grouping)
+      redirect_to "/clinic"
+    else
+      render :layout => false
+    end
   end
 
   def individual_current_enrollments
