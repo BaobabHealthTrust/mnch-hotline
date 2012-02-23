@@ -70,7 +70,7 @@ class ApplicationController < ActionController::Base
 
     Observation.find(:all, :conditions => ["concept_id = ? AND person_id = ? AND voided = 0",
       ConceptName.find_by_name("TYPE OF MESSAGE CONTENT").concept_id, @patient.id]).map do |obs|
-        @tips_and_reminders_enrolled_in << ConceptName.find_by_concept_id(obs.value_coded).name.capitalize
+        @tips_and_reminders_enrolled_in << ConceptName.find_by_concept_id(obs.value_coded).name.capitalize rescue nil
       end
     return @tips_and_reminders_enrolled_in
   end
