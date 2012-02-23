@@ -470,7 +470,7 @@ class ReportController < ApplicationController
                                                 @start_date, @end_date)
 
     if params[:destination] == 'csv'
-      report_header = ['Date', 'Catchment area', 'Count', 'Total']
+      report_header = ['', 'Catchment area', 'Count', 'Total']
       export_to_csv('patient_demographics_report',report_header,@report, @patient_type)
       redirect_to "/clinic"
     else
@@ -495,7 +495,7 @@ class ReportController < ApplicationController
                                                   @health_task, @start_date,
                                                   @end_date)
     if params[:destination] == 'csv'
-      report_header = ["Date", "#{@health_task}", "Count", "Percentage"]
+      report_header = ["", "#{@health_task.gsub(/_/, " ").capitalize}", "Count", "Percentage"]
       export_to_csv('patient_health_issues_report',report_header,@report, @patient_type)
       redirect_to "/clinic"
     else
