@@ -693,7 +693,18 @@ class ReportController < ApplicationController
     @report    = Report.call_lengths(@patient_type, @grouping, @call_type,
                                          @call_status, @staff_member,
                                          @start_date, @end_date)
-    render :layout => false
+
+    if params[:destination] == 'csv'
+      report_header = ["","Count", "Morning Count", "Morning Avg", "Morning Min", "Morning SDev",
+                       "Midday Count", "Midday Avg", "Midday Min", "Midday SDev",
+                       "Afternoon Count", "Afternoon Avg", "Afternoon Min", "Afternoon SDev",
+                       "Evening Count", "Evening Avg", "Evening Min", "Evening SDev",]
+      export_to_csv('call_lengths', report_header, @report, @patient_type,
+                  @grouping)
+      redirect_to "/clinic"
+    else
+      render :layout => false
+    end
   end
 
   def tips_activity
