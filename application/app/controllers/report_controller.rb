@@ -578,8 +578,14 @@ class ReportController < ApplicationController
     @report_name  = "Referral Followup"
     @report    = Report.patient_referral_followup(@patient_type, @grouping, @outcome,
                                          @start_date, @end_date)
-   # raise @report.to_yaml
-    render :layout => false
+
+    if params[:destination] == 'csv'
+      report_header = ["Caller Name","Phone Number", "Call Summary" ]
+      export_to_csv('patient_referral_report', report_header, @report, @patient_type, @grouping)
+      redirect_to "/clinic"
+    else
+      render :layout => false
+    end
   end
 
   def get_staff_members_list
@@ -610,8 +616,19 @@ class ReportController < ApplicationController
     @report    = Report.call_time_of_day(@patient_type, @grouping, @call_type,
                                          @call_status, @staff_member,
                                          @start_date, @end_date)
-    #raise @report.to_yaml
-    render :layout => false
+
+    if params[:destination] == 'csv'
+      report_header = ["","Count", "Morning Count", "Morning %age",
+                       "Midday Count", "Midday %age",
+                       "Afternoon Count", "Afternoon %age",
+                       "Evening Count", "Evening %age"]
+      export_to_csv('call_time_of_day', report_header, @report, @patient_type,
+                  @grouping)
+      redirect_to "/clinic"
+    else
+      render :layout => false
+    end
+
   end
 
   def call_day_distribution
@@ -632,13 +649,25 @@ class ReportController < ApplicationController
       @staff = User.find(@staff_member).username
     end
     
-    #raise params.to_yaml
     @report_name  = "Call Day Distribution"
     @report    = Report.call_day_distribution(@patient_type, @grouping, @call_type,
                                          @call_status, @staff_member,
                                          @start_date, @end_date)
-    #raise @report.to_yaml
-    render :layout => false
+
+    if params[:destination] == 'csv'
+      report_header = ["","Count", "Monday Count", "Monday %age",
+                       "Tuesday Count", "Tuesday %age",
+                       "Wednesday Count", "Wednesday %age",
+                       "Thursday Count", "Thursday %age",
+                       "Friday Count", "Friday %age",
+                       "Saturday Count", "Saturday %age",
+                       "Sunday Count", "Sunday %age"]
+      export_to_csv('call_day_distribution', report_header, @report, @patient_type,
+                  @grouping)
+      redirect_to "/clinic"
+    else
+      render :layout => false
+    end
   end
 
   def call_lengths
