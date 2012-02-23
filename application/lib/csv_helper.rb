@@ -292,7 +292,27 @@ module CSVHelper
          end
       end
     when 'individual_current_enrollments'
-
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+           added = false
+           data.each do |period_data|
+             if !added
+                csv << ["#{grouping} beginning : #{period_data[:start_date]} ending : #{period_data[:end_date]}"]
+                added = true
+             end
+             csv << ["#{period_data[:person_name].to_s.capitalize}",
+                    "#{period_data[:on_tips].to_s.capitalize rescue ' '}",
+                    "#{period_data[:phone_type].to_s.capitalize rescue ' '}",
+                    "#{period_data[:phone_number] rescue ' '}",
+                    "#{period_data[:language].to_s.capitalize rescue ' '}",
+                    "#{period_data[:message_type].to_s.capitalize rescue ' '}",
+                    "#{period_data[:content].to_s.capitalize rescue ' '}"
+                    ]
+           end
+           csv << [""]
+         end
+      end
     end
   end
 end
