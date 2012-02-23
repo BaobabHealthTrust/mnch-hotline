@@ -469,7 +469,7 @@ EOF
   end
 
   def child_danger_signs
-  	symptoms_obs = Hash.new
+  	symptoms_obs = Array.new
   	recorded_danger_signs = Array.new
  
   	danger_signs = ["FEVER OF 7 DAYS OR MORE","DIARRHEA FOR 14 DAYS OR MORE",
@@ -481,26 +481,16 @@ EOF
  	type = EncounterType.find_by_name("CHILD HEALTH SYMPTOMS")
     encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
     
-    encounter.observations.all.each{|obs| symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip}  rescue nil 
+    encounter.observations.all.each{|obs|
+      symptoms_obs << obs.to_s.split(':')[0].strip.upcase}  rescue nil
   
  	danger_signs.each do |sign|
- 		if (sign == "COUGH FOR 21 DAYS OR MORE" && symptoms_obs[sign].to_i >= 21)
-        	recorded_danger_signs << sign
-       elsif  (sign == "DIARRHEA FOR 14 DAYS OR MORE" &&  symptoms_obs[sign].to_i >= 14)
+ 		if symptoms_obs.include?(sign)
         recorded_danger_signs << sign
-       elsif  (sign == "FEVER OF 7 DAYS OR MORE" &&  symptoms_obs[sign].to_i >= 7)
-        recorded_danger_signs << sign
-       elsif  (sign == "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS" && symptoms_obs[sign].to_i >= 14)
-        recorded_danger_signs << sign
-      elsif  (sign == "NOT EATING OR DRINKING ANYTHING" && symptoms_obs[sign] == "NO")
-        recorded_danger_signs << sign
-      elsif (symptoms_obs[sign] == "YES")
-        recorded_danger_signs << sign
-      
     end
-    
  	end
   return recorded_danger_signs
+  
   end
   
   def child_symptoms
