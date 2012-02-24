@@ -194,24 +194,24 @@ class ReportController < ApplicationController
           when "demographics"
             @patient_type       += ["Women", "Children", "All"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
-            @destination        = [["",""]["To CSV Format", "csv"], ["To Screen", "screen"]]
+            @destination        = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
 
           when "health_issues"
             @patient_type       += ["Women", "Children"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
             @health_task         = ["", "Health Symptoms", "Danger Warning Signs",
                                     "Health Information Requested", "Outcomes"]
-            @destination        = [["",""]["To CSV Format", "csv"], ["To Screen", "screen"]]
+            @destination        = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
 
           when "ages_distribution"
             @patient_type       += ["Women", "Children", "All"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
-            @destination        = [["",""]["To CSV Format", "csv"], ["To Screen", "screen"]]
+            @destination        = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
 
           when "patient_activity"
             @patient_type       += ["Women", "Children", "All"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
-            @destination        = [["",""]["To CSV Format", "csv"], ["To Screen", "screen"]]
+            @destination        = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
 
           when "referral_followup"
             @patient_type       += ["Women", "Children", "All"]
@@ -220,7 +220,7 @@ class ReportController < ApplicationController
                                     "PATIENT TRIAGED TO NURSE SUPERVISOR",
                                     "GIVEN ADVICE NO REFERRAL NEEDED"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
-            @destination        = [["",""]["To CSV Format", "csv"], ["To Screen", "screen"]]
+            @destination        = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
 
         end
       when "call_analysis"
@@ -234,7 +234,7 @@ class ReportController < ApplicationController
                                     "All Patient Interaction",
                                     "All Non-Patient", "All"]
             @call_status         = ["","Yes","No", "All"]
-            @destination         = [["To CSV Format", "csv"], ["To Screen", "screen"]]
+            @destination         = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
 
       when "tips"
         case @query
@@ -252,7 +252,7 @@ class ReportController < ApplicationController
         @language           = [["",""],["Yao","yao"],["Chichewa","chichewa"],["All", "all"]]
         @delivery           = [["",""],["SMS","sms"],["Voice","voice"],["All", "all"]]
         @network_prefix     = [["",""],["09","airtel"],["08","tnm"],["Other","other"],["All", "all"]]
-        @destination        = [["",""]["To CSV Format", "csv"], ["To Screen", "screen"]]
+        @destination        = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
 
     end
 
