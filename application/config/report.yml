@@ -1,3 +1,3 @@
 config:
-  export_path: /home/precious/src/ruby
+  export_path: /home
   export_type: "test"
