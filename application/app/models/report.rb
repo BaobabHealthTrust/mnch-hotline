@@ -1501,9 +1501,13 @@ module Report
    sms_concept = Concept.find_by_name('sms').id
    voice_concept = Concept.find_by_name('voice').id
 
-   date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
+   if grouping == "None"
+     date_ranges = [[start_date, end_date]]
+   else
+     date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
                                                       end_date)[:date_ranges]
-
+   end
+   
    period_data = []
 
    date_ranges.map do |date_range|
@@ -1519,21 +1523,21 @@ module Report
                :on_tips => '', :phone_type => '',:phone_number => 0,
                :language => '', :message_type => '', :content => ''
             }
-    data.each do |observation|
-       if observation.concept_id.to_i == content_concept then
-          row_data[:content] = Concept.find(observation.value_coded.to_i).fullname rescue nil
-       elsif observation.concept_id.to_i == language_concept
-          row_data[:language] = Concept.find(observation.value_coded.to_i).fullname rescue nil
-       elsif observation.concept_id.to_i == delivery_concept then
-          row_data[:message_type] = Concept.find(observation.value_coded.to_i).fullname rescue nil
-       elsif observation.concept_id.to_i == phone_type_concept
-          row_data[:phone_type] = Concept.find(observation.value_coded.to_i).fullname rescue nil
-       elsif observation.concept_id.to_i == phone_number_concept then
-          row_data[:phone_number] = observation.value_text 
-       elsif observation.concept_id.to_i == on_tips_concept then
-          row_data[:on_tips] = Concept.find(observation.value_coded.to_i).fullname rescue nil
-       end
-    end
+        data.each do |observation|
+           if observation.concept_id.to_i == content_concept then
+              row_data[:content] = Concept.find(observation.value_coded.to_i).fullname rescue nil
+           elsif observation.concept_id.to_i == language_concept
+              row_data[:language] = Concept.find(observation.value_coded.to_i).fullname rescue nil
+           elsif observation.concept_id.to_i == delivery_concept then
+              row_data[:message_type] = Concept.find(observation.value_coded.to_i).fullname rescue nil
+           elsif observation.concept_id.to_i == phone_type_concept
+              row_data[:phone_type] = Concept.find(observation.value_coded.to_i).fullname rescue nil
+           elsif observation.concept_id.to_i == phone_number_concept then
+              row_data[:phone_number] = observation.value_text
+           elsif observation.concept_id.to_i == on_tips_concept then
+              row_data[:on_tips] = Concept.find(observation.value_coded.to_i).fullname rescue nil
+           end
+        end
     period_data << row_data
    end
    call_data << period_data
@@ -1570,6 +1574,7 @@ module Report
               ON e.patient_id = pn.person_id
             WHERE e.encounter_datetime >= '#{date_range.first}' AND
                   e.encounter_datetime <= '#{date_range.last}' AND
+                  e.voided = 0 AND
                   e.encounter_type IN (#{encounter_types})"
 =begin
   encounters_list = Encounter.find(:all,

@@ -64,7 +64,7 @@
             <% if added == 'no' %>
                 <tr>
                 <td colspan = 7  class="cellleft cellbottom main-table-cell" style="text-align:left; font-weight: bold;">
-                  <%= @grouping.humanize + " ( "+ period_data[:start_date] + " - " + period_data[:end_date] + " )" + ": Total Calls  =  "+ period_data[:total].to_s %>
+                  <%= @grouping.humanize + " ( "+ period_data[:start_date] + " - " + period_data[:end_date] + " )" %>
                 </td>
                 </tr>
                 <% added = 'yes' %>

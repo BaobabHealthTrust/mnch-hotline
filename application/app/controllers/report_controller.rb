@@ -781,17 +781,18 @@ class ReportController < ApplicationController
   end
 
   def individual_current_enrollments
-    @start_date     = params[:start_date]
-    @end_date       = params[:end_date]
+    @start_date     = Encounter.find(:first,
+                                   :order => "date_created ASC").date_created.strftime("%Y/%m/%d")
+    @end_date       = Encounter.find(:first,
+                                   :order => "date_created DESC").date_created.strftime("%Y/%m/%d")
     @report_type    = params[:report_type]
     @query          = params[:query]
-    @grouping       = params[:grouping]
-    @content_type   = params[:content_type]
-    @language       = params[:language]
-    @query          = params[:query]
-    @phone_type     = params[:phone_type]
-    @delivery       = params[:delivery]
-    @number_prefix  = params[:number_prefix]
+    @grouping       = "None"
+    @content_type   = "All"
+    @language       = "All"
+    @phone_type     = "All"
+    @delivery       = "All"
+    @number_prefix  = "All"
 
     @special_message = ""
 

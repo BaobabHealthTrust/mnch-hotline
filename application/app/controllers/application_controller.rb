@@ -6,8 +6,20 @@ class ApplicationController < ActionController::Base
   helper :all
   helper_method :next_task
   filter_parameter_logging :password
-  before_filter :login_required, :except => ['login', 'logout','demographics']
-  before_filter :location_required, :except => ['login', 'logout', 'location','demographics']
+  before_filter :login_required, :except => ['login', 'logout','demographics','reports',
+                                          'individual_current_enrollments', 'patient_demographics_report',
+                                          'patient_health_issues_report','patient_age_distribution_report',
+                                          'patient_activity_report','patient_referral_report',
+                                          'call_time_of_day','call_day_distribution',
+                                          'call_lengths','tips_activity','current_enrollment_totals'
+                                         ]
+  before_filter :location_required, :except => ['login', 'logout', 'location','demographics','reports',
+                                            'individual_current_enrollments', 'patient_demographics_report',
+                                            'patient_health_issues_report','patient_age_distribution_report',
+                                            'patient_activity_report','patient_referral_report',
+                                            'call_time_of_day','call_day_distribution',
+                                            'call_lengths','tips_activity','current_enrollment_totals'
+                                            ]
   
   def rescue_action_in_public(exception)
     @message = exception.message
