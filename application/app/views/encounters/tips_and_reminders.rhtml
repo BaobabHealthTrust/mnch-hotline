@@ -31,8 +31,12 @@
     if ($("phone_type").value == "COMMUNITY PHONE") {
       __$("tips_and_reminders_phone_number").value = 'Unknown';
     }
+    else if ($("phone_type").value == "PERSONAL PHONE") {
+      __$("tips_and_reminders_phone_number").value ='<%=@personal_phone_number%>';
+
+    }
     else {
-      __$("tips_and_reminders_phone_number").value = '';
+      __$("tips_and_reminders_phone_number").value ='';
     }
   }
 
