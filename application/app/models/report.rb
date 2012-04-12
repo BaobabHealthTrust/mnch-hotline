@@ -161,7 +161,7 @@ module Report
     children = 0
     women    = 1
     new_patients_data[:patient_type] = [["children", 0], ["women", 0]]
-
+    
     unless patients_data.blank?
       patients_data.map do|data|
         catchment           = data.attributes["nearest_health_center"]
@@ -199,7 +199,7 @@ module Report
     female = 0
     male   = 1
     new_patients_data[:gender] = [["female", 0], ["male", 0]]
-
+    
     unless patients_data.blank?
       patients_data.map do|data|
         catchment           = data.attributes["nearest_health_center"]
@@ -240,6 +240,7 @@ module Report
 
     unless patients_data.blank?
       patients_data.map do|data|
+        
         catchment           = data.attributes["nearest_health_center"]
         number_of_patients  = data.attributes["number_of_patients"].to_i
         pregnancy_status    = data.attributes["pregnancy_status_text"]
@@ -249,9 +250,9 @@ module Report
         new_patients_data[:catchment].map do |c|
           if(c.first == catchment.humanize)
             new_patients_data[:catchment][i][1]                   += number_of_patients
-            new_patients_data[:pregnancy_status][pregnant][1]     += number_of_patients if(pregnancy_status == "PREGNANT")
-            new_patients_data[:pregnancy_status][non_pregnant][1] += number_of_patients if(pregnancy_status == "NOT PREGNANT")
-            new_patients_data[:pregnancy_status][delivered][1]    += number_of_patients if(pregnancy_status == "DELIVERED")
+            new_patients_data[:pregnancy_status][pregnant][1]     += number_of_patients if(pregnancy_status.to_s.upcase  == "PREGNANT")
+            new_patients_data[:pregnancy_status][non_pregnant][1] += number_of_patients if(pregnancy_status.to_s.upcase == "NOT PREGNANT")
+            new_patients_data[:pregnancy_status][delivered][1]    += number_of_patients if(pregnancy_status.to_s.upcase == "DELIVERED")
           end
           i += 1
         end
