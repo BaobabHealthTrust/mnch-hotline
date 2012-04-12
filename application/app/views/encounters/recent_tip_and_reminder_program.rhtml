@@ -31,8 +31,12 @@
     if ($("phone_type").value == "COMMUNITY PHONE") {
       __$("tips_and_reminders_phone_number").value = 'Unknown';
     }
+    else if ($("phone_type").value == "PERSONAL PHONE") {
+      __$("tips_and_reminders_phone_number").value ='<%=@personal_phone_number%>';
+
+    }
     else {
-      __$("tips_and_reminders_phone_number").value ='<%@tips_answer[:telephone_number]%>';
+      __$("tips_and_reminders_phone_number").value ='<%=@tips_answer[:telephone_number]%>';
     }
     
   }
@@ -125,7 +129,7 @@
     <% options = {
       :id           => "phone_type",
       :helptext     => "Select type of phone",
-      :tt_onUnLoad  => "$('phone_type_value_coded_or_text').value = $('phone_type').value;",
+      :tt_onUnLoad  => "$('phone_type_value_coded_or_text').value = $('phone_type').value; checkPhoneType();",
       :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
 	  } %>
 
@@ -138,7 +142,6 @@
     <% options = {
        :id          => "tips_and_reminders_phone_number",
        :tt_onUnLoad => "$('phone_number_value_coded_or_text').value = $('tips_and_reminders_phone_number').value",
-       :tt_onLoad   => "checkPhoneType();",
        :helpText    => "Enter Phone Number",
        :field_type => 'number',
        :validationRule => "^0\\d{7}$|Unknown|Not Available|N\/A|^0\\d{9}$",
@@ -147,7 +150,7 @@
        :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
        } %>
 
-    <%= text_field_tag "phone_number", @tips_answer[:telephone_number] , options%>
+    <%= text_field_tag "phone_number",nil, options%>
     <%= hidden_field_tag("observations[][concept_name]",        "PHONE NUMBER", options) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'phone_number_value_coded_or_text'}) %>
     <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
