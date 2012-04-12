@@ -18,10 +18,12 @@
 @relationships = RelationshipType.all.inject({}){|result, element| result[element.b_is_to_a] = element.relationship_type_id; result }.sort
 %>
   <%= select_tag :relationship, options_for_select(
-    @relationships.map{|relation| relation if !relation.include?("TB contact Person") && !relation.include?("TB Index Person") && !relation.include?("Child") && !relation.include?("Patient") && !relation.include?("treatment suportee")}, params[:relationship]), 
+    @relationships.map{|relation| relation if !relation.include?("TB contact Person") && \
+      !relation.include?("TB Index Person") && !relation.include?("Child") && \
+      !relation.include?("Patient") && !relation.include?("treatment suportee") && \
+      !relation.include?("Aunt/Uncle") && !relation.include?("Guardian") && \
+      !relation.include?("Niece/Nephew") && !relation.include?("Spouse/Partner") && \
+      !relation.include?("Village Health Worker")}, params[:relationship]),
     {:helpText => "How is #{Person.find(params[:relation]).name rescue 'this person'} related to the child"} %> 
-    
-
 </form>
 
-</form>
