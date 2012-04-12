@@ -145,14 +145,17 @@ class EncountersController < ApplicationController
     @child_symptoms = @patient.child_symptoms
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
+    @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
 
     @female_danger_signs = @patient.female_danger_signs
     @female_symptoms = @patient.female_symptoms
     
     if (@child_danger_signs.length > 0 || @female_danger_signs.length > 0)
       @selected_value = ["REFERRED TO A HEALTH CENTRE"]
-    elsif (@child_symptoms.length > 0 || @female_symptoms.length > 0)
+    elsif (@child_symptoms.length > 0)
       @selected_value = ["REFERRED TO NEAREST VILLAGE CLINIC"]
+    elsif (@female_symptoms.length > 0)
+      @selected_value = ["GIVEN ADVICE"]
     else
       @selected_value = ["GIVEN ADVICE"]
     end
@@ -234,6 +237,9 @@ class EncountersController < ApplicationController
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
+
+    @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
+
     @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
 
     @encounter_answers  = {}
@@ -282,6 +288,8 @@ class EncountersController < ApplicationController
             end
           end
         end
+
+    #raise @tips_answer.to_yaml
 
     render :layout => true
   end
