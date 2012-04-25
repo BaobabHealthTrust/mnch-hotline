@@ -453,7 +453,7 @@ module Report
 
   def self.call_count(date_range)
     call_id = Concept.find_by_name("CALL ID").id
-    query   = "SELECT COUNT(obs.person_id) AS call_count, " +
+    query   = "SELECT COUNT( DISTINCT obs.person_id) AS call_count, " +
                   "concept_name.name AS concept_name, " +
                   "DATE(encounter.date_created) AS start_date " +
                 "FROM encounter, encounter_type, obs, concept, concept_name " +
@@ -483,16 +483,15 @@ module Report
       extra_parameters = ""
     end
     
-    query = "SELECT obs.person_id " +
+    query = "SELECT DISTINCT obs.person_id " +
             "FROM obs " +
-            #"INNER JOIN person " +
-            #"ON person.person_id = obs.person_id " +
-            "WHERE obs.concept_id IN (#{concept_ids}) " + #extra_parameters +
+            "INNER JOIN person " +
+            "ON person.person_id = obs.person_id " +
+            "WHERE obs.concept_id IN (#{concept_ids}) " + extra_parameters +
             "AND DATE(obs.date_created) >= '#{date_range.first}' " +
             "AND DATE(obs.date_created) <= '#{date_range.last}' " +
             "AND obs.voided = 0"
 
-    #raise query.to_s
     Patient.find_by_sql(query)
   end
 
