@@ -201,6 +201,7 @@ module Report
     new_patients_data[:gender] = [["female", 0], ["male", 0]]
     
     unless patients_data.blank?
+      
       patients_data.map do|data|
         catchment           = data.attributes["nearest_health_center"]
         number_of_patients  = data.attributes["number_of_patients"].to_i
@@ -470,6 +471,31 @@ module Report
     Patient.find_by_sql(query)
   end
 
+  def self.get_callers(date_range, essential_params, patient_type)
+    child_maximum_age     = 9 # see definition of a female adult above
+    concept_ids = essential_params[:concept_map].inject([]) {|result, concept| result << concept[:concept_id]}.uniq.join(',')
+
+    if patient_type.humanize.downcase == "children"
+      extra_parameters = "AND (YEAR(obs.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+    elsif patient_type.humanize.downcase == "women"
+      extra_parameters = "AND (YEAR(obs.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+    else
+      extra_parameters = ""
+    end
+    
+    query = "SELECT obs.person_id " +
+            "FROM obs " +
+            #"INNER JOIN person " +
+            #"ON person.person_id = obs.person_id " +
+            "WHERE obs.concept_id IN (#{concept_ids}) " + #extra_parameters +
+            "AND DATE(obs.date_created) >= '#{date_range.first}' " +
+            "AND DATE(obs.date_created) <= '#{date_range.last}' " +
+            "AND obs.voided = 0"
+
+    #raise query.to_s
+    Patient.find_by_sql(query)
+  end
+
   def self.patient_health_issues(patient_type, grouping, health_task, start_date, end_date)
     patients_data = []
     date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
@@ -482,13 +508,14 @@ module Report
       results               = Patient.find_by_sql(query)
       total_call_count      = self.call_count(date_range)
       total_number_of_calls = total_call_count.first.attributes["call_count"].to_i rescue 0
+      total_callers_with_symptoms = self.get_callers(date_range, essential_params, patient_type).count
 
       new_patients_data                 = {}
       new_patients_data[:health_issues] = concept_map
       new_patients_data[:start_date]    = date_range.first
       new_patients_data[:end_date]      = date_range.last
       new_patients_data[:total_calls]   = total_number_of_calls
-      new_patients_data[:total_number_of_calls]   = 0
+      new_patients_data[:total_number_of_calls]   = total_callers_with_symptoms
 
       unless results.blank?
         (health_task.humanize.downcase == "outcomes")? outcomes = true : outcomes = false
@@ -510,7 +537,7 @@ module Report
 
             number_of_patients_so_far  = new_patients_data[:health_issues][i][:call_count]
             number_of_patients_so_far += number_of_patients
-            call_percentage            = ((number_of_patients_so_far * 100.0)/total_number_of_calls).round(1) rescue 0
+            call_percentage            = ((number_of_patients_so_far * 100.0)/total_callers_with_symptoms).round(1) rescue 0
 
             new_patients_data[:health_issues][i][:call_count]       = number_of_patients_so_far
             new_patients_data[:health_issues][i][:call_percentage]  = call_percentage
@@ -856,6 +883,7 @@ module Report
 
         when "children"
           new_patients_data = self.children_demographics(results, date_range)
+
           total_patients = 0
           new_patients_data[:gender].each do |status|
             total_patients += status.last
@@ -1026,52 +1054,11 @@ module Report
                                   AND patient_id = ?",
                                   encounter_types, "#{encounter_date}%", patient_id
                   ])
-
-        danger_signs = []
-        health_information = []
-        health_symptoms = []
-        return_string = ""
-
-        patient_encounters.each do |a_encounter|
-          for obs in a_encounter.observations do
-            if obs.name_to_s != "Call ID"
-              name_tag_id = ConceptNameTagMap.find(:all,
-                                                    :joins => "INNER JOIN concept_name
-                                                              ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
-                                                    :conditions =>["concept_name.concept_id = ?", obs.concept_id],
-                                                    :select => "concept_name_tag_id"
-                                                   ).last
-
-               symptom_type = ConceptNameTag.find(:all,
-                                                  :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
-                                                  :select => "tag"
-                                                  ).uniq
-
-              symptom_type.each{|symptom|
-                if symptom.tag == "HEALTH INFORMATION"
-                  health_information << obs.name_to_s.capitalize
-                elsif symptom.tag == "DANGER SIGN"
-                  danger_signs << obs.name_to_s.capitalize
-                elsif symptom.tag == "HEALTH SYMPTOM"
-                  health_symptoms << obs.name_to_s.capitalize
-                end
-              }
-            end
-        end
-        end
-
-        if danger_signs.length != 0
-          return_string = "<B>Danger Signs : </B>" + danger_signs.join(", ").to_s
-        end
-        if health_information.length != 0
-          return_string =  return_string + " <B> Health Information : </B>" + health_information.join(", ").to_s
-        end
-        if health_symptoms.length != 0
-          return_string = return_string + " <B> Health Symptoms : </B>" + health_symptoms.join(", ").to_s
-        end
-
-        return_string = 'None' if return_string == ''
-        return return_string
+   return_string = ""
+   patient_encounters.each do |a_encounter|
+     return_string = return_string + " " + a_encounter.to_s
+   end
+   return return_string
  end
 
  def self.call_day_distribution(patient_type, grouping, call_type, call_status,
