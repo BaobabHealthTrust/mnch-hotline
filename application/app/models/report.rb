@@ -468,6 +468,7 @@ module Report
                 "GROUP BY obs.concept_id " +
                 "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
 
+    #raise query.to_s
     Patient.find_by_sql(query)
   end
 
@@ -1298,9 +1299,10 @@ module Report
                                                       end_date)[:date_ranges]
   date_ranges.map do |date_range|
    encounters = self.get_tips_data(date_range)
+   total_calls = self.get_total_tips_calls(date_range)
 
    row_data = {:start_date => date_range.first,:end_date => date_range.last,
-              :total => encounters.size,
+              :total => total_calls,
               :pregnancy => 0, :pregnancy_pct => 0,:child => 0,:child_pct => 0,
               :yao => 0, :yao_pct => 0, :chewa => 0, :chewa_pct => 0,
               :sms => 0, :sms_pct => 0, :voice => 0, :voice_pct => 0
@@ -1342,14 +1344,35 @@ module Report
   encounters_list = Encounter.find(:all,
                                    :conditions => ["encounter_type IN (?) AND
                                                     encounter_datetime >= ? AND
-                                                    encounter_datetime <= ?",
+                                                    encounter_datetime <= ? AND
+                                                    voided = ?",
                                                    encounter_types,
                                                    date_range.first,
-                                                   date_range.last],
+                                                   date_range.last, 0],
                                   :include => 'observations')
 
+   #raise encounters_list.to_yaml
   return encounters_list
 
+ end
+
+ def self.get_total_tips_calls(date_range)
+
+  encounter_type_list = ["TIPS AND REMINDERS"]
+  encounter_types = self.get_encounter_types(encounter_type_list)
+  call_id_concept = Concept.find_by_name("CALL ID").id
+
+   query = "SELECT DISTINCT obs.value_text AS count " +
+            "FROM encounter " +
+            "INNER JOIN obs " +
+            "ON encounter.encounter_id = obs.encounter_id " +
+            "WHERE encounter.encounter_type IN (#{encounter_types}) " +
+            "AND DATE(encounter.date_created) >= '#{date_range.first}' " +
+            "AND DATE(encounter.date_created) <= '#{date_range.last}' " +
+            "AND obs.concept_id = #{call_id_concept} " +
+            "AND encounter.voided = 0"
+
+    Patient.find_by_sql(query).count
  end
 
  def self.get_tips_data_by_catchment_area(date_range)
