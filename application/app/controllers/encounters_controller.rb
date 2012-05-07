@@ -2,8 +2,8 @@ class EncountersController < ApplicationController
 
   def create
 
-    Encounter.find(params[:encounter_id].to_i).void if(params[:editing] && params[:encounter_id])
-
+    Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
+    #raise params.to_yaml
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
       if params[:observations][0]['concept_name'] == 'EVER RECEIVED ART' and params[:observations][0]['value_coded_or_text'] == 'NO'
         observations = []
@@ -139,17 +139,32 @@ class EncountersController < ApplicationController
   end
 
   def new
+    @selected_value = []
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     @child_danger_signs = @patient.child_danger_signs
     @child_symptoms = @patient.child_symptoms
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
+    @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
+
+    @female_danger_signs = @patient.female_danger_signs
+    @female_symptoms = @patient.female_symptoms
+    
+    if (@child_danger_signs.length > 0 || @female_danger_signs.length > 0)
+      @selected_value = ["REFERRED TO A HEALTH CENTRE"]
+    elsif (@child_symptoms.length > 0)
+      @selected_value = ["REFERRED TO NEAREST VILLAGE CLINIC"]
+    elsif (@female_symptoms.length > 0)
+      @selected_value = ["GIVEN ADVICE"]
+    else
+      @selected_value = ["GIVEN ADVICE"]
+    end
 
     # created a hash of 'upcased' health centers
     @health_facilities = ([""] + ClinicSchedule.health_facilities.map(&:name)).inject([]) do |facility_list, facilities|
       facility_list.push(facilities)
     end
-
+    #raise @select_options['danger_signs'].to_yaml
     @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
 
     use_regimen_short_names = GlobalProperty.find_by_property(
@@ -165,6 +180,8 @@ class EncountersController < ApplicationController
     @encounter_answers  = {}
     (!params[:encounter_id].blank?) ? (@encounter_id = params[:encounter_id].to_i) : (@encounter_id = nil)
     @encounter_answers  = Encounter.retrieve_previous_encounter(@encounter_id) unless @encounter_id.nil?
+     
+    @tips_answer = {}
 
     redirect_to next_task(@patient) and return unless params[:encounter_type]
 
@@ -220,13 +237,60 @@ class EncountersController < ApplicationController
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
+
+    @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
+
     @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
 
     @encounter_answers  = {}
     (!params[:encounter_id].blank?) ? (@encounter_id = params[:encounter_id].to_i) : (@encounter_id = nil)
     @encounter_answers  = Encounter.retrieve_previous_encounter(@encounter_id) unless @encounter_id.nil?
+    @encounter_id = Encounter.find(:last, :conditions => ["encounter_type = ? and patient_id = ? AND voided = 0",
+                    EncounterType.find_by_name("TIPS AND REMINDERS").id,
+                    @patient.id]).encounter_id rescue nil
 
-    @encounter_id = Encounter.find(:last, :conditions => ["encounter_type = ? and patient_id = ? AND voided = 0",EncounterType.find_by_name("TIPS AND REMINDERS").id,@patient.id]).encounter_id
+    @tips_answer = {}
+   
+    tips_observations = Encounter.find(:last,
+           :conditions => ["patient_id = ? AND encounter_type = ? AND voided = 0",
+                          @patient.id,
+                         EncounterType.find_by_name('TIPS AND REMINDERS').id]).observations
+        unless tips_observations.blank?
+          tips_observations.each do |observation|
+            if observation.concept_id == Concept.find_by_name("ON TIPS AND REMINDERS PROGRAM").id
+              @tips_answer[:on_tips] = get_obs_value(observation.value_coded,
+                                                   observation.value_coded_name_id)
+            elsif observation.concept_id == Concept.find_by_name("TELEPHONE NUMBER TYPE ").id
+              obs_value = get_obs_value(observation.value_coded,
+                                                   observation.value_coded_name_id)
+              @tips_answer[:telephone_number_type] = [obs_value,
+                                                      obs_value.to_s.upcase
+              ]
+            elsif observation.concept_id == Concept.find_by_name("TELEPHONE NUMBER").id
+              @tips_answer[:telephone_number] = observation.value_text
+            elsif observation.concept_id == Concept.find_by_name("LANGUAGE PREFERENCE").id
+              obs_value = get_obs_value(observation.value_coded,
+                                                   observation.value_coded_name_id)
+              @tips_answer[:language_preference] = [obs_value,
+                                                    obs_value.to_s.upcase]
+            elsif observation.concept_id == Concept.find_by_name("TYPE OF MESSAGE").id
+              @tips_answer[:type_of_message] = get_obs_value(observation.value_coded,
+                                                   observation.value_coded_name_id)
+              if @tips_answer[:type_of_message] != "SMS"
+                @tips_answer[:type_of_message] = @tips_answer[:type_of_message].to_s.capitalize
+              end
+            elsif observation.concept_id == Concept.find_by_name("TYPE OF MESSAGE CONTENT").id
+              @tips_answer[:message_content] = get_obs_value(observation.value_coded,
+                                                   observation.value_coded_name_id)
+              if @tips_answer[:message_content] != "WCBA"
+                @tips_answer[:message_content] = @tips_answer[:message_content].to_s.capitalize
+              end
+            end
+          end
+        end
+
+    #raise @tips_answer.to_yaml
+
     render :layout => true
   end
 
@@ -319,7 +383,7 @@ class EncountersController < ApplicationController
       ],
       'danger_signs' => [
         ['',''],
-        ['Hevay vaginal bleeding during pregnancy','HEAVY VAGINAL BLEEDING DURING PREGNANCY'],
+        ['Heavy vaginal bleeding during pregnancy','HEAVY VAGINAL BLEEDING DURING PREGNANCY'],
         ['Excessive postnatal bleeding','EXCESSIVE POSTNATAL BLEEDING'],
         ['Fever during pregnancy','FEVER DURING PREGNANCY SIGN'],
         ['Postanatal fever','POSTNATAL FEVER SIGN'],
@@ -344,6 +408,7 @@ class EncountersController < ApplicationController
         ['Other','OTHER']
       ],
       'type_of_message_content' => [
+        ['',''],
         ['Pregnancy', 'Pregnancy'],
         ['Postnatal', 'Postnatal'],
         ['Child', 'Child'],
@@ -377,22 +442,31 @@ class EncountersController < ApplicationController
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
          ['Hospital', 'HOSPITAL'],
          ['Referred to nearest village clinic', 'REFERRED TO NEAREST VILLAGE CLINIC'],
-         ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED'],
+         ['Given advice', 'GIVEN ADVICE'],
          ['Nurse consultation', 'NURSE CONSULTATION']
       ],
       'child_symptoms_greater_zero_outcome' => [
          ['Referred to nearest village clinic', 'REFERRED TO NEAREST VILLAGE CLINIC'],
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
          ['Hospital', 'HOSPITAL'],
-         ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED'],
+         ['Given advice', 'GIVEN ADVICE'],
          ['Nurse consultation', 'NURSE CONSULTATION']
       ],
       'general_outcome' => [
-         ['Given advice no referral needed', 'GIVEN ADVICE NO REFERRAL NEEDED'],
+         ['Given advice', 'GIVEN ADVICE'],
          ['Referred to nearest village clinic', 'REFERRED TO NEAREST VILLAGE CLINIC'],
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
          ['Hospital', 'HOSPITAL'],
          ['Nurse consultation', 'NURSE CONSULTATION']
+      ],
+      'referral_reasons' => [
+         ['',''],
+         ['Danger signs observed', 'DANGER SIGNS OBSERVED'],
+         ['Physical exam needed', 'PHYSICAL EXAM NEEDED'],
+         ['Village clinic not accessible', 'VILLAGE CLINIC NOT ACCESSIBLE'],
+         ['Follow-up on previous treatment', 'FOLLOW-UP ON PREVIOUS TREATMENT'],
+         ['No health center or Hospital referral', 'NO HEALTH CENTER OR HOSPITAL REFERRAL'],
+         ['Other', 'OTHER']
       ]
     }
   end

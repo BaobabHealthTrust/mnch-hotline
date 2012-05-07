@@ -1,9 +1,9 @@
 <style>
   .tt_controls_tips_and_reminders_phone_number #num , #plus, #apostrophe, #star,
-     #char, #abc, #date, #slash, #minus, #comma, #percent, #decimal, #Unknown { display:none; }
+     #char, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
 </style>
-<script>
-  var tt_cancel_destination = "/patients/show/<%= @patient.id %>"
+<script type="text/javascript">
+  var tt_cancel_destination = "/patients/show/<%= @patient.id %>";
 
   function getRemindersContent(){
     var options = $('content_type').options;
@@ -24,6 +24,19 @@
       return 'true';
     } else {
       return 'false';
+    }
+  }
+
+  function checkPhoneType() {
+    if ($("phone_type").value == "COMMUNITY PHONE") {
+      __$("tips_and_reminders_phone_number").value = 'Unknown';
+    }
+    else if ($("phone_type").value == "PERSONAL PHONE") {
+      __$("tips_and_reminders_phone_number").value ='<%=@personal_phone_number%>';
+
+    }
+    else {
+      __$("tips_and_reminders_phone_number").value ='';
     }
   }
 
@@ -132,7 +145,7 @@
       <% options = {
         :id           => "phone_type",
         :helptext     => "Select type of phone",
-        :tt_onUnLoad  => "$('phone_type_value_coded_or_text').value = $('phone_type').value",
+        :tt_onUnLoad  => "$('phone_type_value_coded_or_text').value = $('phone_type').value; checkPhoneType();",
         :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'"
 	    } %>
 
@@ -145,6 +158,7 @@
       <% options = {
          :id          => "tips_and_reminders_phone_number",
          :tt_onUnLoad => "$('phone_number_value_coded_or_text').value = $('tips_and_reminders_phone_number').value",
+         :tt_onLoad   => "checkPhoneType()",
          :helpText    => "Enter Phone Number",
          :field_type => 'number',
          :validationRule => "^0\\d{7}$|Unknown|Not Available|N\/A|^0\\d{9}$",
@@ -196,8 +210,8 @@
            :optional => true,
            :multiple => false,
            :helpText => "Select content type",
-           :validationCode => "getRemindersContent() == 'false'",
-           :validationMessage => "Patient has already enrolled in #{@tips_and_reminders} tips and reminders content",
+           #:validationCode => "getRemindersContent() == 'false'",
+           #:validationMessage => "Patient has already enrolled in #{@tips_and_reminders} tips and reminders content",
            :condition    => "$('enrol_for_tips_and_reminders').value == 'Yes'" } %>
 
       <%unless @encounter_id.nil?%>

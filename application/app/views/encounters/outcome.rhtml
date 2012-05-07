@@ -11,7 +11,7 @@
 
   <% options = {
      :id          => "select_outcome",
-     :multiple => true,
+     :multiple => false,
      :tt_onUnLoad => "$('outcome_value_coded_or_text').value = $('select_outcome').value",
      :helpText    => "Recommended Referral"
      } %>
@@ -25,7 +25,7 @@
       @outcome = @select_options['general_outcome']
     end
     %>
-  <%= select_tag("select_outcome", options_for_select(@outcome, @encounter_answers[:outcome]), options)%>
+  <%= select_tag("select_outcome", options_for_select(@outcome, @selected_value), options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "OUTCOME") %>
   <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'outcome_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
@@ -44,13 +44,22 @@
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
   <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
 
-  <%= touch_text_field_tag "REASON FOR REFERRAL", @patient, nil,
+  <%#= touch_text_field_tag "REASON FOR REFERRAL", @patient, nil,
     {:id => "referral_reason",
     :ajaxURL => '/encounters/referral_reasons?search_string=',
     :optional => true,
     :allowFreeText => true,
-    :condition    => "$('select_outcome').value != 'GIVEN ADVICE NO REFERRAL NEEDED'",
+    :condition    => "$('select_outcome').value != 'GIVEN ADVICE'",
     :helpText => 'Referral reason'} %>
+
+  <%= touch_select_tag "REASON FOR REFERRAL", @patient, options_for_select(@select_options['referral_reasons'].sort),
+          {:id => 'referral_reason',
+           :optional => true,
+           :multiple => false,
+           :helpText => "Referral reason",
+           #:validationCode => "getRemindersContent() == 'false'",
+           #:validationMessage => "Patient has already enrolled in #{@tips_and_reminders} tips and reminders content",
+           :condition    => "$('select_outcome').value != 'GIVEN ADVICE'" } %>
 
   <%unless @encounter_id.nil?%>
     <%= hidden_field_tag("encounter_id",  @encounter_id) %>

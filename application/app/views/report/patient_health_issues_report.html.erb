@@ -53,7 +53,7 @@
                 Total Callers
             </td>
             <td  class="cellleft cellbottom main-table-cell">
-              0
+              <%= data[:total_calls] %>
             </td>
             <td  class="cellleft cellbottom main-table-cell"> 
               n/a
@@ -61,10 +61,10 @@
           </tr>
           <tr>
             <td  class="cellleft cellbottom main-table-cell">
-                Total Callers with symptoms
+                Total Callers with <%= @health_task.humanize.titleize %>
             </td>
             <td  class="cellleft cellbottom main-table-cell">
-              0
+              <%= data[:total_number_of_calls] %>
             </td>
             <td  class="cellleft cellbottom main-table-cell">
               na

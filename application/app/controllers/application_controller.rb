@@ -6,8 +6,20 @@ class ApplicationController < ActionController::Base
   helper :all
   helper_method :next_task
   filter_parameter_logging :password
-  before_filter :login_required, :except => ['login', 'logout','demographics']
-  before_filter :location_required, :except => ['login', 'logout', 'location','demographics']
+  before_filter :login_required, :except => ['login', 'logout','demographics','reports',
+                                          'individual_current_enrollments', 'patient_demographics_report',
+                                          'patient_health_issues_report','patient_age_distribution_report',
+                                          'patient_activity_report','patient_referral_report',
+                                          'call_time_of_day','call_day_distribution',
+                                          'call_lengths','tips_activity','current_enrollment_totals'
+                                         ]
+  before_filter :location_required, :except => ['login', 'logout', 'location','demographics','reports',
+                                            'individual_current_enrollments', 'patient_demographics_report',
+                                            'patient_health_issues_report','patient_age_distribution_report',
+                                            'patient_activity_report','patient_referral_report',
+                                            'call_time_of_day','call_day_distribution',
+                                            'call_lengths','tips_activity','current_enrollment_totals'
+                                            ]
   
   def rescue_action_in_public(exception)
     @message = exception.message
@@ -70,7 +82,7 @@ class ApplicationController < ActionController::Base
 
     Observation.find(:all, :conditions => ["concept_id = ? AND person_id = ? AND voided = 0",
       ConceptName.find_by_name("TYPE OF MESSAGE CONTENT").concept_id, @patient.id]).map do |obs|
-        @tips_and_reminders_enrolled_in << ConceptName.find_by_concept_id(obs.value_coded).name.capitalize
+        @tips_and_reminders_enrolled_in << ConceptName.find_by_concept_id(obs.value_coded).name.capitalize rescue nil
       end
     return @tips_and_reminders_enrolled_in
   end
@@ -90,6 +102,14 @@ class ApplicationController < ActionController::Base
       @number = @numbers.last
     end
     return @number
+  end
+
+  def get_obs_value(value_coded, value_coded_id)
+    obs_value = ConceptName.find(:first,
+                  :conditions => ["concept_id = ? AND concept_name_id = ? AND voided = 0",
+                  value_coded, value_coded_id]).name rescue nil
+
+    return obs_value.to_s
   end
   
 private

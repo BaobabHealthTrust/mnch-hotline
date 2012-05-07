@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <title><%=@report_name%></title>
+    <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+    <link href="/stylesheets/report.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/report_print.css" media="print" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="btn-menu">
+      <%params[:format] = 'pdf'%>
+      <%select_report_criteria = '/report/select?report_type=' +@report_type +'&query=' + @query%>
+
+      <button id="back_button" class="button blue" onclick="window.location = '<%#=report_path(params)%>'"><span>PDF</span></button>
+      <!-- button id="regenerate_button" class="button blue" onclick="document.getElementById('frmMain').submit();"><span>Regenerate</span></button -->
+      <button id="print_button" class="button blue" onclick="window.print()"><span>Print</span></button>
+      <button id="finish_button" class="button green" onclick="window.location = '/clinic'"><span>Finish</span></button>
+      <button id="back_button" class="button red" onclick="window.location = '<%=select_report_criteria%>'"><span>Back</span></button>
+    </div>
+
+    <form id="frmMain" action="/report/patient_analysis_report" method="post">
+      <input type="hidden" id="start_date" name="start_date" value="<%= @start_date.to_date.strftime('%d-%m-%Y') %>" />
+      <input type="hidden" id="end_date" name="end_date" value="<%= @end_date.to_date.strftime('%d-%m-%Y') %>" />
+    </form>
+
+    <div>
+    <fieldset class="main_fieldset">
+      <legend class="main_legend" style="color:white; background-color:green;">
+        <%=@report_name %>
+      </legend>
+      <table cellspacing="0" width="100%">
+        <tr>
+          <%= "Filter Info: Content - #{@content_type.capitalize}, Delivery" +
+            " - #{@delivery.capitalize}, grouping - #{@grouping.capitalize}," +
+            " Phone Type - #{@phone_type}, Number Prefix - #{@number_prefix}" +
+            " Language - #{@language}-- (#{@special_message}) "  %>
+        </tr>
+        <tr>
+          <td width="28%" colspan = 2 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
+              Total Calls
+          </td>
+          <td width="24%" colspan = 4 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Content
+          </td>
+          <td width="24%" colspan = 4 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Language
+          </td>
+          <td width="24%" colspan = 4 class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Delivery
+          </td>
+        </tr>
+        <tr>
+          <td width="25%" colspan = 2 class="cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
+              &nbsp;
+          </td>
+          <%= pregnancy_data_cell(@content_type) %>
+          <%= child_data_cell(@content_type) %>
+          <%= chiyao_data_cell(@language) %>
+          <%= chichewa_data_cell(@language) %>
+          <%= sms_data_cell(@delivery) %>
+          <%= voice_data_cell(@delivery) %>
+        </tr>
+        
+        <tr>
+          <td width="22%" class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              &nbsp;
+          </td>
+          <td class="cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
+          </td>
+          <%= pregnancy_count_and_percent_header(@content_type) %>
+          <%= child_count_and_percent_header(@content_type) %>
+          <%= chiyao_count_and_percent_header(@language) %>
+          <%= chichewa_count_and_percent_header(@language) %>
+          <%= sms_count_and_percent_header(@delivery) %>
+          <%= voice_count_and_percent_header(@delivery) %>
+        </tr>
+
+        <%@report.reverse.map do |data| %>
+          <% added= 'no' %>
+          <% data.each do |period_data| %>
+            <% if added == 'no' %>
+              <tr>
+              <td colspan = 14  class="cellleft cellbottom main-table-cell" style="text-align:left; font-weight: bold;">
+                <%= @grouping.humanize + " ( "+ period_data[:start_date] + " - " + period_data[:end_date] + " )"%>
+              </td>
+              </tr>
+              <% added = 'yes' %>
+            <% end %>
+            <tr>
+              <td class="cellleft cellbottom main-table-cell" style="text-align:left">
+                <%= period_data[:catchment].to_s.capitalize %>
+              </td>
+              <td class="cellleft cellbottom main-table-cell">
+                <%= period_data[:total] rescue 0  %>
+              </td>
+                <%= pregnancy_count_and_percent_values(@content_type, period_data[:pregnancy], period_data[:pregnancy_pct]) %>
+                <%= child_count_and_percent_values(@content_type, period_data[:child], period_data[:child_pct]) %>
+                <%= chiyao_count_and_percent_values(@language, period_data[:yao], period_data[:yao_pct]) %>
+                <%= chichewa_count_and_percent_values(@language, period_data[:chewa], period_data[:chewa_pct]) %>
+                <%= sms_count_and_percent_values(@delivery, period_data[:sms], period_data[:sms_pct]) %>
+                <%= voice_count_and_percent_values(@delivery, period_data[:voice], period_data[:voice_pct]) %>
+          </tr>
+          <% end %>
+         <% end %>                    
+      </table>
+
+    </fieldset>
+      
+    </div>
+  </body>
+</html>

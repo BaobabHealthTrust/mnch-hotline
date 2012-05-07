@@ -1,8 +1,9 @@
 <script type="text/javascript">
-  <% if params[:relation] %>
-  var tt_cancel_destination = "/patients/relationships?patient_id=<%=h params[:relation] -%>"
+
+<% if params[:relation].blank? %>
+    var tt_cancel_destination = "/clinic/call"
   <% else %>
-  var tt_cancel_destination = "/clinic/call"
+    var tt_cancel_destination = "/encounters/new/tips_and_reminders?patient_id=<%=h params[:relation] -%>"
   <% end %>
 
   function changeNextButtonText(text){
@@ -52,10 +53,14 @@
           <%=h ' Died' if person.dead == 1 rescue '' -%>
         </option>
       <% end -%>
-      <% if params[:identifier] %>
-        <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the identifier <%=h params[:identifier] -%></option>
-      <% else %>
-        <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option>
+      <% if session[:house_keeping_mode] == false %>
+        <% if params[:identifier] %>
+          <% if params[:identifier].length >= 13 %>
+            <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the identifier <%=h params[:identifier] -%></option>
+          <% end %>
+        <% else %>
+          <option value="0" onmousedown="changeNextButtonText('New Patient')">Create a new person with the name <%=h params[:given_name] -%> <%=h params[:family_name] -%></option>
+        <% end %>
       <% end %>
     </select>
     <input type="hidden" name="identifier" value="<%=h params[:identifier] -%>" />
