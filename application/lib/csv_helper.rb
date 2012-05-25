@@ -8,7 +8,7 @@ module CSVHelper
     config = YAML.load_file("config/report.yml")
     @export_path = config["config"]["export_path"]
 
-    output_file = report_name.downcase + "_#{rand(1000000)}" + ".csv"
+    output_file = report_name.downcase + ".csv"
     output_file = @export_path + "/" + output_file
 
     case report_name
