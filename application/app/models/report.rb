@@ -1530,12 +1530,21 @@ module Report
      row_data = {:start_date => date_range.first,:end_date => date_range.last,
                :person_name => name,
                :total => encounters_count,
-               :on_tips => '', :phone_type => '',:phone_number => 0,
-               :language => '', :message_type => '', :content => ''
+               :on_tips => '--', :phone_type => '--',:phone_number => '--',
+               :language => '--', :message_type => '--', :content => '--',
+               :relevant_date => "--"
             }
         data.each do |observation|
            if observation.concept_id.to_i == content_concept then
-              row_data[:content] = Concept.find(observation.value_coded.to_i).fullname rescue nil
+              actual_content_concept = Concept.find(observation.value_coded.to_i).fullname rescue nil
+              if not actual_content_concept == "WCBA"
+                row_data[:content] = actual_content_concept.to_s.capitalize
+              else
+                row_data[:content] = actual_content_concept
+              end
+
+              row_data[:relevant_date] = self.get_relevant_date(actual_content_concept,
+                                                                observation[:person_id])
            elsif observation.concept_id.to_i == language_concept
               row_data[:language] = Concept.find(observation.value_coded.to_i).fullname rescue nil
            elsif observation.concept_id.to_i == delivery_concept then
@@ -1603,6 +1612,45 @@ module Report
   data_list = Encounter.find_by_sql(query)
 
   data_list
+ end
+
+ def self.get_relevant_date(content_type , patient_id)
+
+    content_type = content_type.to_s.upcase
+    relevant_date = '--'
+
+   if content_type == "CHILD"
+     patient = Person.find(patient_id)
+
+     relevant_date = patient.birthdate.to_date.strftime('%Y-%m-%d')
+
+   elsif content_type == "PREGNANCY"
+
+     pregnancy_concept = Concept.find_by_name("EXPECTED DUE DATE").id
+     pregnancy_obs = Observation.find(:last,
+                                      :select => "value_text",
+                                      :conditions => ["concept_id = ? AND person_id = ?",
+                                                      pregnancy_concept, patient_id]) rescue nil
+     relevant_date = pregnancy_obs[:value_text].to_s if not pregnancy_obs == nil
+   elsif content_type == "WCBA"
+     tips_encounter_type = EncounterType.find_by_name("TIPS AND REMINDERS").id
+     tips_concept = Concept.find_by_name("On tips and reminders program").id
+     tips_yes_concept = Concept.find_by_name("Yes").id
+
+     tips_obs = Encounter.find( :last,
+                                :conditions => ["encounter_type = ? AND patient_id = ?",
+                                                  tips_encounter_type, patient_id]
+                              ).observations
+     tips_obs.each do | obs |
+       if obs[:concept_id] == tips_concept && obs[:value_coded] == tips_yes_concept
+          relevant_date = obs[:obs_datetime].to_date.strftime('%Y-%m-%d')
+       end
+     end
+   else
+     relevant_date = "--"
+   end
+
+   relevant_date
  end
 
 end
