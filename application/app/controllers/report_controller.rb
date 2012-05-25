@@ -464,6 +464,7 @@ class ReportController < ApplicationController
     @report_type  = params[:report_type]
     @query        = params[:query]
     @grouping     = params[:grouping]
+    @source       = params[:source] rescue nil
 
     @report_name  = "Patient Demographics"
     @report       = Report.patient_demographics(@patient_type, @grouping,
@@ -473,7 +474,11 @@ class ReportController < ApplicationController
       report_header = ['', 'Catchment area', 'Count', 'Total']
       export_to_csv('patient_demographics_report', report_header, @report,
                   @patient_type, @grouping)
-      redirect_to "/clinic"
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
     else
       render :layout => false
     end
@@ -490,6 +495,7 @@ class ReportController < ApplicationController
 
     @query        = params[:query]
     @grouping     = params[:grouping]
+    @source       = params[:source] rescue nil
 
     @report_name  = "Patient Health Issues"
     @report       = Report.patient_health_issues(@patient_type, @grouping, 
@@ -499,7 +505,11 @@ class ReportController < ApplicationController
       report_header = ["", "#{@health_task.gsub(/_/, " ").capitalize}", "Count", "Percentage"]
       export_to_csv('patient_health_issues_report', report_header , @report,
                   @patient_type, @grouping)
-      redirect_to "/clinic"
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
     else
       render :layout => false
     end
@@ -513,6 +523,7 @@ class ReportController < ApplicationController
     @report_type  = params[:report_type]
     @query        = params[:query]
     @grouping     = params[:grouping]
+    @source       = params[:source] rescue nil
 
     case @patient_type.downcase
     when 'women'
@@ -534,7 +545,11 @@ class ReportController < ApplicationController
       report_header = ["", "Count", "%age", "Min","Max","Avg","S.Dev"]
       export_to_csv('patient_age_distribution_report', report_header, @report,
                   @patient_type, @grouping)
-      redirect_to "/clinic"
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
     else
       render :layout => false
     end
@@ -548,6 +563,7 @@ class ReportController < ApplicationController
     @query        = params[:query]
     @grouping     = params[:grouping]
     @special_message = ""
+    @source       = params[:source] rescue nil
 
     @report_name  = "Patient Activity"
     @report    = Report.patient_activity(@patient_type, @grouping,
@@ -558,7 +574,13 @@ class ReportController < ApplicationController
                            "Danger Signs Count", "Danger Signs %age",
                            "Info Request Count", "Info Request %age"]
       export_to_csv('patient_activity_report', report_header, @report, @patient_type, @grouping)
-      redirect_to "/clinic"
+
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
+      
     else
       render :layout => false
     end
@@ -573,6 +595,7 @@ class ReportController < ApplicationController
     @grouping     = params[:grouping]
     @outcome      = params[:outcome]
     @special_message = ""
+    @source       = params[:source] rescue nil
 
     #raise params.to_yaml
     @report_name  = "Referral Followup"
@@ -582,7 +605,13 @@ class ReportController < ApplicationController
     if params[:destination] == 'csv'
       report_header = ["Caller Name","Phone Number", "Call Summary" ]
       export_to_csv('patient_referral_report', report_header, @report, @patient_type, @grouping)
-      redirect_to "/clinic"
+
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
+      
     else
       render :layout => false
     end
@@ -604,6 +633,7 @@ class ReportController < ApplicationController
     @call_status  = params[:call_status]
     @call_type    = params[:call_type]
     @special_message = ""
+    @source       = params[:source] rescue nil
 
     if @staff_member == "All"
       @staff = @staff_member
@@ -624,7 +654,11 @@ class ReportController < ApplicationController
                        "Evening Count", "Evening %age"]
       export_to_csv('call_time_of_day', report_header, @report, @patient_type,
                   @grouping)
-      redirect_to "/clinic"
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
     else
       render :layout => false
     end
@@ -642,6 +676,7 @@ class ReportController < ApplicationController
     @call_status  = params[:call_status]
     @call_type    = params[:call_type]
     @special_message = ""
+    @source       = params[:source] rescue nil
 
     if @staff_member == "All"
       @staff = @staff_member
@@ -664,7 +699,12 @@ class ReportController < ApplicationController
                        "Sunday Count", "Sunday %age"]
       export_to_csv('call_day_distribution', report_header, @report, @patient_type,
                   @grouping)
-      redirect_to "/clinic"
+                
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
     else
       render :layout => false
     end
@@ -680,6 +720,8 @@ class ReportController < ApplicationController
     @staff_member = params[:staff_member]
     @call_status  = params[:call_status]
     @call_type    = params[:call_type]
+    @source       = params[:source] rescue  nil
+
     @special_message = "<I> -- (Please note that the call lengths " +
                        "are in <B>Seconds</B>)<I>"
 
@@ -701,7 +743,13 @@ class ReportController < ApplicationController
                        "Evening Count", "Evening Avg", "Evening Min", "Evening SDev"]
       export_to_csv('call_lengths', report_header, @report, @patient_type,
                   @grouping)
-      redirect_to "/clinic"
+
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
+      
     else
       render :layout => false
     end
@@ -719,6 +767,7 @@ class ReportController < ApplicationController
     @phone_type     = params[:phone_type]
     @delivery       = params[:delivery]
     @number_prefix  = params[:number_prefix]
+    @source         = params[:source] rescue nil
 
     @special_message = ""
 
@@ -738,7 +787,13 @@ class ReportController < ApplicationController
                        ]
       export_to_csv('tips_activity', report_header, @report, @patient_type,
                   @grouping)
-      redirect_to "/clinic"
+
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
+      
     else
       render :layout => false
     end
@@ -756,6 +811,7 @@ class ReportController < ApplicationController
     @phone_type     = params[:phone_type]
     @delivery       = params[:delivery]
     @number_prefix  = params[:number_prefix]
+    @source         = params[:source] rescue nil
 
     @special_message = ""
 
@@ -774,7 +830,13 @@ class ReportController < ApplicationController
                        ]
       export_to_csv('current_enrollment_totals', report_header, @report, @patient_type,
                   @grouping)
-      redirect_to "/clinic"
+
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
+
     else
       render :layout => false
     end
@@ -793,6 +855,7 @@ class ReportController < ApplicationController
     @phone_type     = "All"
     @delivery       = "All"
     @number_prefix  = "All"
+    @source         = params[:source] rescue nil
 
     @special_message = ""
 
@@ -807,7 +870,11 @@ class ReportController < ApplicationController
                        ]
       export_to_csv('individual_current_enrollments', report_header, @report, @patient_type,
                   @grouping)
-      redirect_to "/clinic"
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
     else
       render :layout => false
     end
