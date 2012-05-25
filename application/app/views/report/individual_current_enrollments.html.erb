@@ -35,26 +35,29 @@
             " Language - #{@language}-- (#{@special_message}) "  %>
         </tr>
         <tr>
-          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
+          <td class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
               Full Name
           </td>
-          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+          <td class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
               On Tips
           </td>
-          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+          <td class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
               Phone Type
           </td>
           <td class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
               Phone Number
           </td>
-          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+          <td class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
               Language
           </td>
-          <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+          <td class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
               Message Type
           </td>
           <td class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
               Content
+          </td>
+          <td class="celltop cellleft cellright cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+              Relevant Date
           </td>
         </tr>
      
@@ -89,7 +92,10 @@
                   <%= period_data[:message_type].to_s.capitalize rescue ' ' %>
               </td>
               <td class="celltop cellleft cellbottom cellright main-table-cell" style="text-align:center;">
-                  <%= period_data[:content].to_s.capitalize rescue ' ' %>
+                <%= period_data[:content] rescue ' ' %>
+              </td>
+              <td class="celltop cellleft cellbottom cellright main-table-cell" style="text-align:center;">
+                  <%= period_data[:relevant_date].to_s.capitalize rescue ' ' %>
               </td>
             </tr>
          <% end %>
