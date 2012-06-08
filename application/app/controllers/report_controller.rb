@@ -866,7 +866,7 @@ class ReportController < ApplicationController
 
     if params[:destination] == 'csv'
       report_header = ["Full Name", "On Tips", "Phone Type", "Phone Number",
-                       "Language", "Message Type", "Content"
+                       "Language", "Message Type", "Content","Relevant Date"
                        ]
       export_to_csv('individual_current_enrollments', report_header, @report, @patient_type,
                   @grouping)
