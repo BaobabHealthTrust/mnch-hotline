@@ -44,7 +44,7 @@ module Report
         begin
           week_beginning  = current_week.beginning_of_week
           week_ending     = current_week.end_of_week
-          grouping_date_ranges[:date_ranges].push([week_beginning.strftime("%Y-%m-%d"), week_ending.strftime("%Y-%m-%d")])
+          grouping_date_ranges[:date_ranges].push([week_beginning.strftime("%Y-%m-%d"), week_ending.strftime("%Y-%m-%d") + " 23:59:59"])
           current_week    += 1.week
         end while current_week <= final_week
 
@@ -56,7 +56,7 @@ module Report
         begin
           month_beginning  = current_month.beginning_of_month
           month_ending     = current_month.end_of_month
-          grouping_date_ranges[:date_ranges].push([month_beginning.strftime("%Y-%m-%d"), month_ending.strftime("%Y-%m-%d")])
+          grouping_date_ranges[:date_ranges].push([month_beginning.strftime("%Y-%m-%d"), month_ending.strftime("%Y-%m-%d") + " 23:59:59"])
           current_month    += 1.month
         end while current_month <= final_month
     end
@@ -1512,7 +1512,7 @@ module Report
    voice_concept = Concept.find_by_name('voice').id
 
    if grouping == "None"
-     date_ranges = [[start_date, end_date]]
+     date_ranges = [[start_date, (end_date + " 23:59:59")]]
    else
      date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
                                                       end_date)[:date_ranges]
@@ -1521,6 +1521,9 @@ module Report
    period_data = []
 
    date_ranges.map do |date_range|
+
+#     raise date_range.to_yaml
+
      period_data = []
      encounters_count = self.get_total_tips_encounters(date_range)
      encounters = self.get_tips_data_by_name(date_range)
