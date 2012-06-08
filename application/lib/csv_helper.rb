@@ -307,7 +307,8 @@ module CSVHelper
                     "#{period_data[:phone_number] rescue ' '}",
                     "#{period_data[:language].to_s.capitalize rescue ' '}",
                     "#{period_data[:message_type].to_s.capitalize rescue ' '}",
-                    "#{period_data[:content].to_s.capitalize rescue ' '}"
+                    "#{period_data[:content].to_s.capitalize rescue ' '}",
+                    "#{period_data[:relevant_date].to_s.capitalize rescue ' '}"
                     ]
            end
            csv << [""]
