@@ -1390,7 +1390,8 @@ module Report
             WHERE pa.person_attribute_type_id = #{nearest_health_center} AND
                   e.encounter_datetime >= '#{date_range.first}' AND
                   e.encounter_datetime <= '#{date_range.last}' AND
-                  e.encounter_type IN (#{encounter_types})"
+                  e.encounter_type IN (#{encounter_types}) AND 
+                  e.voided = 0 AND o.voided = 0"
 =begin
   encounters_list = Encounter.find(:all,
                                    :joins => "LEFT JOIN person_attribute ON person_attribute.person_id = encounter.patient_id",
@@ -1451,10 +1452,12 @@ module Report
    date_ranges.map do |date_range|
      period_data = []
      count += 1
-     encounters_count = self.get_total_tips_encounters(date_range)
+     #encounters_count = self.get_total_tips_encounters(date_range)
      encounters = self.get_tips_data_by_catchment_area(date_range)
 
      encounters.group_by(&:catchment).each do |area, data|
+     
+     encounters_count = data.group_by(&:person_id).count
 
      row_data = {:start_date => date_range.first,:end_date => date_range.last,
                :catchment => area,
@@ -1463,6 +1466,7 @@ module Report
                :yao => 0, :yao_pct => 0, :chewa => 0, :chewa_pct => 0,
                :sms => 0, :sms_pct => 0, :voice => 0, :voice_pct => 0
             }
+
     data.each do |observation|
       if observation.concept_id.to_i == content_concept then
          row_data[:pregnancy] += 1 if observation.value_coded.to_i == pregnancy_concept
@@ -1521,8 +1525,6 @@ module Report
    period_data = []
 
    date_ranges.map do |date_range|
-
-#     raise date_range.to_yaml
 
      period_data = []
      encounters_count = self.get_total_tips_encounters(date_range)
