@@ -644,11 +644,11 @@ EOF
 
             symptom_type.each{|symptom|
               if symptom.tag == "HEALTH INFORMATION"
-                health_information << obs.name_to_s.capitalize
+                health_information << obs
               elsif symptom.tag == "DANGER SIGN"
-                danger_signs << obs.name_to_s.capitalize
+                danger_signs << obs
               elsif symptom.tag == "HEALTH SYMPTOM"
-                health_symptoms << obs.name_to_s.capitalize
+                health_symptoms << obs
               end
             }
           end
