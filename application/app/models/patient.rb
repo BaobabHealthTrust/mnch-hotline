@@ -524,9 +524,10 @@ EOF
                   :conditions =>["encounter_type = ?",type.id])
 
     encounter.observations.all.each{|obs| 
-      symptoms_obs << obs.to_s.split(':')[0].strip.upcase}  rescue nil
+      symptoms_obs << obs.name_to_s}  rescue nil
 
   return get_female_symptoms(symptoms_obs,"Danger")
+
   end
 
   def female_symptoms
@@ -546,9 +547,10 @@ EOF
     encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
 
     encounter.observations.all.each{|obs|
-      symptoms_obs << obs.to_s.split(':')[0].strip.upcase}  rescue nil
+      symptoms_obs << obs.name_to_s}  rescue nil
 
   return get_female_symptoms(symptoms_obs,"Symptom")
+
   end
   
   def get_child_symptoms(sign, type)
@@ -624,12 +626,14 @@ EOF
   health_information = []
   health_symptoms = []
   return_value = "No"
-    for obs in sign do
-          if obs.name_to_s != "Call ID"
+     
+    sign.each {|obs|
+          if obs.to_s.downcase != "Call ID"
+            sign_id = Concept.find_by_name(obs).concept_id
             name_tag_id = ConceptNameTagMap.find(:all,
                                                   :joins => "INNER JOIN concept_name
                                                             ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
-                                                  :conditions =>["concept_name.concept_id = ?", obs.concept_id],
+                                                  :conditions =>["concept_name.concept_id = ?", sign_id],
                                                   :select => "concept_name_tag_id"
                                                  ).last
 
@@ -648,7 +652,7 @@ EOF
               end
             }
           end
-        end
+    }
         
         if type == "Danger"
           if danger_signs.length != 0
