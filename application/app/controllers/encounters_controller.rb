@@ -368,7 +368,8 @@ class EncountersController < ApplicationController
         ['Beliefs', 'BELIEFS'],
         ['Baby\'s growth', 'BABY\'S GROWTH'],
         ['Milestones', 'MILESTONES'],
-        ['Prevention', 'PREVENTION']
+        ['Prevention', 'PREVENTION'],
+        ['Family planning','Family planning']
       ],
       'maternal_health_symptoms' => [
         ['',''],
@@ -405,6 +406,7 @@ class EncountersController < ApplicationController
         ['Umbilicus infection','UMBILICUS INFECTION'],
         ['Growth milestones','GROWTH MILESTONES'],
         ['Accessing healthcare services','ACCESSING HEALTHCARE SERVICES'],
+        ['Family planning','Family planning'],
         ['Other','OTHER']
       ],
       'type_of_message_content' => [
@@ -413,7 +415,7 @@ class EncountersController < ApplicationController
         ['Postnatal', 'Postnatal'],
         ['Child', 'Child'],
         ['WCBA', 'WCBA'],
-        ['Family planning', 'Family planning'], #TODO check if the reports will work well after adding this to the list
+        #['Family planning', 'Family planning'], #TODO check if the reports will work well after adding this to the list
         ['Observer', 'Observer']
       ],
       'message_type' => [
