@@ -482,7 +482,7 @@ EOF
     encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
     
     encounter.observations.all.each{|obs|
-      symptoms_obs << symptom[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip}  rescue nil
+      symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip}  rescue nil
 =begin
  	danger_signs.each do |sign|
  		if symptoms_obs.include?(sign)
@@ -505,8 +505,8 @@ EOF
     encounter = self.encounters.current.find(:first, 
                                              :conditions =>["encounter_type = ?",
                                              EncounterType.find_by_name("CHILD HEALTH SYMPTOMS").id])
-    
-    encounter.observations.all.each{|obs| symptoms_obs << symptom[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip} rescue nil 
+
+    encounter.observations.all.each{|obs| symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip} rescue nil 
 =begin
  	symptoms_obs.each{|k,v|
  		if symptoms.include?(k) && k != "NOT EATING OR DRINKING ANYTHING" && v == "YES"
@@ -516,6 +516,7 @@ EOF
  			end
  	}
 =end
+
    return get_child_symptoms(symptoms_obs,"Symptom")
   end
 
