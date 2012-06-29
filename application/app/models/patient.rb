@@ -469,7 +469,7 @@ EOF
   end
 
   def child_danger_signs
-  	symptoms_obs = Array.new
+    symptoms_obs = Hash.new
   	recorded_danger_signs = Array.new
  
   	danger_signs = ["FEVER OF 7 DAYS OR MORE","DIARRHEA FOR 14 DAYS OR MORE",
@@ -480,16 +480,9 @@ EOF
  					
  	type = EncounterType.find_by_name("CHILD HEALTH SYMPTOMS")
     encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
-    
+
     encounter.observations.all.each{|obs|
       symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip}  rescue nil
-=begin
- 	danger_signs.each do |sign|
- 		if symptoms_obs.include?(sign)
-        recorded_danger_signs << sign
-    end
- 	end
-=end
 
   return get_child_symptoms(symptoms_obs,"Danger")
   
@@ -507,15 +500,6 @@ EOF
                                              EncounterType.find_by_name("CHILD HEALTH SYMPTOMS").id])
 
     encounter.observations.all.each{|obs| symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip} rescue nil 
-=begin
- 	symptoms_obs.each{|k,v|
- 		if symptoms.include?(k) && k != "NOT EATING OR DRINKING ANYTHING" && v == "YES"
- 			recorded_symptoms << k
- 		elsif k == "NOT EATING OR DRINKING ANYTHING" && v == "NO"
- 			recorded_symptoms << k
- 			end
- 	}
-=end
 
    return get_child_symptoms(symptoms_obs,"Symptom")
   end
@@ -541,13 +525,7 @@ EOF
 
     encounter.observations.all.each{|obs| 
       symptoms_obs << obs.to_s.split(':')[0].strip.upcase}  rescue nil
-=begin
- 	danger_signs.each do |sign|
- 		if symptoms_obs.include?(sign)
-        recorded_danger_signs << sign
-    end
- 	end
-=end
+
   return get_female_symptoms(symptoms_obs,"Danger")
   end
 
@@ -569,13 +547,7 @@ EOF
 
     encounter.observations.all.each{|obs|
       symptoms_obs << obs.to_s.split(':')[0].strip.upcase}  rescue nil
-=begin
- 	danger_signs.each do |symptom|
- 		if symptoms_obs.include?(symptom)
-        recorded_symptoms << symptom
-    end
- 	end
-=end
+
   return get_female_symptoms(symptoms_obs,"Symptom")
   end
   
