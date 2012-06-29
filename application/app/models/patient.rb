@@ -473,7 +473,7 @@ EOF
   	recorded_danger_signs = Array.new
  
   	danger_signs = ["FEVER OF 7 DAYS OR MORE","DIARRHEA FOR 14 DAYS OR MORE",
-					"COUGH FOR 21 DAYS OR MORE", "CONVULSIONS","BLOOD IN STOOL",
+					"COUGH FOR 21 DAYS OR MORE", "CONVULSIONS SIGN","BLOOD IN STOOL",
 					"NOT EATING OR DRINKING ANYTHING","VOMITING EVERYTHING",
  					"RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
  					"RED EYE", "UNCONSCIOUS","FLAKY SKIN","SWOLLEN HANDS OR FEET SIGN"]
@@ -482,14 +482,16 @@ EOF
     encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
     
     encounter.observations.all.each{|obs|
-      symptoms_obs << obs.to_s.split(':')[0].strip.upcase}  rescue nil
-  
+      symptoms_obs << symptom[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip}  rescue nil
+=begin
  	danger_signs.each do |sign|
  		if symptoms_obs.include?(sign)
         recorded_danger_signs << sign
     end
  	end
-  return recorded_danger_signs
+=end
+
+  return get_child_symptoms(symptoms_obs,"Danger")
   
   end
   
@@ -504,8 +506,8 @@ EOF
                                              :conditions =>["encounter_type = ?",
                                              EncounterType.find_by_name("CHILD HEALTH SYMPTOMS").id])
     
-    encounter.observations.all.each{|obs| symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip} rescue nil 
-  
+    encounter.observations.all.each{|obs| symptoms_obs << symptom[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip} rescue nil 
+=begin
  	symptoms_obs.each{|k,v|
  		if symptoms.include?(k) && k != "NOT EATING OR DRINKING ANYTHING" && v == "YES"
  			recorded_symptoms << k
@@ -513,7 +515,8 @@ EOF
  			recorded_symptoms << k
  			end
  	}
-  return recorded_symptoms
+=end
+   return get_child_symptoms(symptoms_obs,"Symptom")
   end
 
   def female_danger_signs
@@ -537,14 +540,14 @@ EOF
 
     encounter.observations.all.each{|obs| 
       symptoms_obs << obs.to_s.split(':')[0].strip.upcase}  rescue nil
-
+=begin
  	danger_signs.each do |sign|
  		if symptoms_obs.include?(sign)
         recorded_danger_signs << sign
     end
  	end
-
-  return recorded_danger_signs
+=end
+  return get_female_symptoms(symptoms_obs,"Danger")
   end
 
   def female_symptoms
@@ -565,14 +568,126 @@ EOF
 
     encounter.observations.all.each{|obs|
       symptoms_obs << obs.to_s.split(':')[0].strip.upcase}  rescue nil
-
+=begin
  	danger_signs.each do |symptom|
  		if symptoms_obs.include?(symptom)
         recorded_symptoms << symptom
     end
  	end
+=end
+  return get_female_symptoms(symptoms_obs,"Symptom")
+  end
   
-  return recorded_symptoms
+  def get_child_symptoms(sign, type)
+  danger_signs = []
+  health_information = []
+  health_symptoms = []
+  return_value = "No"
+  required_tags = ConceptNameTag.find(:all,
+                                          :select => "concept_name_tag_id",
+                                          :conditions => ["tag IN ('DANGER SIGN', 'HEALTH INFORMATION', 'HEALTH SYMPTOM')"]
+                                          ).map(&:concept_name_tag_id)
+      #raise symptoms_obs.to_yaml
+     if not sign.blank?
+      sign.each do |symptom|
+        if symptom[0].upcase != "CALL ID" || symptom[0].upcase != "SEVERITY OF COUGH" ||
+           symptom[0].upcase != "SEVERITY OF FEVER" || symptom[0].upcase != "SEVERITY OF DIARRHEA" ||
+           symptom[0].upcase != "SEVERITY OF RED EYE"
+
+           if symptom[1].upcase == "YES"
+           
+              if symptom[0].downcase == "skin dryness" || symptom[0] == "skin dry" || symptom[0] == "skindryness"
+                actual_symptom = "Flaky skin"
+                symptom[0] = "Dry Skin"
+              else
+                actual_symptom = symptom[0]
+              end
+             
+              name_tag_id = ConceptNameTagMap.find(:all,
+                                                    :joins => "INNER JOIN concept_name
+                                                              ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
+                                                    :conditions =>["concept_name.concept_id = ?",                                                   
+#                                                      concept_name_tag_map.concept_name_tag_id IN (?)",
+                                                      ConceptName.find_by_name(actual_symptom).concept_id],
+#                                                      required_tags ],
+                                                    :select => "concept_name_tag_id",
+                                                    :order => "concept_name_tag_map.concept_name_tag_id ASC"
+                                                   ).last
+
+            symptom_type = ConceptNameTag.find(:all,
+                                                  :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
+                                                  :select => "tag"
+                                                  ).uniq #rescue nil #to check this
+                if not symptom_type.nil?
+                symptom_type.each{|symptom_tag|
+                  if symptom_tag.tag == "HEALTH INFORMATION"
+                    health_information << symptom[0]
+                  elsif symptom_tag.tag == "DANGER SIGN"
+                    danger_signs << symptom[0]
+                  elsif symptom_tag.tag == "HEALTH SYMPTOM"
+                    health_symptoms << symptom[0] 
+                  end
+                }
+                end
+           end #-
+      end #-
+    end 
+    end 
+    if type == "Danger"
+      if danger_signs.length != 0
+        return_value = "Yes"
+      end
+    elsif type == "Symptom"
+      if health_symptoms.length != 0
+        return_value = "Yes"
+      end
+    end
+    
+    return return_value
+  end
+  
+  def get_female_symptoms(sign, type)
+  danger_signs = []
+  health_information = []
+  health_symptoms = []
+  return_value = "No"
+    for obs in sign do
+          if obs.name_to_s != "Call ID"
+            name_tag_id = ConceptNameTagMap.find(:all,
+                                                  :joins => "INNER JOIN concept_name
+                                                            ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
+                                                  :conditions =>["concept_name.concept_id = ?", obs.concept_id],
+                                                  :select => "concept_name_tag_id"
+                                                 ).last
+
+             symptom_type = ConceptNameTag.find(:all,
+                                                :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
+                                                :select => "tag"
+                                                ).uniq
+
+            symptom_type.each{|symptom|
+              if symptom.tag == "HEALTH INFORMATION"
+                health_information << obs.name_to_s.capitalize
+              elsif symptom.tag == "DANGER SIGN"
+                danger_signs << obs.name_to_s.capitalize
+              elsif symptom.tag == "HEALTH SYMPTOM"
+                health_symptoms << obs.name_to_s.capitalize
+              end
+            }
+          end
+        end
+        
+        if type == "Danger"
+          if danger_signs.length != 0
+            return_value = "Yes"
+          end
+        elsif type == "Symptom"
+          if health_symptoms.length != 0
+            return_value = "Yes"
+          end
+        end
+    
+    return return_value
   end
   
 end

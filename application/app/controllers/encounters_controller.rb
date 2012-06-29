@@ -150,11 +150,12 @@ class EncountersController < ApplicationController
     @female_danger_signs = @patient.female_danger_signs
     @female_symptoms = @patient.female_symptoms
     
-    if (@child_danger_signs.length > 0 || @female_danger_signs.length > 0)
+    #raise @female_symptoms.to_s
+    if (@child_danger_signs == "Yes" || @female_danger_signs == "Yes")
       @selected_value = ["REFERRED TO A HEALTH CENTRE"]
-    elsif (@child_symptoms.length > 0)
+    elsif (@child_symptoms == "Yes")
       @selected_value = ["REFERRED TO NEAREST VILLAGE CLINIC"]
-    elsif (@female_symptoms.length > 0)
+    elsif (@female_symptoms == "Yes")
       @selected_value = ["GIVEN ADVICE"]
     else
       @selected_value = ["GIVEN ADVICE"]
