@@ -628,7 +628,7 @@ EOF
   return_value = "No"
      
     sign.each {|obs|
-          if obs.to_s.downcase != "Call ID"
+          if obs.to_s.downcase != "call id"
             sign_id = Concept.find_by_name(obs).concept_id
             name_tag_id = ConceptNameTagMap.find(:all,
                                                   :joins => "INNER JOIN concept_name
