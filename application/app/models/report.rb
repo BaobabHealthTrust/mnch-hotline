@@ -287,19 +287,17 @@ module Report
 
     query = "SELECT encounter_type.name AS encounter_type_name, " +
               "COUNT(obs.person_id) AS number_of_patients," + extra_parameters +
-              "concept.concept_id AS concept_id, DATE(encounter.date_created) AS start_date " +
-            "FROM encounter, encounter_type, obs, concept, concept_name, concept_name_tag_map, patient, person " +
+              "obs.concept_id AS concept_id, DATE(encounter.date_created) AS start_date " +
+            "FROM obs LEFT JOIN encounter ON encounter.encounter_id = obs.encounter_id " +
+              "LEFT JOIN encounter_type on encounter.encounter_type = encounter_type.encounter_type_id " +
+              "LEFT JOIN patient ON encounter.patient_id = patient.patient_id " +
+              "LEFT JOIN person ON patient.patient_id = person.person_id " +
+              "LEFT JOIN concept_name on obs.concept_id = concept_name.concept_id " + 
             "WHERE encounter_type.encounter_type_id IN (#{encounter_type_ids}) " +
-              "AND concept.concept_id IN (#{concept_ids}) " +
-              "AND encounter_type.encounter_type_id = encounter.encounter_type " +
-              "AND obs.concept_id = concept_name.concept_id " +
-              "AND obs.concept_id = concept.concept_id " +
-              "AND patient.patient_id = encounter.patient_id " +
-              "AND obs.person_id = person.person_id " +
-              "AND encounter.encounter_id = obs.encounter_id " +
+              "AND obs.concept_id IN (#{concept_ids}) " +
+              "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " +
               "AND DATE(obs.date_created) >= '#{date_range.first}' " +
-              "AND DATE(obs.date_created) <= '#{date_range.last}' " +
-              "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 "
+              "AND DATE(obs.date_created) <= '#{date_range.last}' " 
               
     if patient_type.to_s.upcase == "CHILDREN"
       query = query + "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
@@ -311,7 +309,7 @@ module Report
       query = query + "AND obs.value_coded = " + value_coded_indicator.to_s 
     end
     
-    query = query + " AND concept_name.concept_name_id = concept_name_tag_map.concept_name_id " 
+#    query = query + " AND concept_name.concept_name_id = concept_name_tag_map.concept_name_id " 
     
     if health_task.to_s.upcase != "OUTCOMES"
       query = query + " AND concept_name.name IN (#{concept_names}) " #" AND concept_name_tag_map.concept_name_tag_id IN (" + required_tags + ") " 
@@ -319,7 +317,7 @@ module Report
     
     query = query + " GROUP BY encounter_type.encounter_type_id, " + extra_conditions + "obs.concept_id " +
                     " ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
-
+#raise query.to_s
     query
   end
 
