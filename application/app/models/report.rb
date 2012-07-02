@@ -396,7 +396,8 @@ module Report
             concepts_list = ["HEALTHCARE VISITS", "NUTRITION", "BODY CHANGES",
                               "DISCOMFORT", "CONCERNS", "EMOTIONS",
                               "WARNING SIGNS", "ROUTINES", "BELIEFS",
-                              "BABY'S GROWTH", "MILESTONES", "PREVENTION"]
+                              "BABY'S GROWTH", "MILESTONES", "PREVENTION",
+                              "FAMILY PLANNING"]
         end
       else #all
         encounter_type_list = ["MATERNAL HEALTH SYMPTOMS", "CHILD HEALTH SYMPTOMS"]
@@ -437,7 +438,7 @@ module Report
                               "SLEEPING", "FEEDING PROBLEMS", "CRYING",
                               "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
                               "UMBILICUS INFECTION", "GROWTH MILESTONES",
-                              "ACCESSING HEALTHCARE SERVICES"
+                              "ACCESSING HEALTHCARE SERVICES", "FAMILY PLANNING"
                               ]
         end
 
@@ -541,7 +542,7 @@ module Report
     end
     
     query   =  "SELECT distinct obs.value_text " +
-               "FROM obs LEFT JOIN person ON obs.person_id = person.person_id" +
+               "FROM obs LEFT JOIN person ON obs.person_id = person.person_id " +
                "WHERE obs.concept_id = #{call_id} " +
                   "AND DATE(obs.date_created) >= '#{date_range.first}' " +
                   "AND DATE(obs.date_created) <= '#{date_range.last}' " +
