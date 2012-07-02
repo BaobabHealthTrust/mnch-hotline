@@ -471,6 +471,8 @@ class ReportController < ApplicationController
     @report_name  = "Patient Demographics"
     @report       = Report.patient_demographics(@patient_type, @grouping,
                                                 @start_date, @end_date)
+    
+    @cumulative_total =  @report.inject(0){|total, item| total = total + item[:new_registrations].to_i}
 
     if params[:destination] == 'csv'
       report_header = ['', 'Catchment area', 'Count', 'Total']
@@ -542,7 +544,7 @@ class ReportController < ApplicationController
     @report_name  = "Patient Age Distribution"
     @report       = Report.patient_age_distribution(@patient_type, @grouping,
                                                     @start_date, @end_date)
-    
+
     if params[:destination] == 'csv'
       report_header = ["", "Count", "%age", "Min","Max","Avg","S.Dev"]
       export_to_csv('patient_age_distribution_report', report_header, @report,
