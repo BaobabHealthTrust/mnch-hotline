@@ -274,7 +274,8 @@ module Report
     encounter_type_ids  = essential_params[:encounter_type_ids]
     extra_conditions    = essential_params[:extra_conditions]
     extra_parameters    = essential_params[:extra_parameters]
-    
+    #TODO find a better way of getting concpet_names that are not tagged concept_name_tag_map as danger, health_symptom or health info
+    concept_names =  '"' + essential_params[:concept_map].inject([]) {|result, concept| result << concept[:concept_name].to_s}.uniq.join('","') + '"'
     value_coded_indicator = Concept.find_by_name("YES").id
     
     child_maximum_age = 9
@@ -313,13 +314,12 @@ module Report
     query = query + " AND concept_name.concept_name_id = concept_name_tag_map.concept_name_id " 
     
     if health_task.to_s.upcase != "OUTCOMES"
-      query = query + " AND concept_name_tag_map.concept_name_tag_id IN (" + required_tags + ") " 
+      query = query + " AND concept_name.name IN (#{concept_names}) " #" AND concept_name_tag_map.concept_name_tag_id IN (" + required_tags + ") " 
     end
     
     query = query + " GROUP BY encounter_type.encounter_type_id, " + extra_conditions + "obs.concept_id " +
                     " ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
-             
-      raise query.to_yaml
+
     query
   end
 
