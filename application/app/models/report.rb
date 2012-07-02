@@ -759,7 +759,7 @@ module Report
                           ((YEAR(p.date_created) - YEAR(ps.birthdate)) > #{child_maximum_age}) AS adult " 
       extra_conditions  = "" 
       sub_query         = "" 
-      extra_group_by    = ",((YEAR(p.date_created) - YEAR(p.birthdate)) > #{child_maximum_age}) " 
+      extra_group_by    = ",((YEAR(p.date_created) - YEAR(ps.birthdate)) > #{child_maximum_age}) " 
       
     end
           patients_with_encounter = " (SELECT DISTINCT e.patient_id " +
