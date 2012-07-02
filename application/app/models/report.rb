@@ -319,7 +319,7 @@ module Report
     query = query + " GROUP BY encounter_type.encounter_type_id, " + extra_conditions + "obs.concept_id " +
                     " ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
              
-      #raise query.to_yaml
+      raise query.to_yaml
     query
   end
 
@@ -606,9 +606,10 @@ module Report
       new_patients_data[:total_number_of_calls_for_period] = total_calls_for_period.count
 
       symptom_total = results.map(&:number_of_patients).inject(0){|total,n| total = total + n.to_i} # i love ruby :D
-      
+
       unless results.blank?
         (health_task.humanize.downcase == "outcomes")? outcomes = true : outcomes = false
+
         results.map do|data|
 
           concept_name        = data.attributes["concept_name"].to_s.upcase
@@ -755,7 +756,7 @@ module Report
                               IF(MONTH(ps.birthdate)<10,'0',''), 
                               MONTH(ps.birthdate))) AS age_in_months, 
                           (YEAR(p.date_created) - YEAR(ps.birthdate)) as age_in_years, 
-                          ((YEAR(p.date_created) - YEAR(ps.birthdate)) > #{child_maximum_age}) AS adult" 
+                          ((YEAR(p.date_created) - YEAR(ps.birthdate)) > #{child_maximum_age}) AS adult " 
       extra_conditions  = "" 
       sub_query         = "" 
       extra_group_by    = ",((YEAR(p.date_created) - YEAR(p.birthdate)) > #{child_maximum_age}) " 
