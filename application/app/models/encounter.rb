@@ -69,6 +69,8 @@ class Encounter < ActiveRecord::Base
       health_symptoms = []
       symptoms_obs = Hash.new
       return_string = ""
+      family_planning_concept_id = Concept.find_by_name("family planning").concept_id
+      
       if name == "MATERNAL HEALTH SYMPTOMS"
         for obs in observations do
           if obs.name_to_s != "Call ID"
@@ -83,7 +85,7 @@ class Encounter < ActiveRecord::Base
                                                 :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
                                                 :select => "tag"
                                                 ).uniq
-
+            
             symptom_type.each{|symptom|
               if symptom.tag == "HEALTH INFORMATION"
                 health_information << obs.name_to_s.capitalize
@@ -93,6 +95,10 @@ class Encounter < ActiveRecord::Base
                 health_symptoms << obs.name_to_s.capitalize
               end
             }
+            # ToDo : There is need to find out how best we can implement this code below           
+            if obs.concept_id == family_planning_concept_id
+              health_information << obs.name_to_s.capitalize
+            end
           end
         end
       else
