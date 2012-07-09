@@ -89,7 +89,7 @@ class EncountersController < ApplicationController
 =end
     #Create the observations
 #raise encounter.to_yaml
-    create_obs(encounter, params)
+    encounter = create_obs(encounter, params)
 
     # Program handling
     date_enrolled = params[:programs][0]['date_enrolled'].to_time rescue nil
@@ -579,6 +579,8 @@ class EncountersController < ApplicationController
       
       Observation.create(call_id_observation)
     end
+    
+    return encounter
   end
 
   def update_observation_value(observation)
