@@ -1455,11 +1455,11 @@ module Report
    #calculate percentages
    #changed the denominator to be the total number of calls
    row_data[:pregnancy_pct] = (row_data[:pregnancy].to_f / total_calls.to_f * 100).round(1) if row_data[:pregnancy] != 0
-   row_data[:child_pct] = (row_data[:child].to_f / total_calls.to_f * 100).round(1) if row_data[:child] != 0
+   row_data[:child_pct] = (row_data[:child].to_f / total_calls.to_f * 100).round(1) rescue 0 if row_data[:child] != 0 
    row_data[:yao_pct] = (row_data[:yao].to_f / total_calls.to_f * 100).round(1) if row_data[:yao] != 0
-   row_data[:chewa_pct] = (row_data[:chewa].to_f / total_calls.to_f * 100).round(1) if row_data[:chewa] != 0
+   row_data[:chewa_pct] = (row_data[:chewa].to_f / total_calls.to_f * 100).round(1) rescue 0 if row_data[:chewa] != 0
    row_data[:sms_pct] = (row_data[:sms].to_f / total_calls.to_f * 100).round(1) if row_data[:sms] != 0
-   row_data[:voice_pct] = (row_data[:voice].to_f / total_calls.to_f * 100).round(1) if row_data[:voice] != 0
+   row_data[:voice_pct] = (row_data[:voice].to_f / total_calls.to_f * 100).round(1) rescue 0 if row_data[:voice] != 0
    #add to the call_data array
 
    call_data << row_data
@@ -1493,7 +1493,7 @@ module Report
   encounter_types = self.get_encounter_types(encounter_type_list)
   call_id_concept = Concept.find_by_name("CALL ID").id
 
-   query = "SELECT DISTINCT obs.value_text AS count " +
+   query = "SELECT COUNT(DISTINCT obs.value_text) AS count " +
             "FROM encounter " +
             "INNER JOIN obs " +
             "ON encounter.encounter_id = obs.encounter_id " +
