@@ -35,7 +35,7 @@ class EncountersController < ApplicationController
     encounter               = nil
     this_encounter          = params[:encounter][:encounter_type_name]
     exceptional_encounters  = ["REGISTRATION"]
-    
+=begin
 	current_observations = nil;
     # added this to append the call id observation the list of observaations
 	if params[:observations] != nil
@@ -48,10 +48,10 @@ class EncountersController < ApplicationController
     current_observations << new_observation
 
     params[:observations] = current_observations
- 
+=end 
     # Handling exceptional encounters i.e. that do not necessarily need observations such as Registration
     encounter = Encounter.create(params[:encounter], session[:datetime]) if (exceptional_encounters.include? this_encounter)
-
+=begin
     # Observation handling
     (params[:observations] || []).each do |observation|
 
@@ -86,6 +86,10 @@ class EncountersController < ApplicationController
         Observation.create(observation)
       end
     end
+=end
+    #Create the observations
+#raise encounter.to_yaml
+    create_obs(encounter, params)
 
     # Program handling
     date_enrolled = params[:programs][0]['date_enrolled'].to_time rescue nil
@@ -474,4 +478,121 @@ class EncountersController < ApplicationController
       ]
     }
   end
+
+  def create_obs(encounter , params)
+    # Observation handling
+    (params[:observations] || []).each do |observation|
+      # Check to see if any values are part of this observation
+      # This keeps us from saving empty observations
+      values = ['coded_or_text', 'coded_or_text_multiple', 'group_id', 'boolean', 'coded', 'drug', 'datetime', 'numeric', 'modifier', 'text'].map { |value_name|
+        observation["value_#{value_name}"] unless observation["value_#{value_name}"].blank? rescue nil
+      }.compact
+      
+      next if values.length == 0
+      
+      # Create an encounter if the obsevations are not empty
+      # This keeps us from saving empty encounters
+      encounter.nil? ? (encounter = Encounter.create(params[:encounter], session[:datetime])) : (encounter = Encounter.find(encounter.id))
+
+      observation[:value_text] = observation[:value_text].join(", ") if observation[:value_text].present? && observation[:value_text].is_a?(Array)
+      observation.delete(:value_text) unless observation[:value_coded_or_text].blank?
+      observation[:encounter_id] = encounter.id
+      observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+      observation[:person_id] ||= encounter.patient_id
+      observation[:concept_name].upcase ||= "DIAGNOSIS" if encounter.type.name.upcase == "OUTPATIENT DIAGNOSIS"
+
+      # Handle multiple select
+
+      if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(String)
+        observation[:value_coded_or_text_multiple] = observation[:value_coded_or_text_multiple].split(';')
+      end
+      
+      if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array)
+        observation[:value_coded_or_text_multiple].compact!
+        observation[:value_coded_or_text_multiple].reject!{|value| value.blank?}
+      end  
+      
+      # convert values from 'mmol/litre' to 'mg/declitre'
+      if(observation[:measurement_unit])
+        observation[:value_numeric] = observation[:value_numeric].to_f * 18 if ( observation[:measurement_unit] == "mmol/l")
+        observation.delete(:measurement_unit)
+      end
+
+      if(observation[:parent_concept_name])
+        concept_id = Concept.find_by_name(observation[:parent_concept_name]).id rescue nil
+        observation[:obs_group_id] = Observation.find(:first, :conditions=> ['concept_id = ? AND encounter_id = ?',concept_id, encounter.id]).id rescue ""
+        observation.delete(:parent_concept_name)
+      end
+      
+      extracted_value_numerics = observation[:value_numeric]
+      extracted_value_coded_or_text = observation[:value_coded_or_text]
+      
+      #TODO : Added this block with YM, but it needs some testing.
+      if params[:location]
+        if encounter.encounter_type == EncounterType.find_by_name("ART ADHERENCE").id
+          if observation[:order_id].blank? && observation[:concept_name] == "AMOUNT OF DRUG BROUGHT TO CLINIC"
+            order_id = Order.find(:first,
+                                  :select => "orders.order_id",
+                                  :joins => "INNER JOIN drug_order USING (order_id)",
+                                  :conditions => ["orders.patient_id = ? AND drug_order.drug_inventory_id = ? 
+                                                  AND orders.start_date < ?", encounter.patient_id, 
+                                                  observation[:value_drug], DATE(encounter.encounter_datetime)],
+                                  :order => "orders.start_date DESC").order_id rescue nil
+            if !order_id.blank?
+              observation[:order_id] = order_id
+            end
+          end
+        end
+      end
+      
+      if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array) && !observation[:value_coded_or_text_multiple].blank?
+        values = observation.delete(:value_coded_or_text_multiple)
+        values.each do |value| 
+          observation[:value_coded_or_text] = value
+          if observation[:concept_name].humanize == "Tests ordered"
+            observation[:accession_number] = Observation.new_accession_number 
+          end
+
+          observation = update_observation_value(observation)
+
+          Observation.create(observation) 
+        end
+      elsif extracted_value_numerics.class == Array
+        extracted_value_numerics.each do |value_numeric|
+          observation[:value_numeric] = value_numeric
+          Observation.create(observation)
+        end
+      else      
+        observation.delete(:value_coded_or_text_multiple)
+        observation = update_observation_value(observation) if !observation[:value_coded_or_text].blank?
+        Observation.create(observation)
+      end
+    end
+    #Create Call Id Observation only if encounter_exists
+    unless encounter.nil?   
+      call_id_observation = {}
+      call_id_observation[:encounter_id] = encounter.id
+      call_id_observation[:obs_datetime] = encounter.encounter_datetime || Time.now()
+      call_id_observation[:person_id] ||= encounter.patient_id
+      call_id_observation[:concept_name] = "CALL ID"
+      call_id_observation[:value_coded_or_text] = session[:call_id]
+      
+      Observation.create(call_id_observation)
+    end
+  end
+
+  def update_observation_value(observation)
+    value = observation[:value_coded_or_text]
+    value_coded_name = ConceptName.find_by_name(value)
+
+    if value_coded_name.blank?
+      observation[:value_text] = value
+    else
+      observation[:value_coded_name_id] = value_coded_name.concept_name_id
+      observation[:value_coded] = value_coded_name.concept_id
+    end
+    observation.delete(:value_coded_or_text)
+    return observation
+  end
+  
 end
