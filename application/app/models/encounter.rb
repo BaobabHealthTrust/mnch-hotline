@@ -100,7 +100,12 @@ class Encounter < ActiveRecord::Base
           symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip
         } rescue nil
       end
-
+      
+      required_tags = ConceptNameTag.find(:all,
+                                          :select => "concept_name_tag_id",
+                                          :conditions => ["tag IN ('DANGER SIGN', 'HEALTH INFORMATION', 'HEALTH SYMPTOM')"]
+                                          ).map(&:concept_name_tag_id)
+      
       symptoms_obs.each do |symptom|
         if symptom[0].upcase != "CALL ID" || symptom[0].upcase != "SEVERITY OF COUGH" ||
            symptom[0].upcase != "SEVERITY OF FEVER" || symptom[0].upcase != "SEVERITY OF DIARRHEA" ||
@@ -108,12 +113,14 @@ class Encounter < ActiveRecord::Base
 
            if symptom[1].upcase == "YES"
               name_tag_id = ConceptNameTagMap.find(:all,
-                                                      :joins => "INNER JOIN concept_name
-                                                                ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
-                                                      :conditions =>["concept_name.concept_id = ?",
-                                                       ConceptName.find_by_name(symptom[0]).concept_id],
-                                                      :select => "concept_name_tag_id"
-                                                     ).last
+                                                    :joins => "INNER JOIN concept_name
+                                                              ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
+                                                    :conditions =>["concept_name.concept_id = ? AND                                                   
+                                                      concept_name_tag_map.concept_name_tag_id IN (?)",
+                                                      ConceptName.find_by_name(symptom[0]).concept_id,
+                                                      required_tags ],
+                                                    :select => "concept_name_tag_id"
+                                                   ).last
 
                symptom_type = ConceptNameTag.find(:all,
                                                   :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
