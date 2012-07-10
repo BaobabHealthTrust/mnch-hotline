@@ -103,6 +103,11 @@ module Report
       sub_query         = ""
       extra_group_by    = ", ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age})"
     end
+      patients_with_encounter = " AND patient.patient_id IN ( SELECT DISTINCT p.patient_id " +
+                                                              "FROM patient p " +
+                                                              "  INNER JOIN encounter e ON p.patient_id = e.patient_id " +
+                                                              "WHERE DATE(p.date_created) >= '#{date_range.first}' " + 
+                                                              "AND DATE(p.date_created) <= '#{date_range.last}') "
 
     query = "SELECT person_attribute.value AS nearest_health_center, "+
       "COUNT(patient.patient_id) AS number_of_patients, " +
@@ -115,8 +120,9 @@ module Report
       "AND patient.voided = 0 " +
       "AND person.voided = 0 " +
       "AND person_attribute.person_attribute_type_id = #{nearest_health_center} " +
-    "GROUP BY person_attribute.value " + extra_group_by
-    "ORDER BY patient.date_created"
+      "#{patients_with_encounter} " +
+    "GROUP BY person_attribute.value " + extra_group_by +
+    " ORDER BY patient.date_created"
 
     #raise query.to_s
     return query
@@ -267,24 +273,52 @@ module Report
     encounter_type_ids  = essential_params[:encounter_type_ids]
     extra_conditions    = essential_params[:extra_conditions]
     extra_parameters    = essential_params[:extra_parameters]
+    
+    value_coded_indicator = Concept.find_by_name("YES").id
+    
+    child_maximum_age = 9
+    
+    required_tags = ConceptNameTag.find(:all,
+                                          :select => "concept_name_tag_id",
+                                          :conditions => ["tag IN ('DANGER SIGN', 'HEALTH INFORMATION', 'HEALTH SYMPTOM')"]
+                                          ).map(&:concept_name_tag_id).join(', ')
 
     query = "SELECT encounter_type.name AS encounter_type_name, " +
               "COUNT(obs.person_id) AS number_of_patients," + extra_parameters +
               "concept.concept_id AS concept_id, DATE(encounter.date_created) AS start_date " +
-            "FROM encounter, encounter_type, obs, concept, concept_name " +
+            "FROM encounter, encounter_type, obs, concept, concept_name, concept_name_tag_map, patient, person " +
             "WHERE encounter_type.encounter_type_id IN (#{encounter_type_ids}) " +
               "AND concept.concept_id IN (#{concept_ids}) " +
               "AND encounter_type.encounter_type_id = encounter.encounter_type " +
               "AND obs.concept_id = concept_name.concept_id " +
               "AND obs.concept_id = concept.concept_id " +
+              "AND patient.patient_id = encounter.patient_id " +
+              "AND obs.person_id = person.person_id " +
               "AND encounter.encounter_id = obs.encounter_id " +
               "AND DATE(obs.date_created) >= '#{date_range.first}' " +
               "AND DATE(obs.date_created) <= '#{date_range.last}' " +
-              "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " +
-            "GROUP BY encounter_type.encounter_type_id," + extra_conditions + "obs.concept_id " +
-            "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
-
-    #raise query.to_yaml
+              "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 "
+              
+    if patient_type.to_s.upcase == "CHILDREN"
+      query = query + "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+    else
+      query = query + "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+    end
+              
+    if health_task.to_s.upcase != "OUTCOMES"
+      query = query + "AND obs.value_coded = " + value_coded_indicator.to_s 
+    end
+    
+    query = query + " AND concept_name.concept_name_id = concept_name_tag_map.concept_name_id " 
+    
+    if health_task.to_s.upcase != "OUTCOMES"
+      query = query + " AND concept_name_tag_map.concept_name_tag_id IN (" + required_tags + ") " 
+    end
+    
+    query = query + " GROUP BY encounter_type.encounter_type_id, " + extra_conditions + "obs.concept_id " +
+                    " ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
+             
+      #raise query.to_yaml
     query
   end
 
@@ -472,9 +506,10 @@ module Report
     Patient.find_by_sql(query)
   end
 
-  def self.get_callers(date_range, essential_params, patient_type)
+  def self.get_callers(date_range, essential_params, patient_type, task = nil)
     child_maximum_age     = 9 # see definition of a female adult above
     concept_ids = essential_params[:concept_map].inject([]) {|result, concept| result << concept[:concept_id]}.uniq.join(',')
+    value_coded_indicator = Concept.find_by_name("YES").id
 
     if patient_type.humanize.downcase == "children"
       extra_parameters = "AND (YEAR(obs.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
@@ -491,8 +526,12 @@ module Report
             "WHERE obs.concept_id IN (#{concept_ids}) " + extra_parameters +
             "AND DATE(obs.date_created) >= '#{date_range.first}' " +
             "AND DATE(obs.date_created) <= '#{date_range.last}' " +
-            "AND obs.voided = 0"
-
+            " AND obs.voided = 0" 
+            
+    if task.to_s.upcase != "OUTCOMES"
+      query = query + " AND obs.value_coded = " + value_coded_indicator.to_s
+    end 
+       
     Patient.find_by_sql(query)
   end
 
@@ -508,7 +547,7 @@ module Report
       results               = Patient.find_by_sql(query)
       total_call_count      = self.call_count(date_range)
       total_number_of_calls = total_call_count.first.attributes["call_count"].to_i rescue 0
-      total_callers_with_symptoms = self.get_callers(date_range, essential_params, patient_type).count
+      total_callers_with_symptoms = self.get_callers(date_range, essential_params, patient_type, health_task).count
 
       new_patients_data                 = {}
       new_patients_data[:health_issues] = concept_map
@@ -882,8 +921,7 @@ module Report
          end
 
         when "children"
-          new_patients_data = self.children_demographics(results, date_range)
-
+          new_patients_data = self.children_demographics(results, date_range)     
           total_patients = 0
           new_patients_data[:gender].each do |status|
             total_patients += status.last
@@ -896,6 +934,7 @@ module Report
           activity = 'health information requested' if type == 'info'
             essential_params  = self.prepopulate_concept_ids_and_extra_parameters(patient_type, activity)
             data_query = self.patient_activity_query_builder(patient_type, activity, date_range, essential_params)
+            #raise data_query.to_s
             activity_data = Patient.find_by_sql(data_query)
             if type == 'symptoms'
               patient_statistics[:symptoms] = activity_data.first.number_of_patients.to_i
@@ -946,7 +985,9 @@ module Report
     encounter_type_ids  = essential_params[:encounter_type_ids]
     #extra_conditions    = essential_params[:extra_conditions]
     #extra_parameters    = essential_params[:extra_parameters]
-
+    
+    value_coded_indicator = Concept.find_by_name("YES").id
+=begin
     query = "SELECT COUNT(obs.person_id) AS number_of_patients "  +
             "FROM encounter, encounter_type, obs, concept, concept_name " +
             "WHERE encounter_type.encounter_type_id IN (#{encounter_type_ids}) " +
@@ -959,6 +1000,16 @@ module Report
               "AND DATE(obs.date_created) <= '#{date_range.last}' " +
               "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " +
             "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
+=end
+    query = "SELECT COUNT(DISTINCT o.person_id) AS number_of_patients "  +
+            "FROM encounter e " +
+            "INNER JOIN obs o ON e.encounter_id = o.encounter_id " +
+            "WHERE e.encounter_type IN (#{encounter_type_ids}) " +
+              "AND o.concept_id IN (#{concept_ids}) " +
+              "AND DATE(o.date_created) >= '#{date_range.first}' " +
+              "AND DATE(o.date_created) <= '#{date_range.last}' " +
+              "AND e.voided = 0 AND o.voided = 0 " +
+              "AND o.value_coded = " + value_coded_indicator.to_s 
 
     #raise query.to_yaml
     query
@@ -968,7 +1019,7 @@ module Report
     patient_data = []
     youth_age = 9
 
-   #raise params.to_yaml
+   #raise outcome.to_yaml
     date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
                                                         end_date)[:date_ranges]
 
@@ -976,13 +1027,13 @@ module Report
       patient_info = []
       patient_data_elements = {:date_range => [], :patient_info => []}
 
-      if patient_type.downcase == "Women"
+      if patient_type.downcase == "women"
         condition_options = ["encounter_type = ?
                               AND encounter_datetime >= ?
                               AND encounter_datetime <= ?
                               AND obs.concept_id = ?
                               AND obs.value_text = ?
-                              AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) >= ?",
+                              AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) > ?",
                       EncounterType.find_by_name("Update Outcome").id,
                       date_range.first, date_range.last,
                       Concept.find_by_name("Outcome").id,
