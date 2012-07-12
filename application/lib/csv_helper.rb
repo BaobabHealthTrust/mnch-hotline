@@ -16,23 +16,23 @@ module CSVHelper
       FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
       csv << report_headers
          report_data.reverse.map do |data|
-           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}","",""]
-           csv << ["New Registrations","","","#{data[:new_registrations]}"]
+           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}","",""] 
+           csv << ["New Registrations","","","#{data[:new_registrations]}"] 
            data[:catchment].map do | catchment |
-             csv << ["","#{catchment.first}","#{catchment.last}",""]
+             csv << ["","#{catchment.first}","#{catchment.last}",""] 
            end
              csv << ["","","",""]
            if patient_type.downcase == 'children'
               data[:gender].map do | gender |
-                csv << ["#{gender.first.humanize}","","#{gender.last}",""]
+                csv << ["#{gender.first.humanize}","","#{gender.last}",""] 
               end
            elsif patient_type.downcase == 'women'
               data[:pregnancy_status].map do | pregnancy_status |
-                csv << ["#{pregnancy_status.first.humanize}","","#{pregnancy_status.last}",""]
+                csv << ["#{pregnancy_status.first.humanize}","","#{pregnancy_status.last}",""] 
               end
            elsif patient_type.downcase == 'all'
               data[:patient_type].map do | patient |
-                csv << ["#{patient.first.humanize}","","#{patient.last}",""]
+                csv << ["#{patient.first.humanize}","","#{patient.last}",""] 
               end
            end
            csv << ["","","",""]
@@ -43,14 +43,14 @@ module CSVHelper
       FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
       csv << report_headers
          report_data.reverse.map do |data|
-           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}","",""]
-           csv << ["Total Callers","","#{data[:total_calls]}","n/a"]
-           csv << ["Total Callers with Symptoms","","#{data[:total_number_of_calls]}","n/a"]
-           csv << ["Below are the #{report_headers[1]}","","",""]
+           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}","",""] 
+           csv << ["Total Callers","","#{data[:total_calls]}","n/a"] 
+           csv << ["Total Callers with Symptoms","","#{data[:total_number_of_calls]}","n/a"] 
+           csv << ["Below are the #{report_headers[1]}","","",""] 
 
            data[:health_issues].map do | health_issue|
-             csv << ["","#{health_issue[:concept_name].titleize}",
-             "#{health_issue[:call_count]}","#{health_issue[:call_percentage]}"]
+             csv << ["","#{health_issue[:concept_name].titleize}", 
+             "#{health_issue[:call_count]}","#{health_issue[:call_percentage]}"] 
            end
            csv << ["","","",""]
          end
@@ -60,7 +60,7 @@ module CSVHelper
       FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
       csv << report_headers
          report_data.reverse.map do |data|
-           csv << ["#{grouping} beginning : #{data[:patient_data][:start_date]} ending : #{data[:patient_data][:end_date]}","",""]
+           csv << ["#{grouping} beginning : #{data[:patient_data][:start_date]} ending : #{data[:patient_data][:end_date]}","",""] 
 
            if patient_type.downcase == 'children'
              csv << ["Gender","","","","","",""]
@@ -144,11 +144,11 @@ module CSVHelper
       FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
       csv << report_headers
          report_data.reverse.map do |data|
-           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}",
-            "#{data[:total] rescue 0}", "#{data[:symptoms] rescue 0}",
-            "#{data[:symptoms_pct] rescue 0}", "#{data[:danger] rescue 0}",
-            "#{data[:danger_pct] rescue 0}", "#{data[:info] rescue 0}",
-            "#{data[:info_pct] rescue 0}"]
+           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}", 
+            "#{data[:total] rescue 0}", "#{data[:symptoms] rescue 0}", 
+            "#{data[:symptoms_pct] rescue 0}", "#{data[:danger] rescue 0}", 
+            "#{data[:danger_pct] rescue 0}", "#{data[:info] rescue 0}", 
+            "#{data[:info_pct] rescue 0}"] 
          end
       end
       
@@ -156,11 +156,11 @@ module CSVHelper
       FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
       csv << report_headers
          report_data.reverse.map do |data|
-           csv << ["#{grouping} beginning : #{data[:date_range].first} ending : #{data[:date_range].last}"]
+           csv << ["#{grouping} beginning : #{data[:date_range].first} ending : #{data[:date_range].last}"] 
 
            data[:patient_info].each do |info|
-             csv << ["#{info[:name]}","#{info[:number][:cell_phone_number]}",
-                      "#{info[:visit_summary].gsub(/[<B><\/B>]/,"")}"
+             csv << ["#{info[:name]}","#{info[:number][:cell_phone_number]}", 
+                      "#{info[:visit_summary].gsub(/[<B><\/B>]/,"")}" 
              ]
            end
            csv << ["","",""]
@@ -182,19 +182,19 @@ module CSVHelper
           total_afternoon += data[:afternoon]
           total_evening += data[:evening]
            
-          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}",
-                  "#{data[:total] rescue 0}", "#{data[:morning] rescue 0}",
-                  "#{data[:morning_pct] rescue 0}", "#{data[:midday] rescue 0}",
-                  "#{data[:midday_pct] rescue 0}", "#{data[:afternoon] rescue 0}",
-                  "#{data[:afternoon_pct] rescue 0}", "#{data[:evening] rescue 0}",
-                  "#{data[:evening_pct] rescue 0}"]
+          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}", 
+                  "#{data[:total] rescue 0}", "#{data[:morning] rescue 0}", 
+                  "#{data[:morning_pct] rescue 0}", "#{data[:midday] rescue 0}", 
+                  "#{data[:midday_pct] rescue 0}", "#{data[:afternoon] rescue 0}", 
+                  "#{data[:afternoon_pct] rescue 0}", "#{data[:evening] rescue 0}", 
+                  "#{data[:evening_pct] rescue 0}"] 
 
          end
-         csv << ["Total","#{total_calls}", "#{total_morning}",
-                 "#{(total_morning.to_f / total_calls.to_f * 100).round(1)}",
-                 "#{total_midday}", "#{(total_midday.to_f / total_calls.to_f * 100).round(1)}",
-                 "#{total_afternoon}", "#{(total_afternoon.to_f / total_calls.to_f * 100).round(1)}",
-                 "#{total_evening}", "#{(total_evening.to_f / total_calls.to_f * 100).round(1)}"
+         csv << ["Total","#{total_calls}", "#{total_morning}", 
+                 "#{(total_morning.to_f / total_calls.to_f * 100).round(1)}", 
+                 "#{total_midday}", "#{(total_midday.to_f / total_calls.to_f * 100).round(1)}", 
+                 "#{total_afternoon}", "#{(total_afternoon.to_f / total_calls.to_f * 100).round(1)}", 
+                 "#{total_evening}", "#{(total_evening.to_f / total_calls.to_f * 100).round(1)}" 
                 ]
       end
     when 'call_day_distribution'
@@ -219,26 +219,26 @@ module CSVHelper
           total_saturday += data[:saturday]
           total_sunday += data[:sunday]
 
-          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}",
-                  "#{data[:total] rescue 0}", "#{data[:monday] rescue 0}",
-                  "#{data[:monday_pct] rescue 0}", "#{data[:tuesday] rescue 0}",
-                  "#{data[:tuesday_pct] rescue 0}", "#{data[:wednesday] rescue 0}",
-                  "#{data[:wednesday_pct] rescue 0}", "#{data[:thursday] rescue 0}",
-                  "#{data[:thursday_pct] rescue 0}",  "#{data[:friday] rescue 0}",
-                  "#{data[:friday_pct] rescue 0}",  "#{data[:saturday] rescue 0}",
-                  "#{data[:saturday_pct] rescue 0}",  "#{data[:sunday] rescue 0}",
-                  "#{data[:sunday_pct] rescue 0}"
+          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}", 
+                  "#{data[:total] rescue 0}", "#{data[:monday] rescue 0}", 
+                  "#{data[:monday_pct] rescue 0}", "#{data[:tuesday] rescue 0}", 
+                  "#{data[:tuesday_pct] rescue 0}", "#{data[:wednesday] rescue 0}", 
+                  "#{data[:wednesday_pct] rescue 0}", "#{data[:thursday] rescue 0}", 
+                  "#{data[:thursday_pct] rescue 0}",  "#{data[:friday] rescue 0}", 
+                  "#{data[:friday_pct] rescue 0}",  "#{data[:saturday] rescue 0}", 
+                  "#{data[:saturday_pct] rescue 0}",  "#{data[:sunday] rescue 0}", 
+                  "#{data[:sunday_pct] rescue 0}" 
                   ]
 
          end
-         csv << ["Total","#{total_calls}", "#{total_monday}",
-                 "#{(total_monday.to_f / total_calls.to_f * 100).round(1)}",
-                 "#{total_tuesday}", "#{(total_tuesday.to_f / total_calls.to_f * 100).round(1)}",
-                 "#{total_wednesday}", "#{(total_wednesday.to_f / total_calls.to_f * 100).round(1)}",
-                 "#{total_thursday}", "#{(total_thursday.to_f / total_calls.to_f * 100).round(1)}",
-                 "#{total_friday}", "#{(total_friday.to_f / total_calls.to_f * 100).round(1)}",
-                 "#{total_saturday}", "#{(total_saturday.to_f / total_calls.to_f * 100).round(1)}",
-                 "#{total_sunday}", "#{(total_sunday.to_f / total_calls.to_f * 100).round(1)}"
+         csv << ["Total","#{total_calls}", "#{total_monday}", 
+                 "#{(total_monday.to_f / total_calls.to_f * 100).round(1)}", 
+                 "#{total_tuesday}", "#{(total_tuesday.to_f / total_calls.to_f * 100).round(1)}", 
+                 "#{total_wednesday}", "#{(total_wednesday.to_f / total_calls.to_f * 100).round(1)}", 
+                 "#{total_thursday}", "#{(total_thursday.to_f / total_calls.to_f * 100).round(1)}", 
+                 "#{total_friday}", "#{(total_friday.to_f / total_calls.to_f * 100).round(1)}", 
+                 "#{total_saturday}", "#{(total_saturday.to_f / total_calls.to_f * 100).round(1)}", 
+                 "#{total_sunday}", "#{(total_sunday.to_f / total_calls.to_f * 100).round(1)}" 
                 ]
       end
 
@@ -248,12 +248,12 @@ module CSVHelper
       csv << report_headers
          report_data.reverse.map do |data|
 
-          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}",
-                  "#{data[:total] rescue 0}",
-                  "#{data[:morning] rescue 0}", "#{data[:m_avg] rescue 0}", "#{data[:m_min] rescue 0}", "#{data[:m_sdev] rescue 0}",
-                  "#{data[:midday] rescue 0}", "#{data[:mid_avg] rescue 0}", "#{data[:mid_min] rescue 0}", "#{data[:mid_sdev] rescue 0}",
-                  "#{data[:afternoon] rescue 0}", "#{data[:a_avg] rescue 0}", "#{data[:a_min] rescue 0}", "#{data[:a_sdev] rescue 0}",
-                  "#{data[:evening] rescue 0}",  "#{data[:e_avg] rescue 0}", "#{data[:e_min] rescue 0}", "#{data[:e_sdev] rescue 0}"
+          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}", 
+                  "#{data[:total] rescue 0}", 
+                  "#{data[:morning] rescue 0}", "#{data[:m_avg] rescue 0}", "#{data[:m_min] rescue 0}", "#{data[:m_sdev] rescue 0}", 
+                  "#{data[:midday] rescue 0}", "#{data[:mid_avg] rescue 0}", "#{data[:mid_min] rescue 0}", "#{data[:mid_sdev] rescue 0}", 
+                  "#{data[:afternoon] rescue 0}", "#{data[:a_avg] rescue 0}", "#{data[:a_min] rescue 0}", "#{data[:a_sdev] rescue 0}", 
+                  "#{data[:evening] rescue 0}",  "#{data[:e_avg] rescue 0}", "#{data[:e_min] rescue 0}", "#{data[:e_sdev] rescue 0}"   
                   ]
          end
 
@@ -263,11 +263,11 @@ module CSVHelper
       csv << report_headers
          report_data.reverse.map do |data|
 
-          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}",
-                  "#{data[:total] rescue 0}",
-                  "#{data[:pregnancy] rescue 0}", "#{data[:pregnancy_pct] rescue 0}", "#{data[:child] rescue 0}", "#{data[:child_pct] rescue 0}",
-                  "#{data[:yao] rescue 0}", "#{data[:yao_pct] rescue 0}", "#{data[:chewa] rescue 0}", "#{data[:chewa_pct] rescue 0}",
-                  "#{data[:sms] rescue 0}", "#{data[:sms_pct] rescue 0}", "#{data[:voice] rescue 0}", "#{data[:voice_pct] rescue 0}"
+          csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}", 
+                  "#{data[:total] rescue 0}", 
+                  "#{data[:pregnancy] rescue 0}", "#{data[:pregnancy_pct] rescue 0}", "#{data[:child] rescue 0}", "#{data[:child_pct] rescue 0}", 
+                  "#{data[:yao] rescue 0}", "#{data[:yao_pct] rescue 0}", "#{data[:chewa] rescue 0}", "#{data[:chewa_pct] rescue 0}", 
+                  "#{data[:sms] rescue 0}", "#{data[:sms_pct] rescue 0}", "#{data[:voice] rescue 0}", "#{data[:voice_pct] rescue 0}" 
                   ]
          end
       end
@@ -278,14 +278,15 @@ module CSVHelper
            added = false
            data.each do |period_data|
              if !added
-                csv << ["#{grouping} beginning : #{period_data[:start_date]} ending : #{period_data[:end_date]}"]
+                csv << ["#{grouping} beginning : #{period_data[:start_date]} ending : #{period_data[:end_date]}"] 
                 added = true
              end
-             csv << ["#{period_data[:catchment].to_s.capitalize}",
-                  "#{period_data[:total] rescue 0}",
+             csv << ["#{period_data[:catchment].to_s.capitalize}", 
+                  "#{period_data[:total] rescue 0}", 
                   "#{period_data[:pregnancy] rescue 0}", "#{period_data[:pregnancy_pct] rescue 0}", "#{period_data[:child] rescue 0}", "#{period_data[:child_pct] rescue 0}",
-                  "#{period_data[:yao] rescue 0}", "#{period_data[:yao_pct] rescue 0}", "#{period_data[:chewa] rescue 0}", "#{period_data[:chewa_pct] rescue 0}",
-                  "#{period_data[:sms] rescue 0}", "#{period_data[:sms_pct] rescue 0}", "#{period_data[:voice] rescue 0}", "#{period_data[:voice_pct] rescue 0}"
+                  "#{period_data[:wcba] rescue 0}", "#{period_data[:wcba_pct] rescue 0}",
+                  "#{period_data[:yao] rescue 0}", "#{period_data[:yao_pct] rescue 0}", "#{period_data[:chewa] rescue 0}", "#{period_data[:chewa_pct] rescue 0}", 
+                  "#{period_data[:sms] rescue 0}", "#{period_data[:sms_pct] rescue 0}", "#{period_data[:voice] rescue 0}", "#{period_data[:voice_pct] rescue 0}" 
                   ]
            end
            csv << [""]
@@ -298,17 +299,17 @@ module CSVHelper
            added = false
            data.each do |period_data|
              if !added
-                csv << ["#{grouping} beginning : #{period_data[:start_date]} ending : #{period_data[:end_date]}"]
+                csv << ["#{grouping} beginning : #{period_data[:start_date]} ending : #{period_data[:end_date]}"] 
                 added = true
              end
-             csv << ["#{period_data[:person_name].to_s.capitalize}",
-                    "#{period_data[:on_tips].to_s.capitalize rescue ' '}",
-                    "#{period_data[:phone_type].to_s.capitalize rescue ' '}",
-                    "#{period_data[:phone_number] rescue ' '}",
-                    "#{period_data[:language].to_s.capitalize rescue ' '}",
-                    "#{period_data[:message_type].to_s.capitalize rescue ' '}",
-                    "#{period_data[:content].to_s.capitalize rescue ' '}",
-                    "#{period_data[:relevant_date].to_s.capitalize rescue ' '}"
+             csv << ["#{period_data[:person_name].to_s.capitalize}", 
+                    "#{period_data[:on_tips].to_s.capitalize rescue ' '}", 
+                    "#{period_data[:phone_type].to_s.capitalize rescue ' '}", 
+                    "#{period_data[:phone_number] rescue ' '}", 
+                    "#{period_data[:language].to_s.capitalize rescue ' '}", 
+                    "#{period_data[:message_type].to_s.capitalize rescue ' '}", 
+                    "#{period_data[:content].to_s.capitalize rescue ' '}", 
+                    "#{period_data[:relevant_date].to_s.capitalize rescue ' '}" 
                     ]
            end
            csv << [""]

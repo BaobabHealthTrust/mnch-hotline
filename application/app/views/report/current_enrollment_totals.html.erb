@@ -29,16 +29,16 @@
       </legend>
       <table cellspacing="0" width="100%">
         <tr>
-          <%= "Filter Info: Content - #{@content_type.capitalize}, Delivery" +
-            " - #{@delivery.capitalize}, grouping - #{@grouping.capitalize}," +
-            " Phone Type - #{@phone_type}, Number Prefix - #{@number_prefix}" +
+          <%= "Filter Info: Content - #{@content_type.capitalize}, Delivery " + 
+            " - #{@delivery.capitalize}, grouping - #{@grouping.capitalize}, " + 
+            " Phone Type - #{@phone_type}, Number Prefix - #{@number_prefix} " +
             " Language - #{@language}-- (#{@special_message}) "  %>
         </tr>
         <tr>
           <td width="28%" colspan = 2 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
               Total Calls
           </td>
-          <td width="24%" colspan = 4 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
+          <td width="24%" colspan = 6 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
               Content
           </td>
           <td width="24%" colspan = 4 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:center;">
@@ -54,6 +54,7 @@
           </td>
           <%= pregnancy_data_cell(@content_type) %>
           <%= child_data_cell(@content_type) %>
+          <%= wcba_data_cell(@content_type) %>
           <%= chiyao_data_cell(@language) %>
           <%= chichewa_data_cell(@language) %>
           <%= sms_data_cell(@delivery) %>
@@ -69,6 +70,7 @@
           </td>
           <%= pregnancy_count_and_percent_header(@content_type) %>
           <%= child_count_and_percent_header(@content_type) %>
+          <%= wcba_count_and_percent_header(@content_type) %>
           <%= chiyao_count_and_percent_header(@language) %>
           <%= chichewa_count_and_percent_header(@language) %>
           <%= sms_count_and_percent_header(@delivery) %>
@@ -77,10 +79,12 @@
 
         <%@report.reverse.map do |data| %>
           <% added= 'no' %>
+          <% period_total = 0%>
           <% data.each do |period_data| %>
+          	<% period_total += period_data[:total] %>
             <% if added == 'no' %>
               <tr>
-              <td colspan = 14  class="cellleft cellbottom main-table-cell" style="text-align:left; font-weight: bold;">
+              <td colspan = 16  class="cellleft cellbottom cellright main-table-cell" style="text-align:left; font-weight: bold;">
                 <%= @grouping.humanize + " ( "+ period_data[:start_date] + " - " + period_data[:end_date] + " )"%>
               </td>
               </tr>
@@ -95,12 +99,21 @@
               </td>
                 <%= pregnancy_count_and_percent_values(@content_type, period_data[:pregnancy], period_data[:pregnancy_pct]) %>
                 <%= child_count_and_percent_values(@content_type, period_data[:child], period_data[:child_pct]) %>
+                <%= wcba_count_and_percent_values(@content_type, period_data[:wcba], period_data[:wcba_pct]) %>
                 <%= chiyao_count_and_percent_values(@language, period_data[:yao], period_data[:yao_pct]) %>
                 <%= chichewa_count_and_percent_values(@language, period_data[:chewa], period_data[:chewa_pct]) %>
                 <%= sms_count_and_percent_values(@delivery, period_data[:sms], period_data[:sms_pct]) %>
                 <%= voice_count_and_percent_values(@delivery, period_data[:voice], period_data[:voice_pct]) %>
           </tr>
           <% end %>
+          <tr>
+              <td colspan = 1  class="cellleft cellbottom main-table-cell" style="text-align:right; font-weight: bold;">
+                <%= @grouping.humanize + " Total"%>
+              </td>
+              <td colspan = 15  class="cellleft cellbottom cellright main-table-cell" style="text-align:left; font-weight: bold;">
+                <%= period_total%>
+              </td>
+          </tr>
          <% end %>                    
       </table>
 

@@ -821,8 +821,9 @@ class ReportController < ApplicationController
 
     if params[:destination] == 'csv'
       report_header = ["","Count", "Content Pregnancy Count",
-                       "Content Pregnancy %age", "Content Child Count",
-                       "Content Child %age", "Language Chiyao Count",
+                       "Content Pregnancy %age", "Content Child Count", 
+                       "Content Child %age", "Content WCBA Count", 
+                       "Content WCBA %age", "Language Chiyao Count",
                        "Language Chiyao %age", "Language Chichewa Count",
                        "Language Chichewa %age", "Delivery SMS Count",
                        "Delivery SMS %age", "Language Voice Count",

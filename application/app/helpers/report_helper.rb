@@ -18,6 +18,14 @@ module ReportHelper
     table_cell
   end  
   
+  def wcba_data_cell(content_type)
+    if (content_type.capitalize == "All" ||  content_type.upcase == "WCBA") 
+      content_type.upcase == "WCBA" ? colspan = '4' : colspan = '2'
+      table_cell = "<td width=\"12%\" colspan = #{colspan} class=\"cellleft cellbottom main-table-cell\" style=\"font-weight: bold; text-align:center;\">" + "WCBA" +"</td>"
+    end
+    table_cell
+  end 
+  
   def chiyao_data_cell(language)
     if (language.capitalize == "All" ||  language.capitalize == "Yao" )
       language.capitalize == "All" ? colspan = '2': colspan = '4'
@@ -45,7 +53,7 @@ module ReportHelper
   def voice_data_cell(delivery)
     if (delivery.capitalize == "All" ||  delivery.capitalize == "Voice" )
       delivery.capitalize == "All" ? colspan = '2': colspan = '4'
-      table_cell = "<td width=\"12%\" colspan = \"#{colspan}\" class=\"cellleft cellbottom main-table-cell\" style=\"font-weight: bold; text-align:center;\">" + "Voice" +"</td>"
+      table_cell = "<td width=\"12%\" colspan = \"#{colspan}\" class=\"cellleft cellbottom cellright main-table-cell\" style=\"font-weight: bold; text-align:center;\">" + "Voice" +"</td>"
     end
     table_cell
   end  
@@ -60,6 +68,14 @@ module ReportHelper
   def child_count_and_percent_header(content_type)
     if (content_type.capitalize == "All" ||  content_type.capitalize == "Child" )
         content_type.capitalize == "Child" ? colspan = '2' : colspan = '1'
+        table_cell = "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" style=\"font-weight: bold;\">" +"Count" + "</td>" + "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" style=\"font-weight: bold;\">" + "%age" + "</td>"
+    end
+    table_cell
+  end
+  
+  def wcba_count_and_percent_header(content_type)
+    if (content_type.capitalize == "All" ||  content_type.upcase == "WCBA" )
+        content_type.upcase == "WCBA" ? colspan = '2' : colspan = '1'
         table_cell = "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" style=\"font-weight: bold;\">" +"Count" + "</td>" + "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" style=\"font-weight: bold;\">" + "%age" + "</td>"
     end
     table_cell
@@ -92,7 +108,7 @@ module ReportHelper
   def voice_count_and_percent_header(delivery)
     if (delivery.capitalize == "All" ||  delivery.capitalize == "Voice" )
         delivery.capitalize == "Voice" ? colspan = '2' : colspan = '1'
-        table_cell = "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" style=\"font-weight: bold;\">" +"Count" + "</td>" + "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" style=\"font-weight: bold;\">" + "%age" + "</td>"
+        table_cell = "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" style=\"font-weight: bold;\">" +"Count" + "</td>" + "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom cellright main-table-cell\" style=\"font-weight: bold;\">" + "%age" + "</td>"
     end
     table_cell
   end
@@ -109,6 +125,14 @@ module ReportHelper
     if (content_type.capitalize == "All" ||  content_type.capitalize == "Child" )
         content_type.capitalize == "Child" ? colspan = '2' : colspan = '1'
         table_cell = "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" >" +"#{child_value}" + "</td>" + "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\">" + "#{child_pct_value}" + "</td>"
+    end 
+    table_cell
+  end
+  
+  def wcba_count_and_percent_values(content_type, wcba_value, wcba_pct_value)
+    if (content_type.capitalize == "All" ||  content_type.upcase == "WCBA" )
+        content_type.upcase == "WCBA" ? colspan = '2' : colspan = '1'
+        table_cell = "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" >" +"#{wcba_value}" + "</td>" + "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\">" + "#{wcba_pct_value}" + "</td>"
     end 
     table_cell
   end
@@ -140,7 +164,7 @@ module ReportHelper
   def voice_count_and_percent_values(delivery, voice_count, voice_pct_value)
     if (delivery.capitalize == "All" ||  delivery.capitalize == "Voice" )
         delivery.capitalize == "Voice" ? colspan = '2' : colspan = '1'
-        table_cell = "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" >" +"#{voice_count}" + "</td>" + "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\">" + "#{voice_pct_value}" + "</td>"
+        table_cell = "<td colspan = \"#{colspan}\" class=\" cellleft cellbottom main-table-cell\" >" +"#{voice_count}" + "</td>" + "<td colspan = \"#{colspan}\" class=\" cellright cellleft cellbottom main-table-cell\">" + "#{voice_pct_value}" + "</td>"
     end 
     table_cell
   end
