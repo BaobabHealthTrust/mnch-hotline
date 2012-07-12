@@ -385,7 +385,9 @@ class EncountersController < ApplicationController
         ['Headaches','HEADACHES'],
         ['Fits or convulsions','FITS OR CONVULSIONS SYMPTOM'],
         ['Swollen hands or feet','SWOLLEN HANDS OR FEET SYMPTOM'],
-        ['Paleness of the skin and tiredness','PALENESS OF THE SKIN AND TIREDNESS SYMPTOM']
+        ['Paleness of the skin and tiredness','PALENESS OF THE SKIN AND TIREDNESS SYMPTOM'],
+        ['No fetal movements','NO FETAL MOVEMENTS SYMPTOM'],
+        ['Water breaks','WATER BREAKS SYMPTOM']
       ],
       'danger_signs' => [
         ['',''],

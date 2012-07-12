@@ -374,10 +374,7 @@ module Report
                               "FITS OR CONVULSIONS SYMPTOM",
                               "SWOLLEN HANDS OR FEET SYMPTOM",
                               "PALENESS OF THE SKIN AND TIREDNESS SYMPTOM",
-                              "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM",
-                              "FEVER", "DIARRHEA", "COUGH", "CONVULSIONS SYMPTOM",
-                              "NOT EATING", "VOMITING", "RED EYE",
-                              "FAST BREATHING", "VERY SLEEPY", "UNCONSCIOUS"
+                              "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM"
                               ]
 
           when "danger warning signs"
@@ -408,8 +405,12 @@ module Report
                               "FITS OR CONVULSIONS SYMPTOM",
                               "SWOLLEN HANDS OR FEET SYMPTOM",
                               "PALENESS OF THE SKIN AND TIREDNESS SYMPTOM",
-                              "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM"]
-
+                              "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM",
+                              "FEVER", "DIARRHEA", "COUGH", "CONVULSIONS SYMPTOM",
+                              "NOT EATING", "VOMITING", "RED EYE",
+                              "FAST BREATHING", "VERY SLEEPY", "UNCONSCIOUS"
+                              ]
+            
           when "danger warning signs"
             concepts_list = ["HEAVY VAGINAL BLEEDING DURING PREGNANCY",
                               "EXCESSIVE POSTNATAL BLEEDING",
