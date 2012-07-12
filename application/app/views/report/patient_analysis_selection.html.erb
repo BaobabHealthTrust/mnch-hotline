@@ -40,8 +40,8 @@
                     {:helpText => "Select a Staff member to report on"} %>
         <%= select_tag :call_type,     options_for_select(@call_type),
                     {:helpText => "Select Call type"} %>
-        <%= select_tag :call_status,     options_for_select(@call_status),
-                    {:helpText => "Select Call Status (dropped or not)"} %>
+        <%#= select_tag :call_status,     options_for_select(@call_status),
+          #          {:helpText => "Select Call Status (dropped or not)"} %>
       <% elsif @report_type.downcase == 'tips' %>
         <%= select_tag :content_type,     options_for_select(@content_type),
                     {:helpText => "Select the Content to report on"} %>

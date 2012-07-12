@@ -1177,16 +1177,21 @@ module Report
        call_type_code = 1
      when 'irrelevant'
        call_type_code = 2
-     else
-       call_type_code = 0 #not sure as they have not been implemented yet
+     when 'dropped'
+       call_type_code = 3 
      end
      extra_conditions += " AND call_log.call_type = '#{call_type_code}' "
    end
 
-   if call_status != 'All'
-     extra_conditions = extra_conditions
+=begin
+   if call_status = 'All'
+   elsif call_status = 'Yes'
+     extra_conditions +=
+   else
+   
    end
-
+=end
+   
    query = "SELECT TIME(call_log.start_time) AS call_start_time, " +
            "TIME(call_log.end_time) AS call_end_time, " +
            "users.username, DATE_FORMAT(start_time,'%W') AS day_of_week, " +
@@ -1374,12 +1379,13 @@ module Report
      end
    end
    #calculate percentages
-   row_data[:pregnancy_pct] = (row_data[:pregnancy].to_f / encounters.count.to_f * 100).round(1) if row_data[:pregnancy] != 0
-   row_data[:child_pct] = (row_data[:child].to_f / encounters.count.to_f * 100).round(1) if row_data[:child] != 0
-   row_data[:yao_pct] = (row_data[:yao].to_f / encounters.count.to_f * 100).round(1) if row_data[:yao] != 0
-   row_data[:chewa_pct] = (row_data[:chewa].to_f / encounters.count.to_f * 100).round(1) if row_data[:chewa] != 0
-   row_data[:sms_pct] = (row_data[:sms].to_f / encounters.count.to_f * 100).round(1) if row_data[:sms] != 0
-   row_data[:voice_pct] = (row_data[:voice].to_f / encounters.count.to_f * 100).round(1) if row_data[:voice] != 0
+   #changed the denominator to be the total number of calls
+   row_data[:pregnancy_pct] = (row_data[:pregnancy].to_f / total_calls.to_f * 100).round(1) if row_data[:pregnancy] != 0
+   row_data[:child_pct] = (row_data[:child].to_f / total_calls.to_f * 100).round(1) if row_data[:child] != 0
+   row_data[:yao_pct] = (row_data[:yao].to_f / total_calls.to_f * 100).round(1) if row_data[:yao] != 0
+   row_data[:chewa_pct] = (row_data[:chewa].to_f / total_calls.to_f * 100).round(1) if row_data[:chewa] != 0
+   row_data[:sms_pct] = (row_data[:sms].to_f / total_calls.to_f * 100).round(1) if row_data[:sms] != 0
+   row_data[:voice_pct] = (row_data[:voice].to_f / total_calls.to_f * 100).round(1) if row_data[:voice] != 0
    #add to the call_data array
 
    call_data << row_data
