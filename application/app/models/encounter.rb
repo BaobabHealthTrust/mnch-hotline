@@ -119,12 +119,10 @@ class Encounter < ActiveRecord::Base
 
            if symptom[1].upcase == "YES"
            
-              if symptom[0].downcase == "skin dryness" || symptom[0] == "skin dry" || symptom[0] == "skindryness"
-                actual_symptom = "Flaky skin"
-                symptom[0] = "Dry Skin"
-              else
-                actual_symptom = symptom[0]
-              end
+              symptom_name =  get_mapped_concept_name(symptom[0])
+              
+              symptom[0] = symptom_name.nil? ? symptom[0] : symptom_name
+              actual_symptom = symptom[0] == "Dry skin" ? "Flaky skin" : symptom[0]
              
               name_tag_id = ConceptNameTagMap.find(:all,
                                                     :joins => "INNER JOIN concept_name
@@ -136,17 +134,11 @@ class Encounter < ActiveRecord::Base
                                                     :select => "concept_name_tag_id",
                                                     :order => "concept_name_tag_map.concept_name_tag_id ASC"
                                                    ).last
-
-=begin                
-               if name_tag_id.nil?
-                 raise symptoms_obs.to_yaml 
-               end
-=end
-               symptom_type = ConceptNameTag.find(:all,
+              symptom_type = ConceptNameTag.find(:all,
                                                   :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
                                                   :select => "tag"
                                                   ).uniq #rescue nil #to check this
-                if not symptom_type.nil?
+              if not symptom_type.nil?
                 symptom_type.each{|symptom_tag|
                   if symptom_tag.tag == "HEALTH INFORMATION"
                     health_information << symptom[0]
@@ -156,7 +148,7 @@ class Encounter < ActiveRecord::Base
                     health_symptoms << symptom[0] 
                   end
                 }
-                end
+              end
            end
         end
       end
@@ -376,6 +368,20 @@ class Encounter < ActiveRecord::Base
     end
 
     values_string
+  end
+  
+  #TODO this is an improvisation. I will have to get a better way of doing this
+  #Make sure that any updates to this should also be made to patient model / get_mapped_concept_name
+  def get_mapped_concept_name(concept_name)
+    mapped_concepts = {
+                        'eye infection, acute' => 'Red eye',
+                        'acute eye infection' => 'Red eye',
+                        'acute red eye' => 'Red eye',
+                        'skin dryness' => 'Dry skin',
+                        'skin dry' => 'Dry skin',
+                        'skindryness' => 'Dry skin'
+                       }
+    return mapped_concepts[concept_name.to_s.downcase]
   end
 
 end
