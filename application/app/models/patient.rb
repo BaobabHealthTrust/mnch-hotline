@@ -476,14 +476,14 @@ EOF
 					"COUGH FOR 21 DAYS OR MORE", "CONVULSIONS SIGN","BLOOD IN STOOL",
 					"NOT EATING OR DRINKING ANYTHING","VOMITING EVERYTHING",
  					"RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
- 					"RED EYE", "UNCONSCIOUS","FLAKY SKIN","SWOLLEN HANDS OR FEET SIGN"]
+ 					"UNCONSCIOUS","FLAKY SKIN","SWOLLEN HANDS OR FEET SIGN"]
  					
  	type = EncounterType.find_by_name("CHILD HEALTH SYMPTOMS")
     encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
 
     encounter.observations.all.each{|obs|
       symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip}  rescue nil
-
+  
   return get_child_symptoms(symptoms_obs,"Danger")
   
   end
@@ -499,8 +499,8 @@ EOF
                                              :conditions =>["encounter_type = ?",
                                              EncounterType.find_by_name("CHILD HEALTH SYMPTOMS").id])
 
-    encounter.observations.all.each{|obs| symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip} rescue nil 
-
+    encounter.observations.all.each{|obs| symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip} rescue nil
+    
    return get_child_symptoms(symptoms_obs,"Symptom")
   end
 
@@ -561,38 +561,37 @@ EOF
   required_tags = ConceptNameTag.find(:all,
                                           :select => "concept_name_tag_id",
                                           :conditions => ["tag IN ('DANGER SIGN', 'HEALTH INFORMATION', 'HEALTH SYMPTOM')"]
-                                          ).map(&:concept_name_tag_id)
-      #raise symptoms_obs.to_yaml
+                                          ).map(&:concept_name_tag_id).join(', ')
+
      if not sign.blank?
       sign.each do |symptom|
         if symptom[0].upcase != "CALL ID" || symptom[0].upcase != "SEVERITY OF COUGH" ||
            symptom[0].upcase != "SEVERITY OF FEVER" || symptom[0].upcase != "SEVERITY OF DIARRHEA" ||
            symptom[0].upcase != "SEVERITY OF RED EYE"
-
-           if symptom[1].upcase == "YES"
            
-              if symptom[0].downcase == "skin dryness" || symptom[0] == "skin dry" || symptom[0] == "skindryness"
-                actual_symptom = "Flaky skin"
-                symptom[0] = "Dry Skin"
-              else
-                actual_symptom = symptom[0]
-              end
-             
+           if symptom[1].upcase == "YES"
+              
+              symptom_name =  get_mapped_concept_name(symptom[0])
+              
+              symptom[0] = symptom_name.nil? ? symptom[0] : symptom_name
+              actual_symptom = symptom[0] == "Dry skin" ? "Flaky skin" : symptom[0] 
+        
               name_tag_id = ConceptNameTagMap.find(:all,
                                                     :joins => "INNER JOIN concept_name
                                                               ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
-                                                    :conditions =>["concept_name.concept_id = ?",                                                   
-#                                                      concept_name_tag_map.concept_name_tag_id IN (?)",
-                                                      ConceptName.find_by_name(actual_symptom).concept_id],
-#                                                      required_tags ],
+                                                    :conditions =>["concept_name.concept_name_id = ?", #AND                                               
+#                                                                    concept_name_tag_map.concept_name_tag_id IN (?)",
+                                                             ConceptName.find_by_name(actual_symptom).concept_name_id],
+#                                                             required_tags ],
                                                     :select => "concept_name_tag_id",
                                                     :order => "concept_name_tag_map.concept_name_tag_id ASC"
                                                    ).last
 
-            symptom_type = ConceptNameTag.find(:all,
+              symptom_type = ConceptNameTag.find(:all,
                                                   :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
                                                   :select => "tag"
                                                   ).uniq #rescue nil #to check this
+
                 if not symptom_type.nil?
                 symptom_type.each{|symptom_tag|
                   if symptom_tag.tag == "HEALTH INFORMATION"
@@ -608,6 +607,7 @@ EOF
       end #-
     end 
     end 
+    #raise danger_signs.to_yaml
     if type == "Danger"
       if danger_signs.length != 0
         return_value = "Yes"
@@ -626,7 +626,7 @@ EOF
   health_information = []
   health_symptoms = []
   return_value = "No"
-     
+ 
     sign.each {|obs|
           if obs.to_s.downcase != "call id"
             sign_id = Concept.find_by_name(obs).concept_id
@@ -666,5 +666,17 @@ EOF
     
     return return_value
   end
-  
+  #TODO this is an improvisation. I will have to get a better way of doing this
+  # Make sure that any updates to this should also be made to encounter model / get_mapped_concept_name
+  def get_mapped_concept_name(concept_name)
+    mapped_concepts = {
+                        'eye infection, acute' => 'Red eye',
+                        'acute eye infection' => 'Red eye',
+                        'acute red eye' => 'Red eye',
+                        'skin dryness' => 'Dry skin',
+                        'skin dry' => 'Dry skin',
+                        'skindryness' => 'Dry skin'
+                       }
+    return mapped_concepts[concept_name.to_s.downcase]
+  end
 end
