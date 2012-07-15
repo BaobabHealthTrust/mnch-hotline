@@ -154,7 +154,7 @@ class EncountersController < ApplicationController
     @female_danger_signs = @patient.female_danger_signs
     @female_symptoms = @patient.female_symptoms
     
-    #raise @female_symptoms.to_s
+    #raise @child_symptoms.to_s
     if (@child_danger_signs == "Yes" || @female_danger_signs == "Yes")
       @selected_value = ["REFERRED TO A HEALTH CENTRE"]
     elsif (@child_symptoms == "Yes")
@@ -413,7 +413,7 @@ class EncountersController < ApplicationController
         ['Umbilicus infection','UMBILICUS INFECTION'],
         ['Growth milestones','GROWTH MILESTONES'],
         ['Accessing healthcare services','ACCESSING HEALTHCARE SERVICES'],
-        ['Family planning','Family planning'],
+#        ['Family planning','Family planning'],
         ['Other','OTHER']
       ],
       'type_of_message_content' => [
