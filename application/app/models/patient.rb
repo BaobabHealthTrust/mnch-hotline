@@ -468,27 +468,21 @@ EOF
     (gender == "Male" && self.person.age > 5) ? true : false
   end
 
-  def child_danger_signs
+  def child_danger_signs(the_concept_set)
     symptoms_obs = Hash.new
   	recorded_danger_signs = Array.new
- 
-  	danger_signs = ["FEVER OF 7 DAYS OR MORE","DIARRHEA FOR 14 DAYS OR MORE",
-					"COUGH FOR 21 DAYS OR MORE", "CONVULSIONS SIGN","BLOOD IN STOOL",
-					"NOT EATING OR DRINKING ANYTHING","VOMITING EVERYTHING",
- 					"RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
- 					"UNCONSCIOUS","FLAKY SKIN","SWOLLEN HANDS OR FEET SIGN"]
- 					
+  					
  	type = EncounterType.find_by_name("CHILD HEALTH SYMPTOMS")
     encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
 
     encounter.observations.all.each{|obs|
       symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip}  rescue nil
   
-  return get_child_symptoms(symptoms_obs,"Danger")
+  return get_child_symptoms(symptoms_obs,"Danger",the_concept_set)
   
   end
   
-  def child_symptoms
+  def child_symptoms(the_concept_set)
   	symptoms_obs = Hash.new
   	recorded_symptoms = Array.new
  
@@ -501,10 +495,10 @@ EOF
 
     encounter.observations.all.each{|obs| symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip} rescue nil
     
-   return get_child_symptoms(symptoms_obs,"Symptom")
+   return get_child_symptoms(symptoms_obs,"Symptom",the_concept_set)
   end
 
-  def female_danger_signs
+  def female_danger_signs(the_concept_set)
     symptoms_obs = Array.new
   	recorded_danger_signs = Array.new
 
@@ -526,11 +520,11 @@ EOF
     encounter.observations.all.each{|obs| 
       symptoms_obs << obs.name_to_s}  rescue nil
 
-  return get_female_symptoms(symptoms_obs,"Danger")
+  return get_female_symptoms(symptoms_obs,"Danger", the_concept_set)
 
   end
 
-  def female_symptoms
+  def female_symptoms(the_concept_set)
     symptoms_obs = Array.new
   	recorded_symptoms = Array.new
 
@@ -549,20 +543,16 @@ EOF
     encounter.observations.all.each{|obs|
       symptoms_obs << obs.name_to_s}  rescue nil
 
-  return get_female_symptoms(symptoms_obs,"Symptom")
+  return get_female_symptoms(symptoms_obs,"Symptom", the_concept_set)
 
   end
   
-  def get_child_symptoms(sign, type)
+  def get_child_symptoms(sign, type, the_concept_set)
   danger_signs = []
   health_information = []
   health_symptoms = []
   return_value = "No"
-  required_tags = ConceptNameTag.find(:all,
-                                          :select => "concept_name_tag_id",
-                                          :conditions => ["tag IN ('DANGER SIGN', 'HEALTH INFORMATION', 'HEALTH SYMPTOM')"]
-                                          ).map(&:concept_name_tag_id).join(', ')
-
+  
      if not sign.blank?
       sign.each do |symptom|
         if symptom[0].upcase != "CALL ID" || symptom[0].upcase != "SEVERITY OF COUGH" ||
@@ -570,58 +560,20 @@ EOF
            symptom[0].upcase != "SEVERITY OF RED EYE"
            
            if symptom[1].upcase == "YES"
-              
-              symptom_name =  get_mapped_concept_name(symptom[0])
-              
-              symptom[0] = symptom_name.nil? ? symptom[0] : symptom_name
-              actual_symptom = symptom[0] == "Dry skin" ? "Flaky skin" : symptom[0] 
-        
-              name_tag_id = ConceptNameTagMap.find(:all,
-                                                    :joins => "INNER JOIN concept_name
-                                                              ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
-                                                    :conditions =>["concept_name.concept_name_id = ?", #AND                                               
-#                                                                    concept_name_tag_map.concept_name_tag_id IN (?)",
-                                                             ConceptName.find_by_name(actual_symptom).concept_name_id],
-#                                                             required_tags ],
-                                                    :select => "concept_name_tag_id",
-                                                    :order => "concept_name_tag_map.concept_name_tag_id ASC"
-                                                   ).last
+                if the_concept_set.include? symptom[0] #actual_symptom
+                    return_value = "Yes"
 
-              symptom_type = ConceptNameTag.find(:all,
-                                                  :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
-                                                  :select => "tag"
-                                                  ).uniq #rescue nil #to check this
-
-                if not symptom_type.nil?
-                symptom_type.each{|symptom_tag|
-                  if symptom_tag.tag == "HEALTH INFORMATION"
-                    health_information << symptom[0]
-                  elsif symptom_tag.tag == "DANGER SIGN"
-                    danger_signs << symptom[0]
-                  elsif symptom_tag.tag == "HEALTH SYMPTOM"
-                    health_symptoms << symptom[0] 
-                  end
-                }
+                    return return_value
                 end
            end #-
-      end #-
+        end #-
+      end 
     end 
-    end 
-    #raise danger_signs.to_yaml
-    if type == "Danger"
-      if danger_signs.length != 0
-        return_value = "Yes"
-      end
-    elsif type == "Symptom"
-      if health_symptoms.length != 0
-        return_value = "Yes"
-      end
-    end
-    
+ 
     return return_value
   end
   
-  def get_female_symptoms(sign, type)
+  def get_female_symptoms(sign, type, the_concept_set)
   danger_signs = []
   health_information = []
   health_symptoms = []
@@ -629,41 +581,14 @@ EOF
  
     sign.each {|obs|
           if obs.to_s.downcase != "call id"
-            sign_id = Concept.find_by_name(obs).concept_id
-            name_tag_id = ConceptNameTagMap.find(:all,
-                                                  :joins => "INNER JOIN concept_name
-                                                            ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
-                                                  :conditions =>["concept_name.concept_id = ?", sign_id],
-                                                  :select => "concept_name_tag_id"
-                                                 ).last
+              if the_concept_set.include? obs #actual_symptom
+                    return_value = "Yes"
 
-             symptom_type = ConceptNameTag.find(:all,
-                                                :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
-                                                :select => "tag"
-                                                ).uniq
-
-            symptom_type.each{|symptom|
-              if symptom.tag == "HEALTH INFORMATION"
-                health_information << obs
-              elsif symptom.tag == "DANGER SIGN"
-                danger_signs << obs
-              elsif symptom.tag == "HEALTH SYMPTOM"
-                health_symptoms << obs
+                    return return_value
               end
-            }
           end
     }
-        
-        if type == "Danger"
-          if danger_signs.length != 0
-            return_value = "Yes"
-          end
-        elsif type == "Symptom"
-          if health_symptoms.length != 0
-            return_value = "Yes"
-          end
-        end
-    
+  
     return return_value
   end
   #TODO this is an improvisation. I will have to get a better way of doing this
@@ -675,8 +600,17 @@ EOF
                         'acute red eye' => 'Red eye',
                         'skin dryness' => 'Dry skin',
                         'skin dry' => 'Dry skin',
-                        'skindryness' => 'Dry skin'
+                        'skindryness' => 'Dry skin',
+                        'gained or lost weight' => "Weigth change"
                        }
     return mapped_concepts[concept_name.to_s.downcase]
+  end
+  
+  def concept_set(concept_name)
+    concept_id = ConceptName.find_by_name(concept_name).concept_id
+    
+    set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
+    options = set.map{|item|next if item.concept.blank? ; [item.concept.fullname] }
+    return options
   end
 end

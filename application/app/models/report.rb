@@ -344,7 +344,7 @@ module Report
           when "health symptoms"
             concepts_list = ["FEVER", "DIARRHEA", "COUGH", # feels that this is a danger sign "CONVULSIONS",
                               "NOT EATING","RED EYE", # this is only classified as 'Vomiting Everything' -"VOMITING", 
-                              "WEIGHT CHANGE", "UNCONSCIOUS"] #"VERY SLEEPY" is removed as it is under unconscious
+                              "GAINED OR LOST WEIGHT", "UNCONSCIOUS"] #"VERY SLEEPY" is removed as it is under unconscious
 
           when "danger warning signs"
             concepts_list = ["FEVER OF 7 DAYS OR MORE",
@@ -354,7 +354,7 @@ module Report
                               "VOMITING EVERYTHING", #"VISUAL PROBLEMS"
                               "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
                               "VERY SLEEPY OR UNCONSCIOUS", "DRY SKIN",
-                              "SWOLLEN HANDS OR FEET SIGN"] #"POTENTIAL CHEST INDRAWING"]
+                              "SWOLLEN HANDS OR FEET SIGN", "VISUAL PROBLEMS"] #"POTENTIAL CHEST INDRAWING"]
 #dry skin also known as flaky skin
           when "health information requested"
             concepts_list = ["SLEEPING", "FEEDING PROBLEMS", "CRYING",
@@ -614,7 +614,7 @@ module Report
           concept_name        = data.attributes["concept_name"].to_s.upcase
           concept_id          = data.attributes["concept_id"].to_i
           number_of_patients  = data.attributes["number_of_patients"].to_i
-
+          
           new_patients_data[:health_issues].each_with_index do |health_issue, i|
             update_statistics = false
             if outcomes
@@ -630,7 +630,7 @@ module Report
             else
               update_statistics = true if(health_issue[:concept_id].to_i == concept_id)
             end
-
+ 
             next if !update_statistics
 
             number_of_patients_so_far  = new_patients_data[:health_issues][i][:call_count]
@@ -640,15 +640,15 @@ module Report
             
             new_patients_data[:health_issues][i][:call_count]       = number_of_patients_so_far
             new_patients_data[:health_issues][i][:call_percentage]  = call_percentage
-
+            
             break
-
           end
         end
       end
 
       patients_data.push(new_patients_data)
     end
+    
     patients_data
   end
 
@@ -695,7 +695,7 @@ module Report
       end # end case
       patients_data.push(data_for_patients)
     end
-
+    
     patients_data
   end
 

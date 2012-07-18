@@ -194,7 +194,7 @@
  <%= touch_hidden_tag "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS", @patient, "NO", :id => "red_eye_4_days" %>
 
   <%#TODO Need to change the below concept name to something which talks about child having visual problems%>
-  <%= touch_yes_no_tag "RED EYE", @patient,  nil,
+  <%= touch_yes_no_tag "VISUAL PROBLEMS", @patient,  nil,
     { :id => "visual_problems",
     :condition => '$("red_eye").value == "YES"',
     :helpText => "Is the child having visual problems?" } %>
@@ -210,7 +210,7 @@
     :helpText => "Is it difficult or impossible to wake the child?" } %>
 
   <%#TODO Need to verify if below concepts matches question. Used it for convenience%>
-  <%= touch_yes_no_tag "WEIGHT CHANGE", @patient,  nil,
+  <%= touch_yes_no_tag "GAINED OR LOST WEIGHT", @patient,  nil,
     { :id => "weight_change",
     :helpText => "Has the child lost or gained lots of weight?" } %>
 

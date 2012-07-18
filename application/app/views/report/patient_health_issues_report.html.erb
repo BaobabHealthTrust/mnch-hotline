@@ -91,7 +91,9 @@
           <tr>
             <td class="cellleft cellbottom main-table-cell">
             <% concept = health_issue[:concept_name].to_s.sub("SIGN", "")%>
-            <%= concept.sub("SYMPTOM","").to_s.titleize %>
+            <% concept.sub("SYMPTOM","") %>
+            <% concept = concept == "GAINED OR LOST WEIGHT" ? "WEIGHT CHANGE" : concept %>
+            <%=concept.to_s.titleize %>
             </td>
             
             <td class="cellleft cellbottom main-table-cell">

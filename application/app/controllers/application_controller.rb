@@ -111,6 +111,14 @@ class ApplicationController < ActionController::Base
 
     return obs_value.to_s
   end
+  #please note that any changes to the block below should also be reflected in concept_set in encounter model
+  def concept_set(concept_name)
+    concept_id = ConceptName.find_by_name(concept_name).concept_id
+    
+    set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
+    options = set.map{|item|next if item.concept.blank? ; item.concept.fullname }
+    return options
+  end
   
 private
 

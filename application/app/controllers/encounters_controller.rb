@@ -145,14 +145,14 @@ class EncountersController < ApplicationController
   def new
     @selected_value = []
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
-    @child_danger_signs = @patient.child_danger_signs
-    @child_symptoms = @patient.child_symptoms
+    @child_danger_signs = @patient.child_danger_signs(concept_set('danger sign'))
+    @child_symptoms = @patient.child_symptoms(concept_set('health symptom'))
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
     @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
 
-    @female_danger_signs = @patient.female_danger_signs
-    @female_symptoms = @patient.female_symptoms
+    @female_danger_signs = @patient.female_danger_signs(concept_set('danger sign'))
+    @female_symptoms = @patient.female_symptoms(concept_set('health symptom'))
     
     #raise @child_symptoms.to_s
     if (@child_danger_signs == "Yes" || @female_danger_signs == "Yes")

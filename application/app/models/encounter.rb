@@ -69,48 +69,28 @@ class Encounter < ActiveRecord::Base
       health_symptoms = []
       symptoms_obs = Hash.new
       return_string = ""
-      family_planning_concept_id = Concept.find_by_name("family planning").concept_id
+  
+      danger_sign_concept_set = concept_set('danger sign')
+      health_information_concept_set = concept_set('health information')
+      health_symptom_concept_set = concept_set('health symptom')
       
       if name == "MATERNAL HEALTH SYMPTOMS"
         for obs in observations do
           if obs.name_to_s != "Call ID"
-            name_tag_id = ConceptNameTagMap.find(:all,
-                                                  :joins => "INNER JOIN concept_name
-                                                            ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
-                                                  :conditions =>["concept_name.concept_id = ?", obs.concept_id],
-                                                  :select => "concept_name_tag_id"
-                                                 ).last
-
-             symptom_type = ConceptNameTag.find(:all,
-                                                :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
-                                                :select => "tag"
-                                                ).uniq
+            obs_name = obs.name_to_s
             
-            symptom_type.each{|symptom|
-              if symptom.tag == "HEALTH INFORMATION"
-                health_information << obs.name_to_s.capitalize
-              elsif symptom.tag == "DANGER SIGN"
-                danger_signs << obs.name_to_s.capitalize
-              elsif symptom.tag == "HEALTH SYMPTOM"
-                health_symptoms << obs.name_to_s.capitalize
-              end
-            }
-            # ToDo : There is need to find out how best we can implement this code below           
-            if obs.concept_id == family_planning_concept_id
-              health_information << obs.name_to_s.capitalize
-            end
+            health_information << obs_name.capitalize if health_information_concept_set.include?obs_name
+            danger_signs << obs_name.capitalize if danger_sign_concept_set.include?obs_name
+            health_symptoms << obs_name.capitalize if health_symptom_concept_set.include?obs_name
+
           end
         end
       else
-        observations.all.each{|obs|
-          symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip
+        observations.all.each{|ob|
+          symptoms_obs[ob.to_s.split(':')[0].strip] = ob.to_s.split(':')[1].strip
         } rescue nil
       end
-      
-      required_tags = ConceptNameTag.find(:all,
-                                          :select => "concept_name_tag_id",
-                                          :conditions => ["tag IN ('DANGER SIGN', 'HEALTH INFORMATION', 'HEALTH SYMPTOM')"]
-                                          ).map(&:concept_name_tag_id)
+ 
       #raise symptoms_obs.to_yaml
       symptoms_obs.each do |symptom|
         if symptom[0].upcase != "CALL ID" || symptom[0].upcase != "SEVERITY OF COUGH" ||
@@ -119,39 +99,17 @@ class Encounter < ActiveRecord::Base
 
            if symptom[1].upcase == "YES"
            
-              symptom_name =  get_mapped_concept_name(symptom[0])
+              symptom_name =  get_mapped_concept_name(symptom[0].to_s.downcase)
               
-              symptom[0] = symptom_name.nil? ? symptom[0] : symptom_name
-              actual_symptom = symptom[0] == "Dry skin" ? "Flaky skin" : symptom[0]
-             
-              name_tag_id = ConceptNameTagMap.find(:all,
-                                                    :joins => "INNER JOIN concept_name
-                                                              ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
-                                                    :conditions =>["concept_name.concept_id = ?",                                                   
-#                                                      concept_name_tag_map.concept_name_tag_id IN (?)",
-                                                      ConceptName.find_by_name(actual_symptom).concept_id],
-#                                                      required_tags ],
-                                                    :select => "concept_name_tag_id",
-                                                    :order => "concept_name_tag_map.concept_name_tag_id ASC"
-                                                   ).last
-              symptom_type = ConceptNameTag.find(:all,
-                                                  :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
-                                                  :select => "tag"
-                                                  ).uniq #rescue nil #to check this
-              if not symptom_type.nil?
-                symptom_type.each{|symptom_tag|
-                  if symptom_tag.tag == "HEALTH INFORMATION"
-                    health_information << symptom[0]
-                  elsif symptom_tag.tag == "DANGER SIGN"
-                    danger_signs << symptom[0]
-                  elsif symptom_tag.tag == "HEALTH SYMPTOM"
-                    health_symptoms << symptom[0] 
-                  end
-                }
-              end
-           end
+              display_name = symptom_name.nil? ? symptom[0] : symptom_name
+              #actual_symptom = symptom[0] == "Dry skin" ? "Flaky skin" : symptom[0]
+                health_information << display_name if health_information_concept_set.include?symptom[0]
+                danger_signs << display_name if danger_sign_concept_set.include?symptom[0]
+                health_symptoms << display_name if health_symptom_concept_set.include?symptom[0]
+                
+            end
+         end
         end
-      end
 
       if danger_signs.length != 0
         return_string = "<B>Danger Signs : </B>" + danger_signs.join(", ").to_s
@@ -379,9 +337,18 @@ class Encounter < ActiveRecord::Base
                         'acute red eye' => 'Red eye',
                         'skin dryness' => 'Dry skin',
                         'skin dry' => 'Dry skin',
-                        'skindryness' => 'Dry skin'
+                        'skindryness' => 'Dry skin',
+                        'gained or lost weight' => 'Weight change'
                        }
     return mapped_concepts[concept_name.to_s.downcase]
   end
 
+  #please note that any changes to the block below should also be reflected in concept_set in application controller
+  def concept_set(concept_name)
+    concept_id = ConceptName.find_by_name(concept_name).concept_id
+    
+    set = ConceptSet.find_all_by_concept_set(concept_id, :order => 'sort_weight')
+    options = set.map{|item|next if item.concept.blank? ; item.concept.fullname }
+    return options
+  end
 end
