@@ -7,8 +7,8 @@
   function setConceptNamesAndValues(symptoms, observations, obs_type){
 
     var values_string = selectedValue(observations);
-
     /* clear the fields*/
+   // alert(values_string);
     for (var index = 0; index < symptoms.length; index++){
       var concept_name        = obs_type + index +"_concept_name";
       var value_coded_or_text = obs_type + index +"_value_coded_or_text";
@@ -243,7 +243,7 @@
   <script type="text/javascript" language="javascript">
     child_health_values = <%= to_jsarray(@child_health_info) %> ;
   </script>
-  <%= select_tag "child_health_info",options_for_select(@child_health_info, @encounter_answers[:health_info]),
+  <%#= select_tag "child_health_info",options_for_select(@child_health_info, @encounter_answers[:health_info]),
     {:id          => "child_health_info_id",
     :multiple    => true,
     :optional    => true,
