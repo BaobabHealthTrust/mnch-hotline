@@ -528,11 +528,20 @@ module Report
     Patient.find_by_sql(query)
   end
   
-  def self.call_count_for_period(date_range)
+  def self.call_count_for_period(date_range, patient_type)
     call_id = Concept.find_by_name("CALL ID").id
+    child_maximum_age = 9
+    
+    if patient_type.humanize.downcase == "children"
+      extra_parameters = " AND (YEAR(obs.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+    elsif patient_type.humanize.downcase == "women"
+      extra_parameters = " AND (YEAR(obs.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+    else
+      extra_parameters = ""
+    end
     
     query   =  "SELECT distinct obs.value_text " +
-               "FROM obs " +
+               "FROM obs LEFT JOIN person ON obs.person_id = person.person_id" +
                "WHERE obs.concept_id = #{call_id} " +
                   "AND DATE(obs.date_created) >= '#{date_range.first}' " +
                   "AND DATE(obs.date_created) <= '#{date_range.last}' " +
@@ -583,7 +592,7 @@ module Report
       concept_map           = Marshal.load(Marshal.dump(essential_params[:concept_map]))
       results               = Patient.find_by_sql(query)
       total_call_count      = self.call_count(date_range, patient_type)
-      total_calls_for_period = self.call_count_for_period(date_range)
+      total_calls_for_period = self.call_count_for_period(date_range, patient_type)
       total_number_of_calls = total_call_count.first.attributes["call_count"].to_i rescue 0
       total_callers_with_symptoms = self.get_callers(date_range, essential_params, patient_type, health_task).count
 
@@ -947,7 +956,7 @@ module Report
       
       query   = self.patient_demographics_query_builder(patient_type, date_range)
       results = Patient.find_by_sql(query)
-      total_calls_for_period = self.call_count_for_period(date_range)
+      total_calls_for_period = self.call_count_for_period(date_range, patient_type)
       #data_for_patients = {:patient_data => {}, :statistical_data => {}}
       patient_statistics = {:start_date => date_range.first, 
                             :end_date => date_range.last, :total => 0,
