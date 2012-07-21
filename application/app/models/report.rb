@@ -545,7 +545,7 @@ module Report
                "WHERE obs.concept_id = #{call_id} " +
                   "AND DATE(obs.date_created) >= '#{date_range.first}' " +
                   "AND DATE(obs.date_created) <= '#{date_range.last}' " +
-                  "AND obs.voided = 0 " + 
+                  "AND obs.voided = 0 " + extra_parameters +
                "ORDER BY obs.value_text"
                
     Observation.find_by_sql(query)
