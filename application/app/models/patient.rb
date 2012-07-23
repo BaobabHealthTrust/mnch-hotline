@@ -473,7 +473,7 @@ EOF
   	recorded_danger_signs = Array.new
   					
  	type = EncounterType.find_by_name("CHILD HEALTH SYMPTOMS")
-    encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
+    encounter = self.encounters.current.find(:last, :conditions =>["encounter_type = ?",type.id])
 
     encounter.observations.all.each{|obs|
       symptoms_obs[obs.to_s.split(':')[0].strip] = obs.to_s.split(':')[1].strip}  rescue nil
@@ -489,7 +489,7 @@ EOF
   	symptoms = ["FEVER", "DIARRHEA", "COUGH", "CONVULSIONS", "NOT EATING OR DRINKING ANYTHING", 
   		    "RED EYE", "VERY SLEEPY OR UNCONSCIOUS","WEIGHT CHANGE"]
  					
-    encounter = self.encounters.current.find(:first, 
+    encounter = self.encounters.current.find(:last, 
                                              :conditions =>["encounter_type = ?",
                                              EncounterType.find_by_name("CHILD HEALTH SYMPTOMS").id])
 
@@ -514,7 +514,7 @@ EOF
                     'WATER BREAKS SIGN']
 
  	type = EncounterType.find_by_name("MATERNAL HEALTH SYMPTOMS")
-    encounter = self.encounters.current.find(:first,
+    encounter = self.encounters.current.find(:last,
                   :conditions =>["encounter_type = ?",type.id])
 
     encounter.observations.all.each{|obs| 
@@ -538,7 +538,7 @@ EOF
                     'PALENESS OF THE SKIN AND TIREDNESS SYMPTOM']
 
  	type = EncounterType.find_by_name("MATERNAL HEALTH SYMPTOMS")
-    encounter = self.encounters.current.find(:first, :conditions =>["encounter_type = ?",type.id])
+    encounter = self.encounters.current.find(:last, :conditions =>["encounter_type = ?",type.id])
 
     encounter.observations.all.each{|obs|
       symptoms_obs << obs.name_to_s}  rescue nil
