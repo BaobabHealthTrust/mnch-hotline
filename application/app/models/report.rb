@@ -329,7 +329,8 @@ module Report
       outcomes            = ["REFERRED TO A HEALTH CENTRE",
                               "REFERRED TO NEAREST VILLAGE CLINIC",
                               "PATIENT TRIAGED TO NURSE SUPERVISOR",
-                              "GIVEN ADVICE NO REFERRAL NEEDED"]
+                              "GIVEN ADVICE NO REFERRAL NEEDED",
+                              "HOSPITAL"]
 
       extra_parameters    = " obs.value_text AS concept_name, "
       extra_conditions    = " obs.value_text, DATE(obs.date_created), "
@@ -573,17 +574,22 @@ module Report
         (health_task.humanize.downcase == "outcomes")? outcomes = true : outcomes = false
         results.map do|data|
 
-          concept_name        = data.attributes["concept_name"].upcase
+          concept_name        = data.attributes["concept_name"].to_s.upcase
           concept_id          = data.attributes["concept_id"].to_i
           number_of_patients  = data.attributes["number_of_patients"].to_i
 
           new_patients_data[:health_issues].each_with_index do |health_issue, i|
             update_statistics = false
             if outcomes
-              #puts "#{concept_name} -- #{health_issue[:concept_name].to_s.upcase} -----"
-              if concept_name.upcase == "GIVEN ADVICE"
+              puts "#{concept_name} -- #{health_issue[:concept_name].to_s.upcase} -----"
+              if concept_name.to_s.upcase == "GIVEN ADVICE"
                 concept_name = "GIVEN ADVICE NO REFERRAL NEEDED"
               end
+              
+              if concept_name.to_s.upcase == "NURSE CONSULTATION"
+                concept_name = "PATIENT TRIAGED TO NURSE SUPERVISOR"
+              end
+              
               update_statistics = true if(health_issue[:concept_name].to_s.upcase == concept_name)
             else
               update_statistics = true if(health_issue[:concept_id].to_i == concept_id)
