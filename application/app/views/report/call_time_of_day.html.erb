@@ -138,25 +138,25 @@
               <%=  total_morning %>
             </td>
             <td class="cellleft cellbottom main-table-cell">
-              <%= (total_morning.to_f / total_calls.to_f * 100).round(1) %>
+              <%= (total_morning.to_f / total_calls.to_f * 100).round(1) rescue 0%>
             </td>
             <td class="cellleft cellbottom main-table-cell">
               <%=  total_midday %>
             </td>
             <td class="cellleft cellbottom main-table-cell">
-              <%=  (total_midday.to_f / total_calls.to_f * 100).round(1) %>
+              <%=  (total_midday.to_f / total_calls.to_f * 100).round(1) rescue 0 %>
             </td>
             <td class="cellleft cellbottom main-table-cell">
               <%=  total_afternoon %>
             </td>
             <td class="cellleft cellbottom main-table-cell">
-              <%=  (total_afternoon.to_f / total_calls.to_f * 100).round(1) %>
+              <%=  (total_afternoon.to_f / total_calls.to_f * 100).round(1) rescue 0%>
             </td>
             <td class="cellleft cellbottom main-table-cell">
               <%= total_evening %>
             </td>
             <td class="cellleft cellbottom cellright main-table-cell">
-              <%=  (total_evening.to_f / total_calls.to_f * 100).round(1) %>
+              <%=  (total_evening.to_f / total_calls.to_f * 100).round(1) rescue 0 %>
             </td>
           </tr>
       </table>
