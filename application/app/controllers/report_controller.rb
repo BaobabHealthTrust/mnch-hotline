@@ -230,9 +230,11 @@ class ReportController < ApplicationController
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
             @staff               = [["",""]] + get_staff_members_list + [["All","All"]]
             @call_type           = ["","Normal", #"Followup","Non-Patient Tips",
-                                    "Emergency","Irrelevant","Dropped"] #,
+                                    #"Emergency",
+                                    "Irrelevant","Dropped", #,
                                     #"All Patient Interaction",
-                                    #"All Non-Patient", "All"]
+                                    #"All Non-Patient", 
+                                    "All"]
             #@call_status         = ["","Yes","No", "All"]
             @destination         = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
 
