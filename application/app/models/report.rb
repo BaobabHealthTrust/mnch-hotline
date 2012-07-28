@@ -485,22 +485,35 @@ module Report
     params
   end
 
-  def self.call_count(date_range)
+  def self.call_count(date_range, patient_type)
     call_id = Concept.find_by_name("CALL ID").id
+    child_maximum_age = 9
+    
+    if patient_type.humanize.downcase == "children"
+      extra_parameters = "AND (YEAR(obs.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+    elsif patient_type.humanize.downcase == "women"
+      extra_parameters = "AND (YEAR(obs.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+    else
+      extra_parameters = ""
+    end
+
     query   = "SELECT COUNT( DISTINCT obs.person_id) AS call_count, " +
                   "concept_name.name AS concept_name, " +
                   "DATE(encounter.date_created) AS start_date " +
-                "FROM encounter, encounter_type, obs, concept, concept_name " +
+                "FROM encounter, encounter_type, obs, concept, concept_name, person " +
                 "WHERE concept.concept_id = #{call_id} " +
                   "AND encounter_type.encounter_type_id = encounter.encounter_type " +
                   "AND obs.concept_id = concept_name.concept_id " +
+                  "AND obs.person_id = person.person_id " +
                   "AND obs.concept_id = concept.concept_id " +
                   "AND encounter.encounter_id = obs.encounter_id " +
                   "AND DATE(obs.date_created) >= '#{date_range.first}' " +
                   "AND DATE(obs.date_created) <= '#{date_range.last}' " +
-                  "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " +
+                  "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " + 
+                  " #{extra_parameters}" +
                 "GROUP BY obs.concept_id " +
                 "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
+
 
     #raise query.to_s
     Patient.find_by_sql(query)
@@ -545,7 +558,7 @@ module Report
       query = self.patient_health_issues_query_builder(patient_type, health_task, date_range, essential_params)
       concept_map           = Marshal.load(Marshal.dump(essential_params[:concept_map]))
       results               = Patient.find_by_sql(query)
-      total_call_count      = self.call_count(date_range)
+      total_call_count      = self.call_count(date_range, patient_type)
       total_number_of_calls = total_call_count.first.attributes["call_count"].to_i rescue 0
       total_callers_with_symptoms = self.get_callers(date_range, essential_params, patient_type, health_task).count
 
@@ -567,7 +580,11 @@ module Report
           new_patients_data[:health_issues].each_with_index do |health_issue, i|
             update_statistics = false
             if outcomes
-              update_statistics = true if(health_issue[:concept_name] == concept_name)
+              #puts "#{concept_name} -- #{health_issue[:concept_name].to_s.upcase} -----"
+              if concept_name.upcase == "GIVEN ADVICE"
+                concept_name = "GIVEN ADVICE NO REFERRAL NEEDED"
+              end
+              update_statistics = true if(health_issue[:concept_name].to_s.upcase == concept_name)
             else
               update_statistics = true if(health_issue[:concept_id].to_i == concept_id)
             end
