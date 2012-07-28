@@ -105,7 +105,7 @@ class Encounter < ActiveRecord::Base
                                           :select => "concept_name_tag_id",
                                           :conditions => ["tag IN ('DANGER SIGN', 'HEALTH INFORMATION', 'HEALTH SYMPTOM')"]
                                           ).map(&:concept_name_tag_id)
-      
+      #raise symptoms_obs.to_yaml
       symptoms_obs.each do |symptom|
         if symptom[0].upcase != "CALL ID" || symptom[0].upcase != "SEVERITY OF COUGH" ||
            symptom[0].upcase != "SEVERITY OF FEVER" || symptom[0].upcase != "SEVERITY OF DIARRHEA" ||
@@ -115,18 +115,21 @@ class Encounter < ActiveRecord::Base
               name_tag_id = ConceptNameTagMap.find(:all,
                                                     :joins => "INNER JOIN concept_name
                                                               ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
-                                                    :conditions =>["concept_name.concept_id = ? AND                                                   
-                                                      concept_name_tag_map.concept_name_tag_id IN (?)",
-                                                      ConceptName.find_by_name(symptom[0]).concept_id,
-                                                      required_tags ],
+                                                    :conditions =>["concept_name.concept_id = ? ",                                                   
+#                                                      concept_name_tag_map.concept_name_tag_id IN (?)",
+                                                      ConceptName.find_by_name(symptom[0]).concept_id],
+#                                                  required_tags ],
                                                     :select => "concept_name_tag_id"
                                                    ).last
-                
-
+=begin                
+               if name_tag_id.nil?
+                 raise symptoms_obs.to_yaml 
+               end
+=end
                symptom_type = ConceptNameTag.find(:all,
                                                   :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
                                                   :select => "tag"
-                                                  ).uniq rescue nil
+                                                  ).uniq #rescue nil #to check this
                 if not symptom_type.nil?
                 symptom_type.each{|symptom_tag|
                   if symptom_tag.tag == "HEALTH INFORMATION"
@@ -134,7 +137,7 @@ class Encounter < ActiveRecord::Base
                   elsif symptom_tag.tag == "DANGER SIGN"
                     danger_signs << symptom[0]
                   elsif symptom_tag.tag == "HEALTH SYMPTOM"
-                    health_symptoms << symptom[0]
+                    health_symptoms << symptom[0] 
                   end
                 }
                 end
