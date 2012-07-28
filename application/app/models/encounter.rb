@@ -121,12 +121,13 @@ class Encounter < ActiveRecord::Base
                                                       required_tags ],
                                                     :select => "concept_name_tag_id"
                                                    ).last
+                
 
                symptom_type = ConceptNameTag.find(:all,
                                                   :conditions =>["concept_name_tag_id = ?", name_tag_id.concept_name_tag_id],
                                                   :select => "tag"
-                                                  ).uniq
-
+                                                  ).uniq rescue nil
+                if not symptom_type.nil?
                 symptom_type.each{|symptom_tag|
                   if symptom_tag.tag == "HEALTH INFORMATION"
                     health_information << symptom[0]
@@ -136,6 +137,7 @@ class Encounter < ActiveRecord::Base
                     health_symptoms << symptom[0]
                   end
                 }
+                end
            end
         end
       end
