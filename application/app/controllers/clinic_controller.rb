@@ -158,6 +158,7 @@ class ClinicController < ApplicationController
       calllog.start_time = session[:call_start_timestamp]
       calllog.end_time = session[:call_end_timestamp]
       calllog.call_type = call_log_type.to_i
+      calllog.creator = session[:user_id].to_i
 
       if calllog.call_log_id != 0
         calllog.save
