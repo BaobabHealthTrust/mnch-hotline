@@ -112,15 +112,25 @@ class Encounter < ActiveRecord::Base
            symptom[0].upcase != "SEVERITY OF RED EYE"
 
            if symptom[1].upcase == "YES"
+           
+              if symptom[0].downcase == "skin dryness" || symptom[0] == "skin dry" || symptom[0] == "skindryness"
+                actual_symptom = "Flaky skin"
+                symptom[0] = "Dry Skin"
+              else
+                actual_symptom = symptom[0]
+              end
+             
               name_tag_id = ConceptNameTagMap.find(:all,
                                                     :joins => "INNER JOIN concept_name
                                                               ON concept_name.concept_name_id = concept_name_tag_map.concept_name_id ",
-                                                    :conditions =>["concept_name.concept_id = ? ",                                                   
+                                                    :conditions =>["concept_name.concept_id = ?",                                                   
 #                                                      concept_name_tag_map.concept_name_tag_id IN (?)",
-                                                      ConceptName.find_by_name(symptom[0]).concept_id],
-#                                                  required_tags ],
-                                                    :select => "concept_name_tag_id"
+                                                      ConceptName.find_by_name(actual_symptom).concept_id],
+#                                                      required_tags ],
+                                                    :select => "concept_name_tag_id",
+                                                    :order => "concept_name_tag_map.concept_name_tag_id ASC"
                                                    ).last
+
 =begin                
                if name_tag_id.nil?
                  raise symptoms_obs.to_yaml 
