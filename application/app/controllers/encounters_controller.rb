@@ -413,6 +413,7 @@ class EncountersController < ApplicationController
         ['Postnatal', 'Postnatal'],
         ['Child', 'Child'],
         ['WCBA', 'WCBA'],
+        ['Family planning', 'Family planning'], #TODO check if the reports will work well after adding this to the list
         ['Observer', 'Observer']
       ],
       'message_type' => [
