@@ -34,10 +34,10 @@
 </style>
 
 <script>
-  <% if params[:relation] %>
-  var tt_cancel_destination = "/patients/relationships?patient_id=<%=h params[:relation] -%>"
-  <% else %>
+  <% if params[:relation].blank? %>
   var tt_cancel_destination = "/clinic/call"
+  <% else %>
+  var tt_cancel_destination = "/patients/relationships?patient_id=<%=h params[:relation] -%>"
   <% end %>
 
   var skipped = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]

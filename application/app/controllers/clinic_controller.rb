@@ -113,7 +113,6 @@ class ClinicController < ApplicationController
 
     def call
       @task = params[:task]
-     
       if @task == 'new'
         session[:call_id] = GlobalProperty.next_call_id rescue nil
         session[:call_start_timestamp] = DateTime.now
@@ -128,9 +127,12 @@ class ClinicController < ApplicationController
     end
 
     def irrelevant_call_action
-       if params[:confirmation] == 'Yes'
+       if params[:confirmation].to_s.downcase == 'irrelevant'
          session[:call_end_timestamp] = DateTime.now
          log_call(2)
+         redirect_to "/clinic"
+       elsif params[:confirmation].to_s.downcase == 'dropped'
+         log_dropped_call
          redirect_to "/clinic"
        else
          redirect_to "/clinic/call"
@@ -290,11 +292,15 @@ class ClinicController < ApplicationController
 
     def dropped_call_action
        if params[:confirmation] == 'Yes'
-         session[:call_end_timestamp] = DateTime.now
-         log_call(3)
+         log_dropped_call
          redirect_to "/clinic"
        else
          redirect_to "/patients/show/#{params[:patient_id]}"
        end
+    end
+    
+    def log_dropped_call
+      session[:call_end_timestamp] = DateTime.now
+      log_call(3)
     end
 end
