@@ -35,6 +35,7 @@ INSERT INTO migrated_mnch.concept_name_tag_map(concept_name_id, concept_name_tag
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "PALENESS OF THE SKIN AND TIREDNESS SIGN" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "DANGER SIGN")),
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "NO FETAL MOVEMENTS SIGN" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "DANGER SIGN")),
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "WATER BREAKS SIGN" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "DANGER SIGN")),
+  ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "FLAKY SKIN" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "DANGER SIGN")),
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "SLEEPING" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH INFORMATION")), 
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "FEEDING PROBLEMS" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH INFORMATION")), 
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "CRYING" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH INFORMATION")),
@@ -75,7 +76,8 @@ INSERT INTO migrated_mnch.concept_name_tag_map(concept_name_id, concept_name_tag
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "SWOLLEN HANDS OR FEET SYMPTOM" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM")), 
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "PALENESS OF THE SKIN AND TIREDNESS SYMPTOM" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM")),
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "NO FETAL MOVEMENTS SYMPTOM" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM")), 
-  ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "WATER BREAKS SYMPTOM" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM"));
+  ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "WATER BREAKS SYMPTOM" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM"))
+  ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "WEIGHT CHANGE" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM"));
   
 #UNLOCK TABLES;
 
