@@ -131,7 +131,6 @@ module Report
     "GROUP BY person_attribute.value " + extra_group_by +
     " ORDER BY patient.date_created"
 
-    raise query.to_s
     return query
   end
 
