@@ -79,8 +79,8 @@ module Report
                            " ELSE pregnancy_status_table.pregnancy_status " +
                            "END AS pregnancy_status_text "
 
-        extra_conditions = " AND pregnancy_status_table.person_id = patient.patient_id " +
-                           "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+        extra_conditions = " AND pregnancy_status_table.person_id = p.patient_id " +
+                           "AND (YEAR(p.date_created) - YEAR(ps.birthdate)) > #{child_maximum_age} "
 
         sub_query       = ", (SELECT  obs.person_id AS person_id, obs.value_coded AS value_coded, " +
                               "concept.concept_id, concept_name.name AS name, obs.value_text AS pregnancy_status " +
@@ -100,37 +100,33 @@ module Report
       extra_group_by = ", pregnancy_status_table.pregnancy_status "
 
       when "children"
-        extra_parameters  = ", person.gender AS gender "
-        extra_conditions  = "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+        extra_parameters  = ", ps.gender AS gender "
+        extra_conditions  = "AND (YEAR(p.date_created) - YEAR(ps.birthdate)) <= #{child_maximum_age} "
         sub_query         = ""
-        extra_group_by    = ", person.gender "
+        extra_group_by    = ", ps.gender "
       else
-      extra_parameters  = ", ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) AS adult "
+      extra_parameters  = ", ((YEAR(p.date_created) - YEAR(ps.birthdate)) > #{child_maximum_age}) AS adult "
       extra_conditions  = ""
       sub_query         = ""
-      extra_group_by    = ", ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age})"
+      extra_group_by    = ", ps.person_id " #((YEAR(p.date_created) - YEAR(ps.birthdate)) > #{child_maximum_age})"
     end
-      patients_with_encounter = " AND patient.patient_id IN ( SELECT DISTINCT e.patient_id " +
-                                                              "FROM patient p " +
-                                                              "  INNER JOIN encounter e ON p.patient_id = e.patient_id " +
-                                                              "WHERE DATE(e.encounter_datetime) >= '#{date_range.first}' " + 
-                                                              "AND DATE(e.encounter_datetime) <= '#{date_range.last}') "
+      patients_with_encounter = " (SELECT DISTINCT e.patient_id " +
+                                "FROM patient p " +
+                                "  INNER JOIN encounter e ON p.patient_id = e.patient_id " +
+                                "WHERE DATE(e.encounter_datetime) >= '#{date_range.first}' " + 
+                                "AND DATE(e.encounter_datetime) <= '#{date_range.last}') patients "
 
-    query = "SELECT person_attribute.value AS nearest_health_center, "+
-      "COUNT(patient.patient_id) AS number_of_patients, " +
-      "DATE(patient.date_created) AS start_date " + extra_parameters +
-    "FROM person_attribute, patient, person, obs " + sub_query +
-    "WHERE patient.patient_id = person.person_id " +
-      "AND person.person_id = person_attribute.person_id " + extra_conditions +
-      "AND DATE(obs.obs_datetime) >= '#{date_range.first}' " +
-      "AND DATE(obs.obs_datetime) <= '#{date_range.last}' " +
-      "AND patient.voided = 0 " +
-      "AND person.voided = 0 " +
-      "AND person_attribute.person_attribute_type_id = #{nearest_health_center} " +
-      "#{patients_with_encounter} " +
-    "GROUP BY person_attribute.value " + extra_group_by +
-    " ORDER BY patient.date_created"
+    query = "SELECT pa.value AS nearest_health_center, "+
+                "COUNT(p.patient_id) AS number_of_patients, " +
+                "DATE(p.date_created) AS start_date " + extra_parameters +
+            "FROM person_attribute pa LEFT JOIN patient p ON pa.person_id = p.patient_id " +
+                "LEFT JOIN person ps ON pa.person_id = ps.person_id " +  
+                "INNER JOIN #{patients_with_encounter} ON pa.person_id = patients.patient_id " + sub_query +
+            "WHERE pa.person_attribute_type_id = #{nearest_health_center} " + extra_conditions + 
+            "GROUP BY pa.value " + extra_group_by +
+            " ORDER BY p.date_created"
 
+    #raise query.to_s
     return query
   end
 
@@ -165,7 +161,6 @@ module Report
     mnch_health_facilities_list.map do |facility|
       nearest_health_centers.push([facility["name"].humanize, 0])
     end
-
     new_patients_data  = {:new_registrations  => 0,
                           :catchment          => nearest_health_centers.sort,
                           :start_date         => date_range.first,
@@ -705,11 +700,11 @@ module Report
         pregnancy_status_encounter_type_id  = EncounterType.find_by_name("PREGNANCY STATUS").encounter_type_id
         delivered_status_concept = Concept.find_by_name("Delivered").concept_id
         
-        extra_parameters = "SELECT (YEAR(patient.date_created) - YEAR(person.birthdate)) AS Age,
+        extra_parameters = "SELECT (YEAR(p.date_created) - YEAR(ps.birthdate)) AS Age,
                             pregnancy_status_table.pregnancy_status AS pregnancy_status_text "
 
-        extra_conditions = " AND pregnancy_status_table.person_id = patient.patient_id " +
-                           "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+        extra_conditions = " AND pregnancy_status_table.person_id = p.patient_id " +
+                           "AND (YEAR(p.date_created) - YEAR(ps.birthdate)) > #{child_maximum_age} "
 
         sub_query       = ", (SELECT  obs.person_id AS person_id, " +
                               "concept.concept_id, concept_name.name AS name, " +  
@@ -733,42 +728,45 @@ module Report
       extra_group_by = ", pregnancy_status_table.pregnancy_status "
 
       when "children"
-        extra_parameters  = "SELECT PERIOD_DIFF(CONCAT(YEAR(patient.date_created), 
-                              IF(MONTH(patient.date_created)<10,'0',''),
-                              MONTH(patient.date_created)),
-                              CONCAT(YEAR(person.birthdate), 
-                              IF(MONTH(person.birthdate)<10,'0',''), 
-                              MONTH(person.birthdate))) AS Age, person.gender AS gender " 
-        extra_conditions  = "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+        extra_parameters  = "SELECT PERIOD_DIFF(CONCAT(YEAR(p.date_created), 
+                              IF(MONTH(p.date_created)<10,'0',''),
+                              MONTH(p.date_created)),
+                              CONCAT(YEAR(ps.birthdate), 
+                              IF(MONTH(ps.birthdate)<10,'0',''), 
+                              MONTH(ps.birthdate))) AS Age, ps.gender AS gender " 
+        extra_conditions  = "AND (YEAR(p.date_created) - YEAR(ps.birthdate)) <= #{child_maximum_age} "
         sub_query         = ""
-        extra_group_by    = ", person.gender "
+        extra_group_by    = ", ps.gender "
       else
-      extra_parameters  = "SELECT PERIOD_DIFF(CONCAT(YEAR(patient.date_created), 
-                              IF(MONTH(patient.date_created)<10,'0',''), 
-                              MONTH(patient.date_created)), 
-                              CONCAT(YEAR(person.birthdate), 
-                              IF(MONTH(person.birthdate)<10,'0',''), 
-                              MONTH(person.birthdate))) AS age_in_months, 
-                          (YEAR(patient.date_created) - YEAR(person.birthdate)) as age_in_years, 
-                          ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) AS adult" 
+      extra_parameters  = "SELECT PERIOD_DIFF(CONCAT(YEAR(p.date_created), 
+                              IF(MONTH(p.date_created)<10,'0',''), 
+                              MONTH(p.date_created)), 
+                              CONCAT(YEAR(ps.birthdate), 
+                              IF(MONTH(ps.birthdate)<10,'0',''), 
+                              MONTH(ps.birthdate))) AS age_in_months, 
+                          (YEAR(p.date_created) - YEAR(ps.birthdate)) as age_in_years, 
+                          ((YEAR(p.date_created) - YEAR(ps.birthdate)) > #{child_maximum_age}) AS adult" 
       extra_conditions  = "" 
       sub_query         = "" 
-      extra_group_by    = ",((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) " 
+      extra_group_by    = ",((YEAR(p.date_created) - YEAR(p.birthdate)) > #{child_maximum_age}) " 
+      
     end
+          patients_with_encounter = " (SELECT DISTINCT e.patient_id " +
+                                "FROM patient p " +
+                                "  INNER JOIN encounter e ON p.patient_id = e.patient_id " +
+                                "WHERE DATE(e.encounter_datetime) >= '#{date_range.first}' " + 
+                                "AND DATE(e.encounter_datetime) <= '#{date_range.last}') patients "
+    
 
     query = extra_parameters +
-    " FROM person_attribute, patient, person, obs " + sub_query +
-    "WHERE patient.patient_id = person.person_id " +
-      "AND person.person_id = person_attribute.person_id " + extra_conditions +
-      "AND DATE(obs.obs_datetime) >= '#{date_range.first}' " + 
-      "AND DATE(obs.obs_datetime) <= '#{date_range.last}' " + 
-      "AND obs.voided = 0 " +
-      "AND patient.voided = 0 " + 
-      "AND person.voided = 0 " + 
-      "AND person_attribute.person_attribute_type_id = #{nearest_health_center} " + 
-    "GROUP BY patient.patient_id" + extra_group_by +
-    "ORDER BY patient.date_created"
-    #raise query.to_s
+          "FROM person_attribute pa LEFT JOIN patient p ON pa.person_id = p.patient_id " +
+                      "LEFT JOIN person ps ON pa.person_id = ps.person_id " +  
+                      "INNER JOIN #{patients_with_encounter} ON pa.person_id = patients.patient_id " + sub_query +
+                  "WHERE pa.person_attribute_type_id = #{nearest_health_center} " + extra_conditions + 
+                  "GROUP BY pa.value, ps.person_id" + extra_group_by +
+                  " ORDER BY p.date_created"
+          
+#raise query.to_s
     return query
   end
 
