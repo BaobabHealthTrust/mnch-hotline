@@ -32,7 +32,10 @@
           <%= "Filter Info: Grouping - #{@grouping.capitalize} #{@special_message} "  %>
         </tr>
         <tr>
-          <td width="58%" colspan = 2 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
+          <td width="48%" colspan = 2 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:right;">
+              Total Calls
+          </td>
+          <td width="8%" class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold; text-align:left;">
               Total Callers
           </td>
           <td width="14%" colspan = 2 class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
@@ -46,8 +49,11 @@
           </td>
         </tr>
         <tr>
-          <td width="51%" class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+          <td width="44%" class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
               &nbsp;
+          </td>
+          <td width="7%" class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
+              Count
           </td>
           <td class="celltop cellleft cellbottom main-table-cell" style="font-weight: bold;">
               Count
@@ -75,6 +81,9 @@
           <tr>
             <td class="cellleft cellbottom main-table-cell" style="text-align:left">
               <%= @grouping.humanize + " ( "+ data[:start_date] + " - " + data[:end_date] + " )"%>
+            </td>
+            <td class="cellleft cellbottom main-table-cell">
+              <%=  data[:total_calls_for_period] rescue 0 %>
             </td>
             <td class="cellleft cellbottom main-table-cell">
               <%=  data[:total] rescue 0 %>
