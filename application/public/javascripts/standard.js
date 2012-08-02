@@ -710,7 +710,7 @@ function loadSelectOptions(selectOptions, options) {
 
         optionsList += '<li onmousedown="'+ mouseDownAction +'"';
         if (selectOptions[j].value) {
-            optionsList += " id='option"+selectOptions[j].value +"' tstValue='"+selectOptions[j].value +"'";
+            optionsList += " id=\"option"+selectOptions[j].value +"\" tstValue=\""+selectOptions[j].value +"\"";
         }
         // njih
         optionsList += ">" + selectOptions[j].text + "</li>\n";
