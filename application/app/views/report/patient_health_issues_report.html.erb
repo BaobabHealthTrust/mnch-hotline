@@ -50,21 +50,32 @@
           </tr>
           <tr>
             <td  class="cellleft cellbottom main-table-cell">
-                Total Callers
+                Total  <%= @patient_type %> Callers
             </td>
             <td  class="cellleft cellbottom main-table-cell">
               <%= data[:total_calls] %>
             </td>
             <td  class="cellleft cellbottom main-table-cell"> 
-              n/a
+              na
             </td>
           </tr>
           <tr>
             <td  class="cellleft cellbottom main-table-cell">
-                Total Callers with <%= @health_task.humanize.titleize %>
+                Total <%= @patient_type %> Callers with <%= @health_task.humanize.titleize %>
             </td>
             <td  class="cellleft cellbottom main-table-cell">
               <%= data[:total_number_of_calls] %>
+            </td>
+            <td  class="cellleft cellbottom main-table-cell">
+              na
+            </td>
+          </tr>
+          <tr>
+            <td  class="cellleft cellbottom main-table-cell">
+                Total Calls for period
+            </td>
+            <td  class="cellleft cellbottom main-table-cell">
+              <%= data[:total_number_of_calls_for_period]%>
             </td>
             <td  class="cellleft cellbottom main-table-cell">
               na
@@ -79,7 +90,8 @@
           <% data[:health_issues].map do | health_issue|%>
           <tr>
             <td class="cellleft cellbottom main-table-cell">
-            <%= health_issue[:concept_name].titleize %>
+            <% concept = health_issue[:concept_name].to_s.sub("SIGN", "")%>
+            <%= concept.sub("SYMPTOM","").to_s.titleize %>
             </td>
             
             <td class="cellleft cellbottom main-table-cell">
