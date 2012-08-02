@@ -3,7 +3,7 @@ class EncountersController < ApplicationController
   def create
 
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
-    #raise params.to_yaml
+
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
       if params[:observations][0]['concept_name'] == 'EVER RECEIVED ART' and params[:observations][0]['value_coded_or_text'] == 'NO'
         observations = []
@@ -254,7 +254,7 @@ class EncountersController < ApplicationController
     tips_observations = Encounter.find(:last,
            :conditions => ["patient_id = ? AND encounter_type = ? AND voided = 0",
                           @patient.id,
-                         EncounterType.find_by_name('TIPS AND REMINDERS').id]).observations
+                         EncounterType.find_by_name('TIPS AND REMINDERS').id]).observations rescue nil
         unless tips_observations.blank?
           tips_observations.each do |observation|
             if observation.concept_id == Concept.find_by_name("ON TIPS AND REMINDERS PROGRAM").id
@@ -425,7 +425,7 @@ class EncountersController < ApplicationController
         ['Community phone', 'COMMUNITY PHONE'],
         ['Personal phone', 'PERSONAL PHONE'],
         ['Family member phone', 'FAMILY MEMBER PHONE'],
-        ['Neighbour\'s phone', 'NEIGHBOUR\'S PHONE']
+        ['Neighbour\'s phone', 'NEIGHBOUR\'S PHONE'] #TODO check if this will work
       ],
       'language_type' => [
         ['', ''],
