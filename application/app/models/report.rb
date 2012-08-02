@@ -72,13 +72,17 @@ module Report
       when "women"
         pregnancy_status_concept_id         = Concept.find_by_name("PREGNANCY STATUS").concept_id
         pregnancy_status_encounter_type_id  = EncounterType.find_by_name("PREGNANCY STATUS").encounter_type_id
-
-        extra_parameters = ", pregnancy_status_table.pregnancy_status AS pregnancy_status_text "
+        delivered_status_concept = Concept.find_by_name("Delivered").concept_id
+        
+        extra_parameters = ", CASE pregnancy_status_table.value_coded " +
+                           " WHEN #{delivered_status_concept} THEN 'Delivered' " +
+                           " ELSE pregnancy_status_table.pregnancy_status " +
+                           "END AS pregnancy_status_text "
 
         extra_conditions = " AND pregnancy_status_table.person_id = patient.patient_id " +
                            "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
 
-        sub_query       = ", (SELECT  obs.person_id AS person_id, " +
+        sub_query       = ", (SELECT  obs.person_id AS person_id, obs.value_coded AS value_coded, " +
                               "concept.concept_id, concept_name.name AS name, obs.value_text AS pregnancy_status " +
                               "FROM encounter, obs, concept, concept_name " +
                             "WHERE encounter.encounter_type = #{pregnancy_status_encounter_type_id} " +
@@ -87,6 +91,9 @@ module Report
                               "AND obs.concept_id = concept.concept_id " +
                               "AND concept_name.concept_id = concept.concept_id " +
                               "AND concept.retired = 0 AND concept_name.voided = 0 " +
+                              "AND DATE(obs.obs_datetime) >= '#{date_range.first}' " +
+                              "AND DATE(obs.obs_datetime) <= '#{date_range.last}' " +
+                              "AND obs.voided = 0 " +
                             "GROUP BY person_id " +
                             "ORDER BY obs.person_id, obs.date_created DESC) pregnancy_status_table "
 
@@ -103,20 +110,20 @@ module Report
       sub_query         = ""
       extra_group_by    = ", ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age})"
     end
-      patients_with_encounter = " AND patient.patient_id IN ( SELECT DISTINCT p.patient_id " +
+      patients_with_encounter = " AND patient.patient_id IN ( SELECT DISTINCT e.patient_id " +
                                                               "FROM patient p " +
                                                               "  INNER JOIN encounter e ON p.patient_id = e.patient_id " +
-                                                              "WHERE DATE(p.date_created) >= '#{date_range.first}' " + 
-                                                              "AND DATE(p.date_created) <= '#{date_range.last}') "
+                                                              "WHERE DATE(e.encounter_datetime) >= '#{date_range.first}' " + 
+                                                              "AND DATE(e.encounter_datetime) <= '#{date_range.last}') "
 
     query = "SELECT person_attribute.value AS nearest_health_center, "+
       "COUNT(patient.patient_id) AS number_of_patients, " +
       "DATE(patient.date_created) AS start_date " + extra_parameters +
-    "FROM person_attribute, patient, person " + sub_query +
+    "FROM person_attribute, patient, person, obs " + sub_query +
     "WHERE patient.patient_id = person.person_id " +
       "AND person.person_id = person_attribute.person_id " + extra_conditions +
-      "AND DATE(patient.date_created) >= '#{date_range.first}' " +
-      "AND DATE(patient.date_created) <= '#{date_range.last}' " +
+      "AND DATE(obs.obs_datetime) >= '#{date_range.first}' " +
+      "AND DATE(obs.obs_datetime) <= '#{date_range.last}' " +
       "AND patient.voided = 0 " +
       "AND person.voided = 0 " +
       "AND person_attribute.person_attribute_type_id = #{nearest_health_center} " +
@@ -124,7 +131,7 @@ module Report
     "GROUP BY person_attribute.value " + extra_group_by +
     " ORDER BY patient.date_created"
 
-    #raise query.to_s
+    raise query.to_s
     return query
   end
 
@@ -154,7 +161,7 @@ module Report
 
   def self.all_patients_demographics(patients_data, date_range)
     nearest_health_centers  = []
-
+    
     mnch_health_facilities_list = Location.find_by_tag("mnch_health_facilities")
     mnch_health_facilities_list.map do |facility|
       nearest_health_centers.push([facility["name"].humanize, 0])
@@ -343,19 +350,20 @@ module Report
 
         case health_task.humanize.downcase
           when "health symptoms"
-            concepts_list = ["FEVER", "DIARRHEA", "COUGH", "CONVULSIONS SYMPTOM",
-                              "NOT EATING", "VOMITING", "RED EYE",
-                              "FAST BREATHING", "VERY SLEEPY", "UNCONSCIOUS"]
+            concepts_list = ["FEVER", "DIARRHEA", "COUGH", # feels that this is a danger sign "CONVULSIONS",
+                              "NOT EATING","RED EYE", # this is only classified as 'Vomiting Everything' -"VOMITING", 
+                              "WEIGHT CHANGE", "UNCONSCIOUS"] #"VERY SLEEPY" is removed as it is under unconscious
 
           when "danger warning signs"
             concepts_list = ["FEVER OF 7 DAYS OR MORE",
                               "DIARRHEA FOR 14 DAYS OR MORE",
                               "BLOOD IN STOOL", "COUGH FOR 21 DAYS OR MORE",
                               "CONVULSIONS SIGN", "NOT EATING OR DRINKING ANYTHING",
-                              "VOMITING EVERYTHING",
+                              "VOMITING EVERYTHING", #"VISUAL PROBLEMS"
                               "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
-                              "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"]
-
+                              "VERY SLEEPY OR UNCONSCIOUS", "DRY SKIN",
+                              "SWOLLEN HANDS OR FEET SIGN"] #"POTENTIAL CHEST INDRAWING"]
+#dry skin also known as flaky skin
           when "health information requested"
             concepts_list = ["SLEEPING", "FEEDING PROBLEMS", "CRYING",
                               "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
@@ -486,7 +494,7 @@ module Report
     params
   end
 
-  def self.call_count(date_range, patient_type)
+  def self.call_count(date_range, patient_type,count_type = nil)
     call_id = Concept.find_by_name("CALL ID").id
     child_maximum_age = 9
     
@@ -497,8 +505,14 @@ module Report
     else
       extra_parameters = ""
     end
-
-    query   = "SELECT COUNT( DISTINCT obs.person_id) AS call_count, " +
+    
+    if count_type.to_s.downcase == 'all'
+      select_part = "SELECT obs.person_id AS call_count, "
+    else
+      select_part = "SELECT COUNT( DISTINCT obs.person_id) AS call_count, "
+    end
+    
+    query   =  "#{select_part}" +
                   "concept_name.name AS concept_name, " +
                   "DATE(encounter.date_created) AS start_date " +
                 "FROM encounter, encounter_type, obs, concept, concept_name, person " +
@@ -519,7 +533,22 @@ module Report
     #raise query.to_s
     Patient.find_by_sql(query)
   end
-
+  
+  def self.call_count_for_period(date_range)
+    call_id = Concept.find_by_name("CALL ID").id
+    
+    query   =  "SELECT distinct obs.value_text " +
+               "FROM obs " +
+               "WHERE obs.concept_id = #{call_id} " +
+                  "AND DATE(obs.date_created) >= '#{date_range.first}' " +
+                  "AND DATE(obs.date_created) <= '#{date_range.last}' " +
+                  "AND obs.voided = 0 " + 
+               "ORDER BY obs.value_text"
+               
+    Observation.find_by_sql(query)
+    #Patient.find_by_sql(query)
+  end
+  
   def self.get_callers(date_range, essential_params, patient_type, task = nil)
     child_maximum_age     = 9 # see definition of a female adult above
     concept_ids = essential_params[:concept_map].inject([]) {|result, concept| result << concept[:concept_id]}.uniq.join(',')
@@ -560,6 +589,7 @@ module Report
       concept_map           = Marshal.load(Marshal.dump(essential_params[:concept_map]))
       results               = Patient.find_by_sql(query)
       total_call_count      = self.call_count(date_range, patient_type)
+      total_calls_for_period = self.call_count_for_period(date_range)
       total_number_of_calls = total_call_count.first.attributes["call_count"].to_i rescue 0
       total_callers_with_symptoms = self.get_callers(date_range, essential_params, patient_type, health_task).count
 
@@ -569,7 +599,10 @@ module Report
       new_patients_data[:end_date]      = date_range.last
       new_patients_data[:total_calls]   = total_number_of_calls
       new_patients_data[:total_number_of_calls]   = total_callers_with_symptoms
+      new_patients_data[:total_number_of_calls_for_period] = total_calls_for_period.count
 
+      symptom_total = results.map(&:number_of_patients).inject(0){|total,n| total = total + n.to_i} # i love ruby :D
+      
       unless results.blank?
         (health_task.humanize.downcase == "outcomes")? outcomes = true : outcomes = false
         results.map do|data|
@@ -581,7 +614,6 @@ module Report
           new_patients_data[:health_issues].each_with_index do |health_issue, i|
             update_statistics = false
             if outcomes
-              puts "#{concept_name} -- #{health_issue[:concept_name].to_s.upcase} -----"
               if concept_name.to_s.upcase == "GIVEN ADVICE"
                 concept_name = "GIVEN ADVICE NO REFERRAL NEEDED"
               end
@@ -599,8 +631,9 @@ module Report
 
             number_of_patients_so_far  = new_patients_data[:health_issues][i][:call_count]
             number_of_patients_so_far += number_of_patients
-            call_percentage            = ((number_of_patients_so_far * 100.0)/total_callers_with_symptoms).round(1) rescue 0
-
+            #call_percentage            = ((number_of_patients_so_far * 100.0)/total_callers_with_symptoms).round(1) rescue 0
+            call_percentage            = ((number_of_patients_so_far * 100.0)/symptom_total).round(1) rescue 0
+            
             new_patients_data[:health_issues][i][:call_count]       = number_of_patients_so_far
             new_patients_data[:health_issues][i][:call_percentage]  = call_percentage
 
@@ -624,6 +657,7 @@ module Report
     date_ranges.map do |date_range|
       query   = self.patient_demographics_query_builder(patient_type, date_range)
       results = Patient.find_by_sql(query)
+
       data_for_patients = {:patient_data => {}, :statistical_data => {}}
       case patient_type.downcase
         when "women"
@@ -646,8 +680,8 @@ module Report
           data_for_patients[:statistical_data] = patient_statistics rescue ''
         else
           new_patients_data = self.all_patients_demographics(results, date_range)
+          #raise new_patients_data.to_yaml
           statistical_data = Patient.find_by_sql(self.get_age_statistics(patient_type, date_range))
-
           patient_statistics = self.create_patient_statistics(patient_type,
                                 statistical_data) unless statistical_data.empty?
 
@@ -670,15 +704,20 @@ module Report
       when "women"
         pregnancy_status_concept_id         = Concept.find_by_name("PREGNANCY STATUS").concept_id
         pregnancy_status_encounter_type_id  = EncounterType.find_by_name("PREGNANCY STATUS").encounter_type_id
-
+        delivered_status_concept = Concept.find_by_name("Delivered").concept_id
+        
         extra_parameters = "SELECT (YEAR(patient.date_created) - YEAR(person.birthdate)) AS Age,
-                            pregnancy_status_table.pregnancy_status AS pregnancy_status_text"
+                            pregnancy_status_table.pregnancy_status AS pregnancy_status_text "
 
         extra_conditions = " AND pregnancy_status_table.person_id = patient.patient_id " +
                            "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
 
         sub_query       = ", (SELECT  obs.person_id AS person_id, " +
-                              "concept.concept_id, concept_name.name AS name, obs.value_text AS pregnancy_status " +
+                              "concept.concept_id, concept_name.name AS name, " +  
+                              "CASE obs.value_coded " +
+                              " WHEN #{delivered_status_concept} THEN 'Delivered' " +
+                              " ELSE obs.value_text " +
+                              "END AS pregnancy_status " +
                               "FROM encounter, obs, concept, concept_name " +
                             "WHERE encounter.encounter_type = #{pregnancy_status_encounter_type_id} " +
                               "AND obs.encounter_id = encounter.encounter_id " +
@@ -686,46 +725,51 @@ module Report
                               "AND obs.concept_id = concept.concept_id " +
                               "AND concept_name.concept_id = concept.concept_id " +
                               "AND concept.retired = 0 AND concept_name.voided = 0 " +
+                              "AND obs.voided = 0 " +
+                              "AND DATE(obs.obs_datetime) >= '#{date_range.first}' " + 
+                              "AND DATE(obs.obs_datetime) <= '#{date_range.last}' " + 
                             "GROUP BY person_id " +
                             "ORDER BY obs.person_id, obs.date_created DESC) pregnancy_status_table "
 
       extra_group_by = ", pregnancy_status_table.pregnancy_status "
 
       when "children"
-        extra_parameters  = "SELECT PERIOD_DIFF(CONCAT(YEAR(patient.date_created),
+        extra_parameters  = "SELECT PERIOD_DIFF(CONCAT(YEAR(patient.date_created), 
                               IF(MONTH(patient.date_created)<10,'0',''),
                               MONTH(patient.date_created)),
-                              CONCAT(YEAR(person.birthdate),
-                              IF(MONTH(person.birthdate)<10,'0',''),
-                              MONTH(person.birthdate))) AS Age, person.gender AS gender "
+                              CONCAT(YEAR(person.birthdate), 
+                              IF(MONTH(person.birthdate)<10,'0',''), 
+                              MONTH(person.birthdate))) AS Age, person.gender AS gender " 
         extra_conditions  = "AND (YEAR(patient.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
         sub_query         = ""
         extra_group_by    = ", person.gender "
       else
-      extra_parameters  = "SELECT PERIOD_DIFF(CONCAT(YEAR(patient.date_created),
-                              IF(MONTH(patient.date_created)<10,'0',''),
-                              MONTH(patient.date_created)),
-                              CONCAT(YEAR(person.birthdate),
-                              IF(MONTH(person.birthdate)<10,'0',''),
-                              MONTH(person.birthdate))) AS age_in_months,
-                          (YEAR(patient.date_created) - YEAR(person.birthdate)) as age_in_years,
-                          ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) AS adult"
-      extra_conditions  = ""
-      sub_query         = ""
-      extra_group_by    = ",((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) "
+      extra_parameters  = "SELECT PERIOD_DIFF(CONCAT(YEAR(patient.date_created), 
+                              IF(MONTH(patient.date_created)<10,'0',''), 
+                              MONTH(patient.date_created)), 
+                              CONCAT(YEAR(person.birthdate), 
+                              IF(MONTH(person.birthdate)<10,'0',''), 
+                              MONTH(person.birthdate))) AS age_in_months, 
+                          (YEAR(patient.date_created) - YEAR(person.birthdate)) as age_in_years, 
+                          ((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) AS adult" 
+      extra_conditions  = "" 
+      sub_query         = "" 
+      extra_group_by    = ",((YEAR(patient.date_created) - YEAR(person.birthdate)) > #{child_maximum_age}) " 
     end
 
     query = extra_parameters +
-    " FROM person_attribute, patient, person " + sub_query +
+    " FROM person_attribute, patient, person, obs " + sub_query +
     "WHERE patient.patient_id = person.person_id " +
       "AND person.person_id = person_attribute.person_id " + extra_conditions +
-      "AND DATE(patient.date_created) >= '#{date_range.first}' " +
-      "AND DATE(patient.date_created) <= '#{date_range.last}' " +
-      "AND patient.voided = 0 " +
-      "AND person.voided = 0 " +
-      "AND person_attribute.person_attribute_type_id = #{nearest_health_center} " +
+      "AND DATE(obs.obs_datetime) >= '#{date_range.first}' " + 
+      "AND DATE(obs.obs_datetime) <= '#{date_range.last}' " + 
+      "AND obs.voided = 0 " +
+      "AND patient.voided = 0 " + 
+      "AND person.voided = 0 " + 
+      "AND person_attribute.person_attribute_type_id = #{nearest_health_center} " + 
+    "GROUP BY patient.patient_id" + extra_group_by +
     "ORDER BY patient.date_created"
-
+    #raise query.to_s
     return query
   end
 
@@ -740,13 +784,12 @@ module Report
         nonpregnant_data = []
         delivered_data = []
 
-      #raise patient_data.first[:pregnancy_status_text].downcase
         unless patient_data.empty?
           patient_data.each do |value|
             case value[:pregnancy_status_text].downcase
             when 'pregnant'
               pregnant_data << value[:Age].to_i 
-            when 'nonpregnant'
+            when 'not pregnant'
               nonpregnant_data << value[:Age].to_i
             when 'delivered'
               delivered_data << value[:Age].to_i
@@ -790,7 +833,7 @@ module Report
           delivered[:average] = self.calculate_average(delivered_data)
           delivered[:sdev] = self.calculate_sdev(delivered_data)
 
-          women_grouping[:delivered][:statistical_info] = delivered_statistics
+          women_grouping[:delivered][:statistical_info] = delivered
         end
         return_data = women_grouping
 
@@ -907,9 +950,11 @@ module Report
       
       query   = self.patient_demographics_query_builder(patient_type, date_range)
       results = Patient.find_by_sql(query)
+      total_calls_for_period = self.call_count_for_period(date_range)
       #data_for_patients = {:patient_data => {}, :statistical_data => {}}
       patient_statistics = {:start_date => date_range.first, 
                             :end_date => date_range.last, :total => 0,
+                            :total_calls_for_period => total_calls_for_period.count,
                             :symptoms => 0, :symptoms_pct => 0,
                             :danger => 0, :danger_pct => 0,
                             :info => 0, :info_pct => 0
@@ -1187,7 +1232,7 @@ module Report
    end
 
    if staff_id.downcase != 'all'
-     extra_conditions += " AND obs.creator = '#{staff_id.to_i}' "
+     extra_conditions += " AND call_log.creator = '#{staff_id.to_i}' "
    else
      extra_grouping += ", users.username"
    end
@@ -1196,6 +1241,7 @@ module Report
      case call_type.downcase
      when 'normal'
        call_type_code = 0
+       extra_conditions += " AND obs.concept_id = #{call_concept_id} AND obs.voided = 0"
      when 'emergency'
        call_type_code = 1
      when 'irrelevant'
@@ -1225,10 +1271,9 @@ module Report
            "LEFT JOIN person ON person.person_id = obs.person_id " +
            "LEFT JOIN users ON users.user_id = obs.creator " +
            "LEFT JOIN patient ON patient.patient_id = person.person_id " +
-           "WHERE obs.concept_id = #{call_concept_id} " +
-           "AND DATE(call_log.start_time) >= '#{date_range.first}' " +
+           "WHERE DATE(call_log.start_time) >= '#{date_range.first}' " +
            "AND DATE(call_log.start_time) <= '#{date_range.last}' " +
-           " AND obs.voided = 0 " + extra_conditions +
+            extra_conditions +
            " GROUP BY call_log.call_log_id" + extra_grouping
 
    #raise query.to_s
