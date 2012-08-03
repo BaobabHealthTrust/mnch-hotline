@@ -5,14 +5,14 @@
 
 */
 
-#LOCK TABLES `migrated_mnch.concept_name_tag` WRITE;
+-- LOCK TABLES `migrated_mnch.concept_name_tag` WRITE;
 INSERT INTO migrated_mnch.concept_name_tag(tag, description, creator, date_created, voided, uuid) VALUES
   ('DANGER SIGN', 'Tag for Danger Signs', 1, '2004-01-01T00:00:00', 0, (SELECT UUID())), 
   ('HEALTH INFORMATION', 'Tag for Health Information', 1, '2004-01-01T00:00:00', 0, (SELECT UUID())), 
   ('HEALTH SYMPTOM', 'Tag for Health Symptoms', 1, '2004-01-01T00:00:00', 0, (SELECT UUID()));
-#UNLOCK TABLES;
+-- UNLOCK TABLES;
 
-#LOCK TABLES `migrated_mnch.concept_name_tag_map` WRITE;
+-- LOCK TABLES `migrated_mnch.concept_name_tag_map` WRITE;
 
 INSERT INTO migrated_mnch.concept_name_tag_map(concept_name_id, concept_name_tag_id) VALUES
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "FEVER OF 7 DAYS OR MORE" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "DANGER SIGN")), 
@@ -35,7 +35,6 @@ INSERT INTO migrated_mnch.concept_name_tag_map(concept_name_id, concept_name_tag
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "PALENESS OF THE SKIN AND TIREDNESS SIGN" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "DANGER SIGN")),
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "NO FETAL MOVEMENTS SIGN" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "DANGER SIGN")),
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "WATER BREAKS SIGN" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "DANGER SIGN")),
-  ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "FLAKY SKIN" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "DANGER SIGN")),
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "SLEEPING" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH INFORMATION")), 
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "FEEDING PROBLEMS" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH INFORMATION")), 
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "CRYING" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH INFORMATION")),
@@ -76,10 +75,9 @@ INSERT INTO migrated_mnch.concept_name_tag_map(concept_name_id, concept_name_tag
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "SWOLLEN HANDS OR FEET SYMPTOM" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM")), 
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "PALENESS OF THE SKIN AND TIREDNESS SYMPTOM" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM")),
   ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "NO FETAL MOVEMENTS SYMPTOM" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM")), 
-  ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "WATER BREAKS SYMPTOM" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM"))
-  ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "WEIGHT CHANGE" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM"));
+  ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "WATER BREAKS SYMPTOM" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM"));
   
-#UNLOCK TABLES;
+-- UNLOCK TABLES;
 
 INSERT INTO migrated_mnch.relationship_type (a_is_to_b, b_is_to_a, description, creator, date_created, uuid) VALUES
   ('Child','Parent','Where the guardian is a parent to the patient',1,(NOW()),(SELECT UUID())),
@@ -87,15 +85,15 @@ INSERT INTO migrated_mnch.relationship_type (a_is_to_b, b_is_to_a, description, 
 	('Niece/Nephew','Aunt/Uncle','Where the guardian is an aunt or uncle to the patient',1,(NOW()),(SELECT UUID())),
 	('Patient','Other relatives','Where the guardian is a relative (Other, not specified on the list)',1,(NOW()),(SELECT UUID()));
 
-#This has to be removed;
+-- This has to be removed;
 
-#DELETE FROM encounter_type where encounter_type_id in (108,109,110);
+-- DELETE FROM encounter_type where encounter_type_id in (108,109,110);
 	
 UPDATE migrated_mnch.encounter SET encounter_type = (SELECT encounter_type_id FROM migrated_mnch.encounter_type WHERE name = (SELECT name from mnch_old.encounter_type where encounter_type_id = encounter_type));
 
-#update the obs table;
+-- update the obs table;
 
-#delete this concept, as it is a duplicate. To be removed when we get new meta data from concept server;
+-- delete this concept, as it is a duplicate. To be removed when we get new meta data from concept server;
 
 DELETE FROM migrated_mnch.concept_name_tag_map WHERE concept_name_id = 11403;
 
@@ -103,9 +101,9 @@ DELETE FROM migrated_mnch.concept_word WHERE concept_name_id = 11403;
 
 DELETE FROM migrated_mnch.concept_name WHERE concept_name_id = 11403;
 
-#end of delete
-
-#DROP TABLE IF EXISTS migrated_mnch.concept_link;
+-- end of delete
+/*
+-- DROP TABLE IF EXISTS migrated_mnch.concept_link;
 
 #CREATE TABLE migrated_mnch.concept_link (
 #  new_concept_id int(11),
@@ -125,6 +123,7 @@ DELETE FROM migrated_mnch.concept_name WHERE concept_name_id = 11403;
 #		where o.concept_id > 7000) old
 #	ON old.name = cn1.name
 #);
+*/
 
 SET FOREIGN_KEY_CHECKS=0;
 
@@ -152,9 +151,9 @@ WHERE o.value_coded > 7000 ;
 
 SET FOREIGN_KEY_CHECKS=1;
 
-#DROP TABLE migrated_mnch.concept_link;
+-- DROP TABLE migrated_mnch.concept_link;
 
-#end of obs table update
+-- end of obs table update
 
 INSERT INTO migrated_mnch.person_attribute_type (name, description, creator, uuid) VALUES 
 ('NEAREST HEALTH FACILITY', "The person's nearest health facility", 1, (SELECT UUID()));
@@ -169,3 +168,36 @@ INSERT INTO migrated_mnch.patient_identifier_type (name, description, creator,uu
 UPDATE migrated_mnch.patient_identifier
 SET identifier_type = (SELECT patient_identifier_type_id FROM migrated_mnch.patient_identifier_type WHERE name = 'IVR Access Code')
 WHERE identifier_type = 17;
+
+-- fixes for june 22 - testing
+
+INSERT INTO migrated_mnch.concept_name_tag_map(concept_name_id, concept_name_tag_id) VALUES
+    ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "FLAKY SKIN" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "DANGER SIGN")),
+    ((SELECT concept_name_id  FROM migrated_mnch.concept_name WHERE name = "WEIGHT CHANGE" LIMIT 1),(SELECT concept_name_tag_id FROM migrated_mnch.concept_name_tag WHERE tag = "HEALTH SYMPTOM"));
+
+-- add creator in the call log table
+
+ALTER TABLE migrated_mnch.call_log 
+    ADD creator INT(11) NOT NULL DEFAULT 0;
+
+-- update the call_log table with the right values for the creator
+
+DROP TABLE IF EXISTS migrated_mnch.call_log_update;
+
+CREATE TABLE migrated_mnch.call_log_update (
+    call_id int(11),
+    creator_id int(11)
+);
+
+INSERT INTO migrated_mnch.call_log_update
+(SELECT distinct cl.call_log_id, o.creator
+    FROM migrated_mnch.call_log cl LEFT JOIN migrated_mnch.obs o ON cl.call_log_id = o.value_text -- and o.concept_id = 8304;
+    WHERE o.concept_id  = 8304);
+
+UPDATE migrated_mnch.call_log
+SET creator = (SELECT creator_id FROM migrated_mnch.call_log_update WHERE call_id = call_log_id)
+WHERE call_log_id IN (SELECT call_id from migrated_mnch.call_log_update);
+
+UPDATE migrated_mnch.call_log
+SET creator = 1
+WHERE creator = 0;
