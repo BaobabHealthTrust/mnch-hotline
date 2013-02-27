@@ -1,0 +1,7 @@
+2012/12/10 05:18:19 [error] 17643#0: *4 "/home/timothy/work/ruby/mnch-hotline/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "HEAD / HTTP/1.1", host: "0.0.0.0"
+2012/12/10 05:18:28 [error] 17643#0: *5 "/home/timothy/work/ruby/mnch-hotline/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "0.0.0.0:3000"
+2012/12/10 05:18:38 [error] 17643#0: *5 "/home/timothy/work/ruby/mnch-hotline/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "0.0.0.0:3000"
+2012/12/10 05:18:39 [error] 17643#0: *5 "/home/timothy/work/ruby/mnch-hotline/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "0.0.0.0:3000"
+2012/12/10 05:18:40 [error] 17643#0: *5 "/home/timothy/work/ruby/mnch-hotline/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "0.0.0.0:3000"
+2012/12/10 05:18:41 [error] 17643#0: *5 "/home/timothy/work/ruby/mnch-hotline/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "0.0.0.0:3000"
+2012/12/10 05:19:01 [error] 17643#0: *5 "/home/timothy/work/ruby/mnch-hotline/public/index.html" is not found (2: No such file or directory), client: 127.0.0.1, server: _, request: "GET / HTTP/1.1", host: "0.0.0.0:3000"

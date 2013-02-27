@@ -2,24 +2,64 @@
   <head>
     <style>
     body{
-      font-size: 2em;
+      -moz-user-select: none;
+      background-color: white;
+      margin-left: 40px;
+      margin-top: 30px;
     }
+
+			.button {
+				-moz-box-shadow:inset -7px 22px 3px -41px #bee2f9;
+				-webkit-box-shadow:inset -7px 22px 3px -41px #bee2f9;
+				box-shadow:inset -7px 22px 3px -41px #bee2f9;
+				background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf) );
+				background:-moz-linear-gradient( center top, #63b8ee 5%, #468ccf 100% );
+				filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf');
+				background-color:#63b8ee;
+				-moz-border-radius:10px;
+				-webkit-border-radius:10px;
+				border-radius:10px;
+				border:2px solid #3866a3;
+				display:inline-block;
+				color:maroon;
+				font-family:Trebuchet MS;
+				font-size:21px;
+				font-weight:bold;
+				padding:6px 72px;
+				text-decoration:none;
+				text-shadow:1px 1px 0px #7cacde;
+				width: 200px;
+				margin-top:30px;
+			}.button:hover {
+				background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee) );
+				background:-moz-linear-gradient( center top, #468ccf 5%, #63b8ee 100% );
+				filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee');
+				background-color:#468ccf;
+			}.button:active {
+				position:relative;
+				top:1px;
+			}
+
     </style>
   </head>
   <body>
-    An error has occurred. Please contact the EMR team and they will do their best to help.<br/>
-    <br/>
-    Call: 0888769649
-    <br/>
-    <a onmousedown="document.location = this.href" href="/">Touch here to go to menu</a>
-    <br/>
-    <a href="/logout" onmousedown="document.location = this.href">Touch here to return to logout</a>
-    <br/>
-    <a href="#" onmousedown="history.back()">Touch here to go to previous page</a>
-    <br/>
-    <a href="#" onmousedown="window.location.reload()">Touch here to try loading page again</a>
-    <br/>
-    <div style="font-size:.5em" id="currentPage"></div>
+  	<div>
+			<img src = "images/App-error-icon.png" width = 100px align = left hspace = 10px >
+			<font face="helvetica, geneva, sans serif" size=6>
+			  An error has occurred. Please contact the EMR team to ensure this doesn't happen again.
+		  Call: 01 750 604. In the meantime: 	</font>
+		  <br/>
+    </div>
+    <div style = "margin-top: 10px; text-align:center;">
+    	<br>
+		  <a class= "button" onmousedown="document.location = this.href" href="/">Touch here to go to menu</a>
+		  <br/>
+		  <a class= "button" href="#" onmousedown="history.back()">Touch here to go to previous page</a>
+		  <br/>
+		  <a class= "button" href="/logout" onmousedown="document.location = this.href">Touch here to logout</a>
+			<br/><br/><br/>
+    </div>
+    <div style="font-size:.8em; margin-top:20px;" id="currentPage"></div>
     <script>
       document.getElementById("currentPage").innerHTML = '(' + new Date() + '): ' + document.location
     </script>
