@@ -27,4 +27,11 @@ class GlobalProperty < ActiveRecord::Base
     return  current_number.to_s.rjust(8,'0')
   end
   
+  def self.get_property(property_to_search)
+    property = GlobalProperty.find_by_property("#{property_to_search}")
+    property_value = (property == nil) ? property.property_value : nil
+    
+    return  property_value
+  end
+  
 end
