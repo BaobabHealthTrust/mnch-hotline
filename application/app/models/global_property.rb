@@ -29,7 +29,7 @@ class GlobalProperty < ActiveRecord::Base
   
   def self.get_property(property_to_search)
     property = GlobalProperty.find_by_property("#{property_to_search}")
-    property_value = (property == nil) ? property.property_value : nil
+    property_value = (property == nil) ? nil : property.property_value
     
     return  property_value
   end
