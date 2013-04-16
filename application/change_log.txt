@@ -1,0 +1,8 @@
+Version 3 beta
+	Added the selection of disrict when a call comes
+	Added the selection of whether the call is a repeat or a new call
+	Added the selection of GVHs, TAs and Villages based on the District where the call is coming from
+	Added new tables to the databases, namely, traditional_authority, region, district, village.
+	Altered call log table to record ditrict and call mode (new or repeat)
+	Included the new touchscreen toolkit component that allows the application to adjust to the resolutions of the new J2s
+
