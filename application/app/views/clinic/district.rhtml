@@ -1,0 +1,12 @@
+<script type="text/javascript">
+  tt_cancel_destination = "/clinic/irrelevantcall";
+  tt_cancel_show = "/clinic";
+</script>
+
+<form id='confirm' action="/clinic/district" method='post'>
+
+  <%= select_tag "district", options_for_select(@districts), {:helpText => 'Select the district where the caller is?', :id => "district"}%>
+  <%= select_tag "call_mode", options_for_select(@call_modes), {:helpText => 'Select the type of caller?', :id => "call_mode"}%>
+
+  <%= submit_tag "Finish" %>
+</form>
