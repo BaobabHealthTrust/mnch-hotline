@@ -113,13 +113,16 @@ class ClinicController < ApplicationController
 
     def call
       @task = params[:task]
+      @districts = GlobalProperty.get_property('current_districts').split(",") rescue nil
+      @call_modes = GlobalProperty.get_property('call_mode').split(",") rescue nil
+      
       if @task == 'new'
         session[:call_id] = GlobalProperty.next_call_id rescue nil
         session[:call_start_timestamp] = DateTime.now
         session[:call_end_timestamp] = ''
       end
       
-      render :template => 'clinic/home', :layout => 'clinic'
+      render :template => 'clinic/district', :layout => 'application'
     end
 
     def irrelevantcall
@@ -159,6 +162,12 @@ class ClinicController < ApplicationController
       calllog.call_log_id = session[:call_id].to_i
       calllog.start_time = session[:call_start_timestamp]
       calllog.end_time = session[:call_end_timestamp]
+      calllog.call_mode = (session[:call_mode] == 'New') ? 1 : 2
+      
+      calllog.district = District.find(:first, 
+                :conditions => {:name => "#{session[:district]}"}
+                      ).district_id
+
       calllog.call_type = call_log_type.to_i
       calllog.creator = session[:user_id].to_i
 
@@ -302,5 +311,12 @@ class ClinicController < ApplicationController
     def log_dropped_call
       session[:call_end_timestamp] = DateTime.now
       log_call(3)
+    end
+    def district
+
+      session[:district] = params[:district]
+      session[:call_mode] = params[:call_mode]
+      
+      render :template => 'clinic/home', :layout => 'clinic'
     end
 end
