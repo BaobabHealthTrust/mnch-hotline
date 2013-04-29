@@ -124,7 +124,21 @@ class Encounter < ActiveRecord::Base
       return return_string
       
     elsif name == 'TIPS AND REMINDERS'
-       observations.collect{|observation| observation.to_s_with_bold_name}.join(", ")
+       return_string = observations.collect{|observation| observation.to_s_with_bold_name}.join(", ")
+
+       if ! return_string.to_str.index('<B>Who is present as guardian?</B>: Yes').nil?
+         guardian_id = Relationship.find(:first,
+           :conditions => ["person_a = ? AND DATE(date_created) = ? AND voided = 0",
+             self.patient_id, self.encounter_datetime.to_date.strftime('%Y-%m-%d')]).person_b
+         
+         if ! guardian_id.nil?
+           person_b = Person.find(guardian_id).name
+           guardian_string = ", <B>Guardian name : </B> #{person_b}"
+           return_string += guardian_string
+         end
+       end
+
+      return return_string
     else
       #changed the line below, from observation.answer_string to observation.to_s
       observations.collect{|observation| observation.to_s_with_bold_name}.join(", ")

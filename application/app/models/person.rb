@@ -240,17 +240,21 @@ class Person < ActiveRecord::Base
     person_params     = params["person"]
 
     person = Person.create(person_params)
-
-    if birthday_params["birth_year"] == "Unknown"
-      date  = self.session_datetime || Date.today
-      person.set_birthdate_by_age(birthday_params["age_estimate"],date)
-    else
-      person.set_birthdate(birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"])
+    if params[:relation].blank?  #ensure that we are able to add a relation
+      if birthday_params["birth_year"] == "Unknown"
+        date  = self.session_datetime || Date.today
+        person.set_birthdate_by_age(birthday_params["age_estimate"],date)
+      else
+        person.set_birthdate(birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"])
+      end
     end
     person.save
     person.names.create(names_params)
-    person.addresses.create(address_params)
-
+    
+    if params[:relation].blank? #ensure that we are able to add a relation
+      person.addresses.create(address_params)
+    end
+    
     if !attributes_params.blank?
       attributes_params.map do |attribute, value|
         attribute_name     = attribute.gsub("_", " ").to_s.humanize.upcase

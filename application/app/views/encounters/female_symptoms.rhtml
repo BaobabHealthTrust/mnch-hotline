@@ -90,6 +90,30 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
      :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'second_danger_signs_id', 'danger_sign'); setSelectedItems('first_danger_signs_id', selectedValue('second_danger_signs_id'));",
 		 :helptext    => "Select additional danger signs if any" } %>
 
+    <% if @current_pregnancy_status == 'NOT PREGNANT' %>
+    	<%@family_planning = ["","Yes", "No", "Dont Know","Didnt Ask"]%>
+        <%= select_tag "family_planning", options_for_select(@family_planning), 
+            {:helpText => 'Are you using family planning?', 
+             :id => "family_planning"
+             }%>
+    
+        <%@family_planning_options = ["","Pills", "Injectables", "Implants","Condoms","Other"]%>
+        <%= select_tag "family_planning_options", options_for_select(@family_planning_options), 
+            {:helpText => 'What type of family planning are you using?', 
+             :id => "family_planning_options",
+             :condition => '$("family_planning").value == "Yes"'
+             }%>
+        
+        <%= touch_yes_no_tag "SATISFIED WITH FAMILY PLANNING METHOD", @patient,  nil,
+            {:id => "family_planning_information",
+             :helpText => "Are you satisfied with your method?",
+             :condition => '$("family_planning").value == "Yes"' } %>
+        
+        <%= touch_yes_no_tag "FAMILY PLANNING INFORMATION", @patient,  nil,
+            {:id => "family_planning_information",
+             :helpText => "Do you want more information on family planning"
+              } %>
+    <% end %>
   <% @danger_signs.each_with_index do |e, index| %>
     <%= hidden_field_tag("observations[][concept_name]",        "", {:id => "danger_sign#{index}_concept_name"}) %>
     <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => "danger_sign#{index}_value_coded_or_text"} ) %>

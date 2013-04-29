@@ -613,4 +613,24 @@ EOF
     options = set.map{|item|next if item.concept.blank? ; [item.concept.fullname] }
     return options
   end
+  
+  def get_current_pregnancy_status()
+    encounter_type = EncounterType.find_by_name('pregnancy status').id
+    concept_id = ConceptName.find_by_name('pregnancy status').concept_id
+    return_value = nil
+    
+    encounter = Encounter.find(:last,:conditions => ["encounter_type = ? AND 
+        patient_id = ? AND DATE(date_created) =?", encounter_type, self.id,
+        Date.today.strftime("%Y-%m-%d")])
+        
+    if ! encounter.nil?
+      encounter.observations.each do |ob|
+        if ob.concept_id == concept_id
+          return_value = ob.value_text
+        end
+      end
+    end
+    return return_value
+  end
+
 end

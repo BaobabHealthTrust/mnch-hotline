@@ -35,7 +35,7 @@ DROP PROCEDURE IF EXISTS `update_table_columns`;
 -- Create a Village Headman table
 
 CREATE TABLE `village_headman` (
-  `village_headman_id` int(11) NOT NULL DEFAULT '0',
+  `village_headman_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
   `traditional_authority_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`village_headman_id`)
@@ -44,7 +44,7 @@ CREATE TABLE `village_headman` (
 -- Create a Health Center table
 
 CREATE TABLE `health_center` (
-  `health_center_id` int(11) NOT NULL DEFAULT '0',
+  `health_center_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
   `district` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`village_headman_id`)
