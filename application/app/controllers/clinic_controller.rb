@@ -322,7 +322,7 @@ class ClinicController < ApplicationController
     def call_home(params)
       @task = params[:task]
 
-      @districts = [""] + District.find(:all).collect{|district| 
+      @districts = [""] + District.find(:all, :conditions => ['region_id <> 4']).collect{|district| 
                                         district.name}.join(",").split(",") rescue []
 
       @call_modes = [""] + GlobalProperty.get_property('call_mode').split(",") rescue []
