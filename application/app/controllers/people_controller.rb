@@ -113,7 +113,7 @@ class PeopleController < ApplicationController
 
     health_centers = HealthCenter.find(:all,:conditions => hc_conditions, :order => 'name')
     health_centers = health_centers.map do |h_c|
-      "<li value='#{h_c.name}'>#{h_c.name}</li>"
+      "<li value='#{h_c.name.humanize}'>#{h_c.name.humanize}</li>"
     end
  
     render :text => health_centers.join('') + "<li value='Other'>Other</li>" and return
