@@ -170,7 +170,7 @@ class EncountersController < ApplicationController
     # created a hash of 'upcased' health centers
     @health_facilities = ([""] + ClinicSchedule.health_facilities.map(&:name)).inject([]) do |facility_list, facilities|
       facility_list.push(facilities)
-    __END__
+    end
     
     #raise @select_options['danger_signs'].to_yaml
     @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)

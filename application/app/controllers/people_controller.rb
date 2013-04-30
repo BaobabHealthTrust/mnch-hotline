@@ -48,6 +48,7 @@ class PeopleController < ApplicationController
  
   def create
     Person.session_datetime = session[:datetime].to_date rescue Date.today
+    params[:person][:relation] = params[:relation]
     person = Person.create_from_form(params[:person])
     
     redirect_to search_complete_url(person.id, params[:relation]) and return
@@ -105,6 +106,17 @@ class PeopleController < ApplicationController
       '<li value=' + v.name + '>' + v.name + '</li>'
     end
     render :text => villages.join('') + "<li value='Other'>Other</li>" and return
+  end
+  def healthcenter
+    district_id = District.find_by_name("#{session[:district]}").id
+    hc_conditions = ["name LIKE (?) AND district = ?", "%#{params[:search_string]}%", district_id]
+
+    health_centers = HealthCenter.find(:all,:conditions => hc_conditions, :order => 'name')
+    health_centers = health_centers.map do |h_c|
+      "<li value='#{h_c.name}'>#{h_c.name}</li>"
+    end
+ 
+    render :text => health_centers.join('') + "<li value='Other'>Other</li>" and return
   end
 
 private
