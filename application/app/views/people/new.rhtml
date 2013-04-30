@@ -134,7 +134,7 @@
       <%= text_field_tag "person[addresses][subregion]", params[:group_village_head],
         {
         :field_type => 'alpha',
-        :helpText => 'Current Village (residence)',
+        :helpText => 'Group Village Head',
         :ajaxURL => '/people/village?search_string=',
         :allowFreeText => false ,
         :tt_onLoad => "seen(tstCurrentPage); set_ajaxURL_for_suggestions('/people/village/Village?filter_value=' ,document.getElementById('ta').value)" } if ask_home_village %>
