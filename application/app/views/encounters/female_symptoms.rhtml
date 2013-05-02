@@ -92,24 +92,42 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
 
     <% if @current_pregnancy_status == 'NOT PREGNANT' %>
     	<%@family_planning = ["","Yes", "No", "Dont Know","Didnt Ask"]%>
-        <%= select_tag "family_planning", options_for_select(@family_planning), 
-            {:helpText => 'Are you using family planning?', 
-             :id => "family_planning"
-             }%>
+    	
+    	<% options = {
+             :id          => "family_planning",
+             :optional    => true,
+             :multiple => false,
+             :tt_onUnLoad => "$('family_planning_value_coded_or_text').value = $('family_planning').value",
+             :helpText    => "Are you using family planning?"
+             } %>
+    	
+          <%= select_tag("family_planning", options_for_select(@family_planning), options)%>
+          <%= hidden_field_tag("observations[][concept_name]",        "PATIENT USING FAMILY PLANNING") %>
+          <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'family_planning_value_coded_or_text'}) %>
+          <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+          <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
     
         <%@family_planning_options = ["","Pills", "Injectables", "Implants","Condoms","Other"]%>
-        <%= select_tag "family_planning_options", options_for_select(@family_planning_options), 
-            {:helpText => 'What type of family planning are you using?', 
-             :id => "family_planning_options",
+        <% options = {
+             :id          => "family_planning_options",
+             :optional    => true,
+             :multiple => false,
+             :tt_onUnLoad => "$('family_planning_options_value_coded_or_text').value = $('family_planning_options').value",
+             :helpText    => "What type of family planning are you using?",
              :condition => '$("family_planning").value == "Yes"'
-             }%>
+        } %>
+          <%= select_tag("family_planning_options", options_for_select(@family_planning_options), options)%>
+          <%= hidden_field_tag("observations[][concept_name]",        "METHOD OF FAMILY PLANNING") %>
+          <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'family_planning_options_value_coded_or_text'}) %>
+          <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+          <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
         
         <%= touch_yes_no_tag "SATISFIED WITH FAMILY PLANNING METHOD", @patient,  nil,
             {:id => "family_planning_information",
              :helpText => "Are you satisfied with your method?",
              :condition => '$("family_planning").value == "Yes"' } %>
         
-        <%= touch_yes_no_tag "FAMILY PLANNING INFORMATION", @patient,  nil,
+        <%= touch_yes_no_tag "REQUIRE INFORMATION ON FAMILY PLANNING", @patient,  nil,
             {:id => "family_planning_information",
              :helpText => "Do you want more information on family planning"
               } %>

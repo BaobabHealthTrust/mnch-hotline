@@ -65,13 +65,13 @@
      :id          => "select_secondary_outcome",
      :optional    => true,
      :multiple => false,
-     :tt_onUnLoad => "$('outcome_value_coded_or_text').value = $('select_outcome').value",
+     :tt_onUnLoad => "$('secondary_outcome_value_coded_or_text').value = $('select_secondary_outcome').value",
      :helpText    => "Was there a secondary call outcome"
      } %>
 
   <%= select_tag("select_secondary_outcome", options_for_select(@outcome, @selected_value), options)%>
   <%= hidden_field_tag("observations[][concept_name]",        "SECONDARY OUTCOME") %>
-  <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'outcome_value_coded_or_text'}) %>
+  <%= hidden_field_tag("observations[][value_coded_or_text]", "", {:id => 'secondary_outcome_value_coded_or_text'}) %>
   <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
   <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
 

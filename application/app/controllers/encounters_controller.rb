@@ -1,7 +1,7 @@
 class EncountersController < ApplicationController
 
   def create
-
+  #raise params.to_yaml
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
     # raise params.to_yaml
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
@@ -330,8 +330,8 @@ class EncountersController < ApplicationController
 
     regimen_types.collect{|regimen_type|
       Concept.find_by_name(regimen_type).concept_members.flatten.collect{|member|
-        next if member.concept.fullname.include?("Triomune Baby") and !options[:patient].child?
-        next if member.concept.fullname.include?("Triomune Junior") and !options[:patient].child?
+        next if member.concept.fullname.include?("Triomune Baby") and !options[:patient].child? rescue nil
+        next if member.concept.fullname.include?("Triomune Junior") and !options[:patient].child? rescue nil
         if options[:use_short_names]
           include_fixed = member.concept.fullname.match("(fixed)")
           answer_array << [member.concept.shortname, member.concept_id] unless include_fixed
@@ -473,7 +473,7 @@ class EncountersController < ApplicationController
          ['Referred to nearest village clinic', 'REFERRED TO NEAREST VILLAGE CLINIC'],
          ['Given advice', 'GIVEN ADVICE'],
          ['Nurse consultation', 'NURSE CONSULTATION'],
-         ['Registered for Tips and reminders','NURSE CONSULTATION' ], #'REGISTERED FOR TIPS AND REMINDERS']
+         ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS']
          ['Other','OTHER' ] #'REGISTERED FOR TIPS AND REMINDERS']
       ],
       'child_symptoms_greater_zero_outcome' => [
@@ -482,7 +482,7 @@ class EncountersController < ApplicationController
          ['Hospital', 'HOSPITAL'],
          ['Given advice', 'GIVEN ADVICE'],
          ['Nurse consultation', 'NURSE CONSULTATION'],
-         ['Registered for Tips and reminders','NURSE CONSULTATION' ], #'REGISTERED FOR TIPS AND REMINDERS']
+         ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS']
          ['Other','OTHER' ] #'REGISTERED FOR TIPS AND REMINDERS']
       ],
       'general_outcome' => [
@@ -491,7 +491,7 @@ class EncountersController < ApplicationController
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
          ['Hospital', 'HOSPITAL'],
          ['Nurse consultation', 'NURSE CONSULTATION'],
-         ['Registered for Tips and reminders','NURSE CONSULTATION' ], #'REGISTERED FOR TIPS AND REMINDERS']
+         ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS']
          ['Other','OTHER' ]
       ],
       'referral_reasons' => [
