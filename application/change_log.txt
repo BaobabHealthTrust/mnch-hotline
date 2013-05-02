@@ -1,8 +1,19 @@
 Version 3 beta
-	Added the selection of disrict when a call comes
-	Added the selection of whether the call is a repeat or a new call
-	Added the selection of GVHs, TAs and Villages based on the District where the call is coming from
-	Added new tables to the databases, namely, traditional_authority, region, district, village.
-	Altered call log table to record ditrict and call mode (new or repeat)
-	Included the new touchscreen toolkit component that allows the application to adjust to the resolutions of the new J2s
+	First intermediary upgrade from Version 2 to Version 3
+		Added the selection of disrict when a call comes
+		Added the selection of whether the call is a repeat or a new call
+		Added the selection of GVHs, TAs and Villages based on the District where the call is coming from
+		Added new tables to the databases, namely, traditional_authority, region, district, village, health_center.
+		Altered call log table to record ditrict and call mode (new or repeat)
+		Added 'caller is a child' to the list of occupations when registering a patient
+		Added miscarried to the list of pregnancy status
+		Added several symptoms to the list of pregnancy symptoms
+		Added severe abdominal pain to the list of pregnancy danger signs
+		Added birth planning - male, birth planning -female and other to the list of pregnancy topics
+		Changed the pregnancy danger sign 'swollen hands and feet' to 'swollen hands, feet, and face'
+		Added family planning questions
+		Changed the guardian registration to only accept first name, surname, gender and relationship
+		Ensured that the registered guardian is shown on the dashboard
+		Added registered for tips and reminders to the list of outcomes
+		Added an option for a secondary outcome
 
