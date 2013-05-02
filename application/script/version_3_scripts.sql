@@ -32,6 +32,7 @@ INSERT IGNORE INTO global_property (property, property_value, `description`, uui
 
 DROP PROCEDURE IF EXISTS `update_table_columns`;
 
+/*
 -- Create a Village Headman table
 
 CREATE TABLE `village_headman` (
@@ -50,7 +51,7 @@ CREATE TABLE `health_center` (
   PRIMARY KEY (`village_headman_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*
+
 
 Dumped the following tables from openmrs 1.7
  - District
