@@ -41,12 +41,22 @@ class PeopleController < ApplicationController
  
   # This method is just to allow the select box to submit, we could probably do this better
   def select
-    redirect_to search_complete_url(params[:person], params[:relation]) and return unless params[:person].blank? || params[:person] == '0'
-    redirect_to :action => :new, :gender => params[:gender], :given_name => params[:given_name], :family_name => params[:family_name],
-    :family_name2 => params[:family_name2], :address2 => params[:address2], :identifier => params[:identifier], :relation => params[:relation]
+    if params[:person].blank? || params[:person] == '0'
+      redirect_to :action => :new, :gender => params[:gender], :given_name => params[:given_name], :family_name => params[:family_name],
+    :family_name2 => params[:family_name2], :address2 => params[:address2], :identifier => params[:identifier], :relation => params[:relation],
+    :update_information => 'false'
+    else
+      if ! Person.find(params[:person]).birthdate.nil?
+        redirect_to search_complete_url(params[:person], params[:relation]) and return unless params[:person].blank? || params[:person] == '0'
+      else
+        redirect_to :action => :new, :gender => params[:gender], :given_name => params[:given_name], :family_name => params[:family_name],
+        :family_name2 => params[:family_name2], :address2 => params[:address2], :identifier => params[:identifier], :relation => params[:relation],
+        :update_information => 'true',:update_id => params[:person]
+      end
+    end    
   end
  
-  def create
+  def create 
     Person.session_datetime = session[:datetime].to_date rescue Date.today
     params[:person][:relation] = params[:relation]
     person = Person.create_from_form(params[:person])

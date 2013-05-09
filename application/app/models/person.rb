@@ -238,46 +238,61 @@ class Person < ActiveRecord::Base
     names_params      = params["names"]
     patient_params    = params["patient"]
     person_params     = params["person"]
-
-    person = Person.create(person_params)
-    if params[:relation].blank?  #ensure that we are able to add a relation
+    
+    if !params["update_info"]["update_information"] == 'true'
+      person = Person.create(person_params)
+      if params[:relation].blank?  #ensure that we are able to add a relation
+        if birthday_params["birth_year"] == "Unknown"
+          date  = self.session_datetime || Date.today
+          person.set_birthdate_by_age(birthday_params["age_estimate"],date)
+        else
+          person.set_birthdate(birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"])
+        end
+      end
+      person.save
+      person.names.create(names_params)
+      
+      if params[:relation].blank? #ensure that we are able to add a relation
+        person.addresses.create(address_params)
+      end
+      
+      if !attributes_params.blank?
+        attributes_params.map do |attribute, value|
+          attribute_name     = attribute.gsub("_", " ").to_s.humanize.upcase
+          attribute_type_id  = PersonAttributeType.find_by_name(attribute_name).person_attribute_type_id
+  
+          person.person_attributes.create(:person_attribute_type_id => attribute_type_id, :value => value)
+        end
+      end
+   
+  # TODO handle the birthplace attribute
+  
+      if (!patient_params.nil?)
+        patient = person.create_patient
+        patient.create_national_id
+        patient.create_ivr_access_code
+        
+        patient_params["identifiers"].each{|identifier_type_name, identifier|
+          identifier_type = PatientIdentifierType.find_by_name(identifier_type_name) || PatientIdentifierType.find_by_name("Unknown id")
+          patient.patient_identifiers.create("identifier" => identifier, "identifier_type" => identifier_type.patient_identifier_type_id)
+        } if patient_params["identifiers"]
+    
+        # This might actually be a national id, but currently we wouldn't know
+        #patient.patient_identifiers.create("identifier" => patient_params["identifier"], "identifier_type" => PatientIdentifierType.find_by_name("Unknown id")) unless params["identifier"].blank?
+      end
+    else
+      #search for the person
+      person = Person.find(params["update_info"]["update_id"])
+      #set dob for the person
       if birthday_params["birth_year"] == "Unknown"
         date  = self.session_datetime || Date.today
         person.set_birthdate_by_age(birthday_params["age_estimate"],date)
       else
         person.set_birthdate(birthday_params["birth_year"], birthday_params["birth_month"], birthday_params["birth_day"])
       end
-    end
-    person.save
-    person.names.create(names_params)
-    
-    if params[:relation].blank? #ensure that we are able to add a relation
+      person.save
+      #create addresses
       person.addresses.create(address_params)
-    end
-    
-    if !attributes_params.blank?
-      attributes_params.map do |attribute, value|
-        attribute_name     = attribute.gsub("_", " ").to_s.humanize.upcase
-        attribute_type_id  = PersonAttributeType.find_by_name(attribute_name).person_attribute_type_id
-
-        person.person_attributes.create(:person_attribute_type_id => attribute_type_id, :value => value)
-      end
-    end
- 
-# TODO handle the birthplace attribute
-
-    if (!patient_params.nil?)
-      patient = person.create_patient
-      patient.create_national_id
-      patient.create_ivr_access_code
-      
-      patient_params["identifiers"].each{|identifier_type_name, identifier|
-        identifier_type = PatientIdentifierType.find_by_name(identifier_type_name) || PatientIdentifierType.find_by_name("Unknown id")
-        patient.patient_identifiers.create("identifier" => identifier, "identifier_type" => identifier_type.patient_identifier_type_id)
-      } if patient_params["identifiers"]
-  
-      # This might actually be a national id, but currently we wouldn't know
-      #patient.patient_identifiers.create("identifier" => patient_params["identifier"], "identifier_type" => PatientIdentifierType.find_by_name("Unknown id")) unless params["identifier"].blank?
     end
     return person
   end
@@ -338,7 +353,7 @@ class Person < ActiveRecord::Base
 
     params_to_process = params.reject{|key,value| key.match(/addresses|patient|names|attributes/) }
     birthday_params = params_to_process.reject{|key,value| key.match(/gender/) }
-
+    
     person_params = params_to_process.reject{|key,value| key.match(/birth_|age_estimate/) }
 
     if !birthday_params.empty?
@@ -355,7 +370,7 @@ class Person < ActiveRecord::Base
 
     person.update_attributes(person_params) if !person_params.empty?
     person.names.first.update_attributes(names_params) if names_params
-    person.addresses.first.update_attributes(address_params) if address_params
+    person.addresses.first.update_attributes(address_params) if address_params.empty?
 
     #update or add new person attribute
     person_attribute_params.each{|attribute_type_name, attribute|

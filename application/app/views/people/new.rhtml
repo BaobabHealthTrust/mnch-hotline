@@ -175,6 +175,10 @@
 
   <%= hidden_field_tag "relation", params[:relation] %>
   
+  <%= hidden_field_tag "person[update_info][update_information]", params[:update_information] %>
+  
+  <%= hidden_field_tag "person[update_info][update_id]", params[:update_id] %>
+  
   <%= hidden_field_tag :identifier, params[:identifier] %>
 
   <%= submit_tag "Create person" %>

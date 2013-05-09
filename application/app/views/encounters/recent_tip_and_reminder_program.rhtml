@@ -86,31 +86,34 @@
 
   <!-- 
       Checking if the subscriber is a child so that should enter guardian details
+      If the person is a guardian and does not have all the details, then skip the check
     -->
-    <% if @patient.person.age <= 9 %>
-      <% if Person.find(@patient.patient_id).relationships.first.blank? %>
-        <label for='guardian_present'>Guardian Present</label>
-        <%= select_tag "observations[][value_text]", relationship_options(@patient),
-          {:id => "guardian_present",
-           :multiple => false,
-           :optional => false,
-           :tt_onUnLoad => "cleanup_guardian_options()" } %>
-        <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
-        <%= hidden_field_tag("observations[][concept_name]", "GUARDIAN PRESENT") %>
-        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
-        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
-      <% else %>
-        <label for='guardian_present'>Guardian Present (<%= patient_guardian(@patient) rescue ''%>)</label>
-        <%= select_tag "observations[][value_text]", relationship_options(@patient),
-          {:id => "guardian_present",
-           :multiple => false,
-           :optional => false} %>
-        <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
-        <%= hidden_field_tag("observations[][concept_name]", "GUARDIAN PRESENT") %>
-        <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
-        <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
-      <% end %>
-    <% end %>
+    <%if !@patient.person.age.nil?%>
+        <% if @patient.person.age <= 9 %>
+          <% if Person.find(@patient.patient_id).relationships.first.blank? %>
+            <label for='guardian_present'>Guardian Present</label>
+            <%= select_tag "observations[][value_text]", relationship_options(@patient),
+              {:id => "guardian_present",
+               :multiple => false,
+               :optional => false,
+               :tt_onUnLoad => "cleanup_guardian_options()" } %>
+            <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
+            <%= hidden_field_tag("observations[][concept_name]", "GUARDIAN PRESENT") %>
+            <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+            <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+          <% else %>
+            <label for='guardian_present'>Guardian Present (<%= patient_guardian(@patient) rescue ''%>)</label>
+            <%= select_tag "observations[][value_text]", relationship_options(@patient),
+              {:id => "guardian_present",
+               :multiple => false,
+               :optional => false} %>
+            <%= hidden_field_tag("observations[][value_coded_or_text]", nil) %>
+            <%= hidden_field_tag("observations[][concept_name]", "GUARDIAN PRESENT") %>
+            <%= hidden_field_tag("observations[][patient_id]", @patient.id) %>
+            <%= hidden_field_tag("observations[][obs_datetime]", DateTime.now()) %>
+          <% end %>
+        <% end %>
+    <%end%>
 
   <% options = {
      :id          => "enrol_for_tips_and_reminders",
