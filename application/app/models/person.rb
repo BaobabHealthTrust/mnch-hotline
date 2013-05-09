@@ -293,6 +293,16 @@ class Person < ActiveRecord::Base
       person.save
       #create addresses
       person.addresses.create(address_params)
+      
+      attributes = person.person_attributes.map(&:person_attribute_type_id)
+      if !attributes_params.blank?
+        attributes_params.map do |attribute, value|
+          attribute_name     = attribute.gsub("_", " ").to_s.humanize.upcase
+          attribute_type_id  = PersonAttributeType.find_by_name(attribute_name).person_attribute_type_id
+  
+          person.person_attributes.create(:person_attribute_type_id => attribute_type_id, :value => value) if !attributes.include?(attribute_type_id)
+        end
+      end
     end
     return person
   end
@@ -346,8 +356,8 @@ class Person < ActiveRecord::Base
       params = params['person']
     end
 
-    address_params = params["addresses"]
-    names_params = params["names"]
+    address_params = params["addresses"] || []
+    names_params = params["names"] 
     patient_params = params["patient"]
     person_attribute_params = params["attributes"]
 
@@ -370,7 +380,7 @@ class Person < ActiveRecord::Base
 
     person.update_attributes(person_params) if !person_params.empty?
     person.names.first.update_attributes(names_params) if names_params
-    person.addresses.first.update_attributes(address_params) if address_params.empty?
+    person.addresses.first.update_attributes(address_params) if !address_params.empty?
 
     #update or add new person attribute
     person_attribute_params.each{|attribute_type_name, attribute|
