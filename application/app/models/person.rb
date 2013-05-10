@@ -232,6 +232,7 @@ class Person < ActiveRecord::Base
   end
 
   def self.create_from_form(params)
+  #raise params["update_info"]["update_information"].to_yaml
     address_params    = params["addresses"]
     attributes_params = params["attributes"]
     birthday_params   = params["birth_details"]
@@ -239,7 +240,7 @@ class Person < ActiveRecord::Base
     patient_params    = params["patient"]
     person_params     = params["person"]
     
-    if !params["update_info"]["update_information"] == 'true'
+    if params["update_info"]["update_information"] == 'false' || params["update_info"]["update_information"].empty?
       person = Person.create(person_params)
       if params[:relation].blank?  #ensure that we are able to add a relation
         if birthday_params["birth_year"] == "Unknown"
