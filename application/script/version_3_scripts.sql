@@ -14,6 +14,17 @@ CREATE PROCEDURE`update_table_columns`()
 			ALTER TABLE `call_log` ADD COLUMN `call_mode` INT(11) NOT NULL DEFAULT 0 ;
 		END IF;
 		
+		IF NOT EXISTS(()) THEN
+			CREATE TABLE `follow_up` (
+			  `follow_up_id` int(11) NOT NULL AUTO_INCREMENT,
+			  `patient_id` int(11) NOT NULL DEFAULT '0',
+			  `result` varchar(255) DEFAULT NULL,
+			  `creator` int(11) NOT NULL DEFAULT '0',
+			  `date_created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+			  PRIMARY KEY (`follow_up_id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
+		END IF;
+		
 	END$$
 
 DELIMITER ;
@@ -27,6 +38,8 @@ UPDATE call_log SET district = 30;
 INSERT IGNORE INTO global_property (property, property_value, `description`, uuid) VALUES ('current_districts', 'Chikwawa,Balaka,Mwanza', 'Districts from which callers are from in Hotline system', (SELECT UUID()));
 
 INSERT IGNORE INTO global_property (property, property_value, `description`, uuid) VALUES ('call_mode', 'New,Repeat', 'Call Type whether New or Repeat', (SELECT UUID()));
+
+INSERT IGNORE INTO global_property (property, property_value, `description`, uuid) VALUES ('followup.threshhold', 1, 'The number of weeks to base the follow up calls', (SELECT UUID()));
 
 -- DROP update_table_columns PROCEDURE
 
@@ -68,3 +81,5 @@ TODO
 - write a script to add all the village headmen
 - create interface for entering health centers in the administration mode
 */
+
+
