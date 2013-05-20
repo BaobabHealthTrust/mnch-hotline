@@ -71,6 +71,9 @@
       <option value='/encounters/recent_tip_and_reminder_program?patient_id=<%=@patient.id%>'>Edit Reminders</option>
       <option value='/patients/demographics?patient_id=<%=@patient.id%>'>Edit Demograghics</option>
     <%  end %>
+    <% if @patient_needs_follow_up == true %>
+        <option value='/clinic/followup?person=<%=@patient.id%>&source=PD'>Follow up</option>
+    <% end %>
   </select>
 </div>
 
