@@ -335,4 +335,55 @@ class ClinicController < ApplicationController
       
       render :template => 'clinic/district', :layout => 'application'
     end
+    
+    def showfollowuplist
+      @follow_ups = FollowUp.get_follow_ups
+      
+      render :template => 'clinic/followuplist', :layout => 'application'
+    end
+    
+    def create_followup
+      
+      follow_up = FollowUp.new
+      follow_up.patient_id = params[:patient_id]
+      follow_up.result = params[:result]
+      follow_up.creator = session[:user_id].to_i
+      follow_up.date_created = session[:datetime].to_date rescue Date.today
+      
+      follow_up.save
+      
+      source = params[:source]
+      
+      if source == 'HK' #house keeping
+        redirect_to "/clinic/showfollowuplist"
+      else # initiated during the call -- redirect to patient_dashboard #source PD
+        redirect_to "/patients/show/#{params[:patient_id]}"
+      end
+    end
+    
+    def followup
+      @source = params[:source]
+      @patient = Patient.find(params[:person])
+      @referral_outcomes = follow_up_options
+      
+      render :template => 'clinic/newfollowup', :layout => 'application'
+    end
+    
+    def follow_up_options
+      select_options = {
+        'follow_up_options' => [
+          ['', ''],
+          ['Pregnant woman miscarried', 'Pregnant woman miscarried'],
+          ['Child died', 'Child dies'],
+          ['Client followed-up on referral and improved', 'Client followed-up on referral and improved'],
+          ['Client followed up on referral and did not improve', 'Client followed up on referral and did not improve'],
+          ['Client did not follow the referral advice and improved', 'Client did not follow the referral advice and improved'],
+          ['Client did not follow the referral advice and did not improve', 'Client did not follow the referral advice and did not improve'],
+          ['Client went to the health facility but was unable to get treatment', 'Client went to the health facility but was unable to get treatment'],
+          ['Client unable to follow-up on referral', 'Client unable to follow-up on referral'],
+          ['Client appreciates service', 'Client appreciates service'],
+          ['Other','OTHER']
+        ]
+      }
+    end
 end
