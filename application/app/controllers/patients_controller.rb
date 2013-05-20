@@ -14,7 +14,9 @@ class PatientsController < ApplicationController
       @status = ""
       @date   = ""
     end
-
+    #raise require_follow_up.map(&:patient_id).to_yaml
+    @patient_needs_follow_up = FollowUp.get_follow_ups.map(&:patient_id).include? @patient.id
+    #raise FollowUp.get_follow_ups.to_yaml
     session[:mnch_protocol_required] = false
    #added this to ensure that we are able to void the encounters
     void_encounter if (params[:void] && params[:void] == 'true')
