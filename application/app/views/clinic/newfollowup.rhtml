@@ -1,0 +1,25 @@
+<script>
+    <% if params[:source] == 'PD' %>
+        var tt_cancel_destination = "/patients/show/<%= @patient.id %>"
+    <%else%>
+        var tt_cancel_destination = "/clinic/showfollowuplist"
+    <%end%>
+</script>
+
+<form id='follow_up' action="/clinic/create_followup" method='post'>
+
+<% options = {
+     :id          => "follow_up_result",
+     :optional    => false,
+     :multiple => false,
+     :tt_onUnLoad => "$('result').value = $('follow_up_result').value",
+     :helpText    => "What was the result of the referal we gave?"
+     } %>
+
+  <%= select_tag("referal_result", options_for_select(@referral_outcomes['follow_up_options']), options)%>
+  <%= hidden_field_tag("patient_id", @patient.id) %>
+  <%= hidden_field_tag("result", "", {:id => 'result'}) %>
+  <%= hidden_field_tag("source", @source) %>
+
+  <%= submit_tag "Finish" %>    
+ </form>
