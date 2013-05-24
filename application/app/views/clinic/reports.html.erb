@@ -25,7 +25,7 @@
       <base target="_parent">
         <% if  Encounter.count > 0 %>
           <% (@reports || []).each do |name,path| %>
-            <button style="margin: 5px 0px 0px; min-width: 280px;" onMouseDown="window.location= '<%=path%>'" target="_parent "class="blue"><span><%=name%></span></button><br/>
+            <button style="margin: 5px 0px 0px; min-width: 350px;" onMouseDown="window.location= '<%=path%>'" target="_parent "class="blue"><span><%=name%></span></button><br/>
           <%end%>
         <%end%>
       </base>
