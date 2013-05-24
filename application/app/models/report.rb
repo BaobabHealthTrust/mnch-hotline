@@ -1803,5 +1803,165 @@ module Report
 
    relevant_date
  end
+ 
+ def self.family_planning_satisfaction(start_date, end_date, grouping, district)
+   
+    district_id = District.find_by_name(district).id
+    patients_data = []
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+      total_callers = self.get_total_nonpregnant_callers(date_range.first, 
+                            date_range.last, 
+                            district_id).map(&:patient_id).uniq.count
+
+      query   = self.create_family_planning_query(date_range.first, date_range.last, district_id)
+      results = Patient.find_by_sql(query)
+      total_callers_on_family_planning = results.map(&:patient_id).uniq.count
+      
+      row_data = {:start_date => date_range.first,:end_date => date_range.last,
+                  :total_callers => total_callers,
+                  :total_callers_on_fp => total_callers_on_family_planning,
+                  :percentage_of_callers_on_fp => 0, :total_breakdown => 0,
+                  :pills => 0, :condoms => 0, :injectables => 0,
+                  :implants => 0, :other => 0,
+                  :percentage_of_satisfied_with_fpm => 0,
+                  :number_wanting_more_info => 0,
+                  :percentage_of_callers_wanting_info => 0
+            }
+            
+      results.each do |patient|
+        if patient.family_planning_satisfied_vc == 1065
+          birth_method = patient.birth_method_vt
+          if birth_method.blank?
+            birth_method = patient.birth_method_vc
+          end
+          
+          if birth_method == "Injectables"
+            row_data[:injectables] += 1
+          elsif birth_method == "Implants"
+            row_data[:implants] += 1
+          elsif birth_method == 190
+            row_data[:condoms] += 1
+          elsif birth_method == 13
+            row_data[:pills] += 1
+          else
+            row_data[:other] += 1
+          end
+        end
+        if patient.family_planning_info_vc == 1065
+          row_data[:number_wanting_more_info] += 1
+        end
+      end
+      row_data[:percentage_of_callers_on_fp] = ((row_data[:total_callers_on_fp].to_f / row_data[:total_callers].to_f) * 100).round(1) if row_data[:total_callers_on_fp] != 0
+      row_data[:total_breakdown] = row_data[:pills] + row_data[:condoms] + row_data[:other] + row_data[:injectables] + row_data[:implants]
+      row_data[:percentage_of_satisfied_with_fpm] = ((row_data[:total_breakdown].to_f / row_data[:total_callers_on_fp].to_f)* 100).round(1) if row_data[:total_breakdown] != 0
+      row_data[:percentage_of_callers_wanting_info] = ((row_data[:number_wanting_more_info].to_f / row_data[:total_callers].to_f) * 100).round(1) if row_data[:number_wanting_more_info] != 0
+      patients_data << row_data
+    end
+  #raise patients_data.to_yaml
+  return patients_data
+ end
+ 
+ def self.create_family_planning_query(start_date, end_date, district)
+   query = "select e.patient_id AS patient_id, obc.value_text AS call_id,
+           ofplan.value_coded_name_id AS family_planning_method_vcni, 
+           ofplan.value_coded AS family_planning_method_vc,
+           obmethod.value_coded_name_id AS birth_method_vcni, 
+           obmethod.value_coded AS birth_method_vc,
+           obmethod.value_text AS birth_method_vt,
+           ofsatisfied.value_coded_name_id AS family_planning_satisfied_vcni, 
+           ofsatisfied.value_coded AS family_planning_satisfied_vc,
+           ofinfo.value_coded_name_id AS family_planning_info_vcni, 
+           ofinfo.value_coded AS family_planning_info_vc
+        from encounter e
+            inner join obs ob on e.encounter_id = ob.encounter_id 
+                    and ob.concept_id = 5272 and ob.value_text = 'Not pregnant'
+            inner join obs obc on e.encounter_id = obc.encounter_id and obc.concept_id = 8304
+            inner join call_log cl on obc.value_text = cl.call_log_id and district = #{district}
+            inner join encounter efs on efs.encounter_type = 72 and efs.voided = 0
+            inner join obs ofs on efs.encounter_id = ofs.encounter_id
+                    and ofs.concept_id = 8304 and ofs.value_text = obc.value_text
+            inner join obs ofplan on ofplan.encounter_id = ofs.encounter_id and ofplan.concept_id = 1717
+            inner join obs obmethod on obmethod.encounter_id = ofs.encounter_id and obmethod.concept_id = 374
+            inner join obs ofsatisfied on ofsatisfied.encounter_id = ofs.encounter_id and ofsatisfied.concept_id = 9159
+            inner join obs ofinfo on ofinfo.encounter_id = ofs.encounter_id and ofinfo.concept_id = 9160
+            where
+                e.encounter_type = 111 
+                and e.voided = 0
+                and e.encounter_datetime >= '#{start_date}' and e.encounter_datetime <= '#{end_date}'"
+
+    return query
+ end
+
+ def self.get_total_nonpregnant_callers(start_date, end_date, district)
+    query = "select e.patient_id
+              from encounter e
+                inner join obs ob on e.encounter_id = ob.encounter_id 
+                        and ob.concept_id = 5272 and ob.value_text = 'Not pregnant'
+                inner join obs obc on e.encounter_id = obc.encounter_id and obc.concept_id = 8304
+                inner join call_log cl on obc.value_text = cl.call_log_id and district = #{district}
+              where
+                  e.encounter_type = 111 
+                  and e.voided = 0
+                  and e.encounter_datetime >= '#{start_date}' and e.encounter_datetime <= '#{end_date}'"
+    result = Patient.find_by_sql(query)
+    return result
+ end
+ def self.info_on_family_planning(start_date, end_date, grouping, district)
+   
+    district_id = District.find_by_name(district).id
+    patients_data = []
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+      total_callers = self.get_total_nonpregnant_callers(date_range.first, 
+                            date_range.last, 
+                            district_id).map(&:patient_id).uniq.count
+
+      query   = self.create_family_planning_info_query(date_range.first, date_range.last, district_id)
+      results = Patient.find_by_sql(query)
+ 
+            row_data = {:start_date => date_range.first,:end_date => date_range.last,
+                  :total_callers => total_callers,
+                  :number_wanting_more_info => 0,
+                  :percentage_of_callers_wanting_info => 0
+            }
+            
+      results.each do |patient|
+        if patient.family_planning_info_vc == 1065
+          row_data[:number_wanting_more_info] += 1
+        end
+      end
+      row_data[:percentage_of_callers_wanting_info] = ((row_data[:number_wanting_more_info].to_f / row_data[:total_callers].to_f) * 100).round(1) if row_data[:number_wanting_more_info] != 0
+      patients_data << row_data
+    end
+  #raise patients_data.to_yaml
+  return patients_data
+ end
+ 
+ def self.create_family_planning_info_query(start_date, end_date, district)
+   query = "select e.patient_id AS patient_id, obc.value_text AS call_id,
+           ofplan.value_coded_name_id AS family_planning_method_vcni, 
+           ofplan.value_coded AS family_planning_method_vc,
+           ofinfo.value_coded_name_id AS family_planning_info_vcni, 
+           ofinfo.value_coded AS family_planning_info_vc
+        from encounter e
+            inner join obs ob on e.encounter_id = ob.encounter_id 
+                    and ob.concept_id = 5272 and ob.value_text = 'Not pregnant'
+            inner join obs obc on e.encounter_id = obc.encounter_id and obc.concept_id = 8304
+            inner join call_log cl on obc.value_text = cl.call_log_id and district = #{district}
+            inner join encounter efs on efs.encounter_type = 72 and efs.voided = 0
+            inner join obs ofs on efs.encounter_id = ofs.encounter_id
+                    and ofs.concept_id = 8304 and ofs.value_text = obc.value_text
+            inner join obs ofplan on ofplan.encounter_id = ofs.encounter_id and ofplan.concept_id = 1717
+            inner join obs ofinfo on ofinfo.encounter_id = ofs.encounter_id and ofinfo.concept_id = 9160
+            where
+                e.encounter_type = 111 
+                and e.voided = 0
+                and e.encounter_datetime >= '#{start_date}' and e.encounter_datetime <= '#{end_date}'"
+
+    return query
+ end
 
 end
