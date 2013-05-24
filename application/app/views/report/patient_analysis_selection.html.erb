@@ -10,14 +10,22 @@
     $('start_date').value = date_range[0];
     $('end_date').value   = date_range[1];
   }
+  
+  function setDistrict(aDistrict){
+    $('district').value = aDistrict;
+  }
 </script>
 <form method='POST' action="reports" >
+  <%= select_tag :currentdistrict, options_for_select(@districts), 
+        {:helpText => 'Select the district to base the report on',
+         :tt_onUnLoad=>"setDistrict('currentdistrict');"}%>
+         
   <% if not @query == "individual_current_enrollments" %>
       <%= select_tag :report_date_range, options_for_select(@date_range_values),
           {:helpText => "Select Date Range",
            :tt_onUnLoad=>"setDateRange('report_date_range');"} %>
 
-      <% if @report_type.downcase != 'tips' %>
+      <% if @report_type.downcase != 'tips' && @report_type.downcase != 'family_planning' %>
         <%= select_tag :patient_type, options_for_select(@patient_type),
                     {:helpText => "Select Patient Type"} %>
       <% end %>
@@ -40,8 +48,7 @@
                     {:helpText => "Select a Staff member to report on"} %>
         <%= select_tag :call_type,     options_for_select(@call_type),
                     {:helpText => "Select Call type"} %>
-        <%#= select_tag :call_status,     options_for_select(@call_status),
-          #          {:helpText => "Select Call Status (dropped or not)"} %>
+
       <% elsif @report_type.downcase == 'tips' %>
         <%= select_tag :content_type,     options_for_select(@content_type),
                     {:helpText => "Select the Content to report on"} %>
@@ -63,6 +70,7 @@
   <%= hidden_field_tag :query, "#{@query}"%>
   <%= hidden_field_tag :start_date, "", {:id => 'start_date'}%>
   <%= hidden_field_tag :end_date,   "", {:id => 'end_date'}%>
+  <%= hidden_field_tag :district,   "", {:id => 'district'}%>
   <%= hidden_field_tag :report_type, "#{@report_type}", {:id => 'report_type'}%>
 
 </form>
