@@ -572,6 +572,7 @@ class ReportController < ApplicationController
     @query        = params[:query]
     @grouping     = params[:grouping]
     @source       = params[:source] rescue nil
+    district = params[:district]
 
     case @patient_type.downcase
     when 'women'
@@ -585,9 +586,9 @@ class ReportController < ApplicationController
     end
 
 
-    @report_name  = "Patient Age Distribution"
+    @report_name  = "Patient Age Distribution for #{params[:district]} district"
     @report       = Report.patient_age_distribution(@patient_type, @grouping,
-                                                    @start_date, @end_date)
+                                                    @start_date, @end_date, district)
 
     if params[:destination] == 'csv'
       report_header = ["", "Count", "%age", "Min","Max","Avg","S.Dev"]
