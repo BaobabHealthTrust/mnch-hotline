@@ -1036,15 +1036,16 @@ module Report
    return sdev
  end
 
- def self.patient_activity(patient_type, grouping, start_date, end_date)
+ def self.patient_activity(patient_type, grouping, start_date, end_date, district)
+  district_id = District.find_by_name(district).id
   patients_data = []
   date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
 
     date_ranges.map do |date_range|
       
-      query   = self.patient_demographics_query_builder(patient_type, date_range)
+      query   = self.patient_demographics_query_builder(patient_type, date_range, district_id)
       results = Patient.find_by_sql(query)
-      total_calls_for_period = self.call_count_for_period(date_range, patient_type)
+      total_calls_for_period = self.call_count_for_period(date_range, patient_type, district_id)
       #data_for_patients = {:patient_data => {}, :statistical_data => {}}
       patient_statistics = {:start_date => date_range.first, 
                             :end_date => date_range.last, :total => 0,
@@ -1056,7 +1057,7 @@ module Report
       activity_type = ["symptoms","danger","info"]
       case patient_type.downcase
         when "women"
-          new_patients_data = self.women_demographics(results, date_range)
+          new_patients_data = self.women_demographics(results, date_range, district_id)
           total_patients = 0
           new_patients_data[:pregnancy_status].each do |status|
             total_patients += status.last
@@ -1068,7 +1069,7 @@ module Report
           activity = 'danger warning signs' if type == 'danger'
           activity = 'health information requested' if type == 'info'
             essential_params  = self.prepopulate_concept_ids_and_extra_parameters(patient_type, activity)
-            data_query = self.patient_activity_query_builder(patient_type, activity, date_range, essential_params)
+            data_query = self.patient_activity_query_builder(patient_type, activity, date_range, essential_params, district_id)
             activity_data = Patient.find_by_sql(data_query)
             if type == 'symptoms'
               patient_statistics[:symptoms] = activity_data.first.number_of_patients.to_i
@@ -1083,7 +1084,7 @@ module Report
          end
 
         when "children"
-          new_patients_data = self.children_demographics(results, date_range)     
+          new_patients_data = self.children_demographics(results, date_range, district_id)     
           total_patients = 0
           new_patients_data[:gender].each do |status|
             total_patients += status.last
@@ -1095,7 +1096,7 @@ module Report
           activity = 'danger warning signs' if type == 'danger'
           activity = 'health information requested' if type == 'info'
             essential_params  = self.prepopulate_concept_ids_and_extra_parameters(patient_type, activity)
-            data_query = self.patient_activity_query_builder(patient_type, activity, date_range, essential_params)
+            data_query = self.patient_activity_query_builder(patient_type, activity, date_range, essential_params, district_id)
             #raise data_query.to_s
             activity_data = Patient.find_by_sql(data_query)
             if type == 'symptoms'
@@ -1110,7 +1111,7 @@ module Report
             end
          end
         else
-          new_patients_data = self.all_patients_demographics(results, date_range)
+          new_patients_data = self.all_patients_demographics(results, date_range, district_id)
           total_patients = 0
           new_patients_data[:patient_type].each do |status|
             total_patients += status.last
@@ -1122,7 +1123,7 @@ module Report
           activity = 'danger warning signs' if type == 'danger'
           activity = 'health information requested' if type == 'info'
             essential_params  = self.prepopulate_concept_ids_and_extra_parameters(patient_type, activity)
-            data_query = self.patient_activity_query_builder(patient_type, activity, date_range, essential_params)
+            data_query = self.patient_activity_query_builder(patient_type, activity, date_range, essential_params, district_id)
             activity_data = Patient.find_by_sql(data_query)
             if type == 'symptoms'
               patient_statistics[:symptoms] = activity_data.first.number_of_patients.to_i
@@ -1142,7 +1143,8 @@ module Report
     patients_data
   end
 
- def self.patient_activity_query_builder(patient_type, health_task, date_range, essential_params)
+ def self.patient_activity_query_builder(patient_type, health_task, date_range, essential_params, district_id)
+    call_id = Concept.find_by_name("CALL ID").id
     concept_ids         = essential_params[:concept_ids]
     encounter_type_ids  = essential_params[:encounter_type_ids]
     #extra_conditions    = essential_params[:extra_conditions]
@@ -1165,7 +1167,11 @@ module Report
 =end
     query = "SELECT COUNT(DISTINCT o.person_id) AS number_of_patients "  +
             "FROM encounter e " +
-            "INNER JOIN obs o ON e.encounter_id = o.encounter_id " +
+              "INNER JOIN obs o ON e.encounter_id = o.encounter_id " + 
+              "INNER JOIN obs obs_call ON o.encounter_id = obs_call.encounter_id " +
+                "AND obs_call.concept_id = #{call_id} " +
+              "INNER JOIN call_log cl ON obs_call.value_text = cl.call_log_id " +
+                "AND cl.district = #{district_id} " +
             "WHERE e.encounter_type IN (#{encounter_type_ids}) " +
               "AND o.concept_id IN (#{concept_ids}) " +
               "AND DATE(o.date_created) >= '#{date_range.first}' " +
@@ -1173,7 +1179,7 @@ module Report
               "AND e.voided = 0 AND o.voided = 0 " +
               "AND o.value_coded = " + value_coded_indicator.to_s 
 
-    #raise query.to_yaml
+    #raise query.to_s
     query
   end
 

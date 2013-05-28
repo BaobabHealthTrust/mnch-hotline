@@ -614,10 +614,11 @@ class ReportController < ApplicationController
     @grouping     = params[:grouping]
     @special_message = ""
     @source       = params[:source] rescue nil
+    district = params[:district]
 
-    @report_name  = "Patient Activity"
+    @report_name  = "Patient Activity for #{params[:district]} district"
     @report    = Report.patient_activity(@patient_type, @grouping,
-                                         @start_date, @end_date)
+                                         @start_date, @end_date, district)
 
     if params[:destination] == 'csv'
       report_header = ["", "Count","Health Symptoms Count", "Health Symptoms %age",
