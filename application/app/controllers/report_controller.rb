@@ -510,10 +510,11 @@ class ReportController < ApplicationController
     @query        = params[:query]
     @grouping     = params[:grouping]
     @source       = params[:source] rescue nil
+    district = params[:district]
 
     @report_name  = "Patient Demographics for #{params[:district]} district"
     @report       = Report.patient_demographics(@patient_type, @grouping,
-                                                @start_date, @end_date)
+                                                @start_date, @end_date, district)
     
     @cumulative_total =  @report.inject(0){|total, item| total = total + item[:new_registrations].to_i}
 

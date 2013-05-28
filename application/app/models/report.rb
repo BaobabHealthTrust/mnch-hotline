@@ -64,7 +64,10 @@ module Report
     return grouping_date_ranges
   end
 
-  def self.patient_demographics_query_builder(patient_type, date_range)
+  def self.patient_demographics_query_builder(patient_type, date_range, district_id)
+    # Get a list of health centers for the particular district
+    health_centers = "'" + get_nearest_health_centers(district_id).map(&:name).join("','") + "'"
+
     child_maximum_age     = 9 # see definition of a female adult above
     nearest_health_center = PersonAttributeType.find_by_name("NEAREST HEALTH FACILITY").id
 
@@ -73,6 +76,7 @@ module Report
         pregnancy_status_concept_id         = Concept.find_by_name("PREGNANCY STATUS").concept_id
         pregnancy_status_encounter_type_id  = EncounterType.find_by_name("PREGNANCY STATUS").encounter_type_id
         delivered_status_concept = Concept.find_by_name("Delivered").concept_id
+        call_id = Concept.find_by_name("CALL ID").concept_id
         
         extra_parameters = ", CASE pregnancy_status_table.value_coded " +
                            " WHEN #{delivered_status_concept} THEN 'Delivered' " +
@@ -82,20 +86,25 @@ module Report
         extra_conditions = " AND pregnancy_status_table.person_id = p.patient_id " +
                            "AND (YEAR(p.date_created) - YEAR(ps.birthdate)) > #{child_maximum_age} "
 
-        sub_query       = ", (SELECT  obs.person_id AS person_id, obs.value_coded AS value_coded, " +
-                              "concept.concept_id, concept_name.name AS name, obs.value_text AS pregnancy_status " +
-                              "FROM encounter, obs, concept, concept_name " +
-                            "WHERE encounter.encounter_type = #{pregnancy_status_encounter_type_id} " +
-                              "AND obs.encounter_id = encounter.encounter_id " +
-                              "AND concept.concept_id = #{pregnancy_status_concept_id} " +
-                              "AND obs.concept_id = concept.concept_id " +
-                              "AND concept_name.concept_id = concept.concept_id " +
-                              "AND concept.retired = 0 AND concept_name.voided = 0 " +
-                              "AND DATE(obs.obs_datetime) >= '#{date_range.first}' " +
-                              "AND DATE(obs.obs_datetime) <= '#{date_range.last}' " +
-                              "AND obs.voided = 0 " +
+        sub_query       = ", (SELECT  o.person_id AS person_id, o.value_coded AS value_coded, " +
+                              "c.concept_id, cn.name AS name, o.value_text AS pregnancy_status " +
+                              "FROM encounter e " + 
+                                "INNER JOIN obs o " + 
+                                  "ON e.encounter_id = o.encounter_id AND o.concept_id = #{pregnancy_status_concept_id} " + 
+                                "INNER JOIN concept c " + 
+                                  "ON c.concept_id = o.concept_id AND c.retired = 0 " + 
+                                "INNER JOIN concept_name cn " + 
+                                  "ON cn.concept_id = c.concept_id " +
+                                "INNER JOIN obs obs_call ON e.encounter_id = obs_call.encounter_id " +
+                                  "AND obs_call.concept_id = #{call_id} " +
+                                "INNER JOIN call_log cl ON obs_call.value_text = cl.call_log_id " +
+                                  "AND cl.district = #{district_id} " +
+                            "WHERE e.encounter_type = #{pregnancy_status_encounter_type_id} " +
+                              "AND DATE(o.obs_datetime) >= '#{date_range.first}' " +
+                              "AND DATE(o.obs_datetime) <= '#{date_range.last}' " +
+                              "AND e.voided = 0 " +
                             "GROUP BY person_id " +
-                            "ORDER BY obs.person_id, obs.date_created DESC) pregnancy_status_table "
+                            "ORDER BY o.person_id, o.date_created DESC) pregnancy_status_table "
 
       extra_group_by = ", pregnancy_status_table.pregnancy_status "
 
@@ -123,30 +132,32 @@ module Report
                 "LEFT JOIN person ps ON pa.person_id = ps.person_id " +  
                 "INNER JOIN #{patients_with_encounter} ON pa.person_id = patients.patient_id " + sub_query +
             "WHERE pa.person_attribute_type_id = #{nearest_health_center} " + extra_conditions + 
-            "GROUP BY pa.value " + extra_group_by +
+              "AND pa.value IN (#{health_centers}) " +
+            "GROUP BY pa.value " + extra_group_by + 
             " ORDER BY p.date_created"
 
-    #raise query.to_s
     return query
   end
 
-  def self.patient_demographics(patient_type, grouping, start_date, end_date)
-
+  def self.patient_demographics(patient_type, grouping, start_date, end_date, district)
+    
+    district_id = District.find_by_name(district).id
     date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
 
     patients_data = []
 
     date_ranges.map do |date_range|
-      query   = self.patient_demographics_query_builder(patient_type, date_range)
+      query   = self.patient_demographics_query_builder(patient_type, date_range, district_id)
+      
       results = Patient.find_by_sql(query)
 
       case patient_type.downcase
         when "women"
-          new_patients_data = self.women_demographics(results, date_range)
+          new_patients_data = self.women_demographics(results, date_range, district_id)
         when "children"
-          new_patients_data = self.children_demographics(results, date_range)
+          new_patients_data = self.children_demographics(results, date_range, district_id)
         else
-          new_patients_data = self.all_patients_demographics(results, date_range)
+          new_patients_data = self.all_patients_demographics(results, date_range, district_id)
       end # end case
       patients_data.push(new_patients_data)
     end
@@ -154,10 +165,10 @@ module Report
     patients_data
   end
 
-  def self.all_patients_demographics(patients_data, date_range)
+  def self.all_patients_demographics(patients_data, date_range, district)
     nearest_health_centers  = []
     
-    mnch_health_facilities_list = Location.find_by_tag("mnch_health_facilities")
+    mnch_health_facilities_list = get_nearest_health_centers(district)
     mnch_health_facilities_list.map do |facility|
       nearest_health_centers.push([facility["name"].humanize, 0])
     end
@@ -191,10 +202,10 @@ module Report
     new_patients_data
   end
 
-  def self.children_demographics(patients_data, date_range)
+  def self.children_demographics(patients_data, date_range, district)
     nearest_health_centers  = []
 
-    mnch_health_facilities_list = Location.find_by_tag("mnch_health_facilities")
+    mnch_health_facilities_list = get_nearest_health_centers(district)
     mnch_health_facilities_list.map do |facility|
       nearest_health_centers.push([facility["name"].humanize, 0])
     end
@@ -229,10 +240,10 @@ module Report
     new_patients_data
   end
 
-  def self.women_demographics(patients_data, date_range)
+  def self.women_demographics(patients_data, date_range, district)
     nearest_health_centers  = []
 
-    mnch_health_facilities_list = Location.find_by_tag("mnch_health_facilities")
+    mnch_health_facilities_list = get_nearest_health_centers(district)
     mnch_health_facilities_list.map do |facility|
       nearest_health_centers.push([facility["name"].humanize, 0])
     end
@@ -1864,6 +1875,7 @@ module Report
  end
  
  def self.create_family_planning_query(start_date, end_date, district)
+#TODO - Remove the hard coding of the ids  
    query = "select e.patient_id AS patient_id, obc.value_text AS call_id,
            ofplan.value_coded_name_id AS family_planning_method_vcni, 
            ofplan.value_coded AS family_planning_method_vc,
@@ -1964,4 +1976,13 @@ module Report
     return query
  end
 
+ def self.get_nearest_health_centers(district)
+    district_id = district
+    hc_conditions = ["district = ?", district_id]
+
+    health_centers = HealthCenter.find(:all,:conditions => hc_conditions, :order => 'name') 
+    
+    return health_centers
+    
+ end
 end
