@@ -280,7 +280,7 @@ module Report
     new_patients_data
   end
 
-  def self.patient_health_issues_query_builder(patient_type, health_task, date_range, essential_params)
+  def self.patient_health_issues_query_builder(patient_type, health_task, date_range, essential_params, district_id)
     concept_ids         = essential_params[:concept_ids]
     encounter_type_ids  = essential_params[:encounter_type_ids]
     extra_conditions    = essential_params[:extra_conditions]
@@ -288,6 +288,7 @@ module Report
     #TODO find a better way of getting concpet_names that are not tagged concept_name_tag_map as danger, health_symptom or health info
     concept_names =  '"' + essential_params[:concept_map].inject([]) {|result, concept| result << concept[:concept_name].to_s}.uniq.join('","') + '"'
     value_coded_indicator = Concept.find_by_name("YES").id
+    call_id = Concept.find_by_name("CALL ID").id
     
     child_maximum_age = 9
     
@@ -304,6 +305,10 @@ module Report
               "LEFT JOIN patient ON encounter.patient_id = patient.patient_id " +
               "LEFT JOIN person ON patient.patient_id = person.person_id " +
               "LEFT JOIN concept_name on obs.concept_id = concept_name.concept_id " + 
+              "INNER JOIN obs obs_call ON encounter.encounter_id = obs_call.encounter_id " +
+                "AND obs_call.concept_id = #{call_id} " +
+              "INNER JOIN call_log cl ON obs_call.value_text = cl.call_log_id " +
+                "AND cl.district = #{district_id} " +
             "WHERE encounter_type.encounter_type_id IN (#{encounter_type_ids}) " +
               "AND obs.concept_id IN (#{concept_ids}) " +
               "AND encounter.voided = 0 AND obs.voided = 0 AND concept_name.voided = 0 " +
@@ -340,7 +345,8 @@ module Report
                               "REFERRED TO NEAREST VILLAGE CLINIC",
                               "PATIENT TRIAGED TO NURSE SUPERVISOR",
                               "GIVEN ADVICE NO REFERRAL NEEDED",
-                              "HOSPITAL"]
+                              "HOSPITAL",
+                              "REGISTERED FOR TIPS AND REMINDERS"]
 
       extra_parameters    = " obs.value_text AS concept_name, "
       extra_conditions    = " obs.value_text, DATE(obs.date_created), "
@@ -385,9 +391,16 @@ module Report
                               "FITS OR CONVULSIONS SYMPTOM",
                               "SWOLLEN HANDS OR FEET SYMPTOM",
                               "PALENESS OF THE SKIN AND TIREDNESS SYMPTOM",
-                              "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM"
+                              "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM",
+                              "POSTNATAL DISCHARGE BAD SMELL", "ABDOMINAL PAIN",
+                              "PROBLEMS WITH MONTHLY PERIODS",
+                              "PROBLEMS WITH FAMILY PLANNING METHO", "INFERTILITY",
+                              "FREQUENT MISCARRIAGES",
+                              "VAGINAL BLEEDING NOT DURING PREGNANCY",
+                              "VAGINAL ITCHING","VAGINAL DISCHARGE",
+                              "OTHER"
                               ]
-
+                              
           when "danger warning signs"
             concepts_list = ["HEAVY VAGINAL BLEEDING DURING PREGNANCY",
                               "EXCESSIVE POSTNATAL BLEEDING",
@@ -396,14 +409,18 @@ module Report
                               "FITS OR CONVULSIONS SIGN",
                               "SWOLLEN HANDS OR FEET SIGN",
                               "PALENESS OF THE SKIN AND TIREDNESS SIGN",
-                              "NO FETAL MOVEMENTS SIGN", "WATER BREAKS SIGN"]
+                              "NO FETAL MOVEMENTS SIGN", "WATER BREAKS SIGN",
+                              "ACUTE ABDOMINAL PAIN"
+                              ]
 
           when "health information requested"
             concepts_list = ["HEALTHCARE VISITS", "NUTRITION", "BODY CHANGES",
                               "DISCOMFORT", "CONCERNS", "EMOTIONS",
                               "WARNING SIGNS", "ROUTINES", "BELIEFS",
                               "BABY'S GROWTH", "MILESTONES", "PREVENTION",
-                              "FAMILY PLANNING"]
+                              "FAMILY PLANNING", "BIRTH PLANNING MALE",
+                              "BIRTH PLANNING FEMALE","OTHER"]
+
         end
       else #all
         encounter_type_list = ["MATERNAL HEALTH SYMPTOMS", "CHILD HEALTH SYMPTOMS"]
@@ -419,7 +436,14 @@ module Report
                               "NO FETAL MOVEMENTS SYMPTOM", "WATER BREAKS SYMPTOM",
                               "FEVER", "DIARRHEA", "COUGH", "CONVULSIONS SYMPTOM",
                               "NOT EATING", "VOMITING", "RED EYE",
-                              "FAST BREATHING", "VERY SLEEPY", "UNCONSCIOUS"
+                              "FAST BREATHING", "VERY SLEEPY", "UNCONSCIOUS",
+                              "POSTNATAL DISCHARGE BAD SMELL", "ABDOMINAL PAIN",
+                              "PROBLEMS WITH MONTHLY PERIODS",
+                              "PROBLEMS WITH FAMILY PLANNING METHO", "INFERTILITY",
+                              "FREQUENT MISCARRIAGES",
+                              "VAGINAL BLEEDING NOT DURING PREGNANCY",
+                              "VAGINAL ITCHING","VAGINAL DISCHARGE",
+                              "OTHER"
                               ]
             
           when "danger warning signs"
@@ -437,7 +461,9 @@ module Report
                               "CONVULSIONS SIGN", "NOT EATING OR DRINKING ANYTHING",
                               "VOMITING EVERYTHING",
                               "RED EYE FOR 4 DAYS OR MORE WITH VISUAL PROBLEMS",
-                              "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING"
+                              "VERY SLEEPY OR UNCONSCIOUS", "POTENTIAL CHEST INDRAWING",
+                               "BIRTH PLANNING MALE",
+                              "BIRTH PLANNING FEMALE","OTHER"
                               ]
 
           when "health information requested"
@@ -448,7 +474,9 @@ module Report
                               "SLEEPING", "FEEDING PROBLEMS", "CRYING",
                               "BOWEL MOVEMENTS", "SKIN RASHES", "SKIN INFECTIONS",
                               "UMBILICUS INFECTION", "GROWTH MILESTONES",
-                              "ACCESSING HEALTHCARE SERVICES", "FAMILY PLANNING"
+                              "ACCESSING HEALTHCARE SERVICES", "FAMILY PLANNING",
+                              "BIRTH PLANNING MALE",
+                              "BIRTH PLANNING FEMALE","OTHER"
                               ]
         end
 
@@ -496,27 +524,45 @@ module Report
               :extra_conditions   => extra_conditions,
               :extra_parameters   => extra_parameters}
 
-    params
+    return params
   end
 
-  def self.call_count(date_range, patient_type,count_type = nil)
+  def self.call_count(date_range, patient_type, district_id, count_type = nil)
     call_id = Concept.find_by_name("CALL ID").id
     child_maximum_age = 9
     
     if patient_type.humanize.downcase == "children"
-      extra_parameters = "AND (YEAR(obs.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+      extra_parameters = "AND (YEAR(o.date_created) - YEAR(p.birthdate)) <= #{child_maximum_age} "
     elsif patient_type.humanize.downcase == "women"
-      extra_parameters = "AND (YEAR(obs.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+      extra_parameters = "AND (YEAR(o.date_created) - YEAR(p.birthdate)) > #{child_maximum_age} "
     else
       extra_parameters = ""
     end
     
     if count_type.to_s.downcase == 'all'
-      select_part = "SELECT obs.person_id AS call_count, "
+      select_part = "SELECT o.person_id AS call_count, "
     else
-      select_part = "SELECT COUNT( DISTINCT obs.person_id) AS call_count, "
+      select_part = "SELECT COUNT(DISTINCT o.person_id) AS call_count, "
     end
     
+    query   =  "#{select_part}" +
+                  "cn.name AS concept_name, " +
+                  "DATE(e.date_created) AS start_date " +
+                "FROM encounter e " + 
+                  "INNER JOIN obs o ON o.encounter_id = e.encounter_id " + 
+                    "AND o.concept_id = #{call_id} " + 
+                  "INNER JOIN call_log cl ON cl.call_log_id = o.value_text " + 
+                    "AND cl.district = #{district_id} " +  
+                  "INNER JOIN person p ON o.person_id = p.person_id " + 
+                  "INNER JOIN concept_name cn ON o.concept_id = cn.concept_id " + 
+                "WHERE DATE(o.date_created) >= '#{date_range.first}' " +
+                  "AND DATE(o.date_created) <= '#{date_range.last}' " + 
+                  "AND e.voided = 0 AND o.voided = 0 AND cn.voided = 0 " + 
+                  " #{extra_parameters} " +
+                "GROUP BY o.concept_id " +
+                "ORDER BY DATE(o.date_created), o.concept_id"
+ 
+=begin
     query   =  "#{select_part}" +
                   "concept_name.name AS concept_name, " +
                   "DATE(encounter.date_created) AS start_date " +
@@ -533,24 +579,37 @@ module Report
                   " #{extra_parameters}" +
                 "GROUP BY obs.concept_id " +
                 "ORDER BY encounter_type.name, DATE(obs.date_created), obs.concept_id"
-
+=end
 
     #raise query.to_s
     Patient.find_by_sql(query)
   end
   
-  def self.call_count_for_period(date_range, patient_type)
+  def self.call_count_for_period(date_range, patient_type, district_id)
     call_id = Concept.find_by_name("CALL ID").id
     child_maximum_age = 9
     
     if patient_type.humanize.downcase == "children"
-      extra_parameters = " AND (YEAR(obs.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+      extra_parameters = " AND (YEAR(o.date_created) - YEAR(p.birthdate)) <= #{child_maximum_age} "
     elsif patient_type.humanize.downcase == "women"
-      extra_parameters = " AND (YEAR(obs.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+      extra_parameters = " AND (YEAR(o.date_created) - YEAR(p.birthdate)) > #{child_maximum_age} "
     else
       extra_parameters = ""
     end
     
+    query   =  "SELECT distinct o.value_text " +
+               "FROM obs o " +
+                  "LEFT JOIN person p ON o.person_id = p.person_id " +
+                  "INNER JOIN call_log cl ON o.value_text = cl.call_log_id " + 
+                    "AND cl.district = #{district_id} " +
+               "WHERE o.concept_id = #{call_id} " +
+                  "AND DATE(o.date_created) >= '#{date_range.first}' " +
+                  "AND DATE(o.date_created) <= '#{date_range.last}' " +
+                  "AND o.voided = 0 " + extra_parameters +
+               "ORDER BY o.value_text"
+
+#raise query.to_s
+=begin    
     query   =  "SELECT distinct obs.value_text " +
                "FROM obs LEFT JOIN person ON obs.person_id = person.person_id " +
                "WHERE obs.concept_id = #{call_id} " +
@@ -558,54 +617,64 @@ module Report
                   "AND DATE(obs.date_created) <= '#{date_range.last}' " +
                   "AND obs.voided = 0 " + extra_parameters +
                "ORDER BY obs.value_text"
-               
+=end         
     Observation.find_by_sql(query)
     #Patient.find_by_sql(query)
   end
   
-  def self.get_callers(date_range, essential_params, patient_type, task = nil)
+  def self.get_callers(date_range, essential_params, patient_type, district_id, task = nil)
     child_maximum_age     = 9 # see definition of a female adult above
     concept_ids = essential_params[:concept_map].inject([]) {|result, concept| result << concept[:concept_id]}.uniq.join(',')
     value_coded_indicator = Concept.find_by_name("YES").id
 
+    call_id = Concept.find_by_name("CALL ID").id
+
     if patient_type.humanize.downcase == "children"
-      extra_parameters = "AND (YEAR(obs.date_created) - YEAR(person.birthdate)) <= #{child_maximum_age} "
+      extra_parameters = "AND (YEAR(o.date_created) - YEAR(p.birthdate)) <= #{child_maximum_age} "
     elsif patient_type.humanize.downcase == "women"
-      extra_parameters = "AND (YEAR(obs.date_created) - YEAR(person.birthdate)) > #{child_maximum_age} "
+      extra_parameters = "AND (YEAR(o.date_created) - YEAR(p.birthdate)) > #{child_maximum_age} "
     else
       extra_parameters = ""
     end
     
-    query = "SELECT DISTINCT obs.person_id " +
-            "FROM obs " +
-            "INNER JOIN person " +
-            "ON person.person_id = obs.person_id " +
-            "WHERE obs.concept_id IN (#{concept_ids}) " + extra_parameters +
-            "AND DATE(obs.date_created) >= '#{date_range.first}' " +
-            "AND DATE(obs.date_created) <= '#{date_range.last}' " +
-            " AND obs.voided = 0" 
+    query = "SELECT DISTINCT o.person_id " +
+            "FROM obs o " +
+              "INNER JOIN person p " +
+                "ON p.person_id = o.person_id " + 
+              "INNER JOIN obs obs_call " +
+                "ON o.encounter_id = obs_call.encounter_id " +
+                "AND obs_call.concept_id = #{call_id} " +
+              "INNER JOIN call_log cl " +
+                "ON obs_call.value_text = cl.call_log_id " +
+                "AND cl.district = #{district_id} " +
+            "WHERE o.concept_id IN (#{concept_ids}) " + extra_parameters +
+              "AND DATE(o.date_created) >= '#{date_range.first}' " +
+              "AND DATE(o.date_created) <= '#{date_range.last}' " +
+              "AND o.voided = 0" 
             
     if task.to_s.upcase != "OUTCOMES"
-      query = query + " AND obs.value_coded = " + value_coded_indicator.to_s
+      query = query + " AND o.value_coded = " + value_coded_indicator.to_s
     end 
-       
+
     Patient.find_by_sql(query)
+    
   end
 
-  def self.patient_health_issues(patient_type, grouping, health_task, start_date, end_date)
+  def self.patient_health_issues(patient_type, grouping, health_task, start_date, end_date, district)
+    district_id = District.find_by_name(district).id
     patients_data = []
     date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
 
     essential_params  = self.prepopulate_concept_ids_and_extra_parameters(patient_type, health_task)
 
     date_ranges.map do |date_range|
-      query = self.patient_health_issues_query_builder(patient_type, health_task, date_range, essential_params)
+      query = self.patient_health_issues_query_builder(patient_type, health_task, date_range, essential_params, district_id)
       concept_map           = Marshal.load(Marshal.dump(essential_params[:concept_map]))
       results               = Patient.find_by_sql(query)
-      total_call_count      = self.call_count(date_range, patient_type)
-      total_calls_for_period = self.call_count_for_period(date_range, patient_type)
+      total_call_count      = self.call_count(date_range, patient_type, district_id)
+      total_calls_for_period = self.call_count_for_period(date_range, patient_type, district_id)
       total_number_of_calls = total_call_count.first.attributes["call_count"].to_i rescue 0
-      total_callers_with_symptoms = self.get_callers(date_range, essential_params, patient_type, health_task).count
+      total_callers_with_symptoms = self.get_callers(date_range, essential_params, patient_type, district_id, health_task).count
 
       new_patients_data                 = {}
       new_patients_data[:health_issues] = concept_map

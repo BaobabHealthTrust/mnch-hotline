@@ -544,11 +544,12 @@ class ReportController < ApplicationController
     @query        = params[:query]
     @grouping     = params[:grouping]
     @source       = params[:source] rescue nil
+    district     = params[:district]
 
-    @report_name  = "Patient Health Issues"
+    @report_name  = "Patient Health Issues for #{params[:district]} district"
     @report       = Report.patient_health_issues(@patient_type, @grouping, 
                                                   @health_task, @start_date,
-                                                  @end_date)
+                                                  @end_date, district)
     if params[:destination] == 'csv'
       report_header = ["", "#{@health_task.gsub(/_/, " ").capitalize}", "Count", "Percentage"]
       export_to_csv('patient_health_issues_report', report_header , @report,
