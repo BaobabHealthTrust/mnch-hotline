@@ -1183,7 +1183,9 @@ module Report
     query
   end
 
- def self.patient_referral_followup(patient_type, grouping, outcome, start_date, end_date)
+ def self.patient_referral_followup(patient_type, grouping, outcome, start_date, end_date, district)
+    district_id = District.find_by_name(district).id
+    call_id = Concept.find_by_name("CALL ID").id
     patient_data = []
     youth_age = 9
 
@@ -1232,7 +1234,11 @@ module Report
       
       o_encounters = Encounter.find(:all,
                    :joins =>"INNER JOIN obs ON encounter.encounter_id = obs.encounter_id
-                             INNER JOIN person ON patient_id = person.person_id",
+                             INNER JOIN person ON patient_id = person.person_id
+                             INNER JOIN obs obs_call ON obs_call.encounter_id = obs.encounter_id
+                              AND obs_call.concept_id = #{call_id}
+                              INNER JOIN call_log cl ON obs_call.value_text = cl.call_log_id 
+                                AND cl.district = #{district_id}" ,
                    :conditions => condition_options
                   )
 

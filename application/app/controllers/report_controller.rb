@@ -647,11 +647,11 @@ class ReportController < ApplicationController
     @outcome      = params[:outcome]
     @special_message = ""
     @source       = params[:source] rescue nil
-
+    district = params[:district]
     #raise params.to_yaml
-    @report_name  = "Referral Followup"
+    @report_name  = "Referral Followup for #{params[:district]} district"
     @report    = Report.patient_referral_followup(@patient_type, @grouping, @outcome,
-                                         @start_date, @end_date)
+                                         @start_date, @end_date, district)
 
     if params[:destination] == 'csv'
       report_header = ["Caller Name","Phone Number", "Call Summary" ]
