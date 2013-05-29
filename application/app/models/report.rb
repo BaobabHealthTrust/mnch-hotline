@@ -1509,7 +1509,9 @@ module Report
    return call_data
  end
  def self.tips_activity(start_date, end_date, grouping, content_type, language,
-                        phone_type, delivery, number_prefix)
+                        phone_type, delivery, number_prefix, district)
+ 
+ district_id = District.find_by_name(district).id
  call_data = []
  
  # main obs conceps
@@ -1528,8 +1530,8 @@ module Report
  date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
                                                       end_date)[:date_ranges]
   date_ranges.map do |date_range|
-   encounters = self.get_tips_data(date_range)
-   total_calls = self.get_total_tips_calls(date_range)
+   encounters = self.get_tips_data(date_range, district_id)
+   total_calls = self.get_total_tips_calls(date_range, district_id)
 
    row_data = {:start_date => date_range.first,:end_date => date_range.last,
               :total => total_calls,
@@ -1568,42 +1570,49 @@ module Report
   return call_data
  end
 
- def self.get_tips_data(date_range)
+ def self.get_tips_data(date_range, district_id)
 
+  call_id = Concept.find_by_name("CALL ID").id
   encounter_type_list = ["TIPS AND REMINDERS"]
   encounter_types = self.get_encounter_types(encounter_type_list)
   encounters_list = Encounter.find(:all,
+                                   :joins => "INNER JOIN obs ON encounter.encounter_id = obs.encounter_id
+                                                AND obs.concept_id = #{call_id}
+                                              INNER JOIN call_log ON obs.value_text = call_log.call_log_id
+                                                AND call_log.district = #{district_id}",
                                    :conditions => ["encounter_type IN (?) AND
                                                     encounter_datetime >= ? AND
                                                     encounter_datetime <= ? AND
-                                                    voided = ?",
+                                                    encounter.voided = ?",
                                                    encounter_types,
                                                    date_range.first,
                                                    date_range.last, 0],
                                   :include => 'observations')
 
-   #raise encounters_list.to_yaml
   return encounters_list
 
  end
 
- def self.get_total_tips_calls(date_range)
+ def self.get_total_tips_calls(date_range, district_id)
 
   encounter_type_list = ["TIPS AND REMINDERS"]
   encounter_types = self.get_encounter_types(encounter_type_list)
-  call_id_concept = Concept.find_by_name("CALL ID").id
+  call_id = Concept.find_by_name("CALL ID").id
 
    query = "SELECT COUNT(DISTINCT obs.value_text) AS count " +
             "FROM encounter " +
-            "INNER JOIN obs " +
-            "ON encounter.encounter_id = obs.encounter_id " +
+              "INNER JOIN obs " +
+                "ON encounter.encounter_id = obs.encounter_id " +
+                  "AND obs.concept_id = #{call_id} " + 
+              "INNER JOIN call_log cl " +
+                "ON obs.value_text = cl.call_log_id " + 
+                  "AND cl.district = #{district_id} " + 
             "WHERE encounter.encounter_type IN (#{encounter_types}) " +
-            "AND DATE(encounter.date_created) >= '#{date_range.first}' " +
-            "AND DATE(encounter.date_created) <= '#{date_range.last}' " +
-            "AND obs.concept_id = #{call_id_concept} " +
-            "AND encounter.voided = 0"
+              "AND DATE(encounter.date_created) >= '#{date_range.first}' " +
+              "AND DATE(encounter.date_created) <= '#{date_range.last}' " +
+              "AND encounter.voided = 0"
 
-    Patient.find_by_sql(query).count
+    Patient.find_by_sql(query).map(&:count)
  end
 
  def self.get_tips_data_by_catchment_area(date_range)
