@@ -1757,10 +1757,11 @@ module Report
  end
 
  def self.individual_current_enrollments(start_date, end_date, grouping, content_type, language,
-                        phone_type, delivery, number_prefix)
+                        phone_type, delivery, number_prefix, district)
+ district_id = District.find_by_name(district).id
  call_data = []
 
-   # main obs conceps
+   # main obs concepts
    content_concept = Concept.find_by_name('TYPE OF MESSAGE CONTENT').id
    language_concept = Concept.find_by_name('LANGUAGE PREFERENCE').id
    delivery_concept = Concept.find_by_name('TYPE OF MESSAGE').id
@@ -1787,8 +1788,8 @@ module Report
    date_ranges.map do |date_range|
 
      period_data = []
-     encounters_count = self.get_total_tips_encounters(date_range)
-     encounters = self.get_tips_data_by_name(date_range)
+     encounters_count = self.get_total_tips_encounters(date_range, district_id)
+     encounters = self.get_tips_data_by_name(date_range, district_id)
 
      encounters.group_by(&:patient_name).each do |name, data|
 
@@ -1831,7 +1832,7 @@ module Report
    
  end
 
- def self.get_total_tips_encounters(date_range)
+ def self.get_total_tips_encounters(date_range, district_id)
   encounter_type_list = ["TIPS AND REMINDERS"]
   encounter_types = self.get_encounter_types(encounter_type_list)
 
@@ -1845,21 +1846,26 @@ module Report
   encounters_list.count
  end
 
- def self.get_tips_data_by_name(date_range)
-
+ def self.get_tips_data_by_name(date_range, district_id)
+  
+  call_id = Concept.find_by_name("CALL ID").id
   encounter_type_list = ["TIPS AND REMINDERS"]
   encounter_types = self.get_encounter_types(encounter_type_list)
-
-   query = "SELECT CONCAT_WS(' ',pn.given_name, pn.family_name) AS patient_name, o.*
-            FROM obs o
-              INNER JOIN encounter e
-              ON e.encounter_id = o.encounter_id
-              LEFT JOIN person_name pn
-              ON e.patient_id = pn.person_id
-            WHERE e.encounter_datetime >= '#{date_range.first}' AND
-                  e.encounter_datetime <= '#{date_range.last}' AND
-                  e.voided = 0 AND
-                  e.encounter_type IN (#{encounter_types})"
+                 
+    query = "SELECT CONCAT_WS(' ',pn.given_name, pn.family_name) AS patient_name, o.* " +
+           "FROM obs o " +
+              "INNER JOIN encounter e " +
+                "ON e.encounter_id = o.encounter_id AND o.concept_id = #{call_id} " +
+              "INNER JOIN call_log cl " +
+                "ON o.value_text = cl.call_log_id " + 
+                  "AND cl.district = #{district_id} " + 
+              "LEFT JOIN person_name pn " +
+                "ON e.patient_id = pn.person_id " +
+            "WHERE  " +
+                  "e.encounter_datetime >= '#{date_range.first}' AND " +
+                  "e.encounter_datetime <= '#{date_range.last}' AND " +
+                  "e.encounter_type IN (#{encounter_types}) AND " + 
+                  "e.voided = 0 AND o.voided = 0 "
 =begin
   encounters_list = Encounter.find(:all,
                                    :joins => "LEFT JOIN person_attribute ON person_attribute.person_id = encounter.patient_id",

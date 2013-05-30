@@ -910,13 +910,14 @@ class ReportController < ApplicationController
     @delivery       = "All"
     @number_prefix  = "All"
     @source         = params[:source] rescue nil
+    district        = params[:district]
 
     @special_message = ""
 
-    @report_name  = "Individual Current Enrollments"
+    @report_name  = "Individual Current Enrollments for #{district} District"
     @report    = Report.individual_current_enrollments(@start_date, @end_date, @grouping,
                                       @content_type, @language, @phone_type,
-                                      @delivery, @number_prefix)
+                                      @delivery, @number_prefix, district)
 
     if params[:destination] == 'csv'
       report_header = ["Full Name", "On Tips", "Phone Type", "Phone Number",
