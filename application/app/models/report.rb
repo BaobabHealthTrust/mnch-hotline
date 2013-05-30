@@ -1615,23 +1615,28 @@ module Report
     Patient.find_by_sql(query).map(&:count)
  end
 
- def self.get_tips_data_by_catchment_area(date_range)
-
+ def self.get_tips_data_by_catchment_area(date_range, district_id)
+   
+  health_centers = "'" + get_nearest_health_centers(district_id).map(&:name).join("','") + "'"
   nearest_health_center = PersonAttributeType.find_by_name("NEAREST HEALTH FACILITY").id
   encounter_type_list = ["TIPS AND REMINDERS"]
   encounter_types = self.get_encounter_types(encounter_type_list)
+  call_id = Concept.find_by_name("CALL ID").id
 
-   query = "SELECT pa.value AS catchment, o.*
-            FROM obs o
-              INNER JOIN encounter e
-              ON e.encounter_id = o.encounter_id
-              LEFT JOIN person_attribute pa
-              ON e.patient_id = pa.person_id
-            WHERE pa.person_attribute_type_id = #{nearest_health_center} AND
-                  e.encounter_datetime >= '#{date_range.first}' AND
-                  e.encounter_datetime <= '#{date_range.last}' AND
-                  e.encounter_type IN (#{encounter_types}) AND 
-                  e.voided = 0 AND o.voided = 0"
+   query = "SELECT pa.value AS catchment, o.* " +
+           "FROM obs o " +
+              "INNER JOIN encounter e " +
+                "ON e.encounter_id = o.encounter_id AND o.concept_id = #{call_id} " +
+              "INNER JOIN call_log cl " +
+                "ON o.value_text = cl.call_log_id " + 
+                  "AND cl.district = #{district_id} " + 
+              "LEFT JOIN person_attribute pa " +
+                "ON e.patient_id = pa.person_id " +
+            "WHERE pa.person_attribute_type_id = #{nearest_health_center} AND " +
+                  "e.encounter_datetime >= '#{date_range.first}' AND " +
+                  "e.encounter_datetime <= '#{date_range.last}' AND " +
+                  "e.encounter_type IN (#{encounter_types}) AND " + 
+                  "e.voided = 0 AND o.voided = 0 AND pa.value IN (#{health_centers}) " 
 =begin
   encounters_list = Encounter.find(:all,
                                    :joins => "LEFT JOIN person_attribute ON person_attribute.person_id = encounter.patient_id",
@@ -1647,7 +1652,7 @@ module Report
 =end
    
   data_list = Encounter.find_by_sql(query)
-  
+  #raise data_list.to_yaml
   return data_list
  end
 
@@ -1668,7 +1673,8 @@ module Report
 =end
 
  def self.current_enrollment_totals(start_date, end_date, grouping, content_type, language,
-                        delivery, number_prefix)
+                        delivery, number_prefix, district)
+   district_id = District.find_by_name(district).id
    call_data = []
 
    # main obs conceps
@@ -1695,7 +1701,7 @@ module Report
      period_total_callers = 0
      count += 1
      #encounters_count = self.get_total_tips_encounters(date_range)
-     encounters = self.get_tips_data_by_catchment_area(date_range)
+     encounters = self.get_tips_data_by_catchment_area(date_range, district_id)
 
      encounters.group_by(&:catchment).each do |area, data|
      

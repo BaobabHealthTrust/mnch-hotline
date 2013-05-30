@@ -864,12 +864,13 @@ class ReportController < ApplicationController
     @delivery       = params[:delivery]
     @number_prefix  = params[:number_prefix]
     @source         = params[:source] rescue nil
+    district        = params[:district]
 
     @special_message = ""
 
-    @report_name  = "Current Enrollment Totals"
+    @report_name  = "Current Enrollment Totals for #{district} District"
     @report    = Report.current_enrollment_totals(@start_date, @end_date, @grouping,
-                                      @content_type, @language, @delivery, @number_prefix)
+                                      @content_type, @language, @delivery, @number_prefix, district)
 
     if params[:destination] == 'csv'
       report_header = ["","Count", "Content Pregnancy Count",
