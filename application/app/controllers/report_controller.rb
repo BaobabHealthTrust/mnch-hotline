@@ -774,6 +774,7 @@ class ReportController < ApplicationController
     @call_status  = params[:call_status]
     @call_type    = params[:call_type]
     @source       = params[:source] rescue  nil
+    district      = params[:district]
 
     @special_message = "<I> -- (Please note that the call lengths " +
                        "are in <B>Seconds</B>)<I>"
@@ -784,10 +785,10 @@ class ReportController < ApplicationController
       @staff = User.find(@staff_member).username
     end
 
-    @report_name  = "Call Length"
+    @report_name  = "Call Lengths Report for #{district} District"
     @report    = Report.call_lengths(@patient_type, @grouping, @call_type,
                                          @call_status, @staff_member,
-                                         @start_date, @end_date)
+                                         @start_date, @end_date, district)
 
     if params[:destination] == 'csv'
       report_header = ["","Count", "Morning Count", "Morning Avg", "Morning Min", "Morning SDev",
