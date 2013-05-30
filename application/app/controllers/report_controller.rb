@@ -729,6 +729,7 @@ class ReportController < ApplicationController
     @call_type    = params[:call_type]
     @special_message = ""
     @source       = params[:source] rescue nil
+    district      = params[:district]
 
     if @staff_member == "All"
       @staff = @staff_member
@@ -736,10 +737,10 @@ class ReportController < ApplicationController
       @staff = User.find(@staff_member).username
     end
     
-    @report_name  = "Call Day Distribution"
+    @report_name  = "Call Day Distribution for #{district} District"
     @report    = Report.call_day_distribution(@patient_type, @grouping, @call_type,
                                          @call_status, @staff_member,
-                                         @start_date, @end_date)
+                                         @start_date, @end_date, district)
 
     if params[:destination] == 'csv'
       report_header = ["","Count", "Monday Count", "Monday %age",

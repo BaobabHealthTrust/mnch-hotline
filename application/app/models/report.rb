@@ -1287,7 +1287,8 @@ module Report
  end
 
  def self.call_day_distribution(patient_type, grouping, call_type, call_status,
-                                     staff_member, start_date, end_date)
+                                     staff_member, start_date, end_date, district)
+  district_id = District.find_by_name(district).id
   call_data = []
 
   date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
@@ -1296,7 +1297,7 @@ module Report
     date_ranges.map do |date_range|
 
       query   = self.call_analysis_query_builder(patient_type,
-                      date_range, staff_member, call_type, call_status)
+                      date_range, staff_member, call_type, call_status, district_id)
 
       results = CallLog.find_by_sql(query)
 
