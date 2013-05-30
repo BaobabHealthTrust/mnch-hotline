@@ -1324,7 +1324,8 @@ module Report
    return call_data
  end
 
- def self.call_analysis_query_builder(patient_type, date_range, staff_id, call_type, call_status)
+ def self.call_analysis_query_builder(patient_type, date_range, staff_id, call_type, call_status, district_id)
+   
    child_maximum_age     = 9 # see definition of a female adult above
    call_concept_id = Concept.find_by_name('call id').id
    extra_conditions = " "
@@ -1368,18 +1369,19 @@ module Report
 =end
    
    query = "SELECT TIME(call_log.start_time) AS call_start_time, " +
-           "TIME(call_log.end_time) AS call_end_time, " +
-           "users.username, DATE_FORMAT(start_time,'%W') AS day_of_week, " +
-           "TIMESTAMPDIFF(SECOND, call_log.start_time, call_log.end_time) AS call_length_seconds, " +
-           "TIMESTAMPDIFF(MINUTE, call_log.start_time, call_log.end_time) AS call_length_minutes " +
+              "TIME(call_log.end_time) AS call_end_time, " +
+              "users.username, DATE_FORMAT(start_time,'%W') AS day_of_week, " +
+              "TIMESTAMPDIFF(SECOND, call_log.start_time, call_log.end_time) AS call_length_seconds, " +
+              "TIMESTAMPDIFF(MINUTE, call_log.start_time, call_log.end_time) AS call_length_minutes " +
            "FROM call_log " +
-           "LEFT JOIN obs ON obs.value_text = call_log.call_log_id " +
-           "LEFT JOIN person ON person.person_id = obs.person_id " +
-           "LEFT JOIN users ON users.user_id = obs.creator " +
-           "LEFT JOIN patient ON patient.patient_id = person.person_id " +
+              "LEFT JOIN obs ON obs.value_text = call_log.call_log_id " +
+              "LEFT JOIN person ON person.person_id = obs.person_id " +
+              "LEFT JOIN users ON users.user_id = obs.creator " +
+              "LEFT JOIN patient ON patient.patient_id = person.person_id " +
            "WHERE DATE(call_log.start_time) >= '#{date_range.first}' " +
-           "AND DATE(call_log.start_time) <= '#{date_range.last}' " +
-            extra_conditions +
+              "AND DATE(call_log.start_time) <= '#{date_range.last}' " +
+              "AND call_log.district = '#{district_id}' " +
+               extra_conditions +
            " GROUP BY call_log.call_log_id" + extra_grouping
 
    #raise query.to_s
@@ -1387,8 +1389,10 @@ module Report
   end
 
  def self.call_time_of_day(patient_type, grouping, call_type, call_status,
-                                     staff_member, start_date, end_date)
+                                     staff_member, start_date, end_date, district)
+  district_id = District.find_by_name(district).id
   call_data = []
+  norm_date = Date.today
 
   date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
                                                       end_date)[:date_ranges]
@@ -1396,7 +1400,7 @@ module Report
     date_ranges.map do |date_range|
 
       query   = self.call_analysis_query_builder(patient_type,
-                      date_range, staff_member, call_type, call_status)
+                      date_range, staff_member, call_type, call_status, district_id)
 
       results = CallLog.find_by_sql(query)
 
@@ -1410,13 +1414,13 @@ module Report
 
      results.each do |call|
 
-       if Time.parse(call.call_start_time) >= Time.parse("07:00:00") && Time.parse(call.call_start_time) <= Time.parse("10:00:00")
+       if Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") >= Time.parse("07:00:00") && Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("10:00:00")
          call_statistics[:morning] += 1
-       elsif Time.parse(call.call_start_time) > Time.parse("10:00:00") && Time.parse(call.call_start_time) <= Time.parse("13:00:00")
+       elsif Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") > Time.parse("10:00:00") && Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("13:00:00")
          call_statistics[:midday] += 1
-       elsif Time.parse(call.call_start_time) > Time.parse("13:00:00") && Time.parse(call.call_start_time) <= Time.parse("16:00:00")
+       elsif Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") > Time.parse("13:00:00") && Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("16:00:00")
          call_statistics[:afternoon] += 1
-       elsif Time.parse(call.call_start_time) > Time.parse("16:00:00") && Time.parse(call.call_start_time) <= Time.parse("19:00:00")
+       elsif Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") > Time.parse("16:00:00") && Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("19:00:00")
          call_statistics[:evening] += 1
        end
      end #end of results loop

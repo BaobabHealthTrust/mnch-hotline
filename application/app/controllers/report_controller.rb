@@ -685,6 +685,7 @@ class ReportController < ApplicationController
     @call_type    = params[:call_type]
     @special_message = ""
     @source       = params[:source] rescue nil
+    district      = params[:district]
 
     if @staff_member == "All"
       @staff = @staff_member
@@ -693,10 +694,10 @@ class ReportController < ApplicationController
     end
 
     #raise params.to_yaml
-    @report_name  = "Call Time Of Day"
+    @report_name  = "Call Time Of Day for #{district} District"
     @report    = Report.call_time_of_day(@patient_type, @grouping, @call_type,
                                          @call_status, @staff_member,
-                                         @start_date, @end_date)
+                                         @start_date, @end_date, district)
 
     if params[:destination] == 'csv'
       report_header = ["","Count", "Morning Count", "Morning %age",
