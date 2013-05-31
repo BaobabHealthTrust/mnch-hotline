@@ -255,7 +255,8 @@ module Report
     pregnant      = 0
     non_pregnant  = 1
     delivered     = 2
-    new_patients_data[:pregnancy_status] = [["pregnant", 0], ["non_pregnant", 0], ["delivered", 0]]
+    miscarried    = 3
+    new_patients_data[:pregnancy_status] = [["pregnant", 0], ["non_pregnant", 0], ["delivered", 0], ["miscarried", 0]]
 
     unless patients_data.blank?
       patients_data.map do|data|
@@ -272,6 +273,7 @@ module Report
             new_patients_data[:pregnancy_status][pregnant][1]     += number_of_patients if(pregnancy_status.to_s.upcase  == "PREGNANT")
             new_patients_data[:pregnancy_status][non_pregnant][1] += number_of_patients if(pregnancy_status.to_s.upcase == "NOT PREGNANT")
             new_patients_data[:pregnancy_status][delivered][1]    += number_of_patients if(pregnancy_status.to_s.upcase == "DELIVERED")
+            new_patients_data[:pregnancy_status][miscarried][1]    += number_of_patients if(pregnancy_status.to_s.upcase == "MISCARRIED")
           end
           i += 1
         end
@@ -287,6 +289,7 @@ module Report
     extra_parameters    = essential_params[:extra_parameters]
     #TODO find a better way of getting concpet_names that are not tagged concept_name_tag_map as danger, health_symptom or health info
     concept_names =  '"' + essential_params[:concept_map].inject([]) {|result, concept| result << concept[:concept_name].to_s}.uniq.join('","') + '"'
+
     value_coded_indicator = Concept.find_by_name("YES").id
     call_id = Concept.find_by_name("CALL ID").id
     
@@ -339,7 +342,7 @@ module Report
 
   def self.prepopulate_concept_ids_and_extra_parameters(patient_type, health_task)
     if health_task.humanize.downcase == "outcomes"
-      concepts_list       = ["OUTCOME"]
+      concepts_list       = ["OUTCOME","SECONDARY OUTCOME"]
       encounter_type_list = ["UPDATE OUTCOME"]
       outcomes            = ["REFERRED TO A HEALTH CENTRE",
                               "REFERRED TO NEAREST VILLAGE CLINIC",
@@ -749,7 +752,7 @@ module Report
           statistical_data = Patient.find_by_sql(self.get_age_statistics(patient_type, date_range, district_id))
           patient_statistics = self.create_patient_statistics(patient_type,
                                 statistical_data) unless statistical_data.empty?
- 
+  
           data_for_patients[:patient_data] = new_patients_data
           data_for_patients[:statistical_data] = patient_statistics rescue ''
 
@@ -763,7 +766,7 @@ module Report
           data_for_patients[:statistical_data] = patient_statistics rescue ''
         else
           new_patients_data = self.all_patients_demographics(results, date_range, district_id)
-          #raise new_patients_data.to_yaml
+          
           statistical_data = Patient.find_by_sql(self.get_age_statistics(patient_type, date_range, district_id))
           patient_statistics = self.create_patient_statistics(patient_type,
                                 statistical_data) unless statistical_data.empty?
@@ -774,7 +777,7 @@ module Report
       end # end case
       patients_data.push(data_for_patients)
     end
-    
+    #raise patients_data.to_yaml
     patients_data
   end
 
@@ -872,11 +875,12 @@ module Report
     case patient_type.downcase
       when 'women'
         women_grouping = {:pregnant => {}, :nonpregnant => {},
-                          :delivered => {}
+                          :delivered => {}, :miscarried => {}
         }
         pregnant_data = []
         nonpregnant_data = []
         delivered_data = []
+        miscarried_data = []
 
         unless patient_data.empty?
           patient_data.each do |value|
@@ -887,6 +891,8 @@ module Report
               nonpregnant_data << value[:Age].to_i
             when 'delivered'
               delivered_data << value[:Age].to_i
+            when 'miscarried'
+              miscarried_data << value[:Age].to_i
             end
           end
         end
@@ -928,6 +934,18 @@ module Report
           delivered[:sdev] = self.calculate_sdev(delivered_data)
 
           women_grouping[:delivered][:statistical_info] = delivered
+        end
+        unless miscarried_data.empty?
+          miscarried = {:total => 0, :percentage => 0,
+                        :average => 0, :min => 0, :max => 0, :sdev => 0
+                       }
+          miscarried[:min] = miscarried_data.min
+          miscarried[:max] = miscarried_data.max
+          miscarried[:percentage] = (miscarried_data.count.to_f / patient_data.count.to_f * 100).round(1)
+          miscarried[:average] = self.calculate_average(miscarried_data)
+          miscarried[:sdev] = self.calculate_sdev(miscarried_data)
+
+          women_grouping[:miscarried][:statistical_info] = miscarried
         end
         return_data = women_grouping
 
@@ -1237,7 +1255,7 @@ module Report
                              INNER JOIN person ON patient_id = person.person_id
                              INNER JOIN obs obs_call ON obs_call.encounter_id = obs.encounter_id
                               AND obs_call.concept_id = #{call_id}
-                              INNER JOIN call_log cl ON obs_call.value_text = cl.call_log_id 
+                              INNERJOIN call_log cl ON obs_call.value_text = cl.call_log_id 
                                 AND cl.district = #{district_id}" ,
                    :conditions => condition_options
                   )
