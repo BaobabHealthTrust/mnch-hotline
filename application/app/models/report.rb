@@ -1564,7 +1564,7 @@ module Report
                                                       end_date)[:date_ranges]
   date_ranges.map do |date_range|
    encounters = self.get_tips_data(date_range, district_id)
-   total_calls = self.get_total_tips_calls(date_range, district_id)
+   total_calls = self.get_total_tips_calls(date_range, district_id).count
 
    row_data = {:start_date => date_range.first,:end_date => date_range.last,
               :total => total_calls,
