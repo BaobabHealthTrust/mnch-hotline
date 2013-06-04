@@ -225,8 +225,14 @@ class ReportController < ApplicationController
 
         end
       when "call_analysis"
-        #case @query
-          #when "call_time_of_day"
+        case @query
+          when "new_vs_repeat_callers"
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+            @destination         = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
+          when "follow_up"
+            @grouping           += [["By Week", "week"], ["By Month", "month"]]
+            @destination         = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
+          else
             @patient_type       += ["Women", "Children", "All"]
             @grouping           += [["By Week", "week"], ["By Month", "month"]]
             @staff               = [["",""]] + get_staff_members_list + [["All","All"]]
@@ -238,6 +244,7 @@ class ReportController < ApplicationController
                                     "All"]
             #@call_status         = ["","Yes","No", "All"]
             @destination         = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
+          end
 
       when "tips"
         case @query
@@ -319,7 +326,7 @@ class ReportController < ApplicationController
 
       when 'call_analysis'
         @reports = ["Call Time of Day", "Call Day Distribution",
-                    "Call Lengths"]
+                    "Call Lengths", "New vs Repeat Callers", "Follow Up"]
 
         @report_label = 'a Call Analysis Report'
         @report_type  = report_type
@@ -491,6 +498,24 @@ class ReportController < ApplicationController
                 :district     => params[:currentdistrict]
      when 'info_on_family_planning'
       redirect_to :action        => "info_on_family_planning",
+                :start_date    => params[:start_date],
+                :end_date      => params[:end_date],
+                :grouping      => params[:grouping],
+                :report_type   => params[:report_type],
+                :query        => params[:query],
+                :destination  => params[:report_destination],
+                :district     => params[:currentdistrict]
+    when 'new_vs_repeat_callers'
+      redirect_to :action        => "new_vs_repeat_callers",
+                :start_date    => params[:start_date],
+                :end_date      => params[:end_date],
+                :grouping      => params[:grouping],
+                :report_type   => params[:report_type],
+                :query        => params[:query],
+                :destination  => params[:report_destination],
+                :district     => params[:currentdistrict]
+    when 'follow_up'
+      redirect_to :action        => "follow_up",
                 :start_date    => params[:start_date],
                 :end_date      => params[:end_date],
                 :grouping      => params[:grouping],
@@ -975,6 +1000,58 @@ class ReportController < ApplicationController
     @report_name  = "Info on Family Planning for #{@district}"
     @report = Report.info_on_family_planning(@start_date, @end_date, @grouping, @district)
     
+    if params[:destination] == 'csv'
+      report_header = ["Total Number Callers", "Total Number on Family Planning", 
+                       "%age on Family Planning", "%age on pills", "%age on injectables",
+                       "%age on implants", "%age on condoms", "%age on Other","%age on family planning"
+                       ]
+      export_to_csv('family_planning_satisfaction', report_header, @report)
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
+    else
+      render :layout => false
+    end
+  end
+  def new_vs_repeat_callers
+    @start_date     = params[:start_date]
+    @end_date       = params[:end_date]
+    @grouping       = params[:grouping]
+    @query          = params[:query]
+    @district       = params[:district]
+    @report_type    = params[:report_type]
+    
+    @report_name  = "New vs Repeat Callers for #{@district} District"
+    @report = Report.new_vs_repeat_callers_report(@start_date, @end_date, @grouping, @district)
+    #raise @report.to_yaml
+    if params[:destination] == 'csv'
+      report_header = ["Total Number Callers", "Total Number on Family Planning", 
+                       "%age on Family Planning", "%age on pills", "%age on injectables",
+                       "%age on implants", "%age on condoms", "%age on Other","%age on family planning"
+                       ]
+      export_to_csv('family_planning_satisfaction', report_header, @report)
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
+    else
+      render :layout => false
+    end
+  end
+  def follow_up
+    @start_date     = params[:start_date]
+    @end_date       = params[:end_date]
+    @grouping       = params[:grouping]
+    @query          = params[:query]
+    @district       = params[:district]
+    @report_type    = params[:report_type]
+    
+    @report_name  = "Caller Follow Up Report"
+    @report = Report.follow_up_report(@start_date, @end_date, @grouping, @district)
+
     if params[:destination] == 'csv'
       report_header = ["Total Number Callers", "Total Number on Family Planning", 
                        "%age on Family Planning", "%age on pills", "%age on injectables",

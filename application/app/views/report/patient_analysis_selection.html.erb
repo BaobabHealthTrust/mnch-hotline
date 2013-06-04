@@ -16,18 +16,21 @@
   }
 </script>
 <form method='POST' action="reports" >
-  <%= select_tag :currentdistrict, options_for_select(@districts), 
-        {:helpText => 'Select the district to base the report on',
-         :tt_onUnLoad=>"setDistrict('currentdistrict');"}%>
-         
+  <%if @query != "follow_up"%>
+      <%= select_tag :currentdistrict, options_for_select(@districts), 
+            {:helpText => 'Select the district to base the report on',
+             :tt_onUnLoad=>"setDistrict('currentdistrict');"}%>
+  <%end%>
   <% if not @query == "individual_current_enrollments" %>
       <%= select_tag :report_date_range, options_for_select(@date_range_values),
           {:helpText => "Select Date Range",
            :tt_onUnLoad=>"setDateRange('report_date_range');"} %>
 
       <% if @report_type.downcase != 'tips' && @report_type.downcase != 'family_planning' %>
-        <%= select_tag :patient_type, options_for_select(@patient_type),
-                    {:helpText => "Select Patient Type"} %>
+        <%if @query != "new_vs_repeat_callers" && @query != "follow_up" %>
+            <%= select_tag :patient_type, options_for_select(@patient_type),
+                        {:helpText => "Select Patient Type"} %>
+        <%end%>
       <% end %>
 
       <%= select_tag :grouping,     options_for_select(@grouping),
@@ -43,12 +46,13 @@
                     {:helpText => "Select Outcome"} %>
       <%end%>
 
-      <% if @report_type.downcase == 'call_analysis' %>
-        <%= select_tag :staff_member,     options_for_select(@staff),
-                    {:helpText => "Select a Staff member to report on"} %>
-        <%= select_tag :call_type,     options_for_select(@call_type),
-                    {:helpText => "Select Call type"} %>
-
+      <% if @report_type.downcase == 'call_analysis'%>
+        <%if @query != "new_vs_repeat_callers" && @query != "follow_up" %>
+            <%= select_tag :staff_member,     options_for_select(@staff),
+                        {:helpText => "Select a Staff member to report on"} %>
+            <%= select_tag :call_type,     options_for_select(@call_type),
+                        {:helpText => "Select Call type"} %>
+        <%end%>
       <% elsif @report_type.downcase == 'tips' %>
         <%= select_tag :content_type,     options_for_select(@content_type),
                     {:helpText => "Select the Content to report on"} %>

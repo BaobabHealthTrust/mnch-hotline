@@ -1206,7 +1206,11 @@ module Report
     call_id = Concept.find_by_name("CALL ID").id
     patient_data = []
     youth_age = 9
-
+    
+    other_outcomes = ["GIVEN ADVICE NO REFERRAL NEEDED","GIVEN ADVICE"]
+   if outcome == "GIVEN ADVICE NO REFERRAL NEEDED"
+     outcome = other_outcomes
+   end
    #raise outcome.to_yaml
     date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date,
                                                         end_date)[:date_ranges]
@@ -1220,7 +1224,7 @@ module Report
                               AND encounter_datetime >= ?
                               AND encounter_datetime <= ?
                               AND obs.concept_id = ?
-                              AND obs.value_text = ?
+                              AND obs.value_text IN (?)
                               AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) > ?",
                       EncounterType.find_by_name("Update Outcome").id,
                       date_range.first, date_range.last,
@@ -1231,7 +1235,7 @@ module Report
                               AND encounter_datetime >= ?
                               AND encounter_datetime <= ?
                               AND obs.concept_id = ?
-                              AND obs.value_text = ?
+                              AND obs.value_text IN (?)
                               AND (YEAR(encounter.encounter_datetime) - YEAR(person.birthdate)) <= ?",
                       EncounterType.find_by_name("Update Outcome").id,
                       date_range.first, date_range.last,
@@ -1242,7 +1246,7 @@ module Report
                               AND encounter_datetime >= ?
                               AND encounter_datetime <= ?
                               AND obs.concept_id = ?
-                              AND obs.value_text = ?",
+                              AND obs.value_text IN (?)",
                       EncounterType.find_by_name("Update Outcome").id,
                       date_range.first, date_range.last,
                       Concept.find_by_name("Outcome").id,
@@ -1255,7 +1259,7 @@ module Report
                              INNER JOIN person ON patient_id = person.person_id
                              INNER JOIN obs obs_call ON obs_call.encounter_id = obs.encounter_id
                               AND obs_call.concept_id = #{call_id}
-                              INNERJOIN call_log cl ON obs_call.value_text = cl.call_log_id 
+                              INNER JOIN call_log cl ON obs_call.value_text = cl.call_log_id 
                                 AND cl.district = #{district_id}" ,
                    :conditions => condition_options
                   )
@@ -2122,5 +2126,93 @@ module Report
     
     return health_centers
     
+ end
+ def self.new_vs_repeat_callers_report(start_date, end_date, grouping, district)
+    district_id = District.find_by_name(district).id
+    patients_data = []
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+      row_data = {:start_date => date_range.first,:end_date => date_range.last,
+                  :total_calls => 0,
+                  :new_calls => 0,
+                  :new_calls_percentage => 0,
+                  :repeat_calls => 0,
+                  :repeat_calls_percentage => 0
+            }
+      
+      call_data = CallLog.find(:all,
+                               :conditions => ["district = ? AND start_time >= ?
+                                 AND start_time <= ?", district_id, date_range.first,
+                                 date_range.last])
+      row_data[:total_calls] = call_data.count
+      call_data.group_by(&:call_mode).each do |mode, call|
+        if mode == 1 #new call
+          row_data[:new_calls] = call.count 
+          row_data[:new_calls_percentage] = (row_data[:new_calls].to_f / row_data[:total_calls].to_f * 100).round(1) if row_data[:total_calls].to_f != 0
+        elsif mode == 2 #repeat call
+          row_data[:repeat_calls] = call.count 
+          row_data[:repeat_calls_percentage] = (row_data[:repeat_calls].to_f / row_data[:total_calls].to_f * 100).round(1) if row_data[:total_calls].to_f != 0
+        end 
+      end
+      
+      patients_data << row_data
+    end
+  #raise patients_data.to_yaml
+  return patients_data
+ end
+ def self.follow_up_report(start_date, end_date, grouping, district)
+   patients_data = []
+   #follow_up_reasons = self.create_follow_up_structure
+   date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+
+    date_ranges.map do |date_range|
+      
+      follow_ups = FollowUp.find(:all,
+                                 :conditions => ["date_created >= ? AND date_created <= ?", 
+                                   date_range.first, date_range.last])
+      new_follow_up_data                 = {}
+      new_follow_up_data[:reasons] = self.create_follow_up_structure
+      new_follow_up_data[:start_date]    = date_range.first
+      new_follow_up_data[:end_date]      = date_range.last
+      new_follow_up_data[:total_calls]   = follow_ups.count 
+      
+      new_follow_up_data[:reasons].each do |reason|
+        follow_ups.group_by(&:result).each do |result, data|
+          if result == reason[:reason_concept]
+            reason[:call_count] = data.count 
+            reason[:call_percentage] = (reason[:call_count].to_f / new_follow_up_data[:total_calls].to_f * 100).round(1) if new_follow_up_data[:total_calls].to_f != 0
+          end
+        end
+      end
+      patients_data.push(new_follow_up_data)
+      
+    end
+
+    return patients_data
+ end
+ 
+ def self.create_follow_up_structure
+   follow_up_map = []
+   
+   follow_up_reasons = [
+          ['Pregnant woman miscarried', 'Pregnant woman miscarried'],
+          ['Child died', 'Child dies'],
+          ['Client followed-up on referral and improved', 'Client followed-up on referral and improved'],
+          ['Client followed up on referral and did not improve', 'Client followed up on referral and did not improve'],
+          ['Client did not follow the referral advice and improved', 'Client did not follow the referral advice and improved'],
+          ['Client did not follow the referral advice and did not improve', 'Client did not follow the referral advice and did not improve'],
+          ['Client went to the health facility but was unable to get treatment', 'Client went to the health facility but was unable to get treatment'],
+          ['Client unable to follow-up on referral', 'Client unable to follow-up on referral'],
+          ['Client appreciates service', 'Client appreciates service'],
+          ['Other','OTHER']]
+   
+   follow_up_reasons.each do |reason|
+     mapping = {:reason_name  => reason.first,  :reason_concept => reason.last,
+                :call_count  => 0,    :call_percentage  => 0}
+    follow_up_map << mapping
+   end
+
+   return follow_up_map
  end
 end
