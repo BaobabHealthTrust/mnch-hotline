@@ -315,6 +315,52 @@ module CSVHelper
            csv << [""]
          end
       end
+    when 'caller_follow_up_report'
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}","",""] 
+           csv << ["Total Calls","#{data[:total_calls]}","n/a"] 
+           csv << ["Below are the results","",""] 
+  
+           data[:reasonss].map do |result|
+             csv << ["#{result[:reason_name].titleize}", 
+             "#{result[:call_count]}","#{result[:call_percentage]}"] 
+           end
+           csv << ["","",""]
+         end
+      end
+    when 'new_vs_repeat_callers_report'
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}",
+                   "#{data[:total_calls]}","#{data[:new_calls]}",
+                   "#{data[:new_calls_percentage]}", "#{data[:repeat_calls]}",
+                   "#{data[:repeat_calls_percentage]}"] 
+         end
+      end
+    when 'family_planning_satisfaction_report'
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}", 
+                   "#{data[:total_callers]}","#{data[:total_callers_on_fp]}", 
+                   "#{data[:percentage_of_callers_on_fp]}", "#{data[:pills]}", 
+                   "#{data[:injectables]}", "#{data[:implants]}", "#{data[:condoms]}", 
+                   "#{data[:other]}", "#{data[:total_breakdown]}", 
+                   "#{data[:percentage_of_satisfied_with_fpm]}"]
+         end
+      end
+    when 'info_on_family_planning_report'
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |data|
+           csv << ["#{grouping} beginning : #{data[:start_date]} ending : #{data[:end_date]}", 
+                   "#{data[:total_callers]}","#{data[:number_wanting_more_info]}", 
+                   "#{data[:percentage_of_callers_wanting_info]}"] 
+         end
+      end
     end
   end
 end
