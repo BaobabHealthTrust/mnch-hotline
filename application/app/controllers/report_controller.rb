@@ -975,11 +975,15 @@ class ReportController < ApplicationController
     @report = Report.family_planning_satisfaction(@start_date, @end_date, @grouping, @district)
     
     if params[:destination] == 'csv'
-      report_header = ["Total Number Callers", "Total Number on Family Planning", 
-                       "%age on Family Planning", "%age on pills", "%age on injectables",
-                       "%age on implants", "%age on condoms", "%age on Other","%age on family planning"
-                       ]
-      export_to_csv('family_planning_satisfaction', report_header, @report)
+      report_header = ["Period","Total Non Pregnant Callers", 
+                       "Total on Family Planning",
+                       "%age on Family Planning", "Total on Pills",
+                       "Total on Injectables", "Total on Implants",
+                       "Total on Condoms", "Total on Other",
+                       "Total on Family Planning and Satisfied", 
+                       "%age on family planning and satisfied"
+                     ]
+      export_to_csv('family_planning_satisfaction_report', report_header, @report, "",@grouping)
       if @source == nil
         redirect_to "/clinic"
       else
@@ -1001,11 +1005,10 @@ class ReportController < ApplicationController
     @report = Report.info_on_family_planning(@start_date, @end_date, @grouping, @district)
     
     if params[:destination] == 'csv'
-      report_header = ["Total Number Callers", "Total Number on Family Planning", 
-                       "%age on Family Planning", "%age on pills", "%age on injectables",
-                       "%age on implants", "%age on condoms", "%age on Other","%age on family planning"
+      report_header = ["Period", "Total Callers", "Total of those wanting more Info", 
+                       "%age of those wanting more Info"
                        ]
-      export_to_csv('family_planning_satisfaction', report_header, @report)
+      export_to_csv('info_on_family_planning_report', report_header, @report, "", @grouping )
       if @source == nil
         redirect_to "/clinic"
       else
@@ -1027,11 +1030,11 @@ class ReportController < ApplicationController
     @report = Report.new_vs_repeat_callers_report(@start_date, @end_date, @grouping, @district)
     #raise @report.to_yaml
     if params[:destination] == 'csv'
-      report_header = ["Total Number Callers", "Total Number on Family Planning", 
-                       "%age on Family Planning", "%age on pills", "%age on injectables",
-                       "%age on implants", "%age on condoms", "%age on Other","%age on family planning"
+      report_header = ["Period", "Total calls", 
+                       "New Calls", "%age of New Calls", "Repeat Calls",
+                       "%age of Repeat Calls"
                        ]
-      export_to_csv('family_planning_satisfaction', report_header, @report)
+      export_to_csv('new_vs_repeat_callers_report', report_header, @report,"", @grouping)
       if @source == nil
         redirect_to "/clinic"
       else
@@ -1053,11 +1056,9 @@ class ReportController < ApplicationController
     @report = Report.follow_up_report(@start_date, @end_date, @grouping, @district)
 
     if params[:destination] == 'csv'
-      report_header = ["Total Number Callers", "Total Number on Family Planning", 
-                       "%age on Family Planning", "%age on pills", "%age on injectables",
-                       "%age on implants", "%age on condoms", "%age on Other","%age on family planning"
+      report_header = ["Follow Up Result","Count","Percentage"
                        ]
-      export_to_csv('family_planning_satisfaction', report_header, @report)
+      export_to_csv('caller_follow_up_report', report_header, @report,"", @grouping)
       if @source == nil
         redirect_to "/clinic"
       else
