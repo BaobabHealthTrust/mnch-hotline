@@ -320,7 +320,7 @@ class ClinicController < ApplicationController
         
         render :template => 'clinic/home', :layout => 'clinic'
       else
-        showfollowuplist(params[:district])
+        showfollowuplist
       end
     end
     def new_call
@@ -343,7 +343,8 @@ class ClinicController < ApplicationController
       render :template => 'clinic/district', :layout => 'application'
     end
     
-    def showfollowuplist(district)
+    def showfollowuplist
+      district = session[:district]
       @follow_ups = FollowUp.get_follow_ups(district)
       
       render :template => 'clinic/followuplist', :layout => 'application'
