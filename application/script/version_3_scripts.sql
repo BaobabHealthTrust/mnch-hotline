@@ -14,18 +14,7 @@ CREATE PROCEDURE`update_table_columns`()
 			ALTER TABLE `call_log` ADD COLUMN `call_mode` INT(11) NOT NULL DEFAULT 0 ;
 		END IF;
 		
-		IF NOT EXISTS(()) THEN
-			CREATE TABLE `follow_up` (
-			  `follow_up_id` int(11) NOT NULL AUTO_INCREMENT,
-			  `patient_id` int(11) NOT NULL DEFAULT '0',
-			  `result` varchar(255) DEFAULT NULL,
-			  `creator` int(11) NOT NULL DEFAULT '0',
-			  `date_created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-			  `district` INT(11) NOT NULL  DEFAULT 0 
-			  PRIMARY KEY (`follow_up_id`)
-			) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
-		END IF;
-		
+
 	END$$
 
 DELIMITER ;
@@ -45,6 +34,19 @@ INSERT IGNORE INTO global_property (property, property_value, `description`, uui
 -- DROP update_table_columns PROCEDURE
 
 DROP PROCEDURE IF EXISTS `update_table_columns`;
+
+		
+CREATE TABLE IF NOT EXISTS `follow_up` (
+  `follow_up_id` int(11) NOT NULL AUTO_INCREMENT,
+  `patient_id` int(11) NOT NULL DEFAULT '0',
+  `result` varchar(255) DEFAULT NULL,
+  `creator` int(11) NOT NULL DEFAULT '0',
+  `date_created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `district` INT(11) NOT NULL  DEFAULT 0, 
+  PRIMARY KEY (`follow_up_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 
 /*
 -- Create a Village Headman table
