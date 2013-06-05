@@ -2162,6 +2162,7 @@ module Report
   return patients_data
  end
  def self.follow_up_report(start_date, end_date, grouping, district)
+   district_id = District.find_by_name(district).name
    patients_data = []
    #follow_up_reasons = self.create_follow_up_structure
    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
@@ -2169,8 +2170,9 @@ module Report
     date_ranges.map do |date_range|
       
       follow_ups = FollowUp.find(:all,
-                                 :conditions => ["date_created >= ? AND date_created <= ?", 
-                                   date_range.first, date_range.last])
+                                 :conditions => ["district = ? AND start_time >= ?
+                                 AND start_time <= ?", district_id, date_range.first,
+                                 date_range.last])
       new_follow_up_data                 = {}
       new_follow_up_data[:reasons] = self.create_follow_up_structure
       new_follow_up_data[:start_date]    = date_range.first

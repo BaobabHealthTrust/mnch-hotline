@@ -313,11 +313,15 @@ class ClinicController < ApplicationController
       log_call(3)
     end
     def district
-
-      session[:district] = params[:district]
-      session[:call_mode] = params[:call_mode]
       
-      render :template => 'clinic/home', :layout => 'clinic'
+      session[:district] = params[:district]
+      if ! params[:call_mode].nil?
+        session[:call_mode] = params[:call_mode]
+        
+        render :template => 'clinic/home', :layout => 'clinic'
+      else
+        showfollowuplist(params[:district])
+      end
     end
     def new_call
       call_home(params)
@@ -339,19 +343,22 @@ class ClinicController < ApplicationController
       render :template => 'clinic/district', :layout => 'application'
     end
     
-    def showfollowuplist
-      @follow_ups = FollowUp.get_follow_ups
+    def showfollowuplist(district)
+      @follow_ups = FollowUp.get_follow_ups(district)
       
       render :template => 'clinic/followuplist', :layout => 'application'
     end
     
     def create_followup
       
+      district_id = District.find_by_name(session[:district]).id
+      
       follow_up = FollowUp.new
       follow_up.patient_id = params[:patient_id]
       follow_up.result = params[:result]
       follow_up.creator = session[:user_id].to_i
       follow_up.date_created = session[:datetime].to_date rescue Date.today
+      follow_up.district = district_id
       
       follow_up.save
       

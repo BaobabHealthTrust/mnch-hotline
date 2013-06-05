@@ -21,6 +21,7 @@ CREATE PROCEDURE`update_table_columns`()
 			  `result` varchar(255) DEFAULT NULL,
 			  `creator` int(11) NOT NULL DEFAULT '0',
 			  `date_created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+			  `district` INT(11) NOT NULL  DEFAULT 0 
 			  PRIMARY KEY (`follow_up_id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
 		END IF;

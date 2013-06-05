@@ -3,7 +3,10 @@ class FollowUp < ActiveRecord::Base
   set_primary_key "follow_up_id"
   include Openmrs
 
-  def self.get_follow_ups
+  def self.get_follow_ups(district)
+    district_id = District.find_by_name(district).id
+    call_id = Concept.find_by_name("CALL ID").id
+    
     followup_threshhold = GlobalProperty.get_property('followup.threshhold').value rescue 1
     cell_phone_attribute_type = PersonAttributeType.find_by_name('Cell Phone Number').id
     
@@ -19,6 +22,10 @@ class FollowUp < ActiveRecord::Base
         select e.patient_id, pn.given_name,pn.middle_name, pn.family_name, p.birthdate, pa.address2, pat.value
             from encounter e
                 inner join obs o on e.encounter_id = o.encounter_id
+                inner join obs obs_call on o.encounter_id = obs_call.encounter_id
+                  and obs_call.concept_id = #{call_id} 
+                inner join call_log cl on obs_call.value_text = cl.call_log_id 
+                  and cl.district = #{district_id} 
                 inner join person_name pn on e.patient_id = pn.person_id
                 inner join person_address pa on e.patient_id = pa.person_id
                 inner join person p on p.person_id = e.patient_id

@@ -16,11 +16,11 @@
   }
 </script>
 <form method='POST' action="reports" >
-  <%if @query != "follow_up"%>
-      <%= select_tag :currentdistrict, options_for_select(@districts), 
-            {:helpText => 'Select the district to base the report on',
-             :tt_onUnLoad=>"setDistrict('currentdistrict');"}%>
-  <%end%>
+
+  <%= select_tag :currentdistrict, options_for_select(@districts), 
+        {:helpText => 'Select the district to base the report on',
+         :tt_onUnLoad=>"setDistrict('currentdistrict');"}%>
+
   <% if not @query == "individual_current_enrollments" %>
       <%= select_tag :report_date_range, options_for_select(@date_range_values),
           {:helpText => "Select Date Range",
