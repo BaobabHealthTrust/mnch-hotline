@@ -93,6 +93,7 @@
             <% concept = health_issue[:concept_name].to_s.sub("SIGN", "")%>
             <% concept.sub("SYMPTOM","") %>
             <% concept = concept == "GAINED OR LOST WEIGHT" ? "WEIGHT CHANGE" : concept %>
+            <% concept = concept == "ACUTE ABDOMINAL PAIN" ? "SEVERE ABDOMINAL PAIN" : concept %>
             <%=concept.to_s.titleize %>
             </td>
             
