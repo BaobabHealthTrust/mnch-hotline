@@ -27,6 +27,8 @@
       <option value="/clinic/emergencycall" ttSize="200px">Emergency Call</option>
     <%end%>
     <option value="/people/find_by_phone" ttSize="200px">Find by phone</option>
-    <option value="/clinic/new_call?task=followup" ttSize="130px">Follow up</option>
+    <% if ! session[:house_keeping_mode] == false  %>
+        <option value="/clinic/new_call?task=followup" ttSize="130px">Follow up</option>
+    <%end%>
   </select>
 </div>

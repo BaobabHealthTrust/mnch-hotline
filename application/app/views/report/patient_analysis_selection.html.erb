@@ -17,7 +17,7 @@
 </script>
 <form method='POST' action="reports" >
 
-  <%= select_tag :currentdistrict, options_for_select(@districts), 
+  <%= select_tag :currentdistrict, options_for_select(@districts.sort), 
         {:helpText => 'Select the district to base the report on',
          :tt_onUnLoad=>"setDistrict('currentdistrict');"}%>
 

@@ -429,20 +429,20 @@ EOF
 
   def pregnancy_status
     pregnancy_statuses  = Encounter.get_pregnancy_statuses(self.id)
+
     current_status      = nil
     status_date         = nil
 
     unless pregnancy_statuses.nil?
       pregnancy_statuses.last.observations.each do | observation|
-        current_status  = observation.answer_string if(observation.concept.name == "PREGNANCY STATUS")
+        current_status  = observation.answer_string if(observation.concept.name.upcase == "PREGNANCY STATUS")
       end
     end
     unless current_status.nil?
       pregnancy_statuses.last.observations.each do | observation|
-        status_date     = observation.answer_string if(observation.concept.name == "EXPECTED DUE DATE" || observation.concept.name =="DELIVERY DATE")
+        status_date     = observation.answer_string if(observation.concept.name.upcase == "EXPECTED DUE DATE" || observation.concept.name.upcase =="DELIVERY DATE")
       end
     end
-
     return [current_status, status_date]
   end
 
@@ -631,6 +631,23 @@ EOF
       end
     end
     return return_value
+  end
+  
+  def expected_due_date
+    encounter_type_id = EncounterType.find_by_name("PREGNANCY STATUS").id
+    edd_id = Concept.find_by_name("Expected due date").id
+    
+    edd = Observation.find(:first,
+                     :joins => 'INNER JOIN encounter USING(encounter_id)',
+                     :conditions =>["encounter_type = ? AND patient_id = ? AND concept_id = ? AND DATE(value_text)>=?",
+                     encounter_type_id,self.id,edd_id,Date.today],:order => 'encounter_datetime ASC')
+    
+    if edd.nil?
+      return nil
+    else
+      return edd.value_text
+    end
+    
   end
 
 end

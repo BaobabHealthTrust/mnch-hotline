@@ -10,17 +10,17 @@
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 	<%session_date = session[:datetime] || Time.now() %>
 
-  <%= touch_select_tag "PREGNANCY STATUS", @patient, options_for_select(@select_options['pregnancy_status'], @encounter_answers[:pregnancy_status]),
+  <%= touch_select_tag "PREGNANCY STATUS", @patient, options_for_select(@select_options['pregnancy_status'], @current_pregnancy_status),
 		{:id => "pregnancy_status",
 		 :helptext => "Pregnancy Status" } %>
-    <%= touch_text_field_tag "EXPECTED DUE DATE", @patient,@encounter_answers[:expected_due_date],
+    <%= touch_text_field_tag "EXPECTED DUE DATE", @patient, @current_pregnancy_status_details,
         { :id => "expected_due_date",
           :field_type => "date",
           :helptext => "Expected Due Date",
           :condition => "$('pregnancy_status').value == 'Pregnant'",
           :absoluteMin => "#{session_date.advance(:days => 1).strftime('%Y-%m-%d')}",
           :absoluteMax => "#{session_date.advance(:months => 10, :days => +1 ).strftime('%Y-%m-%d')}"} %>
-    <%= touch_text_field_tag "DELIVERY DATE", @patient,@encounter_answers[:delivery_date],
+    <%= touch_text_field_tag "DELIVERY DATE", @patient,@current_pregnancy_status_details ,
         { :id => "delivery_date",
           :field_type => "date",
           :helptext => "Delivery Date",
