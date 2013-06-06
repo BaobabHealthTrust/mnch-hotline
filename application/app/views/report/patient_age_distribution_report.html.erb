@@ -71,11 +71,11 @@
               <td class="cellleft cellbottom cellright main-table-cell">
               <%= gender.first.humanize %>
               </td>
-              
-              <td class="cellleft cellbottom main-table-cell">
-              <%= gender.last %>
-              </td>
+
               <% if gender.first.downcase == 'female' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:female][:statistical_info][:total] rescue 0 %>
+                </td>
                 <td class="cellleft cellbottom main-table-cell">
                   <%= data[:statistical_data][:female][:statistical_info][:percentage] rescue 0 %>
                 </td>
@@ -92,6 +92,9 @@
                   <%= data[:statistical_data][:female][:statistical_info][:sdev] rescue 0 %>
                 </td>
               <% elsif gender.first.downcase == 'male' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:male][:statistical_info][:total] rescue 0 %>
+                </td>
                 <td class="cellleft cellbottom main-table-cell">
                   <%= data[:statistical_data][:male][:statistical_info][:percentage] rescue 0 %>
                 </td>
@@ -123,10 +126,10 @@
               <%= pregnancy_status.first.humanize %>
               </td>
               
-              <td class="cellleft cellbottom main-table-cell">
-              <%= pregnancy_status.last %>
-              </td>
               <% if pregnancy_status.first.downcase == 'pregnant' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:pregnant][:statistical_info][:total] rescue 0 %>
+                </td>
                 <td class="cellleft cellbottom main-table-cell">
                   <%= data[:statistical_data][:pregnant][:statistical_info][:percentage] rescue 0 %>
                 </td>
@@ -144,6 +147,9 @@
                 </td>
               <% elsif pregnancy_status.first.downcase == 'non_pregnant' %>
                 <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:nonpregnant][:statistical_info][:total] rescue 0 %>
+                </td>
+                <td class="cellleft cellbottom main-table-cell">
                   <%= data[:statistical_data][:nonpregnant][:statistical_info][:percentage] rescue 0 %>
                 </td>
                 <td class="cellleft cellbottom main-table-cell">
@@ -156,9 +162,12 @@
                   <%= data[:statistical_data][:nonpregnant][:statistical_info][:average] rescue 0 %>
                 </td>
                 <td class="cellleft cellbottom cellright main-table-cell">
-                  <%= data[:statistical_data][:nonpregnant][:statistical_info][:sdev] rescue 0 %>
+                  <%= data[:statistical_data][:delivered][:statistical_info][:sdev] rescue 0 %>
                 </td>
               <% elsif pregnancy_status.first.downcase == 'delivered' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:nonpregnant][:statistical_info][:total] rescue 0 %>
+                </td>
                 <td class="cellleft cellbottom main-table-cell">
                   <%= data[:statistical_data][:delivered][:statistical_info][:percentage] rescue 0 %>
                 </td>
@@ -175,6 +184,9 @@
                   <%= data[:statistical_data][:delivered][:statistical_info][:sdev] rescue 0 %>
                 </td>
                <% elsif pregnancy_status.first.downcase == 'miscarried' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:miscarried][:statistical_info][:total] rescue 0 %>
+                </td>
                 <td class="cellleft cellbottom main-table-cell">
                   <%= data[:statistical_data][:miscarried][:statistical_info][:percentage] rescue 0 %>
                 </td>
@@ -206,10 +218,10 @@
               <%= patient_type.first.humanize %>
               </td>
               
-              <td class="cellleft cellbottom main-table-cell">
-              <%= patient_type.last %>
-              </td>
               <% if patient_type.first.downcase == 'women' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:women][:statistical_info][:total] rescue 0 %>
+                </td>
                 <td class="cellleft cellbottom main-table-cell">
                   <%= data[:statistical_data][:women][:statistical_info][:percentage] rescue 0 %>
                 </td>
@@ -226,6 +238,9 @@
                   <%= data[:statistical_data][:women][:statistical_info][:sdev] rescue 0 %>
                 </td>
               <% elsif patient_type.first.downcase == 'children' %>
+                <td class="cellleft cellbottom main-table-cell">
+                  <%= data[:statistical_data][:child][:statistical_info][:total] rescue 0 %>
+                </td>
                 <td class="cellleft cellbottom main-table-cell">
                   <%= data[:statistical_data][:child][:statistical_info][:percentage] rescue 0 %>
                 </td>

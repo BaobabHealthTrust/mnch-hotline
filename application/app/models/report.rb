@@ -898,7 +898,7 @@ module Report
         end
 
       unless pregnant_data.empty?
-          pregnant_statistics = {:total => 0, :percentage => 0,
+          pregnant_statistics = {:total => pregnant_data.count, :percentage => 0,
                          :average => 0, :min => 0, :max => 0, :sdev => 0
                        }
           pregnant_statistics[:min] = pregnant_data.min
@@ -911,7 +911,7 @@ module Report
         end
 
         unless nonpregnant_data.empty?
-          nonpregnant_statistics = {:total => 0, :percentage => 0,
+          nonpregnant_statistics = {:total => nonpregnant_data.count, :percentage => 0,
                         :average => 0, :min => 0, :max => 0, :sdev => 0
                        }
           nonpregnant_statistics[:min] = nonpregnant_data.min
@@ -924,7 +924,7 @@ module Report
 
         end
         unless delivered_data.empty?
-          delivered = {:total => 0, :percentage => 0,
+          delivered = {:total => delivered_data.count, :percentage => 0,
                         :average => 0, :min => 0, :max => 0, :sdev => 0
                        }
           delivered[:min] = delivered_data.min
@@ -936,7 +936,7 @@ module Report
           women_grouping[:delivered][:statistical_info] = delivered
         end
         unless miscarried_data.empty?
-          miscarried = {:total => 0, :percentage => 0,
+          miscarried = {:total => miscarried_data.count, :percentage => 0,
                         :average => 0, :min => 0, :max => 0, :sdev => 0
                        }
           miscarried[:min] = miscarried_data.min
@@ -963,7 +963,7 @@ module Report
         end
         
         unless female_data.empty?
-          female_statistics = {:total => 0, :percentage => 0,
+          female_statistics = {:total => female_data.count, :percentage => 0,
                         :average => 0, :min => 0, :max => 0, :sdev => 0
                        }
           female_statistics[:min] = female_data.min
@@ -976,7 +976,7 @@ module Report
         end
 
         unless male_data.empty?
-          male_statistics = {:total => 0, :percentage => 0,
+          male_statistics = {:total => male_data.count, :percentage => 0,
                         :average => 0, :min => 0, :max => 0, :sdev => 0
                        }
           male_statistics[:min] = male_data.min
@@ -1003,7 +1003,7 @@ module Report
         end
 
         unless child_data.empty?
-          child_statistics = {:total => 0, :percentage => 0,
+          child_statistics = {:total => child_data.count, :percentage => 0,
                         :average => 0, :min => 0, :max => 0, :sdev => 0
                        }
           child_statistics[:min] = child_data.min
@@ -1016,7 +1016,7 @@ module Report
         end
 
         unless women_data.empty?
-          women_statistics = {:total => 0, :percentage => 0,
+          women_statistics = {:total => women_data.count, :percentage => 0,
                         :average => 0, :min => 0, :max => 0, :sdev => 0
                        }
           women_statistics[:min] = women_data.min
