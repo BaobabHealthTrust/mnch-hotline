@@ -153,14 +153,19 @@ class EncountersController < ApplicationController
 
     @female_danger_signs = @patient.female_danger_signs(concept_set('danger sign'))
     @female_symptoms = @patient.female_symptoms(concept_set('health symptom'))
-    pregnancy_status_details = @patient.pregnancy_status rescue []
+    pregnancy_status_details = @patient.pregnancy_status #rescue []
     
-    if pregnancy_status_details.last.to_date < Date.today && pregnancy_status_details.last.upcase = "PREGNANT"
+    if ! pregnancy_status_details.empty?  && ! pregnancy_status_details.last.nil?
+      if pregnancy_status_details.last.to_date < Date.today && pregnancy_status_details.last.upcase = "PREGNANT"
+        @current_pregnancy_status = ""
+        @current_pregnancy_status_details = ""
+      else
+        @current_pregnancy_status = pregnancy_status_details.first rescue nil
+        @current_pregnancy_status_details = pregnancy_status_details.last rescue nil
+      end
+    else
       @current_pregnancy_status = ""
       @current_pregnancy_status_details = ""
-    else
-      @current_pregnancy_status = pregnancy_status_details.first rescue nil
-      @current_pregnancy_status_details = pregnancy_status_details.last rescue nil
     end
     #raise @child_symptoms.to_s
     if (@child_danger_signs == "Yes" || @female_danger_signs == "Yes")
