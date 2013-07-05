@@ -432,7 +432,7 @@ EOF
 
     current_status      = nil
     status_date         = nil
-    raise pregnancy_statuses.empty?
+    #raise pregnancy_statuses.empty?
     unless pregnancy_statuses.empty?
       pregnancy_statuses.last.observations.each do | observation|
         current_status  = observation.answer_string if(observation.concept.name.upcase == "PREGNANCY STATUS")
