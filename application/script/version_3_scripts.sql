@@ -85,4 +85,8 @@ TODO
 - create interface for entering health centers in the administration mode
 */
 
+-- Update concept table. un retire the concept below (guardian present) as this was causing the system to crash
+
+update concept set retired = 0 where concept_id = 6794;
+
 
