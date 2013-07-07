@@ -154,8 +154,8 @@ class EncountersController < ApplicationController
     @female_danger_signs = @patient.female_danger_signs(concept_set('danger sign'))
     @female_symptoms = @patient.female_symptoms(concept_set('health symptom'))
     pregnancy_status_details = @patient.pregnancy_status #rescue []
-    
-    if ! pregnancy_status_details.empty?  && ! pregnancy_status_details.last.nil?
+    #raise pregnancy_status_details.to_yaml
+    if ! pregnancy_status_details.empty?  && ! pregnancy_status_details.last.nil? && ! pregnancy_status_details.last == 'Unknown'
       if pregnancy_status_details.last.to_date < Date.today && pregnancy_status_details.last.upcase = "PREGNANT"
         @current_pregnancy_status = ""
         @current_pregnancy_status_details = ""
