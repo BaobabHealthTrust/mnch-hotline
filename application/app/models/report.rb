@@ -1565,7 +1565,7 @@ module Report
                                                       end_date)[:date_ranges]
   date_ranges.map do |date_range|
    encounters = self.get_tips_data(date_range, district_id)
-   total_calls = self.get_total_tips_calls(date_range, district_id).count
+   total_calls = self.get_total_tips_calls(date_range, district_id)
 
    row_data = {:start_date => date_range.first,:end_date => date_range.last,
               :total => total_calls,
@@ -1600,7 +1600,7 @@ module Report
 
    call_data << row_data
   end
-
+ 
   return call_data
  end
 
@@ -1646,7 +1646,13 @@ module Report
               "AND DATE(encounter.date_created) <= '#{date_range.last}' " +
               "AND encounter.voided = 0"
 
-    Patient.find_by_sql(query).map(&:count)
+    total_calls = Patient.find_by_sql(query).first.count
+    
+    if total_calls.blank?
+      return 0
+    else
+      return total_calls.to_i 
+    end
  end
 
  def self.get_tips_data_by_catchment_area(date_range, district_id)
