@@ -1437,17 +1437,17 @@ module Report
 
      results.each do |call|
 
-       if Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") >= Time.parse("07:00:00") && 
-          Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("10:00:00")
+       if Time.parse("#{call.call_start_time}") >= Time.parse("07:00:00") && 
+          Time.parse("#{call.call_start_time}") <= Time.parse("10:00:00")
          call_statistics[:morning] += 1
-       elsif Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") > Time.parse("10:00:00") && 
-             Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("13:00:00")
+       elsif Time.parse("#{call.call_start_time}") > Time.parse("10:00:00") && 
+             Time.parse("#{call.call_start_time}") <= Time.parse("13:00:00")
          call_statistics[:midday] += 1
-       elsif Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") > Time.parse("13:00:00") && 
-             Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("16:00:00")
+       elsif Time.parse("#{call.call_start_time}") > Time.parse("13:00:00") && 
+             Time.parse("#{call.call_start_time}") <= Time.parse("16:00:00")
          call_statistics[:afternoon] += 1
-       elsif Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") > Time.parse("16:00:00") && 
-             Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("19:00:00")
+       elsif Time.parse("#{call.call_start_time}") > Time.parse("16:00:00") && 
+             Time.parse("#{call.call_start_time}") <= Time.parse("19:00:00")
          call_statistics[:evening] += 1
        end
      end #end of results loop
@@ -1478,7 +1478,7 @@ module Report
 
       query   = self.call_analysis_query_builder(patient_type,
                       date_range, staff_member, call_type, call_status, district_id)
-
+#raise query.to_s 
       results = CallLog.find_by_sql(query)
 
       call_statistics = {
@@ -1489,23 +1489,24 @@ module Report
       :afternoon => 0, :a_len => [], :a_avg => 0, :a_sdev => 0, :a_min => 0,
       :evening => 0, :e_len => [], :e_avg => 0, :e_sdev => 0, :e_min => 0
                          }
-
+                          
      results.each do |call|
+      date_comp = "#{norm_date} #{call.call_start_time}"
 
-       if Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") >= Time.parse("07:00:00") &&
-          Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("10:00:00")
+       if Time.parse("#{call.call_start_time}") >= Time.parse("07:00:00") &&
+          Time.parse("#{call.call_start_time}") <= Time.parse("10:00:00")
          call_statistics[:morning] += 1
          call_statistics[:m_len] << call.call_length_seconds.to_i
-       elsif Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") > Time.parse("10:00:00") &&
-             Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("13:00:00")
+       elsif Time.parse("#{call.call_start_time}") > Time.parse("10:00:00") &&
+             Time.parse("#{call.call_start_time}") <= Time.parse("13:00:00")
          call_statistics[:midday] += 1
          call_statistics[:mid_len] << call.call_length_seconds.to_i
-       elsif Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") > Time.parse("13:00:00") &&
-             Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("16:00:00")
+       elsif Time.parse("#{call.call_start_time}") > Time.parse("13:00:00") &&
+             Time.parse("#{call.call_start_time}") <= Time.parse("16:00:00")
          call_statistics[:afternoon] += 1
          call_statistics[:a_len] << call.call_length_seconds.to_i
-       elsif Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") > Time.parse("16:00:00") &&
-             Time.parse("#{norm_date} #{call.call_start_time.strftime "%H:%M:%S"}") <= Time.parse("19:00:00")
+       elsif Time.parse("#{call.call_start_time}") > Time.parse("16:00:00") &&
+             Time.parse("#{call.call_start_time}") <= Time.parse("19:00:00")
          call_statistics[:evening] += 1
          call_statistics[:e_len] << call.call_length_seconds.to_i
        end
