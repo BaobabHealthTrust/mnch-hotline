@@ -66,7 +66,7 @@ module Report
 
   def self.patient_demographics_query_builder(patient_type, date_range, district_id)
     # Get a list of health centers for the particular district
-    health_centers = "'" + get_nearest_health_centers(district_id).map(&:name).join("','") + "'"
+    health_centers = '"' + get_nearest_health_centers(district_id).map(&:name).join('","') + '"'
 
     child_maximum_age     = 9 # see definition of a female adult above
     nearest_health_center = PersonAttributeType.find_by_name("NEAREST HEALTH FACILITY").id
