@@ -156,16 +156,16 @@ class EncountersController < ApplicationController
     pregnancy_status_details = @patient.pregnancy_status #rescue []
     #raise pregnancy_status_details.to_yaml
     if ! pregnancy_status_details.empty?  && ! pregnancy_status_details.last.nil? && ! pregnancy_status_details.last == 'Unknown'
-      if pregnancy_status_details.last.to_date < Date.today && pregnancy_status_details.last.upcase = "PREGNANT"
+      if pregnancy_status_details.last.to_date < Date.today && pregnancy_status_details.first.upcase = "PREGNANT"
         @current_pregnancy_status = ""
         @current_pregnancy_status_details = ""
       else
-        @current_pregnancy_status = pregnancy_status_details.first rescue nil
+        @current_pregnancy_status = pregnancy_status_details.first.upcase rescue nil
         @current_pregnancy_status_details = pregnancy_status_details.last rescue nil
       end
     else
-      @current_pregnancy_status = ""
-      @current_pregnancy_status_details = ""
+      @current_pregnancy_status = pregnancy_status_details.first.upcase rescue nil
+        @current_pregnancy_status_details = pregnancy_status_details.last rescue nil
     end
     #raise @child_symptoms.to_s
     if (@child_danger_signs == "Yes" || @female_danger_signs == "Yes")

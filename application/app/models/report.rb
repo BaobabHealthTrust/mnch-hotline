@@ -1656,8 +1656,8 @@ module Report
  end
 
  def self.get_tips_data_by_catchment_area(date_range, district_id)
-   
-  health_centers = "'" + get_nearest_health_centers(district_id).map(&:name).join("','") + "'"
+
+  health_centers = '"' + get_nearest_health_centers(district_id).map(&:name).join('","') + '"'
   nearest_health_center = PersonAttributeType.find_by_name("NEAREST HEALTH FACILITY").id
   encounter_type_list = ["TIPS AND REMINDERS"]
   encounter_types = self.get_encounter_types(encounter_type_list)
@@ -1690,7 +1690,7 @@ module Report
                                                    nearest_health_center],
                                    :include => 'observations')
 =end
-   
+
   data_list = Encounter.find_by_sql(query)
   #raise data_list.to_yaml
   return data_list
