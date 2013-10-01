@@ -16,4 +16,4 @@ Version 3 beta
 		Ensured that the registered guardian is shown on the dashboard
 		Added registered for tips and reminders to the list of outcomes
 		Added an option for a secondary outcome
-
+         --Cut off from the previous version
