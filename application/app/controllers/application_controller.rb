@@ -34,6 +34,7 @@ class ApplicationController < ActionController::Base
   end if RAILS_ENV == 'production'
 
   def next_task(patient)
+
     session_date = session[:datetime].to_date rescue Date.today
 
     # a fix to allow for redirections from outcome to clinic schedules
@@ -42,6 +43,11 @@ class ApplicationController < ActionController::Base
       return "/clinic/schedules?patient_id="+ patient.patient_id.to_s + "&source_url=patient_dashboard"
     end
 
+    if (session[:anc_connect_workflow_start])
+      session.delete(:anc_connect_workflow_start)
+      return "/patients/anc_connect?patient_id=#{patient.patient_id.to_s}"
+    end
+    
     todays_encounter_types = patient.encounters.find_by_date(session_date).map{|e| e.type.name rescue ''}.uniq rescue []
     if (session[:mnch_protocol_required] || (!todays_encounter_types.include?"REGISTRATION"))
       task = Task.next_task(Location.current_location, patient, session_date, todays_encounter_types)

@@ -204,6 +204,10 @@ class EncountersController < ApplicationController
      
     @tips_answer = {}
 
+    if (params[:anc_connect_workflow_start])
+      session[:anc_connect_workflow_start] = true
+    end
+
     redirect_to next_task(@patient) and return unless params[:encounter_type]
 
     redirect_to :action => :create, 'encounter[encounter_type_name]' => params[:encounter_type].upcase, 'encounter[patient_id]' => @patient.id and return if ['registration'].include?(params[:encounter_type])
