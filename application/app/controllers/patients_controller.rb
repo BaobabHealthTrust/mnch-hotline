@@ -356,8 +356,7 @@ class PatientsController < ApplicationController
     if (request.method == :post)
       nick_name = params[:nick_name]
       phone_number = params[:phone_number]
-      patient_id = params[:patient_id]
-      patient = Patient.find(patient_id)
+      patient = Patient.find(params[:patient_id])
       PersonName.create_nick_name(patient, nick_name)
       PersonAttribute.create_attribute(patient, phone_number, "Cell Phone Number")
       if (params[:anc_connect_program].match(/YES/i))
@@ -378,7 +377,7 @@ class PatientsController < ApplicationController
         end
       end
 
-      redirect_to("/encounters/new/anc_visit?patient_id=#{patient_id}")
+      redirect_to("/encounters/new/anc_visit?patient_id=#{params[:patient_id]}")
     end
   end
   
