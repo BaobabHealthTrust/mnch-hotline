@@ -5,6 +5,15 @@
     tt_cancel_destination = "/clinic";
   <% end %>
   tt_cancel_show = "/clinic?status=endcall";
+
+  function addElementToParent(){
+    mainTopicContent = document.getElementById("mainTopicContent");
+    anc_connect_button =  document.getElementById("anc_connect_id");
+    if (anc_connect_button){
+      mainTopicContent.appendChild(anc_connect_button);
+    }
+  }
+  window.setTimeout("addElementToParent();", 50);
 </script>
 <style>
   div{
@@ -15,12 +24,13 @@
     position: absolute;
     z-index: 1000;
     color:white;
-    left: 27%;
-    margin-top: 13% !important;
+    left: 13%;
+    width: 200px;
+    top:26%;
   }
   
   #anc_connect_id span{
-    position: relative;
+    min-width:30%;
     opacity: 0.9;
     border-radius: 7px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
