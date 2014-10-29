@@ -51,4 +51,18 @@ class PersonAttribute < ActiveRecord::Base
 
     return most_common_attribute_type
   end
+
+  def self.create_attribute(patient, value, attribute_type)
+    attribute_type_id = PersonAttributeType.find_by_name(attribute_type).id rescue nil
+    return if attribute_type_id.blank?
+    attribute_value = PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND
+      person_id = ? AND value =?", attribute_type_id, patient.id, value])
+
+    if (attribute_value.blank?)
+      patient.person.person_attributes.create(
+        :person_attribute_type_id => attribute_type_id,
+        :value => value
+      )
+    end
+  end
 end

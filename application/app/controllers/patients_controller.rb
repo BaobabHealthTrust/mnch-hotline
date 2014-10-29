@@ -349,11 +349,35 @@ class PatientsController < ApplicationController
   end
 
   def anc_connect
+    @program_id = Program.find_by_name("ANC Connect Program").program_id
+    @patient_program_id = PatientProgram.find(:last, :conditions => ["patient_id =? AND
+                 program_id=?", params[:patient_id], @program_id]).patient_program_id rescue nil
+
     if (request.method == :post)
       nick_name = params[:nick_name]
       phone_number = params[:phone_number]
-      anc_connect_program = params[:anc_connect_program]
       patient_id = params[:patient_id]
+      patient = Patient.find(patient_id)
+      PersonName.create_nick_name(patient, nick_name)
+      PersonAttribute.create_attribute(patient, phone_number, "Cell Phone Number")
+      if (params[:anc_connect_program].match(/YES/i))
+        date_enrolled = params[:programs][0]['date_enrolled']
+        (params[:programs] || []).each do |program|
+          patient_program = PatientProgram.find(program[:patient_program_id]) unless program[:patient_program_id].blank?
+          unless (patient_program)
+            patient_program = patient.patient_programs.create(
+              :program_id => program[:program_id],
+              :date_enrolled => date_enrolled)
+          end
+
+          unless program[:states].blank?
+            program[:states][0]['start_date'] = date_enrolled
+          end
+          
+          (program[:states] || []).each {|state| patient_program.transition(state) }
+        end
+      end
+
       redirect_to("/encounters/new/anc_visit?patient_id=#{patient_id}")
     end
   end

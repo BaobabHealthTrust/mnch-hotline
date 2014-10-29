@@ -36,5 +36,12 @@
         }
      %>
 
+      <%= hidden_field_tag("programs[][patient_program_id]", @patient_program_id) %>
+      <%= hidden_field_tag("programs[][program_id]", @program_id)%>
+      <%= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
+      <%= hidden_field_tag("programs[][date_enrolled]", (session[:datetime] || Date.today) ) %>
+
+      <%= hidden_field_tag("programs[][states][][state]", "Patient enrolled") %>
+
     <%= submit_tag "Finish" %>
    </form>

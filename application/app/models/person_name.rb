@@ -25,4 +25,15 @@ class PersonName < ActiveRecord::Base
      WHERE person.voided = 0 AND person_name.voided = 0 AND #{field_name} LIKE ? \
      GROUP BY #{field_name} ORDER BY INSTR(#{field_name},\"#{search_string}\") ASC, COUNT(#{field_name}) DESC, #{field_name} ASC LIMIT 10", "%#{search_string}%"])
   end
+
+  def self.create_nick_name(patient, nick_name)
+      person_nick_name = PersonName.find(:last, :conditions => ["person_id =? AND family_name_prefix =?",
+        patient.id, nick_name])
+      if (person_nick_name.blank?)
+        person_name = patient.person.names.last
+        person_name.family_name_prefix = nick_name
+        person_name.save!
+      end
+  end
+  
 end
