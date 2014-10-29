@@ -380,6 +380,19 @@ class PatientsController < ApplicationController
       redirect_to("/encounters/new/anc_visit?patient_id=#{params[:patient_id]}")
     end
   end
+
+  def anc_number
+    if (request.method == :post)
+      anc_number = params[:anc_number]
+      patient = Patient.find(params[:patient_id])
+      anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
+      patient.patient_identifiers.create(
+        :identifier_type => anc_identifier_type.id,
+        :identifier => anc_number
+      )
+      redirect_to("/patients/show/#{params[:patient_id]}")
+    end
+  end
   
 private
   
