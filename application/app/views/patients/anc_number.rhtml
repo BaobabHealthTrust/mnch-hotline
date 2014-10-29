@@ -12,7 +12,7 @@
 <% else %>
     <% action = "New" %>
 <% end %>
-<form id='anc_number' action="" method='post'>
+<form id='anc_number' action="anc_number" method='post'>
     <% options = {
          :id          => "anc_number",
          :helpText    => "#{action} ANC Connect ID",
@@ -22,6 +22,6 @@
     %>
 
     <%= text_field_tag "anc_number", params[:old_anc_number], options %>
-
+    <%= hidden_field_tag("patient_id", params[:patient_id]) %>
     <%= submit_tag "Finish" %>
 </form>
