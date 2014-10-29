@@ -1,0 +1,23 @@
+<style>
+  .anc_number #num , #plus, #apostrophe, #star,
+     #char, #abc, #date, #slash, #minus, #comma, #percent, #decimal, #Unknown { display:none; }
+</style>
+<script type="text/javascript">
+  var tt_cancel_destination = "/patients/show/<%= params[:patient_id] %>";
+
+</script>
+
+
+<form id='anc_number' action="" method='post'>
+    <% options = {
+         :id          => "anc_number",
+         :helpText    => "Enter ANC Connect ID",
+         :field_type => 'number',
+         :allowFreeText => true
+       }
+    %>
+
+    <%= text_field_tag "anc_number", nil, options %>
+
+    <%= submit_tag "Finish" %>
+</form>

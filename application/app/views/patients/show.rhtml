@@ -14,6 +14,11 @@
     }
   }
   window.setTimeout("addElementToParent();", 50);
+
+  function gotoANCnumber(){
+    window.location = "/patients/anc_number?patient_id=<%= @patient.id %>"
+  }
+
 </script>
 <style>
   div{
@@ -117,6 +122,6 @@
   </select>
 </div>
 <div id="anc_connect_id">
-  <span>ANC ID</span>
+  <span onclick="gotoANCnumber();">ANC ID</span>
 </div>
 
