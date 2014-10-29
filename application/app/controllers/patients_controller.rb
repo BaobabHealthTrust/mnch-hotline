@@ -26,6 +26,9 @@ class PatientsController < ApplicationController
     #raise FollowUp.get_follow_ups.to_yaml
     session[:mnch_protocol_required] = false
     session[:anc_connect_workflow_start] = false
+    anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
+    @anc_connect_id = @patient.patient_identifiers.find(:last, :conditions => ["identifier_type =?",
+                      anc_identifier_type.id]).identifier rescue nil
    #added this to ensure that we are able to void the encounters
     void_encounter if (params[:void] && params[:void] == 'true')
     render :layout => 'clinic'
