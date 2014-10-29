@@ -6,7 +6,36 @@
   <% end %>
   tt_cancel_show = "/clinic?status=endcall";
 </script>
+<style>
+  div{
+    -moz-user-select:none;
+  }
 
+  #anc_connect_id{
+    position: absolute;
+    z-index: 1000;
+    color:white;
+    left: 27%;
+    margin-top: 13% !important;
+  }
+  
+  #anc_connect_id span{
+    position: relative;
+    opacity: 0.9;
+    border-radius: 7px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background: #3498db;;
+    font-size: 110%;
+    padding: 10px 40px 5px 40px;
+    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+    background-image: -o-linear-gradient(top, #3498db, #2980b9);
+    background-image: linear-gradient(to bottom, #3498db, #2980b9);
+    font-family: Georgia;
+    cursor: pointer;
+}
+</style>
 
 <div id="dashboard">
 
@@ -76,5 +105,8 @@
         <option value='/clinic/followup?person=<%=@patient.id%>&source=PD'>Follow up</option>
     <% end %>
   </select>
+</div>
+<div id="anc_connect_id">
+  <span>ANC ID</span>
 </div>
 

@@ -8,12 +8,12 @@
 </script>
 
 
-  <form id='anc_connect' action="" method='post'
+<form id='anc_connect' action="" method='post'>
 
-      <%= select_tag "anc_connect_program", ['', 'Yes', 'No'],
-        {:id => "anc_connect",
+      <%= select_tag "anc_connect_program", options_for_select(['', 'Yes', 'No']),
+        {:id => 'anc_connect',
          :multiple => false,
-         :helpText => "Enrol in ANC connect program"
+         :helpText => 'Enrol in ANC connect program'
         } %>
 
       <% options = {

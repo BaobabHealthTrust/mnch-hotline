@@ -349,7 +349,13 @@ class PatientsController < ApplicationController
   end
 
   def anc_connect
-
+    if (request.method == :post)
+      nick_name = params[:nick_name]
+      phone_number = params[:phone_number]
+      anc_connect_program = params[:anc_connect_program]
+      patient_id = params[:patient_id]
+      redirect_to("/encounters/new/anc_visit?patient_id=#{patient_id}")
+    end
   end
   
 private
