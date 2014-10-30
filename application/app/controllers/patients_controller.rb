@@ -404,6 +404,15 @@ class PatientsController < ApplicationController
     end
   end
 
+  def anc_info
+    patient_id = params[:patient_id]
+    @options = [
+                  ["ANC", "/encounters/new/anc_visit?patient_id=#{patient_id}"],
+                  ["Birth Plan", "/encounters/new/birth_plan?patient_id=#{patient_id}"],
+                  ["Delivery", "/encounters/new/delivery?patient_id=#{patient_id}"]
+              ]
+  end
+  
   def check_if_number_exists
     anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
     anc_number = params[:anc_number]
