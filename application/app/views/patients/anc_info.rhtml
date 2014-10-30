@@ -3,12 +3,12 @@
   var tt_cancel_destination = "/patients/show/<%= params[:patient_id] %>"
 
   function getSelection(){
-    selected = $('touchscreenInput' + tstCurrentPage).value
+    selected_elements = $('touchscreenInput' + tstCurrentPage).value
   }
 </script>
-<form id='anc_info_form' action="" method='post'>
+<form id='anc_info_form' action="anc_info" method='post'>
 
-  <%= select_tag :anc_info, options_for_select(@options),
+  <%= select_tag :anc_update_encs, options_for_select(@options),
     {
       :id => "anc_info",
       :helpText => "Update?",

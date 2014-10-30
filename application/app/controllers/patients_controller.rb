@@ -405,12 +405,25 @@ class PatientsController < ApplicationController
   end
 
   def anc_info
-    patient_id = params[:patient_id]
     @options = [
-                  ["ANC", "/encounters/new/anc_visit?patient_id=#{patient_id}"],
-                  ["Birth Plan", "/encounters/new/birth_plan?patient_id=#{patient_id}"],
-                  ["Delivery", "/encounters/new/delivery?patient_id=#{patient_id}"]
+                  ["ANC"],
+                  ["Birth Plan"],
+                  ["Delivery"]
               ]
+    if (request.method == :post)
+        anc_update_encs = params[:anc_update_encs].split(';').sort
+        encounters_to_update = []
+        
+        anc_update_encs.each do |enc|
+          enc_name = enc.split().join('_').downcase.to_s + '' + '_update'
+          session[enc_name] = true
+          encounters_to_update << session[enc_name]
+        end
+        
+        encounter_name = encounters_to_update.first
+        session[encounter_name] = false
+        redirect_to("/encounters/new/#{encounter_name}&patient_id=#{params[:patient_id]}")
+    end
   end
   
   def check_if_number_exists
