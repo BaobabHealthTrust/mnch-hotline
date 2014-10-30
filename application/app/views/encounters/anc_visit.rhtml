@@ -1,0 +1,55 @@
+<script type="text/javascript" language="javascript">
+		tt_cancel_show = "/patients/show/<%= @patient.id %>";
+		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+		
+        function set_ajaxURL_for_suggestions(value) {
+  	      url = "/encounters/reason_for_not_attending?reason=" + value ;
+          $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', url);
+          listSuggestions(tstCurrentPage);
+        }
+
+		
+</script>
+<style>
+ 
+
+</style>
+
+<% form_tag :controller => "encounters", :action => "create" do |f| %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "ANC VISIT" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%session_date = session[:datetime] || Time.now() %>
+
+  <%= touch_select_tag "ANC VISIT", @patient, options_for_select([' ', 'Yes', 'No']),
+		{:id => "anc_visit",
+		 :helptext => "Attended ANC since?" } %>
+  
+  <%= touch_text_field_tag "LAST ANC VISIT DATE", @patient,'' ,
+        { :id => "last_anc_visit_date",
+          :field_type => "date",
+          :helptext => "Last ANC Visit Date",
+          :condition => "$('anc_visit').value == 'Yes'"} %>
+  
+  <%= touch_text_field_tag "NEXT ANC VISIT DATE", @patient,'' ,
+        { :id => "next_anc_visit_date",
+          :field_type => "date",
+          :helptext => "Next ANC Visit Date",
+          :condition => "$('anc_visit').value == 'Yes'"} %>
+             
+   <%= touch_select_tag "REASON FOR NOT ATTENDING ANC", @patient, options_for_select(@select_options['reason_for_not_attending_anc']),
+		{	:id => "reason_for_not_attending_anc",
+		    :condition => "$('anc_visit').value == 'No'",
+		 	:helpText => "Why not attend ANC?",
+		 	:multiple => 'false',
+		 	:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+		 	
+   	 	  
+  <%unless @encounter_id.nil?%>
+    <%= hidden_field_tag("encounter_id",  @encounter_id) %>
+    <%= hidden_field_tag("editing",       true) %>
+  <%end%>
+
+	<%= submit_tag 'Finish' %>
+<% end %>
