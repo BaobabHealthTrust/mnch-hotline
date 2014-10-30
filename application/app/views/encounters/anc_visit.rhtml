@@ -21,7 +21,7 @@
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 	<%session_date = session[:datetime] || Time.now() %>
-
+	
   <%= touch_select_tag "ANC VISIT", @patient, options_for_select([' ', 'Yes', 'No']),
 		{:id => "anc_visit",
 		 :helptext => "Attended ANC since?" } %>
@@ -29,13 +29,13 @@
   <%= touch_text_field_tag "LAST ANC VISIT DATE", @patient,'' ,
         { :id => "last_anc_visit_date",
           :field_type => "date",
-          :helptext => "Last ANC Visit Date",
+          :helptext => "#{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " +  "Last ANC Visit Date?",
           :condition => "$('anc_visit').value == 'Yes'"} %>
   
   <%= touch_text_field_tag "NEXT ANC VISIT DATE", @patient,'' ,
         { :id => "next_anc_visit_date",
           :field_type => "date",
-          :helptext => "Next ANC Visit Date",
+          :helptext => "#{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " + "Next ANC Visit Date?",
           :condition => "$('anc_visit').value == 'Yes'"} %>
              
    <%= touch_select_tag "REASON FOR NOT ATTENDING ANC", @patient, options_for_select(@select_options['reason_for_not_attending_anc']),
