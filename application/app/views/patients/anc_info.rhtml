@@ -1,6 +1,10 @@
 
 <script>
   var tt_cancel_destination = "/patients/show/<%= params[:patient_id] %>"
+
+  function getSelection(){
+    selected = $('touchscreenInput' + tstCurrentPage).value
+  }
 </script>
 <form id='anc_info_form' action="" method='post'>
 
