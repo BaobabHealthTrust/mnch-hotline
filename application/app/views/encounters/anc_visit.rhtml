@@ -1,14 +1,6 @@
 <script type="text/javascript" language="javascript">
 		tt_cancel_show = "/patients/show/<%= @patient.id %>";
 		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
-		
-        function set_ajaxURL_for_suggestions(value) {
-  	      url = "/encounters/reason_for_not_attending?reason=" + value ;
-          $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', url);
-          listSuggestions(tstCurrentPage);
-        }
-
-		
 </script>
 <style>
  
