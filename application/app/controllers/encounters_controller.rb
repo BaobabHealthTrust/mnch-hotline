@@ -519,7 +519,22 @@ class EncountersController < ApplicationController
          ['Follow-up on previous treatment', 'FOLLOW-UP ON PREVIOUS TREATMENT'],
          ['No health center or Hospital referral', 'NO HEALTH CENTER OR HOSPITAL REFERRAL'],
          ['Other', 'OTHER']
-      ]
+      ],
+      
+      'reason_for_not_attending_anc' => [
+         ['',''],
+         ['Clinic Too Far','Clinic Too Far'],
+         ['No time to go','No time to go'],
+         ['Poor care at clinic','Poor care at clinic'],
+         ['Too early in pregnancy','Too early in pregnancy'],
+         ['Did not know I should go','Did not know I should go'],
+         ['HSA unable to visit client','HSA unable to visit client'],
+         ['HSA cannot find client','HSA cannot find client'],
+         ['Client died','Client died'],
+         ['Client miscarried','Client miscarried'],
+         ['Client delivered','Client delivered'],
+         ['Client moved','Client moved']
+       ] 
     }
   end
 
