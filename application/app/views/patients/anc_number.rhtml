@@ -4,7 +4,31 @@
 </style>
 <script type="text/javascript">
   var tt_cancel_destination = "/patients/show/<%= params[:patient_id] %>";
+  
+  function checkIfNumberExists(){
+    anc_number = $('touchscreenInput' + tstCurrentPage).value
+    jQuery.ajax({
+      type: "POST",
+      url: "/patients/check_if_number_exists",
+      data: "patient_id=<%=params[:patient_id] %>&anc_number=" + anc_number,
+      success: function(response){
+        if (response == 'okay'){
+          gotoNextPage();
+        }
+        else{
+          showMessage("The ANC connect ID you have entered is already occupied by other client.")
+        }
+      }
+    });
+  }
 
+  function setAttributes(){
+    nextButton = document.getElementById('nextButton');
+    nextButton.onmousedown = function(){
+      checkIfNumberExists();
+    }
+  }
+  
 </script>
 
 <% if params[:old_anc_number] %>
@@ -14,10 +38,11 @@
 <% end %>
 <form id='anc_number' action="anc_number" method='post'>
     <% options = {
-         :id          => "anc_number",
+         :id          => "anc_connect_number",
          :helpText    => "#{action} ANC Connect ID",
          :field_type => 'number',
-         :allowFreeText => true
+         :allowFreeText => true,
+         :tt_onLoad => "setAttributes();"
        }
     %>
 
