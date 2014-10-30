@@ -1,0 +1,46 @@
+<script type="text/javascript" language="javascript">
+		tt_cancel_show = "/patients/show/<%= @patient.id %>";
+		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+</script>
+<style>
+ 
+</style>
+
+<% form_tag :controller => "encounters", :action => "create" do |f| %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "BIRTH PLAN" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%session_date = session[:datetime] || Time.now() %>
+	
+  <%= touch_select_tag nil, @patient, options_for_select([' ', 'Yes', 'No']),
+		{:id => "birth_plan",
+		 :helptext => "Birth plan?" } %>
+  
+  <% options = {
+    :id           => "delivery_location",
+    :helptext     => "Planned Delivery Location?",
+    :tt_onUnLoad  => "$('delivery_location_value_coded_or_text').value = $('delivery_location').value",
+    :condition    => "$('birth_plan').value == 'Yes'"
+	} %>
+
+  <%= select_tag("delivery_location", options_for_select(@health_facilities, @encounter_answers[:health_facility_name]),options)%>
+  <%= hidden_field_tag("observations[][concept_name]",        "DELIVERY LOCATION", options) %>
+  <%= hidden_field_tag("observations[][value_coded_or_text]", nil, {:id => 'delivery_location_value_coded_or_text'}) %>
+  <%= hidden_field_tag("observations[][patient_id]",          @patient.id) %>
+  <%= hidden_field_tag("observations[][obs_datetime]",        DateTime.now()) %>
+
+  
+  <%= touch_text_field_tag "GO TO HOSPITAL DATE", @patient,'' ,
+        { :id => "go_to_hospital_date",
+          :field_type => "date",
+          :helptext => "Go to hospital date?",
+          :condition => "$('birth_plan').value == 'Yes'"} %>
+             	 	  
+  <%unless @encounter_id.nil?%>
+    <%= hidden_field_tag("encounter_id",  @encounter_id) %>
+    <%= hidden_field_tag("editing",       true) %>
+  <%end%>
+
+	<%= submit_tag 'Finish' %>
+<% end %>
