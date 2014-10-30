@@ -17,3 +17,4 @@ Version 3 beta
 		Added registered for tips and reminders to the list of outcomes
 		Added an option for a secondary outcome
          --Cut off from the previous version
+	--Cut off from the previous version
