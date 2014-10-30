@@ -406,22 +406,22 @@ class PatientsController < ApplicationController
 
   def anc_info
     @options = [
-                  ["ANC"],
-                  ["Birth Plan"],
+                  ["ANC", "anc_visit"],
+                  ["Birth Plan", "birth_plan"],
                   ["Delivery"]
               ]
     if (request.method == :post)
         anc_update_encs = params[:anc_update_encs].sort
         encounters_to_update = []
         anc_update_encs.each do |enc|
-          enc_name = enc.split().join('_').downcase.to_s + '' + '_update'
+          enc_name = enc.split().join('_').downcase.to_s + '_update'
           session[:"#{enc_name}"] = true
-          encounters_to_update << enc_name
+          encounters_to_update << [enc_name, enc.split().join('_').downcase.to_s]
         end
  
-        encounter_name = encounters_to_update.first
+        encounter_name = encounters_to_update.first[1]
         session[:"#{encounter_name}"] = false
-        redirect_to("/encounters/new/#{encounter_name}&patient_id=#{params[:patient_id]}")
+        redirect_to("/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}")
     end
   end
   

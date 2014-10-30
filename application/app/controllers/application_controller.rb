@@ -48,14 +48,14 @@ class ApplicationController < ActionController::Base
       return "/patients/anc_connect?patient_id=#{patient.patient_id.to_s}"
     end
 
-    if (session[:anc_update])
-      session.delete(:anc_update)
-      return "/encounters/new/anc_update?patient_id=#{patient.patient_id.to_s}"
+    if (session[:anc_visit_update])
+      session.delete(:anc_visit_update)
+      return "/encounters/new/anc_visit?patient_id=#{patient.patient_id.to_s}"
     end
 
     if (session[:birth_plan_update])
       session.delete(:birth_plan_update)
-      return "/encounters/new/birth_plan_update?patient_id=#{patient.patient_id.to_s}"
+      return "/encounters/new/birth_plan?patient_id=#{patient.patient_id.to_s}"
     end
 
     if (session[:delivery_update])
