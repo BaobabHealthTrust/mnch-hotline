@@ -409,11 +409,17 @@ class PatientsController < ApplicationController
     anc_number = params[:anc_number]
     occupied_anc_number = PatientIdentifier.find(:last, :conditions => ["identifier_type =? AND
           identifier =?", anc_identifier_type.id, anc_number])
+
     if occupied_anc_number.blank?
-      render :text => "okay" and return
+      render :text => "okay" and return #This anc number is okay. You can continue saving it.
     else
-      render :text => "cancel" and return
+        if (occupied_anc_number.patient_id == params[:patient_id])
+          render :text => "okay" and return #The same patient having that anc_number so its okay with that
+        else
+          render :text => "cancel" and return #Do not continue saving. Someone is owning it.
+        end
     end
+    
   end
 private
   
