@@ -13,7 +13,7 @@
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 	<%session_date = session[:datetime] || Time.now() %>
 	
-  <%= touch_select_tag nil, @patient, options_for_select([' ', 'Yes', 'No']),
+  <%= touch_select_tag "BIRTH PLAN", @patient, options_for_select([' ', 'Yes', 'No']),
 		{:id => "birth_plan",
 		 :helptext => "Birth plan?" } %>
   
@@ -36,6 +36,7 @@
           :field_type => "date",
           :helptext => "Go to hospital date?",
           :condition => "$('birth_plan').value == 'Yes'"} %>
+   
              	 	  
   <%unless @encounter_id.nil?%>
     <%= hidden_field_tag("encounter_id",  @encounter_id) %>
