@@ -30,6 +30,17 @@ class Person < ActiveRecord::Base
     "#{self.names.first.given_name} #{self.names.first.family_name}".titleize rescue nil
   end  
 
+  def name_plus_nickname
+      given_name = self.names.last.given_name
+      family_name = self.names.last.family_name
+      nick_name = self.names.last.family_name_prefix
+      if (given_name.blank?)
+        return "(#{nick_name}) #{family_name}" unless nick_name.blank?
+      end
+      return "#{given_name} #{family_name}" if nick_name.blank?
+      return "#{given_name} (#{nick_name}) #{family_name}" unless nick_name.blank?
+  end
+  
   def address
     "#{self.addresses.first.city_village}" rescue nil
   end 
@@ -151,6 +162,13 @@ class Person < ActiveRecord::Base
     end
   end
 
+  def self.search_by_anc_id(identifier)
+    anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
+    patient_identifier = PatientIdentifier.find(:last, :conditions => ["identifier_type =? AND
+          identifier =?", anc_identifier_type.id, identifier])
+    return patient_identifier
+  end
+  
   def self.search(params)
     people = Person.search_by_identifier(params[:identifier]) rescue nil
 

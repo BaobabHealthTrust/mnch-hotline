@@ -491,6 +491,7 @@ class EncountersController < ApplicationController
          ['Given advice', 'GIVEN ADVICE'],
          ['Nurse consultation', 'NURSE CONSULTATION'],
          ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS']
+         ['Referral to emergency transport','REFERRAL TO EMERGENCY TRANSPORT' ],
          ['Other','OTHER' ] #'REGISTERED FOR TIPS AND REMINDERS']
       ],
       'child_symptoms_greater_zero_outcome' => [
@@ -500,6 +501,7 @@ class EncountersController < ApplicationController
          ['Given advice', 'GIVEN ADVICE'],
          ['Nurse consultation', 'NURSE CONSULTATION'],
          ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS']
+         ['Referral to emergency transport','REFERRAL TO EMERGENCY TRANSPORT' ],
          ['Other','OTHER' ] #'REGISTERED FOR TIPS AND REMINDERS']
       ],
       'general_outcome' => [
@@ -508,7 +510,8 @@ class EncountersController < ApplicationController
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
          ['Hospital', 'HOSPITAL'],
          ['Nurse consultation', 'NURSE CONSULTATION'],
-         ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS']
+         ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS'],
+         ['Referral to emergency transport','REFERRAL TO EMERGENCY TRANSPORT' ],
          ['Other','OTHER' ]
       ],
       'referral_reasons' => [
