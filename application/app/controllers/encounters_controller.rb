@@ -526,7 +526,7 @@ class EncountersController < ApplicationController
       
       'reason_for_not_attending_anc' => [
          ['',''],
-         ['Clinic Too Far','Clinic Too Far'],
+         ['Clinic too far','Clinic too far'],
          ['No time to go','No time to go'],
          ['Poor care at clinic','Poor care at clinic'],
          ['Too early in pregnancy','Too early in pregnancy'],
@@ -537,7 +537,18 @@ class EncountersController < ApplicationController
          ['Client miscarried','Client miscarried'],
          ['Client delivered','Client delivered'],
          ['Client moved','Client moved']
-       ] 
+       ],
+       
+      'reason_for_not_visiting_anc_client' => [
+         ['',''],
+         ['HSA too busy','HSA too busy'],
+         ['HSA Cannot find client','HSA Cannot find client'],
+         ['Client moved','Client moved'],
+         ['Client miscarried','Client miscarried'],
+         ['Client delivered','Client delivered'],
+         ['Client died','Client died'],
+         ['Other','Other'] 
+       ]   
     }
   end
 
