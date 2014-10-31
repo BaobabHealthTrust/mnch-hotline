@@ -2,6 +2,9 @@ class PatientsController < ApplicationController
   before_filter :find_patient, :except => [:void]
 
   def show
+    #session.delete(:birth_plan_update)
+    #session.delete(:anc_visit_update)
+    #raise session.to_yaml
     #get the pregnancy status for the particular female patient and display
     #either expected due date or delivery date. as for the others, leave it blank
     @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
@@ -414,13 +417,14 @@ class PatientsController < ApplicationController
         anc_update_encs = params[:anc_update_encs].sort
         encounters_to_update = []
         anc_update_encs.each do |enc|
-          enc_name = enc.split().join('_').downcase.to_s + '_update'
-          session[:"#{enc_name}"] = true
-          encounters_to_update << [enc_name, enc.split().join('_').downcase.to_s]
+          enc_to_update = enc.split().join('_').downcase.to_s + '_update'
+          enc_name = enc.split().join('_').downcase.to_s
+          session[:"#{enc_to_update}"] = true
+          encounters_to_update << [enc_name]
         end
- 
-        encounter_name = encounters_to_update.first[1]
-        session[:"#{encounter_name}"] = false
+        encounter_name = encounters_to_update.first
+        encounter = "#{encounter_name.to_s + '_update'}"
+        session.delete(:"#{encounter}")
         redirect_to("/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}")
     end
   end
