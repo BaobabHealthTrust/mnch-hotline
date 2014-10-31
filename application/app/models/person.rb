@@ -151,6 +151,13 @@ class Person < ActiveRecord::Base
     end
   end
 
+  def self.search_by_anc_id(identifier)
+    anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
+    patient_identifier = PatientIdentifier.find(:last, :conditions => ["identifier_type =? AND
+          identifier =?", anc_identifier_type.id, identifier])
+    return patient_identifier
+  end
+  
   def self.search(params)
     people = Person.search_by_identifier(params[:identifier]) rescue nil
 

@@ -1,0 +1,22 @@
+<%= javascript_include_tag "prototype" %>
+
+<script type="text/javascript">
+  var tt_cancel_destination = "/clinic/home"
+</script>
+
+<style>
+
+    #date,#star,#abc,#slash,#percent,#comma,#minus,#plus,#decimal, #char, #Unknown {
+      display:none;
+    }
+
+</style>
+
+<form method = 'post' action = 'search_by_anc_id'>
+   <%= text_field_tag :identifier, nil ,
+        :id =>'anc_id',
+        :field_type => 'number' ,
+        :helpText => "Enter patient\'s ANC connect ID",
+        :validationRule => "^\\d{4}$",
+        :validationMessage => "You must enter a valid number" %>
+</form> 
