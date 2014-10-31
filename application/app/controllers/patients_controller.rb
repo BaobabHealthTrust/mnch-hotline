@@ -32,6 +32,9 @@ class PatientsController < ApplicationController
     anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
     @anc_connect_id = @patient.patient_identifiers.find(:last, :conditions => ["identifier_type =?",
                       anc_identifier_type.id]).identifier rescue nil
+    program_id = Program.find_by_name("ANC Connect Program").program_id
+    @patient_anc_program = PatientProgram.find(:last, :conditions => ["patient_id =? AND
+                 program_id=?", @patient.id, program_id])
    #added this to ensure that we are able to void the encounters
     void_encounter if (params[:void] && params[:void] == 'true')
     render :layout => 'clinic'
