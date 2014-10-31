@@ -41,6 +41,8 @@
          :id          => "anc_connect_number",
          :helpText    => "#{action} ANC Connect ID",
          :field_type => 'number',
+         :validationRule => "^\\d{4}$",
+          :validationMessage => "You must enter a valid number(four digits)",
          :allowFreeText => true,
          :tt_onLoad => "setAttributes();"
        }
