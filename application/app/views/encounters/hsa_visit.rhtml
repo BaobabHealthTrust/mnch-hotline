@@ -17,21 +17,17 @@
 		{:id => "hsa_visit",
 		 :helptext => "Visited #{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " +  "in last two weeks?" } %>
   
-  
-  
- 
-             
+
    <%= touch_select_tag "REASON FOR NOT VISITING ANC CLIENT", @patient, options_for_select(@select_options['reason_for_not_visiting_anc_client']),
 		{	:id => "reason_for_not_visiting_anc_client",
-		    :condition => "$('hsa_vist').value == 'No'",
+		    :condition => "$('hsa_visit').value == 'No'",
 		 	:helpText => "Why not visited client?",
 		 	:multiple => 'false'} %>
-		 	
-   	 	  
+		 		 	  
   <%unless @encounter_id.nil?%>
     <%= hidden_field_tag("encounter_id",  @encounter_id) %>
     <%= hidden_field_tag("editing",       true) %>
   <%end%>
-
+  
 	<%= submit_tag 'Finish' %>
 <% end %>
