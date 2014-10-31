@@ -1,0 +1,37 @@
+<script type="text/javascript" language="javascript">
+		tt_cancel_show = "/patients/show/<%= @patient.id %>";
+		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+</script>
+<style>
+ 
+</style>
+
+<% form_tag :controller => "encounters", :action => "create" do |f| %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "HSA VISIT" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%session_date = session[:datetime] || Time.now() %>
+	
+  <%= touch_select_tag "HSA VISIT", @patient, options_for_select([' ', 'Yes', 'No']),
+		{:id => "hsa_visit",
+		 :helptext => "Visited #{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " +  "in last two weeks?" } %>
+  
+  
+  
+ 
+             
+   <%= touch_select_tag "REASON FOR NOT VISITING ANC CLIENT", @patient, options_for_select(@select_options['reason_for_not_visiting_anc_client']),
+		{	:id => "reason_for_not_visiting_anc_client",
+		    :condition => "$('hsa_vist').value == 'No'",
+		 	:helpText => "Why not visited client?",
+		 	:multiple => 'false'} %>
+		 	
+   	 	  
+  <%unless @encounter_id.nil?%>
+    <%= hidden_field_tag("encounter_id",  @encounter_id) %>
+    <%= hidden_field_tag("editing",       true) %>
+  <%end%>
+
+	<%= submit_tag 'Finish' %>
+<% end %>
