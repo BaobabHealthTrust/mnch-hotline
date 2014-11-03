@@ -148,7 +148,11 @@ class Person < ActiveRecord::Base
   def self.search_by_identifier(identifier)
     #Added this check to differenciate between national_id and subscribers
     #TODO to be improved
-    if identifier.length >= 13
+    if (identifier.length == 4)
+      anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
+      return PatientIdentifier.find(:all, :conditions => ["identifier_type =? AND
+            identifier =?", anc_identifier_type.id, identifier]).map{|id| id.patient.person}
+    elsif identifier.length >= 13
       PatientIdentifier.find_all_by_identifier(identifier).map{|id| id.patient.person} unless identifier.blank? rescue nil
     else
       all_subcribers_with_this_number = []
