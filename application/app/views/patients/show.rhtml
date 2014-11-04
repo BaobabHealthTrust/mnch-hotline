@@ -108,13 +108,14 @@
   <div id="patient_card">
     <div id="ivr_access_code" value="<%= @patient.ivr_access_code rescue '' %>">IVR Access Code</div>
 
-    <% unless @anc_connect_id.blank? %>
-
-      <div id="anc_connect_number" value="<span onclick= 'gotoANCnumber(<%= @anc_connect_id%>);' class='anc_connect_button'><%=@anc_connect_id%></span>">ANC Connect ID</div>
-    <% else %>
-       <div id="anc_connect_number" value="<span onclick= 'gotoANCnumber()' class='new_anc_connect_button'>New ANC ID</span>">ANC Connect ID</div>
+    <% if @patient.person.gender.match(/F/i) %>
+      <% unless @anc_connect_id.blank? %>
+        <div id="anc_connect_number" value="<span onclick= 'gotoANCnumber(<%= @anc_connect_id%>);' class='anc_connect_button'><%=@anc_connect_id%></span>">ANC Connect ID</div>
+      <% else %>
+         <div id="anc_connect_number" value="<span onclick= 'gotoANCnumber()' class='new_anc_connect_button'>New ANC ID</span>">ANC Connect ID</div>
+      <% end %>
     <% end %>
-
+         
     <% if @status.upcase == 'DELIVERED' %>
         <div id="date_delivered" value="<%=@date%>">Date Delivered</div>
     <% end %>
@@ -153,14 +154,24 @@
       <%end%>
       <option value='/encounters/new/outcome?patient_id=<%=@patient.id%>'>Outcome</option>
       <option value='/clinic/schedules?patient_id=<%=@patient.id%>&source_url=patient_dashboard'>Clinic Schedules</option>
-      <option value='/encounters/new/tips_and_reminders?patient_id=<%=@patient.id%>'>Tips and Reminders</option>
-      <option value='/encounters/recent_tip_and_reminder_program?patient_id=<%=@patient.id%>'>Edit Reminders</option>
-      <option value='/patients/demographics?patient_id=<%=@patient.id%>'>Edit Demograghics</option>    
-      <% if @patient_anc_program.blank? %>
-          <option value='/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>&anc_connect_workflow_start=true'>ANC connect</option>
+
+      <% if @tips_and_reminders_enrolled_in.blank? %>
+        <option value='/encounters/new/tips_and_reminders?patient_id=<%=@patient.id%>'>Tips and Reminders</option>
       <% else %>
-          <option value='/patients/anc_info?patient_id=<%=@patient.id%>'>ANC info</option>
+        <option value='/encounters/recent_tip_and_reminder_program?patient_id=<%=@patient.id%>'>Edit Reminders</option>
       <% end %>
+        
+      <option value='/patients/demographics?patient_id=<%=@patient.id%>'>Edit Demographics</option>
+
+      <% if @patient.person.gender.match(/F/i) %>
+        <% if @patient_anc_program.blank? %>
+            <option value='/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>&anc_connect_workflow_start=true'>ANC connect</option>
+        <% else %>
+            <option value='/encounters/recent_anc_connect?patient_id=<%=@patient.id%>'>Edit ANC connect</option>
+            <option value='/patients/anc_info?patient_id=<%=@patient.id%>'>ANC info</option>
+        <% end %>
+      <% end %>
+            
       <option value='/clinic/call?task=next'>Next Client</option>
     <% else %>
       <option value='/encounters/recent_tip_and_reminder_program?patient_id=<%=@patient.id%>'>Edit Reminders</option>

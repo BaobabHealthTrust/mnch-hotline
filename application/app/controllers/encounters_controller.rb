@@ -330,6 +330,72 @@ class EncountersController < ApplicationController
     render :layout => true
   end
 
+  def recent_anc_connect
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    attribute_type_id = PersonAttributeType.find_by_name("Cell Phone Number").id rescue nil
+    
+    @cellphone_number = PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND
+      person_id = ?", attribute_type_id, @patient.id]).value rescue nil
+
+    @nick_name = PersonName.find(:last, :conditions => ["person_id =?", @patient.id]).family_name_prefix rescue nil
+  end
+
+  def edit_pregnacy_encounter
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    pregnancy_observations = Encounter.find(:last, :conditions => ["patient_id = ? AND
+      encounter_type = ? AND voided = 0", @patient.id,
+      EncounterType.find_by_name('PREGNANCY STATUS').id]).observations rescue nil
+    @pregnancy_status = {}
+
+    unless pregnancy_observations.blank?
+      pregnancy_observations.each do |observation|
+        if observation.concept_id == Concept.find_by_name("PREGNANCY STATUS").id
+          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
+          @pregnancy_status[:pregnancy_status] = [obs_value, obs_value.to_s.upcase]
+        end
+
+        if observation.concept_id == Concept.find_by_name("PREGNANCY DUE DATE").id
+          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
+          @pregnancy_status[:pregnancy_due_date] = [obs_value, obs_value.to_s.upcase]
+        end
+        
+        if observation.concept_id == Concept.find_by_name("DELIVERY DATE").id
+          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
+          @pregnancy_status[:delivery_date] = [obs_value, obs_value.to_s.upcase]
+        end
+      end
+    end
+    
+  end
+
+  def anc_visit_pregnacy_encounter
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    anc_visit_observations = Encounter.find(:last, :conditions => ["patient_id = ? AND
+      encounter_type = ? AND voided = 0", @patient.id,
+      EncounterType.find_by_name('ANC VISIT').id]).observations rescue nil
+    @anc_visit = {}
+
+    unless anc_visit_observations.blank?
+      anc_visit_observations.each do |observation|
+        if observation.concept_id == Concept.find_by_name("Antenatal clinic patient appointment").id
+          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
+          @anc_visit[:appointment] = [obs_value, obs_value.to_s.upcase]
+        end
+
+        if observation.concept_id == Concept.find_by_name("Last anc visit date").id
+          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
+          @anc_visit[:last_visit_date] = [obs_value, obs_value.to_s.upcase]
+        end
+
+        if observation.concept_id == Concept.find_by_name("Next anc visit date").id
+          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
+          @anc_visit[:next_visit_date] = [obs_value, obs_value.to_s.upcase]
+        end
+      end
+    end
+
+  end
+
   def observations
     # We could eventually include more here, maybe using a scope with includes
     @encounter = Encounter.find(params[:id], :include => [:observations])
