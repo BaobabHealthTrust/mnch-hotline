@@ -644,7 +644,7 @@ class EncountersController < ApplicationController
             if value.upcase == "CLIENT MISCARRIED" || value.upcase == "CLIENT DELIVERED"
               if patient.pregnancy_status.first.upcase != 'DELIVERED' || patient.pregnancy_status.first.upcase != 'MISCARRIED'
                 observation[:concept_name] = "PREGNANCY STATUS"
-                pregnancy_status = Hash[*select_options['pregnancy_status'].flatten]["Delivered"].inspect
+                pregnancy_status = Hash[*select_options['pregnancy_status'].flatten]
                 case value.upcase
                   when "CLIENT MISCARRIED"
                     observation[:value_coded_or_text] = pregnancy_status["Miscarried"]
