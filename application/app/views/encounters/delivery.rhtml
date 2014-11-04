@@ -31,7 +31,6 @@
 		 
    <%= touch_select_tag "HEALTH FACILITY NAME", @patient, options_for_select(@health_facilities, @encounter_answers[:health_facility_name]),
 		{:id => "health_facility",
-		 :multiple => 'false',
 		 :helptext => "Facility name?",
 		 :condition => "$('delivered').value == 'Yes' && $('delivery_location').value == 'Facility'" } %>		 
  
