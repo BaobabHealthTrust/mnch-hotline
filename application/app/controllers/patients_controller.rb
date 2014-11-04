@@ -55,7 +55,11 @@ class PatientsController < ApplicationController
                     "CHILD HEALTH SYMPTOMS"     => '/encounters/new/child_symptoms?patient_id=',
                     "MATERNAL HEALTH SYMPTOMS"  => '/encounters/new/female_symptoms?patient_id=',
                     "UPDATE OUTCOME"            => '/encounters/new/outcome?patient_id=',
-                    "TIPS AND REMINDERS"        => '/encounters/new/tips_and_reminders?patient_id='
+                    "TIPS AND REMINDERS"        => '/encounters/new/tips_and_reminders?patient_id=',
+                    "ANC VISIT"                 => '/encounters/new/anc_visit?patient_id=',
+                    "BIRTH PLAN"                => '/encounters/new/birth_plan?patient_id=',
+                    "BABY DELIVERY"             => '/encounters/new/delivery?patient_id=',
+                    "HSA VISIT"                 => '/encounters/new/hsa_visit?patient_id='
                   }
 
     @prescriptions = @patient.orders.unfinished.prescriptions.all

@@ -1,7 +1,6 @@
 class EncountersController < ApplicationController
 
   def create
-  #raise params.to_yaml
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
     # raise params.to_yaml
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
@@ -136,6 +135,18 @@ class EncountersController < ApplicationController
     if (encounter && encounter.name == "UPDATE OUTCOME" && params["select_outcome"] == "REFERRED TO A HEALTH CENTRE")
       session[:outcome_complete]  = true
       session[:health_facility]   = params["health_center"]
+    end
+  
+    if params['encounter']['encounter_type_name'] == 'HSA VISIT'
+
+      if params[:observations][0]['concept_name'] == 'HSA VISIT'
+        unless params[:observations][0]['value_coded'].blank?
+          yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
+          if yes_concept == 'YES'
+            redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
+          end
+        end
+      end
     end
 
     # Go to the next task in the workflow (or dashboard)
@@ -690,6 +701,28 @@ class EncountersController < ApplicationController
           observation[:value_coded_or_text] = value
           if observation[:concept_name].humanize == "Tests ordered"
             observation[:accession_number] = Observation.new_accession_number 
+          end
+        
+          if observation[:concept_name] == "REASON FOR NOT ATTENDING ANC" || observation[:concept_name] == "REASON FOR NOT VISITING ANC CLIENT"     
+            reason = observation[:concept_name]
+            patient = Patient.find(params['encounter']['patient_id'])
+            
+            if value.upcase == "CLIENT MISCARRIED" || value.upcase == "CLIENT DELIVERED"
+              if patient.pregnancy_status.first.upcase != 'DELIVERED' || patient.pregnancy_status.first.upcase != 'MISCARRIED'
+                observation[:concept_name] = "PREGNANCY STATUS"
+                pregnancy_status = Hash[*select_options['pregnancy_status'].flatten]
+                case value.upcase
+                  when "CLIENT MISCARRIED"
+                    observation[:value_coded_or_text] = pregnancy_status["Miscarried"]
+                  when "CLIENT DELIVERED"
+                    observation[:value_coded_or_text] = pregnancy_status["Delivered"] 
+                end
+                observation = update_observation_value(observation)
+                Observation.create(observation)
+                observation[:concept_name] = reason
+                observation[:value_coded_or_text] = value
+              end
+            end 
           end
 
           observation = update_observation_value(observation)
