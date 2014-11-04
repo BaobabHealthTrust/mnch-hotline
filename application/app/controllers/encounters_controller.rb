@@ -636,6 +636,28 @@ class EncountersController < ApplicationController
           if observation[:concept_name].humanize == "Tests ordered"
             observation[:accession_number] = Observation.new_accession_number 
           end
+        
+          if observation[:concept_name] == "REASON FOR NOT ATTENDING ANC" || observation[:concept_name] == "REASON FOR NOT VISITING ANC CLIENT"     
+            reason = observation[:concept_name]
+            patient = Patient.find(params['encounter']['patient_id'])
+            
+            if value.upcase == "CLIENT MISCARRIED" || value.upcase == "CLIENT DELIVERED"
+              if patient.pregnancy_status.first.upcase != 'DELIVERED' || patient.pregnancy_status.first.upcase != 'MISCARRIED'
+                observation[:concept_name] = "PREGNANCY STATUS"
+                pregnancy_status = Hash[*select_options['pregnancy_status'].flatten]["Delivered"].inspect
+                case value.upcase
+                  when "CLIENT MISCARRIED"
+                    observation[:value_coded_or_text] = pregnancy_status["Miscarried"]
+                  when "CLIENT DELIVERED"
+                    observation[:value_coded_or_text] = pregnancy_status["Delivered"] 
+                end
+                observation = update_observation_value(observation)
+                Observation.create(observation)
+                observation[:concept_name] = reason
+                observation[:value_coded_or_text] = value
+              end
+            end 
+          end
 
           observation = update_observation_value(observation)
 
