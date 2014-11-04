@@ -27,7 +27,8 @@
           :field_type => "date",
           :helptext => "Go to hospital date?",
           :condition => "$('birth_plan').value == 'Yes'",
-          :absoluteMax => "#{session_date.strftime('%Y-%m-%d')}"} %>
+          :absoluteMin => "#{session_date.strftime('%Y-%m-%d')}",
+          :absoluteMax => "#{session_date.advance(:months => 10, :days => +1 ).strftime('%Y-%m-%d')}"} %>
              	 	  
   <%unless @encounter_id.nil?%>
     <%= hidden_field_tag("encounter_id",  @encounter_id) %>
