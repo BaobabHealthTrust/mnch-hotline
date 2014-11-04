@@ -27,7 +27,23 @@
 </script>
 <style>
   .anc_connect_button{
-    min-width:30%;
+    opacity: 0.9;
+    border-radius: 7px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background: #3498db;;
+    font-size: 110%;
+    padding: 5px 60px 5px 60px;
+    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+    background-image: -o-linear-gradient(top, #3498db, #2980b9);
+    background-image: linear-gradient(to bottom, #3498db, #2980b9);
+    font-family: Georgia;
+    cursor: pointer;
+    color:white;
+  }
+
+  .new_anc_connect_button{
     opacity: 0.9;
     border-radius: 7px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
@@ -96,7 +112,7 @@
 
       <div id="anc_connect_number" value="<span onclick= 'gotoANCnumber(<%= @anc_connect_id%>);' class='anc_connect_button'><%=@anc_connect_id%></span>">ANC Connect ID</div>
     <% else %>
-       <div id="anc_connect_number" value="<span onclick= 'gotoANCnumber()' class='anc_connect_button'>New ANC ID</span>">ANC Connect ID</div>
+       <div id="anc_connect_number" value="<span onclick= 'gotoANCnumber()' class='new_anc_connect_button'>New ANC ID</span>">ANC Connect ID</div>
     <% end %>
 
     <% if @status.upcase == 'DELIVERED' %>

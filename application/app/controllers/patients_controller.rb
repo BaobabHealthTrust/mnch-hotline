@@ -441,7 +441,7 @@ class PatientsController < ApplicationController
     if occupied_anc_number.blank?
       render :text => "okay" and return #This anc number is okay. You can continue saving it.
     else
-        if (occupied_anc_number.patient_id == params[:patient_id])
+        if (occupied_anc_number.patient_id == params[:patient_id].to_i)
           render :text => "okay" and return #The same patient having that anc_number so its okay with that
         else
           render :text => "cancel" and return #Do not continue saving. Someone is owning it.
