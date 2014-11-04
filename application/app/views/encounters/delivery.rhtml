@@ -26,7 +26,6 @@
   
   <%= touch_select_tag "DELIVERY LOCATION", @patient, options_for_select([' ', 'Home', 'Facility','En route']),
 		{:id => "delivery_location",
-		 :multiple => 'false',
 		 :helptext => "Delivery Location?",
 		 :condition => "$('delivered').value == 'Yes'" } %>
 		 
