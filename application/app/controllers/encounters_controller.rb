@@ -547,7 +547,8 @@ class EncountersController < ApplicationController
          ['Client died','Client died'],
          ['Client miscarried','Client miscarried'],
          ['Client delivered','Client delivered'],
-         ['Client moved','Client moved']
+         ['Client moved','Client moved'],
+         ['Other','Other']
        ],
        
       'reason_for_not_visiting_anc_client' => [
