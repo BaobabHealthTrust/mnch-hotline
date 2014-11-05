@@ -229,6 +229,16 @@ class Encounter < ActiveRecord::Base
             )
     return previous_encounters
   end
+  
+  def self.get_previous_anc_visit_encounters(patient_id)
+    previous_anc_visits = self.all(
+              :conditions => ["encounter.encounter_type = ? and encounter.voided = ? and patient_id = ?",
+                  EncounterType.find_by_name('ANC VISIT').encounter_type_id, 0, patient_id],
+              :include => [:observations]
+            )
+
+   return previous_anc_visits
+  end
 
   def self.get_recent_calls(patient_id)
     recent_encounters = get_previous_encounters(patient_id)
