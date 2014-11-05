@@ -406,7 +406,6 @@ class EncountersController < ApplicationController
         end
       end
     end
-
   end
 
   def observations
