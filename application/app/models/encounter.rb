@@ -230,14 +230,23 @@ class Encounter < ActiveRecord::Base
     return previous_encounters
   end
   
-  def self.get_previous_anc_visit_encounters(patient_id)
+  def self.get_last_anc_visit_date(patient_id)
     previous_anc_visits = self.all(
               :conditions => ["encounter.encounter_type = ? and encounter.voided = ? and patient_id = ?",
                   EncounterType.find_by_name('ANC VISIT').encounter_type_id, 0, patient_id],
               :include => [:observations]
             )
-
-   return previous_anc_visits
+    last_anc_visit_concept_name = ConceptName.find_by_name("Next ANC Visit Date").name
+    anc_obs = {}
+    unless previous_anc_visits.blank?
+        previous_anc_visits.last.observations.each do |obs|
+          anc_obs[obs.concept.name] = obs.value_text
+        end
+        next_visit_date = anc_obs[last_anc_visit_concept_name]
+        return next_visit_date.blank? ? nil : next_visit_date
+    else
+       return nil
+    end
   end
 
   def self.get_recent_calls(patient_id)
