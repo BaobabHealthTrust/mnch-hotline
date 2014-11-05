@@ -162,7 +162,7 @@ class EncountersController < ApplicationController
     @phone_numbers = patient_reminders_phone_number(@patient)
     @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
     @last_anc_visit_date = Encounter.get_last_anc_visit_date(@patient.id)
-
+    @last_registration_date = Encounter.get_last_registration_date(@patient.id)
     @female_danger_signs = @patient.female_danger_signs(concept_set('danger sign'))
     @female_symptoms = @patient.female_symptoms(concept_set('health symptom'))
     pregnancy_status_details = @patient.pregnancy_status #rescue []

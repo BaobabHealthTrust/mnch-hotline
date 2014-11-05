@@ -18,6 +18,11 @@
 	   else
 	      visit_helptext = "Attended ANC since?"
 	   end
+	   next_anc_date = ''
+	   if @last_anc_visit_date.blank?
+	     next_anc_date = @last_registration_date.advance(:days => 7).strftime('%Y-%m-%d') if @last_registration_date
+	   end
+	  
 	%>
 	
   <%= touch_select_tag "ANC VISIT", @patient, options_for_select([' ', 'Yes', 'No']),
@@ -30,7 +35,7 @@
           :helptext => "#{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " +  "Last ANC Visit Date?",
           :condition => "$('anc_visit').value == 'Yes'"} %>
   
-  <%= touch_text_field_tag "NEXT ANC VISIT DATE", @patient,'' ,
+  <%= touch_text_field_tag "NEXT ANC VISIT DATE", @patient,next_anc_date ,
         { :id => "next_anc_visit_date",
           :field_type => "date",
           :helptext => "#{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " + "Next ANC Visit Date?",
