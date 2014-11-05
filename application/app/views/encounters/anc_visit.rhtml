@@ -1,0 +1,57 @@
+<script type="text/javascript" language="javascript">
+		tt_cancel_show = "/patients/show/<%= @patient.id %>";
+		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+</script>
+<style>
+ 
+</style>
+
+<% form_tag :controller => "encounters", :action => "create" do |f| %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "ANC VISIT" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%session_date = session[:datetime] || Time.now() %>
+	<% visit_helptext = nil
+	   unless @last_anc_visit_date.blank?
+	      visit_helptext = "Attended ANC since #{DateTime.parse(@last_anc_visit_date).strftime('%d-%b-%Y')}?"
+	   else
+	      visit_helptext = "Attended ANC since?"
+	   end
+	   next_anc_date = ''
+	   if @last_anc_visit_date.blank?
+	     next_anc_date = @last_registration_date.advance(:days => 7).strftime('%Y-%m-%d') if @last_registration_date
+	   end
+	  
+	%>
+	
+  <%= touch_select_tag "ANC VISIT", @patient, options_for_select([' ', 'Yes', 'No']),
+		{:id => "anc_visit",
+		 :helptext => "#{visit_helptext}" } %>
+  
+  <%= touch_text_field_tag "LAST ANC VISIT DATE", @patient,'' ,
+        { :id => "last_anc_visit_date",
+          :field_type => "date",
+          :helptext => "#{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " +  "Last ANC Visit Date?",
+          :condition => "$('anc_visit').value == 'Yes'"} %>
+  
+  <%= touch_text_field_tag "NEXT ANC VISIT DATE", @patient,next_anc_date ,
+        { :id => "next_anc_visit_date",
+          :field_type => "date",
+          :helptext => "#{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " + "Next ANC Visit Date?",
+          :condition => "$('anc_visit').value == 'Yes'"} %>
+             
+   <%= touch_select_tag "REASON FOR NOT ATTENDING ANC", @patient, options_for_select(@select_options['reason_for_not_attending_anc']),
+		{	:id => "reason_for_not_attending_anc",
+		    :condition => "$('anc_visit').value == 'No'",
+		 	:helpText => "Why not attend ANC?",
+		 	:tt_pageStyleClass => "NoKeyboard" } %>
+		 	
+   	 	  
+  <%unless @encounter_id.nil?%>
+    <%= hidden_field_tag("encounter_id",  @encounter_id) %>
+    <%= hidden_field_tag("editing",       true) %>
+  <%end%>
+
+	<%= submit_tag 'Finish' %>
+<% end %>

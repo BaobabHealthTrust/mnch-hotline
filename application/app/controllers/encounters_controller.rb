@@ -1,7 +1,6 @@
 class EncountersController < ApplicationController
 
   def create
-  #raise params.to_yaml
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
     # raise params.to_yaml
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
@@ -137,12 +136,24 @@ class EncountersController < ApplicationController
       session[:outcome_complete]  = true
       session[:health_facility]   = params["health_center"]
     end
+  
+    if params['encounter']['encounter_type_name'] == 'HSA VISIT'
+
+      if params[:observations][0]['concept_name'] == 'HSA VISIT'
+        unless params[:observations][0]['value_coded'].blank?
+          yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
+          if yes_concept == 'YES'
+            redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
+          end
+        end
+      end
+    end
 
     # Go to the next task in the workflow (or dashboard)
     redirect_to next_task(@patient) 
   end
 
-  def new
+  def new  
     @selected_value = []
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     @child_danger_signs = @patient.child_danger_signs(concept_set('danger sign'))
@@ -150,7 +161,8 @@ class EncountersController < ApplicationController
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
     @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
-
+    @last_anc_visit_date = Encounter.get_last_anc_visit_date(@patient.id)
+    @last_registration_date = Encounter.get_last_registration_date(@patient.id)
     @female_danger_signs = @patient.female_danger_signs(concept_set('danger sign'))
     @female_symptoms = @patient.female_symptoms(concept_set('health symptom'))
     pregnancy_status_details = @patient.pregnancy_status #rescue []
@@ -203,6 +215,10 @@ class EncountersController < ApplicationController
     @encounter_answers  = Encounter.retrieve_previous_encounter(@encounter_id) unless @encounter_id.nil?
      
     @tips_answer = {}
+
+    if (params[:anc_connect_workflow_start])
+      session[:anc_connect_workflow_start] = true
+    end
 
     redirect_to next_task(@patient) and return unless params[:encounter_type]
 
@@ -313,6 +329,84 @@ class EncountersController < ApplicationController
     #raise @tips_answer.to_yaml
 
     render :layout => true
+  end
+
+  def recent_anc_connect
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    attribute_type_id = PersonAttributeType.find_by_name("Cell Phone Number").id rescue nil
+    
+    @cellphone_number = PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND
+      person_id = ?", attribute_type_id, @patient.id]).value rescue nil
+
+    @nick_name = PersonName.find(:last, :conditions => ["person_id =?", @patient.id]).family_name_prefix rescue nil
+  end
+
+  def edit_pregnacy_encounter
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    pregnancy_observations = Encounter.find(:last, :conditions => ["patient_id = ? AND
+      encounter_type = ? AND voided = 0", @patient.id,
+      EncounterType.find_by_name('PREGNANCY STATUS').id]).observations rescue nil
+    @pregnancy_status = {}
+    @select_options = select_options
+    unless pregnancy_observations.blank?
+      pregnancy_observations.each do |observation|
+        if observation.concept_id == Concept.find_by_name("PREGNANCY STATUS").id
+          obs_value = observation.answer_string.squish
+          @pregnancy_status[:pregnancy_status] = [obs_value, obs_value.to_s.upcase]
+        end
+
+        if observation.concept_id == Concept.find_by_name("PREGNANCY DUE DATE").id
+          obs_value = observation.answer_string.squish.to_date rescue observation.answer_string.to_s
+          if (obs_value.class.name == "Date")
+            obs_value = obs_value.strftime("%Y-%m-%d")
+          end
+          @pregnancy_status[:pregnancy_due_date] = obs_value.to_s.upcase
+        end
+        
+        if observation.concept_id == Concept.find_by_name("DELIVERY DATE").id
+          obs_value = observation.answer_string.to_date rescue observation.answer_string
+          if (obs_value.class.name == "Date")
+            obs_value = obs_value.strftime("%Y-%m-%d")
+          end
+          @pregnancy_status[:delivery_date] = obs_value.to_s.upcase
+        end
+      end
+    end
+
+  end
+
+  def anc_visit_pregnacy_encounter
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    @select_options = select_options
+    anc_visit_observations = Encounter.find(:last, :conditions => ["patient_id = ? AND
+      encounter_type = ? AND voided = 0", @patient.id,
+      EncounterType.find_by_name('ANC VISIT').id]).observations rescue nil
+    @anc_visit = {}
+
+    unless anc_visit_observations.blank?
+      anc_visit_observations.each do |observation|
+        if observation.concept_id == Concept.find_by_name("Antenatal clinic patient appointment").id
+          obs_value = observation.answer_string.squish
+          @anc_visit[:appointment] = obs_value.to_s
+        end
+
+        if observation.concept_id == Concept.find_by_name("Last anc visit date").id
+          obs_value = observation.answer_string.squish.to_date rescue observation.answer_string.to_s
+          if (obs_value.class.name == "Date")
+            obs_value = obs_value.strftime("%Y-%m-%d")
+          end
+          @anc_visit[:last_visit_date] = obs_value.to_s.upcase
+        end
+
+        if observation.concept_id == Concept.find_by_name("Next anc visit date").id
+          obs_value = observation.answer_string.squish.to_date rescue observation.answer_string.to_s
+          if (obs_value.class.name == "Date")
+            obs_value = obs_value.strftime("%Y-%m-%d")
+          end
+          @anc_visit[:next_visit_date] = obs_value.to_s.upcase
+        end
+      end
+    end
   end
 
   def observations
@@ -487,6 +581,7 @@ class EncountersController < ApplicationController
          ['Given advice', 'GIVEN ADVICE'],
          ['Nurse consultation', 'NURSE CONSULTATION'],
          ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS']
+         ['Referral to emergency transport','REFERRAL TO EMERGENCY TRANSPORT' ],
          ['Other','OTHER' ] #'REGISTERED FOR TIPS AND REMINDERS']
       ],
       'child_symptoms_greater_zero_outcome' => [
@@ -496,6 +591,7 @@ class EncountersController < ApplicationController
          ['Given advice', 'GIVEN ADVICE'],
          ['Nurse consultation', 'NURSE CONSULTATION'],
          ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS']
+         ['Referral to emergency transport','REFERRAL TO EMERGENCY TRANSPORT' ],
          ['Other','OTHER' ] #'REGISTERED FOR TIPS AND REMINDERS']
       ],
       'general_outcome' => [
@@ -504,7 +600,8 @@ class EncountersController < ApplicationController
          ['Referred to a health centre', 'REFERRED TO A HEALTH CENTRE'],
          ['Hospital', 'HOSPITAL'],
          ['Nurse consultation', 'NURSE CONSULTATION'],
-         ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS']
+         ['Registered for Tips and reminders','REGISTERED FOR TIPS AND REMINDERS' ], #'REGISTERED FOR TIPS AND REMINDERS'],
+         ['Referral to emergency transport','REFERRAL TO EMERGENCY TRANSPORT' ],
          ['Other','OTHER' ]
       ],
       'referral_reasons' => [
@@ -515,7 +612,34 @@ class EncountersController < ApplicationController
          ['Follow-up on previous treatment', 'FOLLOW-UP ON PREVIOUS TREATMENT'],
          ['No health center or Hospital referral', 'NO HEALTH CENTER OR HOSPITAL REFERRAL'],
          ['Other', 'OTHER']
-      ]
+      ],
+      
+      'reason_for_not_attending_anc' => [
+         ['',''],
+         ['Clinic too far','Clinic too far'],
+         ['No time to go','No time to go'],
+         ['Poor care at clinic','Poor care at clinic'],
+         ['Too early in pregnancy','Too early in pregnancy'],
+         ['Did not know I should go','Did not know I should go'],
+         ['HSA unable to visit client','HSA unable to visit client'],
+         ['HSA cannot find client','HSA cannot find client'],
+         ['Client died','Client died'],
+         ['Client miscarried','Client miscarried'],
+         ['Client delivered','Client delivered'],
+         ['Client moved','Client moved'],
+         ['Other','Other']
+       ],
+       
+      'reason_for_not_visiting_anc_client' => [
+         ['',''],
+         ['HSA too busy','HSA too busy'],
+         ['HSA Cannot find client','HSA Cannot find client'],
+         ['Client moved','Client moved'],
+         ['Client miscarried','Client miscarried'],
+         ['Client delivered','Client delivered'],
+         ['Client died','Client died'],
+         ['Other','Other'] 
+       ]   
     }
   end
 
@@ -591,6 +715,28 @@ class EncountersController < ApplicationController
           observation[:value_coded_or_text] = value
           if observation[:concept_name].humanize == "Tests ordered"
             observation[:accession_number] = Observation.new_accession_number 
+          end
+        
+          if observation[:concept_name] == "REASON FOR NOT ATTENDING ANC" || observation[:concept_name] == "REASON FOR NOT VISITING ANC CLIENT"     
+            reason = observation[:concept_name]
+            patient = Patient.find(params['encounter']['patient_id'])
+            
+            if value.upcase == "CLIENT MISCARRIED" || value.upcase == "CLIENT DELIVERED"
+              if patient.pregnancy_status.first.upcase != 'DELIVERED' || patient.pregnancy_status.first.upcase != 'MISCARRIED'
+                observation[:concept_name] = "PREGNANCY STATUS"
+                pregnancy_status = Hash[*select_options['pregnancy_status'].flatten]
+                case value.upcase
+                  when "CLIENT MISCARRIED"
+                    observation[:value_coded_or_text] = pregnancy_status["Miscarried"]
+                  when "CLIENT DELIVERED"
+                    observation[:value_coded_or_text] = pregnancy_status["Delivered"] 
+                end
+                observation = update_observation_value(observation)
+                Observation.create(observation)
+                observation[:concept_name] = reason
+                observation[:value_coded_or_text] = value
+              end
+            end 
           end
 
           observation = update_observation_value(observation)

@@ -2,6 +2,9 @@ class PatientsController < ApplicationController
   before_filter :find_patient, :except => [:void]
 
   def show
+    #session.delete(:birth_plan_update)
+    #session.delete(:anc_visit_update)
+    #raise session.to_yaml
     #get the pregnancy status for the particular female patient and display
     #either expected due date or delivery date. as for the others, leave it blank
     @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
@@ -25,6 +28,13 @@ class PatientsController < ApplicationController
     @patient_needs_follow_up = FollowUp.get_follow_ups(session[:district]).map(&:patient_id).include? @patient.id
     #raise FollowUp.get_follow_ups.to_yaml
     session[:mnch_protocol_required] = false
+    session[:anc_connect_workflow_start] = false
+    anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
+    @anc_connect_id = @patient.patient_identifiers.find(:last, :conditions => ["identifier_type =?",
+                      anc_identifier_type.id]).identifier rescue nil
+    program_id = Program.find_by_name("ANC Connect Program").program_id
+    @patient_anc_program = PatientProgram.find(:last, :conditions => ["patient_id =? AND
+                 program_id=?", @patient.id, program_id])
    #added this to ensure that we are able to void the encounters
     void_encounter if (params[:void] && params[:void] == 'true')
     render :layout => 'clinic'
@@ -45,7 +55,11 @@ class PatientsController < ApplicationController
                     "CHILD HEALTH SYMPTOMS"     => '/encounters/new/child_symptoms?patient_id=',
                     "MATERNAL HEALTH SYMPTOMS"  => '/encounters/new/female_symptoms?patient_id=',
                     "UPDATE OUTCOME"            => '/encounters/new/outcome?patient_id=',
-                    "TIPS AND REMINDERS"        => '/encounters/new/tips_and_reminders?patient_id='
+                    "TIPS AND REMINDERS"        => '/encounters/new/tips_and_reminders?patient_id=',
+                    "ANC VISIT"                 => '/encounters/new/anc_visit?patient_id=',
+                    "BIRTH PLAN"                => '/encounters/new/birth_plan?patient_id=',
+                    "BABY DELIVERY"             => '/encounters/new/delivery?patient_id=',
+                    "HSA VISIT"                 => '/encounters/new/hsa_visit?patient_id='
                   }
 
     @prescriptions = @patient.orders.unfinished.prescriptions.all
@@ -347,6 +361,98 @@ class PatientsController < ApplicationController
     redirect_to :action => 'demographics', :patient_id => params['person_id'] and return
   end
 
+  def anc_connect
+    @program_id = Program.find_by_name("ANC Connect Program").program_id
+    @patient_program_id = PatientProgram.find(:last, :conditions => ["patient_id =? AND
+                 program_id=?", params[:patient_id], @program_id]).patient_program_id rescue nil
+
+    if (request.method == :post)
+      nick_name = params[:nick_name]
+      phone_number = params[:phone_number]
+      patient = Patient.find(params[:patient_id])
+      PersonName.create_nick_name(patient, nick_name)
+      PersonAttribute.create_attribute(patient, phone_number, "Cell Phone Number")
+      if (params[:anc_connect_program].match(/YES/i))
+        date_enrolled = params[:programs][0]['date_enrolled']
+        (params[:programs] || []).each do |program|
+          patient_program = PatientProgram.find(program[:patient_program_id]) unless program[:patient_program_id].blank?
+          unless (patient_program)
+            patient_program = patient.patient_programs.create(
+              :program_id => program[:program_id],
+              :date_enrolled => date_enrolled)
+          end
+
+          unless program[:states].blank?
+            program[:states][0]['start_date'] = date_enrolled
+          end
+          
+          (program[:states] || []).each {|state| patient_program.transition(state) }
+        end
+      end
+
+      redirect_to("/encounters/new/anc_visit?patient_id=#{params[:patient_id]}")
+    end
+  end
+
+  def anc_number
+    if (request.method == :post)
+      anc_number = params[:anc_number]
+      patient = Patient.find(params[:patient_id])
+      anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
+      old_anc_number = PatientIdentifier.find(:last, :conditions => ["patient_id =? AND identifier_type =? AND
+          identifier =?", params[:patient_id], anc_identifier_type.id, anc_number])
+      if old_anc_number.blank?
+        patient.patient_identifiers.create(
+          :identifier_type => anc_identifier_type.id,
+          :identifier => anc_number
+        )
+      else
+        old_anc_number.identifier = anc_number
+        old_anc_number.save!
+      end
+      redirect_to("/patients/show/#{params[:patient_id]}")
+    end
+  end
+
+  def anc_info
+    @options = [
+                  ["ANC", "anc_visit"],
+                  ["Birth Plan", "birth_plan"],
+                  ["Delivery"]
+              ]
+    if (request.method == :post)
+        anc_update_encs = params[:anc_update_encs].sort
+        encounters_to_update = []
+        anc_update_encs.each do |enc|
+          enc_to_update = enc.split().join('_').downcase.to_s + '_update'
+          enc_name = enc.split().join('_').downcase.to_s
+          session[:"#{enc_to_update}"] = true
+          encounters_to_update << [enc_name]
+        end
+        encounter_name = encounters_to_update.first
+        encounter = "#{encounter_name.to_s + '_update'}"
+        session.delete(:"#{encounter}")
+        redirect_to("/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}")
+    end
+  end
+  
+  def check_if_number_exists
+    anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
+    anc_number = params[:anc_number]
+    occupied_anc_number = PatientIdentifier.find(:last, :conditions => ["identifier_type =? AND
+          identifier =?", anc_identifier_type.id, anc_number])
+
+    if occupied_anc_number.blank?
+      render :text => "okay" and return #This anc number is okay. You can continue saving it.
+    else
+        if (occupied_anc_number.patient_id == params[:patient_id].to_i)
+          render :text => "okay" and return #The same patient having that anc_number so its okay with that
+        else
+          render :text => "cancel" and return #Do not continue saving. Someone is owning it.
+        end
+    end
+    
+  end
 private
   
   

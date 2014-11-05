@@ -5,14 +5,97 @@
     tt_cancel_destination = "/clinic";
   <% end %>
   tt_cancel_show = "/clinic?status=endcall";
-</script>
 
+  function addElementToParent(){
+    mainTopicContent = document.getElementById("mainTopicContent");
+    anc_connect_button =  document.getElementById("anc_connect_id");
+    if (anc_connect_button){
+      mainTopicContent.appendChild(anc_connect_button);
+    }
+  }
+  window.setTimeout("addElementToParent();", 50);
+
+  function gotoANCnumber(number){
+    if (number){
+      window.location = "/patients/anc_number?patient_id=<%= @patient.id %>&old_anc_number=" + number
+    }
+    else{
+      window.location = "/patients/anc_number?patient_id=<%= @patient.id %>"
+    }
+  }
+
+</script>
+<style>
+  .anc_connect_button{
+    opacity: 0.9;
+    border-radius: 7px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background: #3498db;;
+    font-size: 110%;
+    padding: 5px 60px 5px 60px;
+    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+    background-image: -o-linear-gradient(top, #3498db, #2980b9);
+    background-image: linear-gradient(to bottom, #3498db, #2980b9);
+    font-family: Georgia;
+    cursor: pointer;
+    color:white;
+  }
+
+  .new_anc_connect_button{
+    opacity: 0.9;
+    border-radius: 7px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background: #3498db;;
+    font-size: 110%;
+    padding: 5px 20px 5px 20px;
+    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+    background-image: -o-linear-gradient(top, #3498db, #2980b9);
+    background-image: linear-gradient(to bottom, #3498db, #2980b9);
+    font-family: Georgia;
+    cursor: pointer;
+    color:white;
+  }
+  
+  div{
+    -moz-user-select:none;
+  }
+
+  #anc_connect_id{
+    position: absolute;
+    z-index: 1000;
+    color:white;
+    left: 13%;
+    width: 200px;
+    top:26%;
+  }
+  
+  #anc_connect_id span{
+    min-width:30%;
+    opacity: 0.9;
+    border-radius: 7px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background: #3498db;;
+    font-size: 110%;
+    padding: 10px 40px 5px 40px;
+    background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+    background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+    background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+    background-image: -o-linear-gradient(top, #3498db, #2980b9);
+    background-image: linear-gradient(to bottom, #3498db, #2980b9);
+    font-family: Georgia;
+    cursor: pointer;
+}
+</style>
 
 <div id="dashboard">
 
   <div id="project_name"><%=version_without_date -%></div>
 
-  <div id="patient_name"><%= @patient.person.name -%></div>
+  <div id="patient_name"><%= @patient.person.name_plus_nickname-%></div>
   <div id="patient_gender"><%=@patient.person.formatted_gender -%></div>
   <%  if @patient.person.age <= 2 %>
       <div id="patient_age"><%= @patient.person.age_in_years_months rescue '' -%></div>
@@ -24,7 +107,15 @@
  
   <div id="patient_card">
     <div id="ivr_access_code" value="<%= @patient.ivr_access_code rescue '' %>">IVR Access Code</div>
-    
+
+    <% if @patient.person.gender.match(/F/i) %>
+      <% unless @anc_connect_id.blank? %>
+        <div id="anc_connect_number" value="<span onclick= 'gotoANCnumber(<%= @anc_connect_id%>);' class='anc_connect_button'><%=@anc_connect_id%></span>">ANC Connect ID</div>
+      <% else %>
+         <div id="anc_connect_number" value="<span onclick= 'gotoANCnumber()' class='new_anc_connect_button'>New ANC ID</span>">ANC Connect ID</div>
+      <% end %>
+    <% end %>
+         
     <% if @status.upcase == 'DELIVERED' %>
         <div id="date_delivered" value="<%=@date%>">Date Delivered</div>
     <% end %>
@@ -63,9 +154,24 @@
       <%end%>
       <option value='/encounters/new/outcome?patient_id=<%=@patient.id%>'>Outcome</option>
       <option value='/clinic/schedules?patient_id=<%=@patient.id%>&source_url=patient_dashboard'>Clinic Schedules</option>
-      <option value='/encounters/new/tips_and_reminders?patient_id=<%=@patient.id%>'>Tips and Reminders</option>
-      <option value='/encounters/recent_tip_and_reminder_program?patient_id=<%=@patient.id%>'>Edit Reminders</option>
-      <option value='/patients/demographics?patient_id=<%=@patient.id%>'>Edit Demograghics</option>
+
+      <% if @tips_and_reminders_enrolled_in.blank? %>
+        <option value='/encounters/new/tips_and_reminders?patient_id=<%=@patient.id%>'>Tips and Reminders</option>
+      <% else %>
+        <option value='/encounters/recent_tip_and_reminder_program?patient_id=<%=@patient.id%>'>Edit Reminders</option>
+      <% end %>
+        
+      <option value='/patients/demographics?patient_id=<%=@patient.id%>'>Edit Demographics</option>
+
+      <% if @patient.person.gender.match(/F/i) %>
+        <% if @patient_anc_program.blank? %>
+            <option value='/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>&anc_connect_workflow_start=true'>ANC connect</option>
+        <% else %>
+            <option value='/encounters/recent_anc_connect?patient_id=<%=@patient.id%>'>Edit ANC connect</option>
+            <option value='/patients/anc_info?patient_id=<%=@patient.id%>'>ANC info</option>
+        <% end %>
+      <% end %>
+            
       <option value='/clinic/call?task=next'>Next Client</option>
     <% else %>
       <option value='/encounters/recent_tip_and_reminder_program?patient_id=<%=@patient.id%>'>Edit Reminders</option>

@@ -1,0 +1,54 @@
+<style>
+  .anc_number #num , #plus, #apostrophe, #star,
+     #char, #abc, #date, #slash, #minus, #comma, #percent, #decimal, #Unknown { display:none; }
+</style>
+<script type="text/javascript">
+  var tt_cancel_destination = "/patients/show/<%= params[:patient_id] %>";
+  
+  function checkIfNumberExists(){
+    anc_number = $('touchscreenInput' + tstCurrentPage).value
+    jQuery.ajax({
+      type: "POST",
+      url: "/patients/check_if_number_exists",
+      data: "patient_id=<%=params[:patient_id] %>&anc_number=" + anc_number,
+      success: function(response){
+        if (response == 'okay'){
+          gotoNextPage();
+        }
+        else{
+          showMessage("The ANC connect ID you have entered is already occupied by another client.")
+        }
+      }
+    });
+  }
+
+  function setAttributes(){
+    nextButton = document.getElementById('nextButton');
+    nextButton.onmousedown = function(){
+      checkIfNumberExists();
+    }
+  }
+  
+</script>
+
+<% if params[:old_anc_number] %>
+  <% action = "Edit" %>
+<% else %>
+    <% action = "New" %>
+<% end %>
+<form id='anc_number' action="anc_number" method='post'>
+    <% options = {
+         :id          => "anc_connect_number",
+         :helpText    => "#{action} ANC Connect ID",
+         :field_type => 'number',
+         :validationRule => "^\\d{4}$",
+          :validationMessage => "You must enter a valid number(four digits)",
+         :allowFreeText => true,
+         :tt_onLoad => "setAttributes();"
+       }
+    %>
+
+    <%= text_field_tag "anc_number", params[:old_anc_number], options %>
+    <%= hidden_field_tag("patient_id", params[:patient_id]) %>
+    <%= submit_tag "Finish" %>
+</form>

@@ -1,0 +1,47 @@
+<style>
+  .anc_connect_phone_number #num , #plus, #apostrophe, #star,
+     #char, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+</style>
+<script type="text/javascript">
+  var tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+
+</script>
+
+
+<form id='anc_connect' action="" method='post'>
+
+      <%= select_tag "anc_connect_program", options_for_select(['', 'Yes', 'No']),
+        {:id => 'anc_connect',
+         :multiple => false,
+         :helpText => 'Enrol in ANC connect program'
+        } %>
+
+      <% options = {
+           :id          => "anc_connect_phone_number",
+           :helpText    => "Enter Phone Number",
+           :field_type => 'number',
+           :validationRule => "^0\\d{7}$|Unknown|Not Available|N\/A|^0\\d{9}$",
+           :validationMessage => "You must enter a valid number",
+           :allowFreeText => true
+         }
+      %>
+
+      <%= text_field_tag "phone_number", @personal_phone_number, options %>
+
+      <%= text_field_tag "nick_name", nil,
+        {
+           :id          => "nick_name",
+           :helpText    => "Enter nickname",
+           :allowFreeText => true
+        }
+     %>
+
+      <%= hidden_field_tag("programs[][patient_program_id]", @patient_program_id) %>
+      <%= hidden_field_tag("programs[][program_id]", @program_id)%>
+      <%= hidden_field_tag("programs[][location_id]", Location.current_health_center.id) %>
+      <%= hidden_field_tag("programs[][date_enrolled]", (session[:datetime] || Date.today) ) %>
+
+      <%= hidden_field_tag("programs[][states][][state]", "Patient enrolled") %>
+
+    <%= submit_tag "Finish" %>
+   </form>

@@ -38,7 +38,19 @@ class PeopleController < ApplicationController
     end
     @people = Person.search(params)    
   end
- 
+
+  def search_by_anc_id
+    identifier = params[:identifier]
+    patient_identifier = Person.search_by_anc_id(identifier)
+
+    unless patient_identifier.blank?
+      patient_id = patient_identifier.patient_id
+      redirect_to("/patients/show/#{patient_id}")
+    else
+      flash[:notice] = "No patient was found"
+      redirect_to("/people/find_by_anc_number")
+    end
+  end
   # This method is just to allow the select box to submit, we could probably do this better
   def select
     if params[:person].blank? || params[:person] == '0'

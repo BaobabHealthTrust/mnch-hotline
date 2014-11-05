@@ -1,0 +1,43 @@
+<script type="text/javascript" language="javascript">
+		tt_cancel_show = "/patients/show/<%= @patient.id %>";
+		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+</script>
+<style>
+ 
+</style>
+
+<% form_tag :controller => "encounters", :action => "create" do |f| %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "BABY DELIVERY" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%session_date = session[:datetime] || Time.now() %>
+	
+  <%= touch_select_tag "DELIVERED", @patient, options_for_select([' ', 'Yes', 'No']),
+		{:id => "delivered",
+		 :helptext => "Delivered baby yet?" } %>
+		 
+  
+  <%= touch_text_field_tag "DELIVERY DATE", @patient,'' ,
+        { :id => "delivery_date",
+          :field_type => "date",
+          :helptext => "Delivery Date?",
+          :condition => "$('delivered').value == 'Yes'"} %>		 
+  
+  <%= touch_select_tag "DELIVERY LOCATION", @patient, options_for_select([' ', 'Home', 'Facility','En route']),
+		{:id => "delivery_location",
+		 :helptext => "Delivery Location?",
+		 :condition => "$('delivered').value == 'Yes'" } %>
+		 
+   <%= touch_select_tag "HEALTH FACILITY NAME", @patient, options_for_select(@health_facilities, @encounter_answers[:health_facility_name]),
+		{:id => "health_facility",
+		 :helptext => "Facility name?",
+		 :condition => "$('delivered').value == 'Yes' && $('delivery_location').value == 'Facility'" } %>		 
+ 
+  <%unless @encounter_id.nil?%>
+    <%= hidden_field_tag("encounter_id",  @encounter_id) %>
+    <%= hidden_field_tag("editing",       true) %>
+  <%end%>
+
+	<%= submit_tag 'Finish' %>
+<% end %>
