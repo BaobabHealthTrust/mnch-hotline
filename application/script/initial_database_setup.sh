@@ -38,6 +38,9 @@ mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/drug_ingredient.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/pharmacy.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/drop_patient_start_date_function.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/create_patient_start_date_function.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/version_3_added_tables.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/openmrs_metadata_1_5.sql
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < script/version_3_scripts.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/data/${SITE}/${SITE}.sql
 mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/data/${SITE}/tasks.sql
 
