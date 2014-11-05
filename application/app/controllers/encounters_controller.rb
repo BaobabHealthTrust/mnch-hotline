@@ -153,7 +153,7 @@ class EncountersController < ApplicationController
     redirect_to next_task(@patient) 
   end
 
-  def new
+  def new  
     @selected_value = []
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     @child_danger_signs = @patient.child_danger_signs(concept_set('danger sign'))
@@ -161,6 +161,7 @@ class EncountersController < ApplicationController
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
     @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
+    @last_anc_visit_date = Encounter.get_last_anc_visit_date(@patient.id)
 
     @female_danger_signs = @patient.female_danger_signs(concept_set('danger sign'))
     @female_symptoms = @patient.female_symptoms(concept_set('health symptom'))
