@@ -1,0 +1,23 @@
+.DS_Store
+*.swp
+*.swo
+*.pid
+config/database.yml
+config/application.yml
+config/settings.yml
+notes
+doc
+development_structure.sql
+schema.rb
+*~
+mockups
+rerun.txt
+nbproject
+Gemfile.lock
+<<<<<<< HEAD
+tmp
+=======
+*.lock
+>>>>>>> prescription
+.ruby-version
+
