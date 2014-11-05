@@ -12,10 +12,17 @@
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 	<%session_date = session[:datetime] || Time.now() %>
+	<% visit_helptext = nil
+	   unless @last_anc_visit_date.blank?
+	      visit_helptext = "Attended ANC since #{DateTime.parse(@last_anc_visit_date).strftime('%d-%b-%Y')}?"
+	   else
+	      visit_helptext = "Attended ANC since?"
+	   end
+	%>
 	
   <%= touch_select_tag "ANC VISIT", @patient, options_for_select([' ', 'Yes', 'No']),
 		{:id => "anc_visit",
-		 :helptext => "Attended ANC since?" } %>
+		 :helptext => "#{visit_helptext}" } %>
   
   <%= touch_text_field_tag "LAST ANC VISIT DATE", @patient,'' ,
         { :id => "last_anc_visit_date",
@@ -33,7 +40,7 @@
 		{	:id => "reason_for_not_attending_anc",
 		    :condition => "$('anc_visit').value == 'No'",
 		 	:helpText => "Why not attend ANC?",
-		 	:tt_pageStyleClass => "NoKeyboard NoInput small" } %>
+		 	:tt_pageStyleClass => "NoKeyboard" } %>
 		 	
    	 	  
   <%unless @encounter_id.nil?%>
