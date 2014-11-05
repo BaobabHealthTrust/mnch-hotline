@@ -1,0 +1,36 @@
+<script type="text/javascript" language="javascript">
+		tt_cancel_show = "/patients/show/<%= @patient.id %>";
+		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+</script>
+<% #raise @pregnancy_status[:pregnancy_due_date].to_yaml%>
+<% form_tag :controller => "encounters", :action => "create" do |f| %>
+	<%= hidden_field_tag "encounter[encounter_type_name]", "PREGNANCY STATUS" %>
+	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
+	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
+	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%session_date = session[:datetime] || Time.now() %>
+
+  <%= touch_select_tag "PREGNANCY STATUS", @patient, options_for_select(@select_options['pregnancy_status'], @pregnancy_status[:pregnancy_status]),
+		{:id => "pregnancy_status",
+		 :helptext => "Pregnancy Status" } %>
+    <%= touch_text_field_tag "EXPECTED DUE DATE", @patient, @pregnancy_status[:pregnancy_due_date],
+        { :id => "expected_due_date",
+          :field_type => "date",
+          :helptext => "Expected Due Date",
+          :condition => "$('pregnancy_status').value == 'Pregnant'",
+          :absoluteMin => "#{session_date.advance(:days => 1).strftime('%Y-%m-%d')}",
+          :absoluteMax => "#{session_date.advance(:months => 10, :days => +1 ).strftime('%Y-%m-%d')}"} %>
+    <%= touch_text_field_tag "DELIVERY DATE", @patient,@pregnancy_status[:delivery_date] ,
+        { :id => "delivery_date",
+          :field_type => "date",
+          :helptext => "Delivery Date",
+          :condition => "$('pregnancy_status').value == 'Delivered'",
+          :absoluteMax => "#{session_date.strftime('%Y-%m-%d')}"} %>
+
+  <%unless @encounter_id.nil?%>
+    <%= hidden_field_tag("encounter_id",  @encounter_id) %>
+    <%= hidden_field_tag("editing",       true) %>
+  <%end%>
+
+	<%= submit_tag 'Finish' %>
+<% end %>
