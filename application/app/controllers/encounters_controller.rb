@@ -346,30 +346,37 @@ class EncountersController < ApplicationController
       encounter_type = ? AND voided = 0", @patient.id,
       EncounterType.find_by_name('PREGNANCY STATUS').id]).observations rescue nil
     @pregnancy_status = {}
-
+    @select_options = select_options
     unless pregnancy_observations.blank?
       pregnancy_observations.each do |observation|
         if observation.concept_id == Concept.find_by_name("PREGNANCY STATUS").id
-          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
+          obs_value = observation.answer_string.squish
           @pregnancy_status[:pregnancy_status] = [obs_value, obs_value.to_s.upcase]
         end
 
         if observation.concept_id == Concept.find_by_name("PREGNANCY DUE DATE").id
-          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
-          @pregnancy_status[:pregnancy_due_date] = [obs_value, obs_value.to_s.upcase]
+          obs_value = observation.answer_string.squish.to_date rescue observation.answer_string.to_s
+          if (obs_value.class.name == "Date")
+            obs_value = obs_value.strftime("%Y-%m-%d")
+          end
+          @pregnancy_status[:pregnancy_due_date] = obs_value.to_s.upcase
         end
         
         if observation.concept_id == Concept.find_by_name("DELIVERY DATE").id
-          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
-          @pregnancy_status[:delivery_date] = [obs_value, obs_value.to_s.upcase]
+          obs_value = observation.answer_string.to_date rescue observation.answer_string
+          if (obs_value.class.name == "Date")
+            obs_value = obs_value.strftime("%Y-%m-%d")
+          end
+          @pregnancy_status[:delivery_date] = obs_value.to_s.upcase
         end
       end
     end
-    
+
   end
 
   def anc_visit_pregnacy_encounter
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    @select_options = select_options
     anc_visit_observations = Encounter.find(:last, :conditions => ["patient_id = ? AND
       encounter_type = ? AND voided = 0", @patient.id,
       EncounterType.find_by_name('ANC VISIT').id]).observations rescue nil
@@ -378,18 +385,24 @@ class EncountersController < ApplicationController
     unless anc_visit_observations.blank?
       anc_visit_observations.each do |observation|
         if observation.concept_id == Concept.find_by_name("Antenatal clinic patient appointment").id
-          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
-          @anc_visit[:appointment] = [obs_value, obs_value.to_s.upcase]
+          obs_value = observation.answer_string.squish
+          @anc_visit[:appointment] = obs_value.to_s
         end
 
         if observation.concept_id == Concept.find_by_name("Last anc visit date").id
-          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
-          @anc_visit[:last_visit_date] = [obs_value, obs_value.to_s.upcase]
+          obs_value = observation.answer_string.squish.to_date rescue observation.answer_string.to_s
+          if (obs_value.class.name == "Date")
+            obs_value = obs_value.strftime("%Y-%m-%d")
+          end
+          @anc_visit[:last_visit_date] = obs_value.to_s.upcase
         end
 
         if observation.concept_id == Concept.find_by_name("Next anc visit date").id
-          obs_value = get_obs_value(observation.value_coded, observation.value_coded_name_id)
-          @anc_visit[:next_visit_date] = [obs_value, obs_value.to_s.upcase]
+          obs_value = observation.answer_string.squish.to_date rescue observation.answer_string.to_s
+          if (obs_value.class.name == "Date")
+            obs_value = obs_value.strftime("%Y-%m-%d")
+          end
+          @anc_visit[:next_visit_date] = obs_value.to_s.upcase
         end
       end
     end
