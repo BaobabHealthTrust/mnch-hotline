@@ -248,6 +248,26 @@ class Encounter < ActiveRecord::Base
        return nil
     end
   end
+  
+  
+  def self.get_last_registration_date(patient_id)
+    previous_registrations = self.all(
+              :conditions => ["encounter.encounter_type = ? and encounter.voided = ? and patient_id = ?",
+                  EncounterType.find_by_name('REGISTRATION').encounter_type_id, 0, patient_id],
+              :include => [:observations]
+            )
+    last_call_concept_name = ConceptName.find_by_name("Call ID").name
+    registration_obs = {}
+    unless previous_registrations.blank?
+        previous_registrations.last.observations.each do |obs|
+          registration_obs[obs.concept.name] = obs.obs_datetime
+        end
+        last_registration_date = registration_obs[last_call_concept_name]
+        return last_registration_date.blank? ? nil : last_registration_date
+    else
+       return nil
+    end
+  end
 
   def self.get_recent_calls(patient_id)
     recent_encounters = get_previous_encounters(patient_id)
