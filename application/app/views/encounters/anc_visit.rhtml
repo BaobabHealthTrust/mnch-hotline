@@ -14,7 +14,7 @@
 	<%session_date = session[:datetime] || Time.now() %>
 	<% visit_helptext = nil
 	   unless @last_anc_visit_date.blank?
-	      visit_helptext = "Attended ANC since #{DateTime.parse(@last_anc_visit_date).strftime('%d-%b-%Y')}?"
+	      visit_helptext = "Attended ANC since #{DateTime.parse(@last_anc_visit_date).strftime('%d-%b-%Y') rescue nil}?"
 	   else
 	      visit_helptext = "Attended ANC since?"
 	   end
