@@ -712,15 +712,25 @@ class EncountersController < ApplicationController
       if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array) && !observation[:value_coded_or_text_multiple].blank?
         values = observation.delete(:value_coded_or_text_multiple)
         values.each do |value| 
-          observation[:value_coded_or_text] = value
           if observation[:concept_name].humanize == "Tests ordered"
             observation[:accession_number] = Observation.new_accession_number 
           end
-        
-          if observation[:concept_name] == "REASON FOR NOT ATTENDING ANC" || observation[:concept_name] == "REASON FOR NOT VISITING ANC CLIENT"     
+          observation = update_observation_value(observation)
+
+          Observation.create(observation) 
+        end
+      elsif extracted_value_numerics.class == Array
+  
+        extracted_value_numerics.each do |value_numeric|
+          observation[:value_numeric] = value_numeric
+          Observation.create(observation)
+        end
+      else
+       observation.delete(:value_coded_or_text_multiple)
+       if observation[:concept_name] == "REASON FOR NOT ATTENDING ANC" || observation[:concept_name] == "REASON FOR NOT VISITING ANC CLIENT"     
             reason = observation[:concept_name]
             patient = Patient.find(params['encounter']['patient_id'])
-            
+            value = observation[:value_coded_or_text]
             if value.upcase == "CLIENT MISCARRIED" || value.upcase == "CLIENT DELIVERED"
               if patient.pregnancy_status.first.upcase != 'DELIVERED' || patient.pregnancy_status.first.upcase != 'MISCARRIED'
                 observation[:concept_name] = "PREGNANCY STATUS"
@@ -737,19 +747,8 @@ class EncountersController < ApplicationController
                 observation[:value_coded_or_text] = value
               end
             end 
-          end
-
-          observation = update_observation_value(observation)
-
-          Observation.create(observation) 
-        end
-      elsif extracted_value_numerics.class == Array
-        extracted_value_numerics.each do |value_numeric|
-          observation[:value_numeric] = value_numeric
-          Observation.create(observation)
-        end
-      else      
-        observation.delete(:value_coded_or_text_multiple)
+          end     
+        
         observation = update_observation_value(observation) if !observation[:value_coded_or_text].blank?
         Observation.create(observation)
       end
