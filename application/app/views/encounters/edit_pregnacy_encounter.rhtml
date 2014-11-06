@@ -3,6 +3,11 @@
   tt_cancel_destination = "/patients/show/<%= @patient.id %>";
   
 </script>
+<style>
+  #num{
+    display: none;
+  }
+</style>
 <% #raise @pregnancy_status[:pregnancy_due_date].to_yaml%>
 <% form_tag :controller => "encounters", :action => "create" do |f| %>
 	<%= hidden_field_tag "encounter[encounter_type_name]", "PREGNANCY STATUS" %>
