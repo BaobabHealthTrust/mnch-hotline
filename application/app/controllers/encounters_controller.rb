@@ -345,8 +345,14 @@ class EncountersController < ApplicationController
       phone_number = params[:phone_number]
       PersonName.create_nick_name(@patient, nick_name)
       PersonAttribute.create_attribute(@patient, phone_number, "Cell Phone Number")
+
+      if (params[:anc_connect_program].match(/NO/i))
+        patient_program = @patient.patient_programs.last
+        patient_program.void("Removed from ANC connect program")
+      end
       
       if (params[:anc_connect_program].match(/YES/i))
+=begin Already enrolled
         date_enrolled = params[:programs][0]['date_enrolled']
         (params[:programs] || []).each do |program|
           patient_program = PatientProgram.find(program[:patient_program_id]) unless program[:patient_program_id].blank?
@@ -362,6 +368,7 @@ class EncountersController < ApplicationController
 
           (program[:states] || []).each {|state| patient_program.transition(state) }
         end
+=end
       end
 
       redirect_to next_task(@patient)
