@@ -8,7 +8,7 @@
 </script>
 
 
-<form id='anc_connect' action="" method='post'>
+<form id='anc_connect' action="anc_connect" method='post'>
 
       <%= select_tag "anc_connect_program", options_for_select(['', 'Yes', 'No']),
         {:id => 'anc_connect',
@@ -42,6 +42,7 @@
       <%= hidden_field_tag("programs[][date_enrolled]", (session[:datetime] || Date.today) ) %>
 
       <%= hidden_field_tag("programs[][states][][state]", "Patient enrolled") %>
+      <%= hidden_field_tag("patient_id", params[:patient_id]) %>
 
     <%= submit_tag "Finish" %>
    </form>

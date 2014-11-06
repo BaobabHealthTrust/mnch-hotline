@@ -333,6 +333,7 @@ class EncountersController < ApplicationController
   end
 
   def recent_anc_connect
+    session[:anc_visit_pregnancy_encounter] = true #next task
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     attribute_type_id = PersonAttributeType.find_by_name("Cell Phone Number").id rescue nil
     
@@ -340,9 +341,43 @@ class EncountersController < ApplicationController
       person_id = ?", attribute_type_id, @patient.id]).value rescue nil
 
     @nick_name = PersonName.find(:last, :conditions => ["person_id =?", @patient.id]).family_name_prefix rescue nil
+    if (request.method == :post)
+      nick_name = params[:nick_name]
+      phone_number = params[:phone_number]
+      PersonName.create_nick_name(@patient, nick_name)
+      PersonAttribute.create_attribute(@patient, phone_number, "Cell Phone Number")
+
+      if (params[:anc_connect_program].match(/NO/i))
+        patient_program = @patient.patient_programs.last
+        patient_program.void("Removed from ANC connect program")
+      end
+      
+      if (params[:anc_connect_program].match(/YES/i))
+=begin Already enrolled
+        date_enrolled = params[:programs][0]['date_enrolled']
+        (params[:programs] || []).each do |program|
+          patient_program = PatientProgram.find(program[:patient_program_id]) unless program[:patient_program_id].blank?
+          unless (patient_program)
+            patient_program = @patient.patient_programs.create(
+              :program_id => program[:program_id],
+              :date_enrolled => date_enrolled)
+          end
+
+          unless program[:states].blank?
+            program[:states][0]['start_date'] = date_enrolled
+          end
+
+          (program[:states] || []).each {|state| patient_program.transition(state) }
+        end
+=end
+      end
+
+      redirect_to next_task(@patient)
+    end
   end
 
   def edit_pregnacy_encounter
+    session[:recent_anc_connect] = true
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     pregnancy_observations = Encounter.find(:last, :conditions => ["patient_id = ? AND
       encounter_type = ? AND voided = 0", @patient.id,
@@ -377,6 +412,7 @@ class EncountersController < ApplicationController
   end
 
   def anc_visit_pregnacy_encounter
+    
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     @select_options = select_options
     anc_visit_observations = Encounter.find(:last, :conditions => ["patient_id = ? AND
@@ -824,4 +860,5 @@ class EncountersController < ApplicationController
           Observation.create(call_id_observation)     
       end   
   end
+  
 end

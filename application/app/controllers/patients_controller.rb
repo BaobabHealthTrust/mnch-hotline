@@ -35,6 +35,9 @@ class PatientsController < ApplicationController
     program_id = Program.find_by_name("ANC Connect Program").program_id
     @patient_anc_program = PatientProgram.find(:last, :conditions => ["patient_id =? AND
                  program_id=?", @patient.id, program_id])
+    session.delete(:edit_pregnancy_encounter) if (session[:edit_pregnancy_encounter])
+    session.delete(:recent_anc_connect) if (session[:recent_anc_connect])
+    session.delete(:anc_visit_pregnancy_encounter) if (session[:anc_visit_pregnancy_encounter])
    #added this to ensure that we are able to void the encounters
     void_encounter if (params[:void] && params[:void] == 'true')
     render :layout => 'clinic'

@@ -42,13 +42,7 @@ class ApplicationController < ActionController::Base
       session.delete(:outcome_complete) # delete the session variable completely to avoid endless iterations
       return "/clinic/schedules?patient_id="+ patient.patient_id.to_s + "&source_url=patient_dashboard"
     end
-
-    if (session[:edit_pregnancy_encounter])
-      #This section is for editing ANC connect
-      session.delete(:edit_pregnancy_encounter)
-      return "/encounters/edit_pregnancy_encounter?patient_id=#{patient.patient_id.to_s}"
-    end
-    
+ 
     if (session[:recent_anc_connect])
       #This section is for editing ANC connect
       session.delete(:recent_anc_connect)
@@ -58,7 +52,7 @@ class ApplicationController < ActionController::Base
     if (session[:anc_visit_pregnancy_encounter])
       #This section is for editing ANC connect
       session.delete(:anc_visit_pregnancy_encounter)
-      return "/encounters/anc_visit_pregnancy_encounter?patient_id=#{patient.patient_id.to_s}"
+      return "/encounters/anc_visit_pregnacy_encounter?patient_id=#{patient.patient_id.to_s}"
     end
     
     if (session[:anc_connect_workflow_start])
