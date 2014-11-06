@@ -4,11 +4,10 @@
 </style>
 <script type="text/javascript">
   var tt_cancel_destination = "/patients/show/<%= @patient.id %>";
-
 </script>
 
 
-<form id='anc_connect' action="" method='post'>
+<form id='anc_connect' action="recent_anc_connect" method='post'>
 
       <%= select_tag "anc_connect_program", options_for_select(['', 'Yes', 'No'], ['Yes']),
         {:id => 'anc_connect',
@@ -43,5 +42,6 @@
 
       <%= hidden_field_tag("programs[][states][][state]", "Patient enrolled") %>
 
+      <%= hidden_field_tag("patient_id", params[:patient_id]) %>
     <%= submit_tag "Finish" %>
    </form>
