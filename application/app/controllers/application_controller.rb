@@ -43,6 +43,24 @@ class ApplicationController < ActionController::Base
       return "/clinic/schedules?patient_id="+ patient.patient_id.to_s + "&source_url=patient_dashboard"
     end
 
+    if (session[:edit_pregnancy_encounter])
+      #This section is for editing ANC connect
+      session.delete(:edit_pregnancy_encounter)
+      return "/encounters/edit_pregnancy_encounter?patient_id=#{patient.patient_id.to_s}"
+    end
+    
+    if (session[:recent_anc_connect])
+      #This section is for editing ANC connect
+      session.delete(:recent_anc_connect)
+      return "/encounters/recent_anc_connect?patient_id=#{patient.patient_id.to_s}"
+    end
+
+    if (session[:anc_visit_pregnancy_encounter])
+      #This section is for editing ANC connect
+      session.delete(:anc_visit_pregnancy_encounter)
+      return "/encounters/anc_visit_pregnancy_encounter?patient_id=#{patient.patient_id.to_s}"
+    end
+    
     if (session[:anc_connect_workflow_start])
       session.delete(:anc_connect_workflow_start)
       return "/patients/anc_connect?patient_id=#{patient.patient_id.to_s}"
