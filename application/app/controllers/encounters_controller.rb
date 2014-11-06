@@ -49,6 +49,7 @@ class EncountersController < ApplicationController
     params[:observations] = current_observations
 =end 
     # Handling exceptional encounters i.e. that do not necessarily need observations such as Registration
+   
     encounter = Encounter.create(params[:encounter], session[:datetime]) if (exceptional_encounters.include? this_encounter)
 =begin
     # Observation handling
@@ -748,44 +749,34 @@ class EncountersController < ApplicationController
       if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array) && !observation[:value_coded_or_text_multiple].blank?
         values = observation.delete(:value_coded_or_text_multiple)
         values.each do |value| 
-          observation[:value_coded_or_text] = value
           if observation[:concept_name].humanize == "Tests ordered"
             observation[:accession_number] = Observation.new_accession_number 
           end
-        
-          if observation[:concept_name] == "REASON FOR NOT ATTENDING ANC" || observation[:concept_name] == "REASON FOR NOT VISITING ANC CLIENT"     
-            reason = observation[:concept_name]
-            patient = Patient.find(params['encounter']['patient_id'])
-            
-            if value.upcase == "CLIENT MISCARRIED" || value.upcase == "CLIENT DELIVERED"
-              if patient.pregnancy_status.first.upcase != 'DELIVERED' || patient.pregnancy_status.first.upcase != 'MISCARRIED'
-                observation[:concept_name] = "PREGNANCY STATUS"
-                pregnancy_status = Hash[*select_options['pregnancy_status'].flatten]
-                case value.upcase
-                  when "CLIENT MISCARRIED"
-                    observation[:value_coded_or_text] = pregnancy_status["Miscarried"]
-                  when "CLIENT DELIVERED"
-                    observation[:value_coded_or_text] = pregnancy_status["Delivered"] 
-                end
-                observation = update_observation_value(observation)
-                Observation.create(observation)
-                observation[:concept_name] = reason
-                observation[:value_coded_or_text] = value
-              end
-            end 
-          end
-
           observation = update_observation_value(observation)
 
           Observation.create(observation) 
         end
       elsif extracted_value_numerics.class == Array
+  
         extracted_value_numerics.each do |value_numeric|
           observation[:value_numeric] = value_numeric
           Observation.create(observation)
         end
-      else      
-        observation.delete(:value_coded_or_text_multiple)
+      else
+       observation.delete(:value_coded_or_text_multiple)
+       
+       if (observation[:concept_name] == "REASON FOR NOT ATTENDING ANC") || (observation[:concept_name] == "REASON FOR NOT VISITING ANC CLIENT")     
+            reason = observation[:concept_name]
+            patient = Patient.find(params['encounter']['patient_id'])
+            value = observation[:value_coded_or_text]
+            if value.upcase == "CLIENT MISCARRIED" || value.upcase == "CLIENT DELIVERED"
+              if patient.pregnancy_status.first.upcase != 'DELIVERED' || patient.pregnancy_status.first.upcase != 'MISCARRIED'
+                 create_or_update_pregnacy_status(encounter,params)
+                 observation.delete(:value_coded_or_text)
+              end
+            end 
+          end
+         
         observation = update_observation_value(observation) if !observation[:value_coded_or_text].blank?
         Observation.create(observation)
       end
@@ -819,4 +810,55 @@ class EncountersController < ApplicationController
     return observation
   end
 
+  def create_edit_anc_connect_sessions
+    session[:edit_pregnancy_encounter] = true if params[:edit_pregnancy_encounter]
+    session[:recent_anc_connect] = true if params[:recent_anc_connect]
+    session[:anc_visit_pregnancy_encounter] = true if params[:anc_visit_pregnancy_encounter]
+    render :text => true and return
+  end
+  
+  def create_or_update_pregnacy_status(anc_encounter,sent_params)
+      pregnancy_status = nil
+      sent_params[:observations].each do |obs|
+         case obs[:concept_name]
+          when "REASON FOR NOT ATTENDING ANC"
+            pregnancy_status = obs[:value_coded_or_text]
+          break
+         end
+      end
+      
+      pregnancy_statuses = Hash[*select_options['pregnancy_status'].flatten]
+      
+      case pregnancy_status.upcase
+          when "CLIENT MISCARRIED"
+            current_pregnancy_status = pregnancy_statuses["Miscarried"]
+          when "CLIENT DELIVERED"
+            current_pregnancy_status = pregnancy_statuses["Delivered"] 
+      end
+      
+      pregnancy_encounter = {:provider_id => anc_encounter.provider_id,
+                             :encounter_datetime => Time.now(),
+                             :patient_id => anc_encounter.patient_id,
+                             :encounter_type_name =>  "PREGNANCY STATUS"}
+                             
+      encounter = Encounter.create(pregnancy_encounter, session[:datetime])                      
+      
+      unless encounter.blank?
+          pregnancy_observation = {:encounter_id => encounter.id,
+                                   :obs_datetime =>  encounter.encounter_datetime,
+                                   :person_id => encounter.patient_id,
+                                   :concept_name => "PREGNANCY STATUS",
+                                   :value_coded_or_text =>  current_pregnancy_status}
+                                   
+          call_id_observation = {:encounter_id => encounter.id,
+                                   :obs_datetime =>  encounter.encounter_datetime,
+                                   :person_id => encounter.patient_id,
+                                   :concept_name => "CALL ID",
+                                   :value_coded_or_text =>  session[:call_id]}
+                                                            
+          Observation.create(pregnancy_observation)
+          Observation.create(call_id_observation)     
+      end   
+  end
+  
 end

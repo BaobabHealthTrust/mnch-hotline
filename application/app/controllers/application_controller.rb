@@ -157,12 +157,13 @@ class ApplicationController < ActionController::Base
     district_id = District.find_by_name("#{session[:district]}").id
     hc_conditions = ["name LIKE (?) AND district = ?", "%#{params[:search_string]}%", district_id]
     hc_array = []
+    hc_array << [" "," "]
     health_centers = HealthCenter.find(:all,:conditions => hc_conditions, :order => 'name')
     health_centers = health_centers.map do |h_c|
       hc_array << ["#{h_c.name.humanize}","#{h_c.name.humanize}"]
     end
  
-    return hc_array + ["Other","Other"]
+    return hc_array << ["Other","Other"]
   end
   
 private
