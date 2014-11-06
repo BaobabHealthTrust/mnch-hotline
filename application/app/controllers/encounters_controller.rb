@@ -782,5 +782,12 @@ class EncountersController < ApplicationController
     observation.delete(:value_coded_or_text)
     return observation
   end
-  
+
+  def create_edit_anc_connect_sessions
+    session[:edit_pregnancy_encounter] = true if params[:edit_pregnancy_encounter]
+    session[:recent_anc_connect] = true if params[:recent_anc_connect]
+    session[:anc_visit_pregnancy_encounter] = true if params[:anc_visit_pregnancy_encounter]
+    render :text => true and return
+  end
+
 end
