@@ -418,6 +418,8 @@ class EncountersController < ApplicationController
     anc_visit_observations = Encounter.find(:last, :conditions => ["patient_id = ? AND
       encounter_type = ? AND voided = 0", @patient.id,
       EncounterType.find_by_name('ANC VISIT').id]).observations rescue nil
+    @last_anc_visit_date = Encounter.get_last_anc_visit_date(@patient.id)
+    @last_registration_date = Encounter.get_last_registration_date(@patient.id)
     @anc_visit = {}
 
     unless anc_visit_observations.blank?
