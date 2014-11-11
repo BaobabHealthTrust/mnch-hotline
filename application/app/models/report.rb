@@ -9,10 +9,13 @@ module Report
       last_week_beginning   = (this_week_beginning - 1.week)
       last_week_ending      = (last_week_beginning + 4.days) # the fifth day is the actual beginning of week itself
       this_month_beginning  = today.beginning_of_month
+      last_month_beginning  =  today.last_month.beginning_of_month
+      last_month_ending = today.last_month.end_of_month
 
       this_week  = "#{this_week_beginning.strftime("%d-%m")} to #{today.strftime("%d-%m")}"
       last_week  = "#{last_week_beginning.strftime("%d-%m")} to #{last_week_ending.strftime("%d-%m")}"
       this_month = "#{this_month_beginning.strftime("%d-%m")} to #{today.strftime("%d-%m")}"
+      last_month = "#{last_month_beginning.strftime("%d-%m")} to #{last_month_ending.strftime("%d-%m")}"
 
       report_date_ranges["this_week"]   = {"range"      =>["This Week (#{this_week})"],
                                             "datetime"  =>[this_week_beginning.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")]}
@@ -22,6 +25,9 @@ module Report
 
       report_date_ranges["this_month"]  = {"range"      =>["This Month (#{this_month})"],
                                             "datetime"  =>[this_month_beginning.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")]}
+      report_date_ranges["last_month"]  = {"range"      =>["Last Month (#{last_month})"],
+                                            "datetime"  =>[last_month_beginning.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")]}
+
       report_date_ranges["all_dates"]  = {"range"      =>["All Dates"],
                                             "datetime"  =>[start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")]}
     end
