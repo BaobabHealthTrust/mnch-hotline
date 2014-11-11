@@ -17,4 +17,12 @@ Version 3 beta
 		Added registered for tips and reminders to the list of outcomes
 		Added an option for a secondary outcome
          --Cut off from the previous version
-	--Cut off from the previous version
+
+         Tasks added by Ernest
+            Inbound calls:
+                -Added ANC connect Registration Flow (for new clients)
+                -Added ANC connect Registration Flow (for Existing clients)
+                -Added "Edit connect button" for changing ANC enrollment
+                -Added call to Record ANC
+                -Added a functionality for searching clients by ANC connect ID
+                -Added "Referral to Emergency Transport" as an option

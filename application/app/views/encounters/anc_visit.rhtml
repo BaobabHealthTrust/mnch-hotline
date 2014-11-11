@@ -3,7 +3,9 @@
 		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
 </script>
 <style>
- 
+ #num{
+    display: none;
+  }
 </style>
 
 <% form_tag :controller => "encounters", :action => "create" do |f| %>
@@ -14,7 +16,7 @@
 	<%session_date = session[:datetime] || Time.now() %>
 	<% visit_helptext = nil
 	   unless @last_anc_visit_date.blank?
-	      visit_helptext = "Attended ANC since #{DateTime.parse(@last_anc_visit_date).strftime('%d-%b-%Y')}?"
+	      visit_helptext = "Attended ANC since #{DateTime.parse(@last_anc_visit_date).strftime('%d-%b-%Y') rescue nil}?"
 	   else
 	      visit_helptext = "Attended ANC since?"
 	   end
@@ -33,13 +35,16 @@
         { :id => "last_anc_visit_date",
           :field_type => "date",
           :helptext => "#{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " +  "Last ANC Visit Date?",
-          :condition => "$('anc_visit').value == 'Yes'"} %>
+          :condition => "$('anc_visit').value == 'Yes'",
+          :absoluteMax => "#{session_date.strftime('%Y-%m-%d')}"} %>
   
   <%= touch_text_field_tag "NEXT ANC VISIT DATE", @patient,next_anc_date ,
         { :id => "next_anc_visit_date",
           :field_type => "date",
           :helptext => "#{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " + "Next ANC Visit Date?",
-          :condition => "$('anc_visit').value == 'Yes'"} %>
+          :condition => "$('anc_visit').value == 'Yes'",
+          :absoluteMin => "#{session_date.advance(:days => 1).strftime('%Y-%m-%d')}",
+          :absoluteMax => "#{session_date.advance(:days => 14 ).strftime('%Y-%m-%d')}"} %>
              
    <%= touch_select_tag "REASON FOR NOT ATTENDING ANC", @patient, options_for_select(@select_options['reason_for_not_attending_anc']),
 		{	:id => "reason_for_not_attending_anc",

@@ -42,7 +42,19 @@ class ApplicationController < ActionController::Base
       session.delete(:outcome_complete) # delete the session variable completely to avoid endless iterations
       return "/clinic/schedules?patient_id="+ patient.patient_id.to_s + "&source_url=patient_dashboard"
     end
+ 
+    if (session[:recent_anc_connect])
+      #This section is for editing ANC connect
+      session.delete(:recent_anc_connect)
+      return "/encounters/recent_anc_connect?patient_id=#{patient.patient_id.to_s}"
+    end
 
+    if (session[:anc_visit_pregnancy_encounter])
+      #This section is for editing ANC connect
+      session.delete(:anc_visit_pregnancy_encounter)
+      return "/encounters/anc_visit_pregnacy_encounter?patient_id=#{patient.patient_id.to_s}"
+    end
+    
     if (session[:anc_connect_workflow_start])
       session.delete(:anc_connect_workflow_start)
       return "/patients/anc_connect?patient_id=#{patient.patient_id.to_s}"
@@ -145,12 +157,13 @@ class ApplicationController < ActionController::Base
     district_id = District.find_by_name("#{session[:district]}").id
     hc_conditions = ["name LIKE (?) AND district = ?", "%#{params[:search_string]}%", district_id]
     hc_array = []
+    hc_array << [" "," "]
     health_centers = HealthCenter.find(:all,:conditions => hc_conditions, :order => 'name')
     health_centers = health_centers.map do |h_c|
       hc_array << ["#{h_c.name.humanize}","#{h_c.name.humanize}"]
     end
  
-    return hc_array + ["Other","Other"]
+    return hc_array << ["Other","Other"]
   end
   
 private

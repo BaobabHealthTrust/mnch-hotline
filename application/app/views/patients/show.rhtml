@@ -163,11 +163,11 @@
         
       <option value='/patients/demographics?patient_id=<%=@patient.id%>'>Edit Demographics</option>
 
-      <% if @patient.person.gender.match(/F/i) %>
+      <% if @patient.female_adult? %>
         <% if @patient_anc_program.blank? %>
             <option value='/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>&anc_connect_workflow_start=true'>ANC connect</option>
         <% else %>
-            <option value='/encounters/recent_anc_connect?patient_id=<%=@patient.id%>'>Edit ANC connect</option>
+            <option value='/encounters/edit_pregnacy_encounter?patient_id=<%=@patient.id%>'>Edit ANC connect</option>
             <option value='/patients/anc_info?patient_id=<%=@patient.id%>'>ANC info</option>
         <% end %>
       <% end %>

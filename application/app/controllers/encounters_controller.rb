@@ -49,6 +49,7 @@ class EncountersController < ApplicationController
     params[:observations] = current_observations
 =end 
     # Handling exceptional encounters i.e. that do not necessarily need observations such as Registration
+   
     encounter = Encounter.create(params[:encounter], session[:datetime]) if (exceptional_encounters.include? this_encounter)
 =begin
     # Observation handling
@@ -332,6 +333,7 @@ class EncountersController < ApplicationController
   end
 
   def recent_anc_connect
+    session[:anc_visit_pregnancy_encounter] = true #next task
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     attribute_type_id = PersonAttributeType.find_by_name("Cell Phone Number").id rescue nil
     
@@ -339,9 +341,43 @@ class EncountersController < ApplicationController
       person_id = ?", attribute_type_id, @patient.id]).value rescue nil
 
     @nick_name = PersonName.find(:last, :conditions => ["person_id =?", @patient.id]).family_name_prefix rescue nil
+    if (request.method == :post)
+      nick_name = params[:nick_name]
+      phone_number = params[:phone_number]
+      PersonName.create_nick_name(@patient, nick_name)
+      PersonAttribute.create_attribute(@patient, phone_number, "Cell Phone Number")
+
+      if (params[:anc_connect_program].match(/NO/i))
+        patient_program = @patient.patient_programs.last
+        patient_program.void("Removed from ANC connect program")
+      end
+      
+      if (params[:anc_connect_program].match(/YES/i))
+=begin Already enrolled
+        date_enrolled = params[:programs][0]['date_enrolled']
+        (params[:programs] || []).each do |program|
+          patient_program = PatientProgram.find(program[:patient_program_id]) unless program[:patient_program_id].blank?
+          unless (patient_program)
+            patient_program = @patient.patient_programs.create(
+              :program_id => program[:program_id],
+              :date_enrolled => date_enrolled)
+          end
+
+          unless program[:states].blank?
+            program[:states][0]['start_date'] = date_enrolled
+          end
+
+          (program[:states] || []).each {|state| patient_program.transition(state) }
+        end
+=end
+      end
+
+      redirect_to next_task(@patient)
+    end
   end
 
   def edit_pregnacy_encounter
+    session[:recent_anc_connect] = true
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     pregnancy_observations = Encounter.find(:last, :conditions => ["patient_id = ? AND
       encounter_type = ? AND voided = 0", @patient.id,
@@ -376,11 +412,14 @@ class EncountersController < ApplicationController
   end
 
   def anc_visit_pregnacy_encounter
+    
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     @select_options = select_options
     anc_visit_observations = Encounter.find(:last, :conditions => ["patient_id = ? AND
       encounter_type = ? AND voided = 0", @patient.id,
       EncounterType.find_by_name('ANC VISIT').id]).observations rescue nil
+    @last_anc_visit_date = Encounter.get_last_anc_visit_date(@patient.id)
+    @last_registration_date = Encounter.get_last_registration_date(@patient.id)
     @anc_visit = {}
 
     unless anc_visit_observations.blank?
@@ -712,44 +751,34 @@ class EncountersController < ApplicationController
       if observation[:value_coded_or_text_multiple] && observation[:value_coded_or_text_multiple].is_a?(Array) && !observation[:value_coded_or_text_multiple].blank?
         values = observation.delete(:value_coded_or_text_multiple)
         values.each do |value| 
-          observation[:value_coded_or_text] = value
           if observation[:concept_name].humanize == "Tests ordered"
             observation[:accession_number] = Observation.new_accession_number 
           end
-        
-          if observation[:concept_name] == "REASON FOR NOT ATTENDING ANC" || observation[:concept_name] == "REASON FOR NOT VISITING ANC CLIENT"     
-            reason = observation[:concept_name]
-            patient = Patient.find(params['encounter']['patient_id'])
-            
-            if value.upcase == "CLIENT MISCARRIED" || value.upcase == "CLIENT DELIVERED"
-              if patient.pregnancy_status.first.upcase != 'DELIVERED' || patient.pregnancy_status.first.upcase != 'MISCARRIED'
-                observation[:concept_name] = "PREGNANCY STATUS"
-                pregnancy_status = Hash[*select_options['pregnancy_status'].flatten]
-                case value.upcase
-                  when "CLIENT MISCARRIED"
-                    observation[:value_coded_or_text] = pregnancy_status["Miscarried"]
-                  when "CLIENT DELIVERED"
-                    observation[:value_coded_or_text] = pregnancy_status["Delivered"] 
-                end
-                observation = update_observation_value(observation)
-                Observation.create(observation)
-                observation[:concept_name] = reason
-                observation[:value_coded_or_text] = value
-              end
-            end 
-          end
-
           observation = update_observation_value(observation)
 
           Observation.create(observation) 
         end
       elsif extracted_value_numerics.class == Array
+  
         extracted_value_numerics.each do |value_numeric|
           observation[:value_numeric] = value_numeric
           Observation.create(observation)
         end
-      else      
-        observation.delete(:value_coded_or_text_multiple)
+      else
+       observation.delete(:value_coded_or_text_multiple)
+       
+       if (observation[:concept_name] == "REASON FOR NOT ATTENDING ANC") || (observation[:concept_name] == "REASON FOR NOT VISITING ANC CLIENT")     
+            reason = observation[:concept_name]
+            patient = Patient.find(params['encounter']['patient_id'])
+            value = observation[:value_coded_or_text]
+            if value.upcase == "CLIENT MISCARRIED" || value.upcase == "CLIENT DELIVERED"
+              if patient.pregnancy_status.first.upcase != 'DELIVERED' || patient.pregnancy_status.first.upcase != 'MISCARRIED'
+                 create_or_update_pregnacy_status(encounter,params)
+                 observation.delete(:value_coded_or_text)
+              end
+            end 
+          end
+         
         observation = update_observation_value(observation) if !observation[:value_coded_or_text].blank?
         Observation.create(observation)
       end
@@ -781,6 +810,57 @@ class EncountersController < ApplicationController
     end
     observation.delete(:value_coded_or_text)
     return observation
+  end
+
+  def create_edit_anc_connect_sessions
+    session[:edit_pregnancy_encounter] = true if params[:edit_pregnancy_encounter]
+    session[:recent_anc_connect] = true if params[:recent_anc_connect]
+    session[:anc_visit_pregnancy_encounter] = true if params[:anc_visit_pregnancy_encounter]
+    render :text => true and return
+  end
+  
+  def create_or_update_pregnacy_status(anc_encounter,sent_params)
+      pregnancy_status = nil
+      sent_params[:observations].each do |obs|
+         case obs[:concept_name]
+          when "REASON FOR NOT ATTENDING ANC"
+            pregnancy_status = obs[:value_coded_or_text]
+          break
+         end
+      end
+      
+      pregnancy_statuses = Hash[*select_options['pregnancy_status'].flatten]
+      
+      case pregnancy_status.upcase
+          when "CLIENT MISCARRIED"
+            current_pregnancy_status = pregnancy_statuses["Miscarried"]
+          when "CLIENT DELIVERED"
+            current_pregnancy_status = pregnancy_statuses["Delivered"] 
+      end
+      
+      pregnancy_encounter = {:provider_id => anc_encounter.provider_id,
+                             :encounter_datetime => Time.now(),
+                             :patient_id => anc_encounter.patient_id,
+                             :encounter_type_name =>  "PREGNANCY STATUS"}
+                             
+      encounter = Encounter.create(pregnancy_encounter, session[:datetime])                      
+      
+      unless encounter.blank?
+          pregnancy_observation = {:encounter_id => encounter.id,
+                                   :obs_datetime =>  encounter.encounter_datetime,
+                                   :person_id => encounter.patient_id,
+                                   :concept_name => "PREGNANCY STATUS",
+                                   :value_coded_or_text =>  current_pregnancy_status}
+                                   
+          call_id_observation = {:encounter_id => encounter.id,
+                                   :obs_datetime =>  encounter.encounter_datetime,
+                                   :person_id => encounter.patient_id,
+                                   :concept_name => "CALL ID",
+                                   :value_coded_or_text =>  session[:call_id]}
+                                                            
+          Observation.create(pregnancy_observation)
+          Observation.create(call_id_observation)     
+      end   
   end
   
 end
