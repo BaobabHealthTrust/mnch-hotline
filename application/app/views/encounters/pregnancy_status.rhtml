@@ -2,7 +2,11 @@
 		tt_cancel_show = "/patients/show/<%= @patient.id %>";
 		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
 </script>
-
+<style>
+  #num{
+    display: none;
+  }
+</style>
 <% form_tag :controller => "encounters", :action => "create" do |f| %>
 	<%= hidden_field_tag "encounter[encounter_type_name]", "PREGNANCY STATUS" %>
 	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>

@@ -368,7 +368,7 @@ class PatientsController < ApplicationController
     @program_id = Program.find_by_name("ANC Connect Program").program_id
     @patient_program_id = PatientProgram.find(:last, :conditions => ["patient_id =? AND
                  program_id=?", params[:patient_id], @program_id]).patient_program_id rescue nil
-
+    @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
     if (request.method == :post)
       nick_name = params[:nick_name]
       phone_number = params[:phone_number]

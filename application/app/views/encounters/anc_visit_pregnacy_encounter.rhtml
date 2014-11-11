@@ -3,7 +3,9 @@
     tt_cancel_destination = "/patients/show/<%= @patient.id %>";
 </script>
 <style>
-
+  #num{
+      display: none;
+  }
 </style>
 
 <% form_tag :controller => "encounters", :action => "create" do |f| %>
@@ -12,12 +14,23 @@
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
 	<%session_date = session[:datetime] || Time.now() %>
+      <%   visit_helptext = nil
+	   unless @last_anc_visit_date.blank?
+	      visit_helptext = "Attended ANC since #{DateTime.parse(@last_anc_visit_date).strftime('%d-%b-%Y') rescue nil}?"
+	   else
+	      visit_helptext = "Attended ANC since?"
+	   end
+	   next_anc_date = ''
+	   if @last_anc_visit_date.blank?
+	     next_anc_date = @last_registration_date.advance(:days => 7).strftime('%Y-%m-%d') if @last_registration_date
+	   end
 
+	%>
   <%= touch_select_tag "ANC VISIT", @patient, options_for_select([' ', 'Yes', 'No'], @anc_visit[:appointment]),
         { :id => "anc_visit",
-          :helptext => "Attended ANC since?" } %>
+          :helptext => "#{visit_helptext}" } %>
 
-  <%= touch_text_field_tag "LAST ANC VISIT DATE", @patient, @anc_visit[:last_visit_date] ,
+  <%= touch_text_field_tag "LAST ANC VISIT DATE", @patient, (@anc_visit[:last_visit_date] || next_anc_date) ,
         { :id => "last_anc_visit_date",
           :field_type => "date",
           :helptext => "#{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " +  "Last ANC Visit Date?",

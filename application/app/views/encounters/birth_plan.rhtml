@@ -3,7 +3,9 @@
 		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
 </script>
 <style>
- 
+ #num{
+    display: none;
+  }
 </style>
 
 <% form_tag :controller => "encounters", :action => "create" do |f| %>
