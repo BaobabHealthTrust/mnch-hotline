@@ -13,11 +13,6 @@ schema.rb
 mockups
 rerun.txt
 nbproject
-Gemfile.lock
-<<<<<<< HEAD
 tmp
-=======
 *.lock
->>>>>>> prescription
 .ruby-version
-

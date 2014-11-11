@@ -28,7 +28,9 @@ class ClinicController < ApplicationController
     @reports = [["Patient Analysis","/report/type?q=patient_analysis"],
                 ["Tips","/report/type?q=tips"], 
                 ["Call Analysis", "/report/type?q=call_analysis"],
-                ["Family Planning", "/report/type?q=family_planning"]]
+                ["Family Planning", "/report/type?q=family_planning"],
+                ["ANC connect", "/report/type?q=anc_connect"]
+                ]
     render :template => 'clinic/reports', :layout => 'clinic' 
   end
 

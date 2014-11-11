@@ -26,8 +26,8 @@
           {:helpText => "Select Date Range",
            :tt_onUnLoad=>"setDateRange('report_date_range');"} %>
 
-      <% if @report_type.downcase != 'tips' && @report_type.downcase != 'family_planning' %>
-        <%if @query != "new_vs_repeat_callers" && @query != "follow_up" %>
+      <% if @report_type.downcase != 'tips' && @report_type.downcase != 'family_planning' && @report_type.downcase != 'anc_connect' %>
+        <%if @query != "new_vs_repeat_callers" && @query != "follow_up"%>
             <%= select_tag :patient_type, options_for_select(@patient_type),
                         {:helpText => "Select Patient Type"} %>
         <%end%>

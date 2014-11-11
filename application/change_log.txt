@@ -26,3 +26,10 @@ Version 3 beta
                 -Added call to Record ANC
                 -Added a functionality for searching clients by ANC connect ID
                 -Added "Referral to Emergency Transport" as an option
+         Tasks Added by Blessings
+            Generic encounter:
+                -Added ANC Visit Encounter
+                -Added Delivery Encounter
+                -Added Birth Plan Encounter
+                -Added HSA Encounter
+            

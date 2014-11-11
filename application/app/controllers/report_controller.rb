@@ -268,7 +268,19 @@ class ReportController < ApplicationController
       
         @grouping            += [["By Week", "week"], ["By Month", "month"]]
         @destination         = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
+      when "anc_connect"
+        @destination         = [["",""],["To CSV Format", "csv"], ["To Screen", "screen"]]
+        @grouping           += [["",""],["By Week", "week"], ["By Month", "month"]]
 
+
+        @date_range_values  = [["",""]]
+        report_date_ranges = report_date_ranges.delete_if{|k, v| k.match(/last_week|this_week/i)}
+        @date_range_values  = [["",""]]
+        @report_date_range  = report_date_ranges.inject({}){|date_range, report_date_range|
+                            date_range[report_date_range.first]         = report_date_range.last["datetime"]
+                            @date_range_values.push([report_date_range.last["range"].first, report_date_range.first])
+                            date_range
+                          }
     end
 
      render :template => "/report/patient_analysis_selection" ,
@@ -337,7 +349,11 @@ class ReportController < ApplicationController
 
         @report_label = 'a Family Planning Report'
         @report_type  = report_type
+     when 'anc_connect'
+        @reports = ["HSA Performance Report", "ANC connect clients"]
 
+        @report_label = 'ANC connect'
+        @report_type  = report_type
     end
     render :template => '/report/type', :layout => 'clinic'
   end
