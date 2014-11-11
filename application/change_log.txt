@@ -24,7 +24,7 @@ Version 3 beta
                 -Added "Edit connect button" for changing ANC enrollment
                 -Added call to Record ANC
                 -Added a functionality for searching clients by ANC connect ID
-                -Added "Referral to Emergency Transport" as an option
+                -Added "Referral to Emergency Transport" as an option in an outcome encounter
          Tasks Added by Blessings
             Generic encounter:
                 -Added ANC Visit Encounter
