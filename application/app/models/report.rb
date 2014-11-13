@@ -26,7 +26,7 @@ module Report
       report_date_ranges["this_month"]  = {"range"      =>["This Month (#{this_month})"],
                                             "datetime"  =>[this_month_beginning.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")]}
       report_date_ranges["last_month"]  = {"range"      =>["Last Month (#{last_month})"],
-                                            "datetime"  =>[last_month_beginning.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")]}
+                                            "datetime"  =>[last_month_beginning.strftime("%Y-%m-%d"), last_month_ending.strftime("%Y-%m-%d")]}
 
       report_date_ranges["all_dates"]  = {"range"      =>["All Dates"],
                                             "datetime"  =>[start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")]}
