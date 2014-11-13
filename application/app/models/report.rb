@@ -144,7 +144,7 @@ module Report
 
     return query
   end
-
+  
   def self.patient_demographics(patient_type, grouping, start_date, end_date, district)
     
     district_id = District.find_by_name(district).id
@@ -2230,4 +2230,31 @@ module Report
 
    return follow_up_map
  end
+
+ def self.anc_connect_clients( grouping, start_date, end_date, district)
+    district_id = District.find_by_name(district).id
+    call_id = Concept.find_by_name("CALL ID").id
+    cell_phone_attribute_type = PersonAttributeType.find_by_name('Cell Phone Number').id
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+    patients_data = []
+    program_id = Program.find_by_name('ANC CONNECT PROGRAM').id
+    
+    date_ranges.map do |date_range|
+        patients = Encounter.find_by_sql("
+            select pn.given_name, pn.middle_name, pn.family_name, p.birthdate, pa.address2, pat.value
+            from patient_program pp inner join obs o on pp.patient_id = o.person_id and o.concept_id = #{call_id}
+            inner join call_log cl on o.value_text = cl.call_log_id and cl.district = #{district_id}
+            inner join person_name pn on pp.patient_id = pn.person_id
+            inner join person_address pa on pp.patient_id = pa.person_id
+            inner join person p on p.person_id = pp.patient_id
+            inner join person_attribute pat on pp.patient_id = pat.person_id
+            where pp.program_id = #{program_id} and pat.person_attribute_type_id = #{cell_phone_attribute_type}
+            and DATE(pp.date_enrolled) >= '#{date_range.first.to_date}' and DATE(pp.date_enrolled) <= '#{date_range.last.to_date }'
+            and pp.voided=0 "
+         )
+        patients_data << patients
+    end
+    
+    return patients_data
+  end
 end

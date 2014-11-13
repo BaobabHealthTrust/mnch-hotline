@@ -539,10 +539,50 @@ class ReportController < ApplicationController
                 :query        => params[:query],
                 :destination  => params[:report_destination],
                 :district     => params[:currentdistrict]
+   when 'hsa_performance_report'
+      redirect_to :action        => "hsa_performance",
+                :start_date    => params[:start_date],
+                :end_date      => params[:end_date],
+                :grouping      => params[:grouping],
+                :report_type   => params[:report_type],
+                :query        => params[:query],
+                :destination  => params[:report_destination],
+                :district     => params[:currentdistrict]
+   when 'anc_connect_clients'
+      redirect_to :action        => "anc_connect_clients",
+                :start_date    => params[:start_date],
+                :end_date      => params[:end_date],
+                :grouping      => params[:grouping],
+                :report_type   => params[:report_type],
+                :query        => params[:query],
+                :destination  => params[:report_destination],
+                :district     => params[:currentdistrict]
     end
 
   end
 
+  def hsa_performance
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @source       = params[:source] rescue nil
+    district = params[:district]
+  end
+
+  def anc_connect_clients
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @source       = params[:source] rescue nil
+    district = params[:district]
+  end
+  
   def patient_demographics_report
     @start_date   = params[:start_date]
     @end_date     = params[:end_date]
