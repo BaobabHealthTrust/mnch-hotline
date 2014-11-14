@@ -2244,7 +2244,7 @@ module Report
             select pp.patient_id, pn.given_name,
             (select value from person_attribute where person_id=pp.patient_id AND person_attribute_type_id = #{cell_phone_attribute_type}
             ORDER BY DATE(date_created) DESC LIMIT 1) as cell_phone_number, 
-            pn.middle_name, pn.family_name, p.birthdate, pa.address2
+            pn.middle_name, pn.family_name, p.birthdate, pa.address2 as home_village
             from patient_program pp inner join obs o on pp.patient_id = o.person_id and o.concept_id = #{call_id}
             inner join call_log cl on o.value_text = cl.call_log_id and cl.district = #{district_id}
             inner join person_name pn on pp.patient_id = pn.person_id
