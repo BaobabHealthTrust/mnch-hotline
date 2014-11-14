@@ -581,6 +581,22 @@ class ReportController < ApplicationController
     @grouping     = params[:grouping]
     @source       = params[:source] rescue nil
     district = params[:district]
+    @report = Report.anc_connect_clients( @grouping, @start_date, @end_date, district)
+    if params[:destination] == 'csv'
+=begin
+      report_header = ['', 'Catchment area', 'Count', 'Total']
+      export_to_csv('patient_demographics_report', report_header, @report,
+                  @patient_type, @grouping)
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
+    else
+      render :layout => false
+=end
+    end
+     render :layout => false
   end
   
   def patient_demographics_report

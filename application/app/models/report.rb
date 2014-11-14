@@ -2240,21 +2240,23 @@ module Report
     program_id = Program.find_by_name('ANC CONNECT PROGRAM').id
     
     date_ranges.map do |date_range|
-        patients = Encounter.find_by_sql("
-            select pn.given_name, pn.middle_name, pn.family_name, p.birthdate, pa.address2, pat.value
+        patients = Patient.find_by_sql("
+            select pp.patient_id, pn.given_name,
+            (select value from person_attribute where person_id=pp.patient_id AND person_attribute_type_id = #{cell_phone_attribute_type}
+            ORDER BY DATE(date_created) DESC LIMIT 1) as cell_phone_number, 
+            pn.middle_name, pn.family_name, p.birthdate, pa.address2
             from patient_program pp inner join obs o on pp.patient_id = o.person_id and o.concept_id = #{call_id}
             inner join call_log cl on o.value_text = cl.call_log_id and cl.district = #{district_id}
             inner join person_name pn on pp.patient_id = pn.person_id
             inner join person_address pa on pp.patient_id = pa.person_id
             inner join person p on p.person_id = pp.patient_id
-            inner join person_attribute pat on pp.patient_id = pat.person_id
-            where pp.program_id = #{program_id} and pat.person_attribute_type_id = #{cell_phone_attribute_type}
+            where pp.program_id = #{program_id}
             and DATE(pp.date_enrolled) >= '#{date_range.first.to_date}' and DATE(pp.date_enrolled) <= '#{date_range.last.to_date }'
-            and pp.voided=0 "
+            and pp.voided=0 GROUP BY pp.patient_id"
          )
-        patients_data << patients
+         dates = {:start_date => date_range.first, :end_date => date_range.last}
+        patients_data.push([dates, patients]) unless patients.blank?
     end
-    
     return patients_data
   end
 end
