@@ -5,9 +5,77 @@
   function changeNextButtonText(text){
     $('nextButton').innerHTML = "<span>" + text + "</span>";  
   }
-    
-
+  
+  
+  function showVlLabTrail(){
+   
+    c = document.getElementById('content');
+    v = document.getElementById('vl_lab_trail');
+    c.appendChild(v);
+    document.getElementById('vl_lab_trail_cover').style.display='inline';
+    document.getElementById('vl_lab_trail').style.display='inline';
+  }
+  
+  function showPopup(value_passed){
+   showVlLabTrail();
+  }
+  
+  function hideVlLabTrail(){
+    document.getElementById('vl_lab_trail_cover').style.display='none';
+    document.getElementById('vl_lab_trail').style.display='none';
+  }
+  
+  
 </script>
+
+
+<style>
+
+      #vl_lab_trail, #new_vl_menu, .new_vl_menu{
+      position: absolute;
+      width: 95%;
+      height: 70%;
+      top: 10%;
+      z-index: 991;
+      left: 3%;
+      border: 1px solid black;
+      background-color: #FEE0C6;
+      border-radius: 15px;
+    }
+    #vl_lab_trail_header, #new_vl_menu_header, .new_vl_menu_header{
+      padding: 10px;
+      background-color: gray;
+      color: white;
+      border-radius: 15px 15px 0px 0px;
+      
+    }
+     #vl_lab_trail_footer, #new_vl_menu_footer, .new_vl_menu_footer{
+      background-color: gray;
+      height: 60px;
+      width: 100%;
+      position: absolute;
+      width: 100%;
+      position: absolute;
+      bottom: 0px;
+      border-radius: 0px 0px 15px 15px;
+     }
+     
+     .vl_tbody td{
+        border-bottom: 1px solid black;
+        border-right: 1px solid black;
+      }
+     
+     #vl_lab_trail_footer span{
+        border-radius: 13px;
+        background-color: #C1CDCD;
+        position: absolute;
+        padding: 12px 20%;
+        left: 27%;
+        bottom: 8px;
+        cursor: pointer;
+     }
+
+    </style>
 
 <form id='confirm' action="/clinic/followup" method='post'> %>
 <% if @follow_ups.blank? %>
@@ -17,12 +85,52 @@
     <% end -%>
     <select name="person" id="person">
       <% @follow_ups.each do |person| -%>
-        <option value="<%= person.patient_id%>" onmousedown="changeNextButtonText('Select Patient')">
+        <option value="<%= person.patient_id%>" onmousedown="changeNextButtonText('Select Patient');showPopup('<%= person.patient_id %>')">
           <%= person.given_name -%> (<%= person.family_name_prefix -%>) <%= person.family_name -%>
           H. Vlg: <%= person.address2 -%>
         </option>
       <% end -%>   
     <%= hidden_field_tag("source", "HK") %>
    <%= submit_tag "Finish" %>
-
 </form>
+
+
+<div id="vl_lab_trail_cover" style="display:none;">
+
+</div>
+
+
+<div id="vl_lab_trail" style="display:none;">
+        <div id="vl_lab_trail_header">
+          <span style="font-size: 16pt; margin-left: 4.5%;">ANC Follow Up Contacts</span>
+        </div>
+
+        <div id="vl_lab_trail_content">
+          <div style="position: relative; overflow: none; height: 80%;">
+          <table cellspacing='0' style="position:absolute; width:94%; top:10%; left: 3%;">
+            <tr class="vl_table_header" style="background-color: #A2CD5A; line-height: 2em; font-size: 18px;">
+              <td style="min-width: 130px;"><span><center>Date of Sample</center></span></td>
+              <td style="min-width: 120px;"><span><center>Result</center></span></td>
+              <td><span><center>Result given?</center></span></td>
+              <td><span><center>Date result given</center></span></td>
+              <td><span><center>Switched to second line?</center></span></td>
+            </tr>
+          <% @follow_ups.each do |person| %>
+            <tr style="line-height: 3em;" class="vl_tbody">
+              <td style="border-left: 1px solid black;">
+                  <span><center><%= person.family_name_prefix -%></center></span>
+              </td>
+              <td><span><center>stuff</center></span></td>
+              <td><span><center>stuff</center></span></td>
+              <td><span><center>stuff</center></span></td>
+              <td><span><center>stuff</center></span></td>
+            </tr>
+          <% end %>
+          </table>
+          </div>
+        </div>
+        
+        <div id="vl_lab_trail_footer">
+          <span onclick="hideVlLabTrail();">Done</span>
+        </div>
+ </div>
