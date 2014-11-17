@@ -314,15 +314,18 @@ class ClinicController < ApplicationController
       session[:call_end_timestamp] = DateTime.now
       log_call(3)
     end
+    
     def district
       
       session[:district] = params[:district]
-      if ! params[:call_mode].nil?
+      if ! params[:call_mode].nil? && params[:task] != 'anc' 
         session[:call_mode] = params[:call_mode]
         
         render :template => 'clinic/home', :layout => 'clinic'
-      else
+      elsif params[:task] != 'anc'
         showfollowuplist
+      elsif params[:task] == 'anc'
+        showancfollowuplist
       end
     end
     def new_call
@@ -342,7 +345,18 @@ class ClinicController < ApplicationController
         session[:call_end_timestamp] = ''
       end
       
-      render :template => 'clinic/district', :layout => 'application'
+      #if @task == 'anc'
+      # session[:call_id] = GlobalProperty.next_call_id rescue nil
+      # session[:call_start_timestamp] = DateTime.now
+      # session[:call_end_timestamp] = ''
+      #end
+      
+      if @task == 'anc'
+        render :template => 'clinic/district', :layout => 'application', :task => @task
+      else
+       render :template => 'clinic/district', :layout => 'application'
+      end
+     
     end
     
     def showfollowuplist
@@ -350,6 +364,13 @@ class ClinicController < ApplicationController
       @follow_ups = FollowUp.get_follow_ups(district)
       
       render :template => 'clinic/followuplist', :layout => 'application'
+    end
+    
+    def showancfollowuplist
+      district = session[:district]
+      @follow_ups = FollowUp.get_anc_follow_ups(district)
+      
+      render :template => 'clinic/ancfollowuplist', :layout => 'application'
     end
     
     def create_followup
