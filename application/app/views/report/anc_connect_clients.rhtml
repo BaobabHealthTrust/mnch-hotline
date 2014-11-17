@@ -4,6 +4,13 @@
     <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
     <link href="/stylesheets/report.css" media="screen" rel="stylesheet" type="text/css" />
     <link href="/stylesheets/report_print.css" media="print" rel="stylesheet" type="text/css" />
+    <%= javascript_include_tag("jquery") %>
+    <%= javascript_include_tag("jquery.table2CSV.min") %>
+    <script>
+      function eportToCSV(){
+         $('#anc_connect_clients').table2CSV({header:['First Name','Last Name','Date of Birth','Cellphone Number','Home Village']})
+      }
+    </script>
   </head>
   <body>
     <div class="btn-menu">
@@ -11,6 +18,7 @@
       <%select_report_criteria = '/report/select?report_type=' +@report_type +'&query=' + @query%>
 
       <button id="finish_button" class="button green" onclick="window.location = '/clinic'"><span>Finish</span></button>
+      <button id="export_button" class="button green" onclick="eportToCSV();"><span>Export to CSV</span></button>
       <button id="back_button" class="button red" onclick="window.location = '<%=select_report_criteria%>'"><span>Back</span></button>
     </div>
 
@@ -24,7 +32,7 @@
       <legend class="main_legend" style="color:white; background-color:green;">
         ANC connect clients
       </legend>
-      <table cellspacing="0" width="100%">
+      <table cellspacing="0" width="100%" id="anc_connect_clients">
         <tr>
           <%= "Filter Info: Grouping - #{@grouping.capitalize} "  %>
         </tr>
