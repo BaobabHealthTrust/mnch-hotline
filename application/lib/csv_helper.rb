@@ -361,6 +361,21 @@ module CSVHelper
                    "#{data[:percentage_of_callers_wanting_info]}"] 
          end
       end
+
+    when 'anc_connect_clients_report'
+      FasterCSV.open(output_file, 'w',:headers => report_headers) do |csv|
+      csv << report_headers
+         report_data.reverse.map do |dates, values|
+           csv << ["#{grouping} beginning : #{dates[:start_date]} ending : #{dates[:start_date]}"]
+
+           values.each do |v|
+             csv << ["#{v["given_name"]}","#{v["family_name"]}",
+                      "#{v["birthdate"]}", "#{v["cell_phone_number"]}", "#{v["home_village"]}"
+             ]
+           end
+           #csv << ["","",""]
+         end
+      end
     end
   end
 end
