@@ -34,13 +34,11 @@
       </legend>
       <table cellspacing="0" width="100%" id="anc_connect_clients">
         <tr>
-          <%= "Filter Info: Grouping - #{@grouping.capitalize} "  %>
+          <td colspan = 5><%= "Filter Info: Grouping - #{@grouping.capitalize} "%></td>
         </tr>
         <%@report.reverse.map do |dates, values|%>
           <tr>
-            <td width="25%" colspan = 5 class="cellleft cellbottom main-table-cell" style="background-color:ddd; text-align:center;font-weight: bold; font-size: large; font-style: italic;">
-              <%= @grouping.humanize + " beginning "+ dates[:start_date] + " ending " + dates[:end_date]%>
-            </td>
+            <td width="25%" colspan = 5 class="cellleft cellbottom main-table-cell" style="background-color:ddd; text-align:center;font-weight: bold; font-size: large; font-style: italic;"><%= @grouping.humanize + " beginning "+ dates[:start_date] + " ending " + dates[:end_date]%></td>
           </tr>
           <% values.each do |v| %>
           <tr>
