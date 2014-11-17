@@ -1,0 +1,28 @@
+<script type="text/javascript">
+  var tt_cancel_destination = "/clinic/housekeeping?task=housekeeping"
+  var tt_cancel_show = "/clinic?status=endcall";
+
+  function changeNextButtonText(text){
+    $('nextButton').innerHTML = "<span>" + text + "</span>";  
+  }
+    
+
+</script>
+
+<form id='confirm' action="/clinic/followup" method='post'> %>
+<% if @follow_ups.blank? %>
+      <label for="person">No patients were found:</label>
+    <% else -%>
+      <label for="person">Select the patient to follow up from the following</label>
+    <% end -%>
+    <select name="person" id="person">
+      <% @follow_ups.each do |person| -%>
+        <option value="<%= person.patient_id%>" onmousedown="changeNextButtonText('Select Patient')">
+          <%= person.given_name -%> (<%= person.family_name_prefix -%>) <%= person.family_name -%>
+          H. Vlg: <%= person.address2 -%>
+        </option>
+      <% end -%>   
+    <%= hidden_field_tag("source", "HK") %>
+   <%= submit_tag "Finish" %>
+
+</form>
