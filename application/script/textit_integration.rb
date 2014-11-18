@@ -14,11 +14,11 @@ def textit_integration
     lastname = key["lastname"]
     village = key["village"]
     health_facility = key["health_facility"]
-    lmp = key["lmp"]
-    edd = key["edd"]
+    #lmp = key["lmp"] Our system does not capture this variable
+    edd = key["edd"] #pregnancy_status enc
     phone = key["phone"]
-    hsa_name = key["hsa_name"]
-    hsa_phone = key["hsa_phone"]
+    #hsa_name = key["hsa_name"] To be considered later
+    #hsa_phone = key["hsa_phone"] To be considered later
     registration_time = key["registration_time"]
     next_visit_date = key["next_visit_date"]
 
@@ -26,19 +26,19 @@ def textit_integration
 
     end
     
-    birth_plan_facility = key["birth_plan_facility"]
-    delivery_date = key["delivery_date"]
-    delivery_facility = key["delivery_facility"]
+    birth_plan_facility = key["birth_plan_facility"] #birth_plan enc
+    delivery_date = key["delivery_date"] #delivery enc
+    delivery_facility = key["delivery_facility"] #delivery enc
 
 
     ActiveRecord::Base.transaction do
       anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID") rescue nil
-      attribute_value = PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ?
+      anc_attribute = PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ?
           AND value =?", anc_identifier_type.id, anc_conn_id])
 
       cell_phone_attribute_id = PersonAttributeType.find_by_name('CELL PHONE NUMBER').id
       
-      if (attribute_value.blank?)
+      if (anc_attribute.blank?)
         person = Person.create({
             :birthdate => (Date.today - 20.years),
             :gender => "F",
@@ -66,14 +66,20 @@ def textit_integration
         })
 
         person.addresses.create({
-          :address2 => "",
-          :city_village => "",
+          :address2 => village,
           :county_district => "",
-          :subregion => "",
           :creator =>  1
         })
       
       else
+        patient = anc_attribute.person.patient
+        person_name = patient.person.names.last
+
+        person_name.family_name_prefix = nickname
+        person_name.family_name = lastname
+        person_name.save!
+        
+        PersonAttribute.create_attribute(patient, phone, "CELL PHONE NUMBER")
         
       end
     end
