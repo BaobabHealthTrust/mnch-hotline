@@ -87,7 +87,7 @@ def textit_integration
         })
         #>>>>>>>>>>>>>>>>>>>>>>>>>Enrollment done<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       else
-        puts "Exisisting patient found. ID=#{patient.id}"
+        puts "Existing patient found. ID=#{patient.id}"
         patient = anc_attribute.person.patient
         person_name = patient.person.names.last
 
@@ -125,7 +125,7 @@ def textit_integration
           observation[:value_coded_or_text] = n_visit_date
           Observation.create(observation)
         end
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Editing Pregnacy Enc>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Editing Pregnancy Enc>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         pregnacy_enc_type = Encounter.find_by_name("PREGNANCY STATUS").id
         previous_pregnancy_enc = Encounter.find(:last, :conditions => ["patient_id =?
           AND encounter_type =?", patient.id, pregnacy_enc_type])
