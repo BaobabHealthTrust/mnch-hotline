@@ -88,6 +88,7 @@ def textit_integration
         #>>>>>>>>>>>>>>>>>>>>>>>>>Enrollment done<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       else
         puts "Existing patient found. ID=#{anc_identifier.patient.id}"
+        puts "<<<<<<Working on patient with ID #{anc_identifier.patient.id}>>>>>>"
         patient = anc_identifier.patient
         person_name = patient.person.names.last
 
@@ -106,6 +107,7 @@ def textit_integration
         end
 
         puts "Creating ANC visits encounter"
+        puts "------------------------------"
         key["anc_visits"].each do |key, anc_visit|
           visit_date = anc_visit["date"].to_date
           n_visit_date = anc_visit["next_visit_date"].to_date
@@ -127,14 +129,18 @@ def textit_integration
         pregnacy_enc_type = EncounterType.find_by_name("PREGNANCY STATUS").id
         previous_pregnancy_enc = Encounter.find(:last, :conditions => ["patient_id =?
           AND encounter_type =?", patient.id, pregnacy_enc_type])
+        puts "Voiding previous pregnancy encounter" unless previous_pregnancy_enc.blank?
         previous_pregnancy_enc.void("Overiding data with that from textit system") unless previous_pregnancy_enc.blank?
 
+        puts "Creating Pregnancy Status encounter"
+        puts "------------------------------"
         new_pregnancy_enc = patient.encounters.create({
             :encounter_type => pregnacy_enc_type,
             :encounter_datetime => registration_time,
             :provider_id => 1,
             :creator =>  1
           })
+        puts "Creating pregnancy encounter observations..."
         observation = {}
         observation[:concept_name] = "PREGNANCY STATUS"
         observation[:encounter_id] = new_pregnancy_enc.id
@@ -156,14 +162,15 @@ def textit_integration
         previous_birth_plan_enc = Encounter.find(:last, :conditions => ["patient_id =?
           AND encounter_type =?", patient.id, birth_plan_enc_type])
         previous_birth_plan_enc.void("Overiding data with that from textit system") unless previous_birth_plan_enc.blank?
-
+        puts "Creating Birth plan encounter"
+        puts "------------------------------"
         new_birth_plan_enc = patient.encounters.create({
             :encounter_type => birth_plan_enc_type,
             :encounter_datetime => registration_time,
             :provider_id => 1,
             :creator =>  1
         })
-      
+         puts "Creating birthplan observations ..."
         observation = {}
         observation[:concept_name] = "BIRTH PLAN"
         observation[:encounter_id] = new_birth_plan_enc.id
@@ -193,14 +200,15 @@ def textit_integration
         previous_baby_delivery_enc = Encounter.find(:last, :conditions => ["patient_id =?
           AND encounter_type =?", patient.id, baby_delivery_enc_type])
         previous_baby_delivery_enc.void("Overiding data with that from textit system") unless previous_baby_delivery_enc.blank?
-
+        puts "Creating Baby Delivery encounter"
+        puts "------------------------------"
         new_baby_delivery_enc = patient.encounters.create({
             :encounter_type => baby_delivery_enc_type,
             :encounter_datetime => registration_time,
             :provider_id => 1,
             :creator =>  1
         })
-
+        puts "Creating baby delivery observations ..."
         observation = {}
         observation[:concept_name] = "DELIVERED"
         observation[:encounter_id] = new_baby_delivery_enc.id
