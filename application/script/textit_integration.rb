@@ -8,6 +8,7 @@ def textit_integration
   json = File.read(file_name)
   data = JSON.parse(json)
 
+  User.current_user = User.find(1)
   data.each do |key|
     anc_conn_id = key["anc_conn_id"]
     nickname = key["nickname"]
@@ -20,11 +21,7 @@ def textit_integration
     #hsa_name = key["hsa_name"] To be considered later
     #hsa_phone = key["hsa_phone"] To be considered later
     registration_time = key["registration_time"]
-    next_visit_date = key["next_visit_date"]
-
-    key["anc_visits"].each do |anc_visit|
-
-    end
+    next_visit_date = key["next_visit_date"] #TO DO
     
     birth_plan_facility = key["birth_plan_facility"] #birth_plan enc
     delivery_date = key["delivery_date"] #delivery enc
@@ -80,7 +77,134 @@ def textit_integration
         person_name.save!
         
         PersonAttribute.create_attribute(patient, phone, "CELL PHONE NUMBER")
+        anc_visit_enc_type = Encounter.find_by_name("ANC VISIT").id
+        previous_anc_visits = Encounter.find(:all, :conditions => ["patient_id =?
+          AND encounter_type =?", patient.id, anc_visit_enc_type])
         
+        (previous_anc_visits || []).each do |p_visit|
+          p_visit.void("Overiding data with that from textit system")
+        end
+      
+        key["anc_visits"].each do |anc_visit|
+          visit_date = anc_visit["date"]
+          n_visit_date = anc_visit["next_visit_date"]
+          
+          new_anc_visit_enc = patient.encounters.create({
+            :encounter_type => anc_visit_enc_type,
+            :encounter_datetime => visit_date,
+            :provider_id => 1,
+            :creator =>  1
+          })
+        
+          observation = {}
+          observation[:concept_name] = "NEXT ANC VISIT DATE"
+          observation[:encounter_id] = new_anc_visit_enc.id
+          observation[:obs_datetime] = n_visit_date
+          observation[:person_id] = patient.id
+          observation[:value_coded_or_text] = next_visit_date
+          Observation.create(observation)
+        end
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Editing Pregnacy Enc>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        pregnacy_enc_type = Encounter.find_by_name("PREGNANCY STATUS").id
+        previous_pregnancy_enc = Encounter.find(:last, :conditions => ["patient_id =?
+          AND encounter_type =?", patient.id, pregnacy_enc_type])
+        previous_pregnancy_enc.void("Overiding data with that from textit system") unless previous_pregnancy_enc.blank?
+
+        new_pregnancy_enc = patient.encounters.create({
+            :encounter_type => pregnacy_enc_type,
+            :encounter_datetime => registration_time,
+            :provider_id => 1,
+            :creator =>  1
+          })
+        observation = {}
+        observation[:concept_name] = "PREGNANCY STATUS"
+        observation[:encounter_id] = new_pregnancy_enc.id
+        observation[:obs_datetime] = registration_time
+        observation[:person_id] = patient.id
+        observation[:value_coded_or_text] = "PREGNANT"
+        Observation.create(observation)
+
+        observation = {}
+        observation[:concept_name] = "PREGNANCY DUE DATE"
+        observation[:encounter_id] = new_pregnancy_enc.id
+        observation[:obs_datetime] = registration_time
+        observation[:person_id] = patient.id
+        observation[:value_coded_or_text] = edd
+        Observation.create(observation)
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>BIRTH PLAN enc>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        birth_plan_enc_type = Encounter.find_by_name("BIRTH PLAN").id
+        previous_birth_plan_enc = Encounter.find(:last, :conditions => ["patient_id =?
+          AND encounter_type =?", patient.id, birth_plan_enc_type])
+        previous_birth_plan_enc.void("Overiding data with that from textit system") unless previous_birth_plan_enc.blank?
+
+        new_birth_plan_enc = patient.encounters.create({
+            :encounter_type => birth_plan_enc_type,
+            :encounter_datetime => registration_time,
+            :provider_id => 1,
+            :creator =>  1
+        })
+      
+        observation = {}
+        observation[:concept_name] = "BIRTH PLAN"
+        observation[:encounter_id] = new_birth_plan_enc.id
+        observation[:obs_datetime] = registration_time
+        observation[:person_id] = patient.id
+        observation[:value_coded_or_text] = "YES"
+        Observation.create(observation)
+
+        observation = {}
+        observation[:concept_name] = "DELIVERY LOCATION"
+        observation[:encounter_id] = new_birth_plan_enc.id
+        observation[:obs_datetime] = registration_time
+        observation[:person_id] = patient.id
+        observation[:value_coded_or_text] = birth_plan_facility
+        Observation.create(observation)
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>BABY DELIVERY encounter>>>>>>>>>>>>>>>>>>>>
+        baby_delivery_enc_type = Encounter.find_by_name("BABY DELIVERY").id
+        previous_baby_delivery_enc = Encounter.find(:last, :conditions => ["patient_id =?
+          AND encounter_type =?", patient.id, baby_delivery_enc_type])
+        previous_baby_delivery_enc.void("Overiding data with that from textit system") unless previous_baby_delivery_enc.blank?
+
+        new_baby_delivery_enc = patient.encounters.create({
+            :encounter_type => baby_delivery_enc_type,
+            :encounter_datetime => registration_time,
+            :provider_id => 1,
+            :creator =>  1
+        })
+
+        observation = {}
+        observation[:concept_name] = "DELIVERED"
+        observation[:encounter_id] = new_baby_delivery_enc.id
+        observation[:obs_datetime] = registration_time
+        observation[:person_id] = patient.id
+        observation[:value_coded_or_text] = "YES"
+        Observation.create(observation)
+
+        observation = {}
+        observation[:concept_name] = "DELIVERY DATE"
+        observation[:encounter_id] = new_baby_delivery_enc.id
+        observation[:obs_datetime] = registration_time
+        observation[:person_id] = patient.id
+        observation[:value_coded_or_text] = delivery_date
+        Observation.create(observation)
+
+        observation = {}
+        observation[:concept_name] = "DELIVERY LOCATION"
+        observation[:encounter_id] = new_baby_delivery_enc.id
+        observation[:obs_datetime] = registration_time
+        observation[:person_id] = patient.id
+        observation[:value_coded_or_text] = delivery_facility
+        Observation.create(observation)
+
+        observation = {}
+        observation[:concept_name] = "HEALTH FACILITY NAME"
+        observation[:encounter_id] = new_baby_delivery_enc.id
+        observation[:obs_datetime] = registration_time
+        observation[:person_id] = patient.id
+        observation[:value_coded_or_text] = health_facility
+        Observation.create(observation)
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       end
     end
     
