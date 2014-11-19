@@ -27,12 +27,12 @@ def textit_integration
 
     ActiveRecord::Base.transaction do
       anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID") rescue nil
-      anc_attribute = PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ?
-          AND value =?", anc_identifier_type.id, anc_conn_id])
+      anc_identifier = PatientIdentifier.find(:last,:conditions =>["voided = 0 AND identifier_type = ?
+          AND identifier =?", anc_identifier_type.id, anc_conn_id])
 
       cell_phone_attribute_id = PersonAttributeType.find_by_name('CELL PHONE NUMBER').id
       
-      if (anc_attribute.blank?)
+      if (anc_identifier.blank?)
         puts "creating person... ID=#{Person.last.id + 1}"
         person = Person.create({
             :birthdate => (Date.today - 20.years),
@@ -87,8 +87,8 @@ def textit_integration
         })
         #>>>>>>>>>>>>>>>>>>>>>>>>>Enrollment done<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       else
-        puts "Existing patient found. ID=#{patient.id}"
-        patient = anc_attribute.person.patient
+        puts "Existing patient found. ID=#{anc_identifier.patient.id}"
+        patient = anc_identifier.patient
         person_name = patient.person.names.last
 
         person_name.family_name_prefix = nickname
