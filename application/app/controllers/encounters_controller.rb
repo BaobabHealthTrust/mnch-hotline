@@ -149,7 +149,19 @@ class EncountersController < ApplicationController
         end
       end
     end
-
+    
+    if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
+      unless params[:observations][0]['value_coded'].blank?
+       no_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
+       if no_concept == 'NO'
+           redirect_to :controller => 'encounters', :action => 'hsa_response', :patient_id => params['encounter']['patient_id'], :late => params[:late_anc_call] and return
+        else
+        
+       end
+      end
+      
+    end
+    
     # Go to the next task in the workflow (or dashboard)
     redirect_to next_task(@patient) 
   end
@@ -862,5 +874,40 @@ class EncountersController < ApplicationController
           Observation.create(call_id_observation)     
       end   
   end
+  
+  def client_response
+    if request.method.to_s == 'post'
+      if params[:observations].first[:value_coded_or_text].upcase == 'YES'
+        redirect_to "/encounters/new/anc_visit?patient_id=#{params[:observations].first[:patient_id]}" + "&late=true"
+      else
+      end
+    else
+    
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    home_phone_number_att = PersonAttributeType.find_by_name("Home Phone Number")
+    office_phone_number_att = PersonAttributeType.find_by_name("Office Phone Number")
+    cell_phone_number_att = PersonAttributeType.find_by_name("Cell Phone Number")
+    @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@patient.id,cell_phone_number_att.id) 
+    @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@patient.id,home_phone_number_att.id) if @phone_number.blank?
+    @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@patient.id,office_phone_number_att.id) if @phone_number.blank?
+    end
+  end
+  
+  def hsa_response
+  #raise params.inspect
+    if request.method.to_s == 'post'
+      if params[:observations].first[:value_coded_or_text].upcase == 'YES'
+        redirect_to "/encounters/new/hsa_visit?patient_id=#{params[:observations].first[:patient_id]}" + "&late=true"
+      else
+      end
+    else
+    
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    cell_phone_number_att = PersonAttributeType.find_by_name("Cell Phone Number")
+    @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@patient.id,cell_phone_number_att.id) 
+    
+    end
+  end
+  
   
 end

@@ -7,22 +7,33 @@
   }
   
   
-  function showVlLabTrail(){
+  function showVlLabTrail(value_passed){
    
     c = document.getElementById('content');
     v = document.getElementById('vl_lab_trail');
     c.appendChild(v);
     document.getElementById('vl_lab_trail_cover').style.display='inline';
     document.getElementById('vl_lab_trail').style.display='inline';
+    patient_id = document.getElementById('patientId');
+    patient_id.setAttribute("value", value_passed);
+    
   }
   
   function showPopup(value_passed){
-   showVlLabTrail();
+   showVlLabTrail(value_passed);
   }
   
   function hideVlLabTrail(){
+    v = document.getElementById('vl_lab_trail');
+    alert(v.name);
     document.getElementById('vl_lab_trail_cover').style.display='none';
     document.getElementById('vl_lab_trail').style.display='none';
+  }
+  
+  function gotoClientResponse(){
+    var person_id =  document.getElementById('patientId');
+    
+    window.location = "/encounters/client_response?patient_id="+ person_id.value ;
   }
   
   
@@ -65,16 +76,27 @@
         border-right: 1px solid black;
       }
      
-     #vl_lab_trail_footer span{
+     #vl_lab_trail_footer #ok {
         border-radius: 13px;
         background-color: #C1CDCD;
         position: absolute;
         padding: 12px 20%;
-        left: 27%;
+        left: 5%;
         bottom: 8px;
         cursor: pointer;
      }
-
+     
+     #vl_lab_trail_footer #cancel {
+        border-radius: 13px;
+        width: 30px;
+        background-color: #C1CDCD;
+        position: absolute;
+        padding: 12px 20%;
+        left: 50%;
+        bottom: 8px;
+        cursor: pointer;
+     }
+     
     </style>
 
 <form id='confirm' action="/clinic/followup" method='post'> %>
@@ -107,6 +129,7 @@
 
         <div id="vl_lab_trail_content">
           <div style="position: relative; overflow: none; height: 80%;">
+          <input type="hidden" id="patientId" value="" />
           <table cellspacing='0' style="position:absolute; width:94%; top:10%; left: 3%;">
             <tr class="vl_table_header" style="background-color: #A2CD5A; line-height: 2em; font-size: 18px;">
               <td style="min-width: 130px;"><span><center>Date of Sample</center></span></td>
@@ -131,6 +154,8 @@
         </div>
         
         <div id="vl_lab_trail_footer">
-          <span onclick="hideVlLabTrail();">Done</span>
+          <span id="ok" onclick="gotoClientResponse();">OK</span>
+          <span id="cancel" onclick="hideVlLabTrail();">Cancel</span>
         </div>
+        
  </div>
