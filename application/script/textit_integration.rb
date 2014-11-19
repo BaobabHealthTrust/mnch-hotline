@@ -40,8 +40,9 @@ def textit_integration
             :birthdate_estimated => 1,
             :creator =>  1
         })
+        puts "creating patient..."
+        patient = person.create_patient
         
-        patient = person.patient.create
         puts "creating ANC connect ID..."
         patient.patient_identifiers.create({
             :identifier_type => anc_identifier_type.id,
