@@ -2259,4 +2259,24 @@ module Report
     end
     return patients_data
   end
+
+ def self.hsa_performance(grouping, start_date, end_date, district)
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+    district_id = District.find_by_name(district).id
+    call_id = Concept.find_by_name("CALL ID").id
+    patients_data = []
+    date_ranges.map do |date_range|
+      patients = Patient.find_by_sql("
+            select pp.patient_id, pn.given_name,
+            pn.middle_name, pn.family_name, p.birthdate, pa.address2 as home_village
+            from patient p inner join obs o on p.patient_id = o.person_id and o.concept_id = #{call_id}
+            inner join call_log cl on o.value_text = cl.call_log_id and cl.district = #{district_id}
+            inner join person_name pn on pp.patient_id = pn.person_id
+            inner join person p on p.person_id = pp.patient_id
+            and DATE(pp.date_enrolled) >= '#{date_range.first.to_date}' and DATE(pp.date_enrolled) <= '#{date_range.last.to_date }'
+            and pp.voided=0 GROUP BY pp.patient_id"
+         )
+    end
+ end
+ 
 end
