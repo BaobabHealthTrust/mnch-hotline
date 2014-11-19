@@ -705,7 +705,7 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Chiyembekezo","Mzito","Manyikula","Mlero","Selemani","Chiganga"]
                            
                            },
 
@@ -713,7 +713,7 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Siliya","Nsaka","Grey","Kapoloma","Kamyata","Gobede","Chin'gamba","Pilato","Zangaphee"]
                            
                            },
 
@@ -721,7 +721,7 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Namayesa","Sopera","Mmora","Chimimba","Kapuku","Kachingwe","Zimveka","Chikhwaya","Chitsulo"]
                            
                            },
 
@@ -729,7 +729,7 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Manjanja","Chaola","Jambawe","Muoza","Kwalakwata","Chaweka","Same"]
                            
                            },
 
@@ -737,7 +737,7 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Zandeya","Njilayagoma","Chida","Kantande","Mombo","Kachomba"]
                            
                            },
                            
@@ -745,14 +745,14 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Tsanyaoyela","Mulunguzi","Thindili","Majia"]
                            
                            },
         "John Matumbo" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Namitumbo","Mphenzi","Mfulanjovu","M'mangeni","Mulanda"]
                            
                            },
                            
@@ -760,7 +760,7 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Uyele","Mbonani","Nantchengwa","Manyombe","Ngoleka","Linzie"]
                            
                            },
 
@@ -768,7 +768,7 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Khoswe","Chiputula","Pakamwa","Kanongwa","Sakaiko","Makalaudi","Zammimba","Kodo"]
                            
                            },
                            
@@ -776,7 +776,7 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Fulaye","Thom","Nakapa","John","Chizinga","Changadeya"]
                            
                            },
 
@@ -784,7 +784,7 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Rabson","Chingagwe","Joshua","Otala","Langwani","Kathumba","Chiondo"]
                            
                            },
 
@@ -792,144 +792,146 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Ntondokera","Ngongomwa","Bwemba"]
                            
                            },
         "Manfred Malenga" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
-                            :villages => [""]
+                            :villages => ["Mzamani","Mdelezina","Mgoza","Masenjele"]
                            
                            },
 
         "Monica Mtekama" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Mazenga","Kathambo"]
                            
-        },
+                            },
 
         "Lloyd Chilewani" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Nyanyala 1","Sikenala","Nyanya 2","Thamangira 1","Yolomoni","Thamangira 2","Kamvetsa",
+                                           "Kankuwe","Beni"]
                            
-        },
-
+                            },
+                            
         "Chrissy Ntchafu" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Phombeya", "Mpandasoni/Tchodola","Yonamu"]
                            
-        },
+                            },
 
         "Lizzie Ngozo" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Kameza","Mpambira","Chikwiri","Chikaoneka","Sungani","Mkaluluka"]
                            
-        },
+                            },
 
         "Grace Mwale" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Ayanjaawo","Chiwengana","Chizungu 1"]
                            
-        },
+                            },
 
         "Alfred Kaponya" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Kainga", "Nkhande", "Kunyalani"]
                            
-        },
+                            },
 
         "Grace Samanyika" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Govati","Chaima","Chingodzi","Kumkwawa"]
                            
-        },
+                            },
 
         "Zaria Babu" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Kavala 1","Kavala 2","Chikondi","Vuvuta","Chiyembekezo","Kusheto","Mwaligula"]
                            
-        },
+                            },
 
         "Annie Banda" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Chigonamdowe Pofela","Tchona Yebele","Ndungunde","Khazibeti","Yambani"]
                            
-        },
+                            },
 
         "Vincent Namaombe" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :d{
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Mthengomwacha 1","Mthengomwacha 2","Mateyu","Kachingwe","Makokola"]
                            
-        },
+                            },
 
         "Selemani Malope" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Phalula","Bengo","Senjere"]
                            
-        },
-
+                            },
+                            
         "Maggie Munde" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Ntundu","Limbani","Mundila","Chizungu","Mpitanjala"]
                            
-        },
+                            },
 
         "Lyson Wasusa" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Bamusi","Tererakaso","Ipendo","Kasamiza","Sanudi","Chikamera"]
                            
-        },
+                            },
 
         "Steven Misodi Phiri" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Tsite","Chitimbe","Zacharia","Moses"]
                            
-        },
+                            },
 
         "C.D. Maulana" => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Chitala"]
                            
-        },
+                            },
 
         "Esther Nsona " => {
-                            :district => districts[],
-                            :health_center => health_centers[],
-                            :phone_numbers => [],
-                            :villages => []
+                            :district => districts[0],
+                            :health_center => health_centers[4],
+                            :phone_numbers => [""],
+                            :villages => ["Chandikola", "Massa"]
                            
-        }
+                            },
  
 }  
 
