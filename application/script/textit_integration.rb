@@ -15,13 +15,10 @@ def textit_integration
     lastname = key["lastname"]
     village = key["village"]
     health_facility = key["health_facility"]
-    #lmp = key["lmp"] Our system does not capture this variable
     edd = key["edd"] #pregnancy_status enc
     phone = key["phone"]
-    #hsa_name = key["hsa_name"] To be considered later
-    #hsa_phone = key["hsa_phone"] To be considered later
     registration_time = key["registration_time"]
-    next_visit_date = key["next_visit_date"] #TO DO
+    next_visit_date = key["next_visit_date"] #birth_plan enc
     
     birth_plan_facility = key["birth_plan_facility"] #birth_plan enc
     delivery_date = key["delivery_date"] #delivery enc
@@ -36,38 +33,43 @@ def textit_integration
       cell_phone_attribute_id = PersonAttributeType.find_by_name('CELL PHONE NUMBER').id
       
       if (anc_attribute.blank?)
+        puts "creating person..."
         person = Person.create({
             :birthdate => (Date.today - 20.years),
             :gender => "F",
             :birthdate_estimated => 1,
             :creator =>  1
         })
-        patient = person.patient.create
         
+        patient = person.patient.create
+        puts "creating ANC connect ID..."
         patient.patient_identifiers.create({
             :identifier_type => anc_identifier_type.id,
             :identifier => anc_conn_id,
             :creator =>  1
         })
-
+      
+        puts "creating person names..."
         person.names.create({
           :family_name_prefix => nickname,
           :family_name => lastname,
            :creator =>  1
         })
-
+      
+        puts "creating phone number..."
         person.person_attributes.create({
           :person_attribute_type_id => cell_phone_attribute_id,
           :value => phone,
           :creator =>  1
         })
 
+        puts "creating addresses..."
         person.addresses.create({
           :address2 => village,
           :county_district => "",
           :creator =>  1
         })
-      
+        
       else
         patient = anc_attribute.person.patient
         person_name = patient.person.names.last
@@ -99,9 +101,9 @@ def textit_integration
           observation = {}
           observation[:concept_name] = "NEXT ANC VISIT DATE"
           observation[:encounter_id] = new_anc_visit_enc.id
-          observation[:obs_datetime] = n_visit_date
+          observation[:obs_datetime] = visit_date
           observation[:person_id] = patient.id
-          observation[:value_coded_or_text] = next_visit_date
+          observation[:value_coded_or_text] = n_visit_date
           Observation.create(observation)
         end
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Editing Pregnacy Enc>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -160,6 +162,15 @@ def textit_integration
         observation[:person_id] = patient.id
         observation[:value_coded_or_text] = birth_plan_facility
         Observation.create(observation)
+
+        observation = {}
+        observation[:concept_name] = "GO TO HOSPITAL DATE"
+        observation[:encounter_id] = new_birth_plan_enc.id
+        observation[:obs_datetime] = registration_time
+        observation[:person_id] = patient.id
+        observation[:value_coded_or_text] = next_visit_date
+        Observation.create(observation)
+        
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>BABY DELIVERY encounter>>>>>>>>>>>>>>>>>>>>
         baby_delivery_enc_type = Encounter.find_by_name("BABY DELIVERY").id
         previous_baby_delivery_enc = Encounter.find(:last, :conditions => ["patient_id =?
