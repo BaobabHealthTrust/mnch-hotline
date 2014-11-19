@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  hsa_id: 1
+  health_center_id: 1
+  village_id: 1
+
+two:
+  hsa_id: 1
+  health_center_id: 1
+  village_id: 1
