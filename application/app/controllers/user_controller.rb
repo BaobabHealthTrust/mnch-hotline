@@ -32,7 +32,7 @@ class UserController < ApplicationController
  
  def role
   roles = Role.find(:all,:conditions => ["role LIKE (?)","%#{params[:value]}%"])
-  roles = roles.map{| r | "<li value='#{r.role}'>#{r.role.gsub('_',' ').capitalize}</li>" } 
+  roles = roles.map{| r | "<li value='#{r.role}'>#{r.role.gsub('_',' ').capitalize}</li>" }
   render :text => roles.join('') and return
  end
   
@@ -124,12 +124,18 @@ class UserController < ApplicationController
       @user_admin_role = params[:user_role_admin][:role]
       @user_name = params[:user][:username]
     end
-      
+    cellphone_number = params[:user].delete(:cell_phone_number) if  params[:user][:cell_phone_number].present?
     person = Person.create()
     person.names.create(params[:person_name])
     params[:user][:user_id] = person.id
     @user = User.new(params[:user])
     @user.id = person.id
+    
+    unless cellphone_number.blank?
+          attribute_type_id  = PersonAttributeType.find_by_name("Cell Phone Number").person_attribute_type_id
+          person.person_attributes.create(:person_attribute_type_id => attribute_type_id, :value => cellphone_number)
+    end
+    
     if @user.save
      # if params[:user_role_admin][:role] == "Yes"  
       #  @roles = Array.new.push params[:user_role][:role_id] 

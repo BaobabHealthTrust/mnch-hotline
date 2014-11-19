@@ -9,11 +9,10 @@
 </script>
 
 <form id='confirm' action="/clinic/district" method='post'>
-
   <%= select_tag "district", options_for_select(@districts.sort), {:helpText => 'Select the district where the caller is?', :id => "district"}%>
   <%if @task == 'new'%>
     <%= select_tag "call_mode", options_for_select(@call_modes), {:helpText => 'Select the type of caller?', :id => "call_mode"}%>
   <%end%>
-
+  <%=hidden_field_tag "task", params["task"] %>
   <%= submit_tag "Finish" %>
 </form>
