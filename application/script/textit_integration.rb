@@ -33,7 +33,7 @@ def textit_integration
       cell_phone_attribute_id = PersonAttributeType.find_by_name('CELL PHONE NUMBER').id
       
       if (anc_attribute.blank?)
-        puts "creating person..."
+        puts "creating person... ID=#{Person.last.id + 1}"
         person = Person.create({
             :birthdate => (Date.today - 20.years),
             :gender => "F",
@@ -70,8 +70,24 @@ def textit_integration
           :county_district => "",
           :creator =>  1
         })
+        #>>>>>>>>>>>>>>>>>>>>>>>>>>Enrolling ANC connect program<<<<<<<<<<<<<<<<
+        puts "Enrolling the client in ANC connect program..."
+        concept_id = Concept.find_by_name("PATIENT ENROLLED").id
+        program_id = Program.find_by_name("ANC Connect Program").program_id
+        program_workflow_state_id = ProgramWorkflowState.find_by_concept_id(concept_id).id
         
+        patient_program = patient.patient_programs.create({
+            :program_id => program_id,
+            :date_enrolled => registration_time
+        })
+
+        patient_program.patient_states.create({
+          :state => program_workflow_state_id,
+          :start_date => registration_time
+        })
+        #>>>>>>>>>>>>>>>>>>>>>>>>>Enrollment done<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       else
+        puts "Exisisting patient found. ID=#{patient.id}"
         patient = anc_attribute.person.patient
         person_name = patient.person.names.last
 
@@ -83,11 +99,13 @@ def textit_integration
         anc_visit_enc_type = Encounter.find_by_name("ANC VISIT").id
         previous_anc_visits = Encounter.find(:all, :conditions => ["patient_id =?
           AND encounter_type =?", patient.id, anc_visit_enc_type])
-        
+
+        puts "Voiding past ANC visits. #{previous_anc_visits.count} encounters found" unless previous_anc_visits.blank?
         (previous_anc_visits || []).each do |p_visit|
           p_visit.void("Overiding data with that from textit system")
         end
-      
+
+        puts "Creating ANC visits encounter"
         key["anc_visits"].each do |anc_visit|
           visit_date = anc_visit["date"]
           n_visit_date = anc_visit["next_visit_date"]
