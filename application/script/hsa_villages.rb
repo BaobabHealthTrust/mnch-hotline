@@ -971,9 +971,8 @@ hsas.each do |key,value|
           puts "Created HSA #{phone_number_type.split("_").join} : #{phone_number} "
        end
       
-      username = key.split(" ").join.gsub(".","").downcase
-      user = User.find_by_username(username) rescue nil
-      if user.blank?
+         username = key.split(" ").join.gsub(".","").downcase
+      
          user = User.new
          user.id = person.id
          user.creator = creator
@@ -989,27 +988,7 @@ hsas.each do |key,value|
          user_role.save
       
          puts "Created HSA User Role :  #{user.username}" 
-       else    
-          user_role = UserRole.find_by_user_id_and_role(user.user_id,"HSA") rescue nil
-          if user_role.blank?
-             user = User.new
-             user.id = person.id
-             user.creator = creator
-             user.username = key.split(" ").join.gsub(".","").downcase
-             user.password = user.username
-             user.date_created = Date.today
-             user.save
-             puts "Created HSA User :  #{user.username} "
              
-             user_role = UserRole.new
-             user_role.role = Role.find_by_role("HSA")
-             user_role.user_id = user.user_id
-             user_role.save
-          
-             puts "Created HSA User Role :  #{user.username}" 
-           end 
-       end
-      
      value[:villages].each do |village|
        village_id = Village.find_by_name(village).id rescue nil
        if village_id.blank?
@@ -1041,5 +1020,5 @@ hsas.each do |key,value|
                                        
        puts "Created HSA village"                                  
      
-     end
+     end     
 end

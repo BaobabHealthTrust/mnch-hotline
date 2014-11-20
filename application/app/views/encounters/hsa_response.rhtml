@@ -10,10 +10,10 @@
 
 <% form_tag :controller => "encounters", :action => "hsa_response", :method => :post do |f| %>
 	<%session_date = session[:datetime] || Time.now() %>
-	<% visit_helptext = "HSA #{@patient.person.names.first.given_name + " " + @patient.person.names.first.family_name + " # " + (@phone_number.value == "Unknown" ? " " : @phone_number.value) } answered?" %>
+	<% visit_helptext = "HSA #{@person.names.first.given_name + " " + @person.names.first.family_name + " # " + (@phone_number.value == "Unknown" ? " " : @phone_number.value) } answered?" %>
 	
 	
-  <%= touch_select_tag "", @patient, options_for_select([' ', 'Yes', 'No']),
+  <%= touch_select_tag "", @person, options_for_select([' ', 'Yes', 'No']),
 		{:id => "client_response",
 		 :helptext => "#{visit_helptext}" } %>
 	<%= submit_tag 'Finish' %>

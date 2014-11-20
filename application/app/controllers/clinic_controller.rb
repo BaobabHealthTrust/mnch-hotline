@@ -381,7 +381,25 @@ class ClinicController < ApplicationController
     def showancfollowuplist
     	session[:district] = params[:district] if session[:district].blank?
       district = session[:district]
-      @follow_ups = FollowUp.get_anc_follow_ups(district)
+      follow_ups = FollowUp.get_anc_follow_ups(district)
+      
+      
+      @follow_ups = []
+      follow_ups.each do |person|
+       follow_up = {}
+       follow_up[:patient_id] = person.patient_id
+       follow_up[:family_name] = person.family_name
+       follow_up[:given_name] = person.given_name
+       follow_up[:family_name_prefix] = person.family_name_prefix
+       follow_up[:address2] = person.address2
+       follow_up[:gestation_age] = person.gestation_age
+       village = Village.find_by_name(person.address2)
+       hsa_village = HsaVillage.find_by_village_id(village.village_id)
+       person_name = PersonName.find_by_person_id(hsa_village.hsa_id)
+       follow_up[:hsa_name] = person_name.given_name + " " + person_name.family_name
+       follow_up[:hsa_id] = hsa_village.hsa_id
+       @follow_ups << follow_up
+      end
       
       render :template => 'clinic/ancfollowuplist', :layout => 'application'
     end
