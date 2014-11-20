@@ -138,7 +138,7 @@
 <% @follow_ups.each do |person| %>
 <div id="<%= person[:patient_id] %>"  class="vl_lab_trail" style="display:none;">
         <div id="vl_lab_trail_header">
-          <span style="font-size: 16pt; margin-left: 4.5%;">Birth Plan Follow Up</span>
+          <span style="font-size: 16pt; margin-left: 4.5%;">ANC Follow Up History</span>
         </div>
 
         <div id="vl_lab_trail_content">
@@ -159,7 +159,7 @@
              <% person[:visit].each do |visit| %>
             <tr style="line-height: 3em;" class="vl_tbody">
              
-              <td style="border-left: 1px solid black;"><span><center><%= visit.second.strftime("%d-%m-%Y") %></center></span></td>
+              <td style="border-left: 1px solid black;"><span><center><%= visit.second.strftime("%d-%b-%Y") %></center></span></td>
               <td><span><center><%= visit.fourth %>(<%= visit.first.humanize %>)</center></span></td>
               <td><span><center><%= visit.third %></center></span></td>
              
