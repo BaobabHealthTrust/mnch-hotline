@@ -52,8 +52,6 @@ class FollowUp < ActiveRecord::Base
     encounter_type = EncounterType.find_by_name('PREGNANCY STATUS').id
     concept_id = ConceptName.find_by_name('Expected due date').concept_id
     
-    #raise concept_id.inspect
-    
     patients = Encounter.find_by_sql("SELECT e.patient_id, pn.given_name,pn.family_name,pn.family_name_prefix,
                                       pa.address2,o.concept_id,o.value_text,
                                       floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age FROM encounter e

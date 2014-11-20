@@ -110,7 +110,7 @@
         <option value="<%= person[:patient_id]%>" onmousedown="changeNextButtonText('Select Patient');showPopup('<%= person[:patient_id] %>')">
          
           <%= person[:given_name] -%> (<%= person[:family_name_prefix] -%>) <%= person[:family_name] -%>
-          H. Vlg: <%= person[:address2] -%> G. Age: <%= person[:gestation_age] %>
+          H. Vlg: <%= person[:address2] -%> G. Age: <%= person[:gestation_age] -%> G. HSA: <%= person[:hsa_name] -%>
         </option>
       <% end -%>   
     <%= hidden_field_tag("source", "HK") %>
