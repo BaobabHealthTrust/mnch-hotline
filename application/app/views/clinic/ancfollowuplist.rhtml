@@ -151,15 +151,15 @@
             </tr>
           <% else %>
             <tr class="vl_table_header" style="background-color: #A2CD5A; line-height: 2em; font-size: 18px;">
-              <td style="min-width: 130px;"><span><center>Contact Date</center></span></td>
-              <td style="min-width: 120px;"><span><center>Contact</center></span></td>
-              <td><span><center>Reason</center></span></td>
+              <th style="min-width: 130px;"><span><center>Contact Date</center></span></th>
+              <th style="min-width: 120px;"><span><center>Contact</center></span></th>
+              <th><span><center>Reason</center></span></th>
             </tr>
             
              <% person[:visit].each do |visit| %>
             <tr style="line-height: 3em;" class="vl_tbody">
              
-              <td style="border-left: 1px solid black;"><span><center><%= visit.second %></center></span></td>
+              <td style="border-left: 1px solid black;"><span><center><%= visit.second.strftime("%d-%m-%Y") %></center></span></td>
               <td><span><center><%= visit.fourth %>(<%= visit.first.humanize %>)</center></span></td>
               <td><span><center><%= visit.third %></center></span></td>
              

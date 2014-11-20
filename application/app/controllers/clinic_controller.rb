@@ -439,9 +439,10 @@ class ClinicController < ApplicationController
     end
     
     def show_birth_plan_follow_up_list
-    	session[:district] = params[:district] if session[:district].blank?
+      session[:district] = params[:district] if session[:district].blank?
       district = session[:district]
-      @follow_ups = FollowUp.get_birth_plan_follow_ups(district)
+      follow_ups =  FollowUp.get_birth_plan_follow_ups(district)
+      @follow_ups = build_followups(follow_ups)
       
       render :template => 'clinic/birthfollowuplist', :layout => 'application'
     end
