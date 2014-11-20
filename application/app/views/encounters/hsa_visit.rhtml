@@ -10,7 +10,7 @@
 	<%= hidden_field_tag "encounter[encounter_type_name]", "HSA VISIT" %>
 	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
-	<%= hidden_field_tag "encounter[provider_id]", session[:user_id] %>
+	<%= hidden_field_tag "encounter[provider_id]", params[:hsa_id] %>
 	<%session_date = session[:datetime] || Time.now() %>
 	
   <%= touch_select_tag "HSA VISIT", @patient, options_for_select([' ', 'Yes', 'No']),
