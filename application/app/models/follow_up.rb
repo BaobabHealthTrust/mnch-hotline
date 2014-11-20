@@ -72,34 +72,48 @@ class FollowUp < ActiveRecord::Base
   def self.get_birth_plan_follow_ups(district)
   
     district_id = District.find_by_name(district).id
-    call_id = Concept.find_by_name("CALL ID").id
     
     followup_threshhold = GlobalProperty.get_property('followup.threshhold').value rescue 1
-    cell_phone_attribute_type = PersonAttributeType.find_by_name('Cell Phone Number').id
-    
+
     current_date = Date.today.to_date
     start_date = (current_date - (7 * followup_threshhold)).to_date
     
-    encounter_type = EncounterType.find_by_name('BIRTH PLAN').id
+    encounter_type = EncounterType.find_by_name('PREGNANCY STATUS').id
     concept_id = ConceptName.find_by_name('Expected due date').concept_id
     
-    #raise concept_id.inspect
+    cell_phone_attribute_type = PersonAttributeType.find_by_name('Cell Phone Number').id
     
     patients = Encounter.find_by_sql("
-				SELECT e.patient_id, pn.given_name,pn.family_name,pn.family_name_prefix,
+				SELECT e.patient_id, pn.given_name, p.birthdate, pn.family_name,pn.family_name_prefix,
 					pa.address2,o.concept_id,o.value_text, floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age
 					FROM encounter e
 						INNER JOIN person_name pn ON e.patient_id = pn.person_id
 						INNER JOIN person_address pa ON e.patient_id = pa.person_id
 						INNER JOIN person p ON p.person_id = e.patient_id
-						INNER JOIN obs o ON o.encounter_id = e.encounter_id WHERE e.encounter_type = #{encounter_type}
+						INNER JOIN obs o ON o.encounter_id = e.encounter_id
+					WHERE e.encounter_type = #{encounter_type}
 							AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
 							AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 40 
-							AND floor((280 - (DATE(o.value_text) - curdate()))/7) >= 38 
+							AND floor((280 - (DATE(o.value_text) - curdate()))/7) >= 38
+							AND e.voided = 0
 				GROUP BY e.patient_id;
     ")
-    
-    return patients
+
+		data = patients.select {|p| birth_plan_encounter(patients.first.patient_id).nil? }
+
+    return data
+  end
+  
+  def self.birth_plan_encounter(patient_id)
+  	encounter_type = EncounterType.find_by_name('BIRTH PLAN').id
+  	Encounter.find_by_sql("
+			SELECT encounter_datetime
+				FROM encounter
+			WHERE encounter_type = #{encounter_type} and patient_id = #{patient_id}
+						and voided=0	
+			ORDER BY encounter_datetime DESC
+			LIMIT 1
+		").first.encounter_datetime.to_date rescue nil
   end
   
 end
