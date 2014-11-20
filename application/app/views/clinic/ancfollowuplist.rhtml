@@ -110,7 +110,6 @@
      }
      
     </style>
-
 <form id='confirm' action="/clinic/followup" method='post'> %>
 <% if @follow_ups.blank? %>
       <label for="person">No patients were found:</label>
@@ -122,7 +121,7 @@
         <option value="<%= person[:patient_id]%>" onmousedown="changeNextButtonText('Select Patient');showPopup('<%= person[:patient_id] %>','<%= person[:hsa_id] %>')">
          
           <%= person[:given_name] -%> (<%= person[:family_name_prefix] -%>) <%= person[:family_name] -%>
-          H. Vlg: <%= person[:address2] -%> G. Age: <%= person[:gestation_age] -%> G. HSA: <%= person[:hsa_name] -%>
+          H. Vlg: <%= person[:address2] -%> G. Age: <%= person[:gestation_age] -%> HSA: <%= person[:hsa_name] -%>
           Tel: <%= Person.find(person[:patient_id]).get_attribute("Cell Phone Number") -%>
         </option>
       <% end -%>   

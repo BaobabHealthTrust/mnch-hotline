@@ -9,7 +9,6 @@
   
   
   function showVlLabTrail(person_id,hsa_id){
-   
     c = document.getElementById('content');
     v = document.getElementById(person_id);
     c.appendChild(v);
@@ -110,7 +109,6 @@
      }
      
     </style>
-
 <form id='confirm' action="/clinic/followup" method='post'> %>
 <% if @follow_ups.blank? %>
       <label for="person">No patients were found:</label>
@@ -138,7 +136,7 @@
 <% @follow_ups.each do |person| %>
 <div id="<%= person[:patient_id] %>"  class="vl_lab_trail" style="display:none;">
         <div id="vl_lab_trail_header">
-          <span style="font-size: 16pt; margin-left: 4.5%;">ANC Follow Up History</span>
+          <span style="font-size: 16pt; margin-left: 4.5%;">Delivery Follow Up History</span>
         </div>
 
         <div id="vl_lab_trail_content">
