@@ -364,6 +364,18 @@ class EncountersController < ApplicationController
       nick_name = params[:nick_name]
       phone_number = params[:phone_number]
       PersonName.create_nick_name(@patient, nick_name)
+      
+			pa = PersonAttribute.find_by_sql("
+						SELECT *
+							FROM person_attribute
+						WHERE person_id=#{@patient.patient_id} AND voided=0 AND
+									person_attribute_type_id = #{attribute_type_id} 
+						")
+
+			pa.each do |a|
+			record = PersonAttribute.find(a.person_attribute_id).void("cell phone number update")
+			end
+      
       PersonAttribute.create_attribute(@patient, phone_number, "Cell Phone Number")
 
       if (params[:anc_connect_program].match(/NO/i))
