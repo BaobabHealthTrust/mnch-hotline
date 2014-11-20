@@ -7,7 +7,7 @@
   }
   
   
-  function showVlLabTrail(value_passed){
+  function showVlLabTrail(person_id,hsa_id){
    
     c = document.getElementById('content');
     v = document.getElementById('vl_lab_trail');
@@ -15,12 +15,13 @@
     document.getElementById('vl_lab_trail_cover').style.display='inline';
     document.getElementById('vl_lab_trail').style.display='inline';
     patient_id = document.getElementById('patientId');
-    patient_id.setAttribute("value", value_passed);
+    patient_id.setAttribute("value", person_id);
+    patient_id.setAttribute("name", hsa_id);
     
   }
   
-  function showPopup(value_passed){
-   showVlLabTrail(value_passed);
+  function showPopup(patient_id,hsa_id){
+   showVlLabTrail(patient_id,hsa_id);
   }
   
   function hideVlLabTrail(){
@@ -31,8 +32,8 @@
   
   function gotoClientResponse(){
     var person_id =  document.getElementById('patientId');
-    
-    window.location = "/encounters/client_response?patient_id="+ person_id.value ;
+    alert(person_id.value);
+    window.location = "/encounters/client_response?patient_id="+ person_id.value + "&hsa_id=" + person_id.name ;
   }
   
   
@@ -106,7 +107,7 @@
     <% end -%>
     <select name="person" id="person">
       <% @follow_ups.each do |person| -%>
-        <option value="<%= person[:patient_id]%>" onmousedown="changeNextButtonText('Select Patient');showPopup('<%= person[:patient_id] %>')">
+        <option value="<%= person[:patient_id]%>" onmousedown="changeNextButtonText('Select Patient');showPopup('<%= person[:patient_id] %>','<%= person[:hsa_id] %>')">
          
           <%= person[:given_name] -%> (<%= person[:family_name_prefix] -%>) <%= person[:family_name] -%>
           H. Vlg: <%= person[:address2] -%> G. Age: <%= person[:gestation_age] -%> G. HSA: <%= person[:hsa_name] -%>
@@ -129,7 +130,7 @@
 
         <div id="vl_lab_trail_content">
           <div style="position: relative; overflow: none; height: 80%;">
-          <input type="hidden" id="patientId" value="" />
+          <input type="hidden" id="patientId" value="" name ="" />
           <table cellspacing='0' style="position:absolute; width:94%; top:10%; left: 3%;">
             <tr class="vl_table_header" style="background-color: #A2CD5A; line-height: 2em; font-size: 18px;">
               <td style="min-width: 130px;"><span><center>Date of Sample</center></span></td>
