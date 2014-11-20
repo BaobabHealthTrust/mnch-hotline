@@ -58,10 +58,15 @@ class FollowUp < ActiveRecord::Base
                                       INNER JOIN person_name pn ON e.patient_id = pn.person_id
                                       INNER JOIN person_address pa ON e.patient_id = pa.person_id
                                       INNER JOIN person p ON p.person_id = e.patient_id
-                                      INNER JOIN obs o ON o.encounter_id = e.encounter_id WHERE e.encounter_type = #{encounter_type}
+                                      INNER JOIN obs o ON o.encounter_id = e.encounter_id 
+                                      INNER JON obs obs_call on o.encounter_id = obs_call.encounter_id
+                                      AND obs_call.concept_id = #{call_id} 
+                                      INNER JOIN call_log cl on obs_call.value_text = cl.call_log_id 
+                                      AND cl.district = #{district_id} 
+                                      WHERE e.encounter_type = #{encounter_type}
                                       AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 42 
-                                      AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0 
+                                      AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
                                       GROUP BY e.patient_id;")
     return patients
   end
