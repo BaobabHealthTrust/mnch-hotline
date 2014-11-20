@@ -2261,12 +2261,11 @@ module Report
   end
 
  def self.hsa_performance(grouping, start_date, end_date, district)
-    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+    #date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
     district_id = District.find_by_name(district).id
     call_id = Concept.find_by_name("CALL ID").id
     data = []
-    date_ranges.map do |date_range|
-
+    #date_ranges.map do |date_range|
       patients_data = Patient.find_by_sql("
             SELECT d.name as district_name, h.hsa_id as hsa_id, CONCAT(pn.given_name, ' ', pn.family_name) as hsa_name,
             h.name as health_center FROM encounter enc INNER JOIN obs o ON enc.encounter_id=o.encounter_id
@@ -2276,8 +2275,8 @@ module Report
             INNER JOIN district d ON cl.district=d.district_id
             INNER JOIN person_name pn on u.user_id = pn.person_id
             INNER JOIN user_role ur ON u.user_id = ur.user_id AND ur.role = 'HSA'
-            WHERE cl.district = #{district_id} AND DATE(enc.encounter_datetime) >= '#{date_range.first.to_date}'
-            AND DATE(enc.encounter_datetime) <= '#{date_range.last.to_date } AND enc.voided = 0'
+            WHERE cl.district = #{district_id} AND DATE(enc.encounter_datetime) >= '#{start_date.to_date}'
+            AND DATE(enc.encounter_datetime) <= '#{end_date.to_date } AND enc.voided = 0'
          ")
       hash = {}
       patients_data.each do |data|
@@ -2292,13 +2291,14 @@ module Report
         hash[district_name] = {} if hash[district_name].blank?
         hash[district_name]["health_centers"] ={} if hash[district_name]["health_centers"].blank?
         hash[district_name]["health_centers"][health_center] = {} if hash[district_name]["health_centers"][health_center].blank?
+        hash[district_name]["health_centers"][health_center]["hsa_name"] = hsa_name
         hash[district_name]["health_centers"][health_center]["total_clients_enrolled"] = total_clients
         hash[district_name]["health_centers"][health_center]["new_enrollments"] = new_enrollments
         hash[district_name]["health_centers"][health_center]["on_time_anc_rate"] = on_time
         hash[district_name]["health_centers"][health_center]["facility_delivery_rate"] = facility_delivery_rate
       end
       
-    end
+    #end
  end
 
  def new_enrollments_by_hsa(hsa_id, start_date, end_date)
