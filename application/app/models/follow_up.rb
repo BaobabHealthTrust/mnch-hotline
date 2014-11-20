@@ -90,6 +90,7 @@ class FollowUp < ActiveRecord::Base
     concept_id = ConceptName.find_by_name('Expected due date').concept_id
     
     cell_phone_attribute_type = PersonAttributeType.find_by_name('Cell Phone Number').id
+    anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
     
     patients = Encounter.find_by_sql("
 				SELECT e.patient_id, pn.given_name, p.birthdate, pn.family_name,pn.family_name_prefix,
@@ -99,10 +100,12 @@ class FollowUp < ActiveRecord::Base
 						INNER JOIN person_address pa ON e.patient_id = pa.person_id
 						INNER JOIN person p ON p.person_id = e.patient_id
 						INNER JOIN obs o ON o.encounter_id = e.encounter_id
+						INNER JOIN patient_program pp ON pp.patient_id = e.patient_id
 					WHERE e.encounter_type = #{encounter_type}
 							AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
 							AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 40 
 							AND floor((280 - (DATE(o.value_text) - curdate()))/7) >= 38
+							AND pp.program_id = #{anc_connect_program_id}
 							AND e.voided = 0
 				GROUP BY e.patient_id;
     ")
