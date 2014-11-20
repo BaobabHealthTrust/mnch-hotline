@@ -70,7 +70,8 @@ class FollowUp < ActiveRecord::Base
                                       AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
-                                      GROUP BY e.patient_id;")
+                                      GROUP BY e.patient_id
+                                      HAVING COUNT(e.patient_id) < 4;")
     return patients
   end
   
