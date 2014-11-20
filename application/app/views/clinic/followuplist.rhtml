@@ -19,7 +19,7 @@
       <% @follow_ups.each do |person| -%>
         <option value="<%= person.patient_id%>" onmousedown="changeNextButtonText('Select Patient')">
           <%= person.given_name -%> <%= person.family_name -%>, Birthdate: <%= person.birthdate -%>,
-          H. Vlg: <%= person.address2 -%>, Tel: <%= Person.find(person.patient_id).get_attribute("Cell Phone Number") -%>
+           H. Vlg: <%= person.address2 -%>, Tel: <%= person.value -%>
         </option>
       <% end -%>   
     <%= hidden_field_tag("source", "HK") %>
