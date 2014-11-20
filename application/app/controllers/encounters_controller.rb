@@ -906,7 +906,7 @@ class EncountersController < ApplicationController
   #raise params.inspect
     if request.method.to_s == 'post'
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
-        redirect_to "/encounters/new/hsa_visit?patient_id=#{params[:observations].first[:patient_id]}" + "&late=true"
+        redirect_to "/encounters/new/hsa_visit?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
       else
         redirect_to :controller => 'clinic', :action => 'district',:task => 'anc', :district => session[:district]
       end
