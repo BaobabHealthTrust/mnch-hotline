@@ -167,13 +167,15 @@
 
       <% if @patient.female_adult? %>
         <% if @patient_anc_program.blank? %>
-            <option value='/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>&anc_connect_workflow_start=true'>ANC connect</option>
+        		<% if show_for_anc_connect(@patient.patient_id) %>
+            	<option value='/encounters/new/pregnancy_status?patient_id=<%=@patient.id%>&anc_connect_workflow_start=true'>ANC connect</option>
+        		<% end %>
         <% else %>
         
-        <% if show_for_anc_connect(@patient.patient_id) %>
-            <option value='/encounters/edit_pregnacy_encounter?patient_id=<%=@patient.id%>'>Edit ANC connect</option>
-         <% end %>
-            <option value='/patients/anc_info?patient_id=<%=@patient.id%>'>ANC info</option>
+		      <% if show_for_anc_connect(@patient.patient_id) %>
+		          <option value='/encounters/edit_pregnacy_encounter?patient_id=<%=@patient.id%>'>Edit ANC connect</option>
+		          <option value='/patients/anc_info?patient_id=<%=@patient.id%>'>ANC info</option>
+		      <% end %>
         <% end %>
       <% end %>
             
@@ -186,7 +188,9 @@
         <option value='/clinic/followup?person=<%=@patient.id%>&source=PD'>Follow up</option>
     <% end %>
     
-    <option value="/clinic/district?task=anc&district=<%=session[:district]%>&patient_id=<%=@patient.id%>" ttize="170px">ANC follow up</option>
+    <% if show_for_anc_connect(@patient.patient_id) %>
+    	<option value="/clinic/district?task=anc&district=<%=session[:district]%>&patient_id=<%=@patient.id%>" ttize="170px">ANC follow up</option>
+  	<% end %>
   </select>
 </div>
 
