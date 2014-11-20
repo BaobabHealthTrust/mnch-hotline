@@ -318,19 +318,31 @@ class ClinicController < ApplicationController
     def district
       
       session[:district] = params[:district]
-      if ! params[:call_mode].nil? && params[:task] != 'anc' 
+      
+      if !params[:call_mode].nil? && !['anc','birth_plan','delivery'].include?(params[:task])
         session[:call_mode] = params[:call_mode]
         
         render :template => 'clinic/home', :layout => 'clinic'
-      elsif params[:task] != 'anc'
+      
+      elsif !['anc','birth_plan','delivery'].include?(params[:task])
         showfollowuplist
+
       elsif params[:task] == 'anc'
         showancfollowuplist
+
+      elsif params[:task] == 'birth_plan'
+        show_birth_plan_follow_up_list
+        
+      elsif params[:task] == 'delivery'
+        show_delivery_follow_up_list
+        
       end
     end
+    
     def new_call
       call_home(params)
     end
+    
     def call_home(params)
       @task = params[:task]
 
@@ -351,7 +363,7 @@ class ClinicController < ApplicationController
       # session[:call_end_timestamp] = ''
       #end
       
-      if @task == 'anc'
+      if ['anc','birth_plan','delivery'].include?(@task)
         render :template => 'clinic/district', :layout => 'application', :task => @task
       else
        render :template => 'clinic/district', :layout => 'application'
@@ -367,10 +379,45 @@ class ClinicController < ApplicationController
     end
     
     def showancfollowuplist
+    	session[:district] = params[:district] if session[:district].blank?
+      district = session[:district]
+      follow_ups = FollowUp.get_anc_follow_ups(district)
+      
+      
+      @follow_ups = []
+      follow_ups.each do |person|
+       follow_up = {}
+       follow_up[:patient_id] = person.patient_id
+       follow_up[:family_name] = person.family_name
+       follow_up[:given_name] = person.given_name
+       follow_up[:family_name_prefix] = person.family_name_prefix
+       follow_up[:address2] = person.address2
+       follow_up[:gestation_age] = person.gestation_age
+       village = Village.find_by_name(person.address2)
+       hsa_village = HsaVillage.find_by_village_id(village.village_id)
+       person_name = PersonName.find_by_person_id(hsa_village.hsa_id)
+       follow_up[:hsa_name] = person_name.given_name + " " + person_name.family_name
+       follow_up[:hsa_id] = hsa_village.hsa_id
+       @follow_ups << follow_up
+      end
+      
+      render :template => 'clinic/ancfollowuplist', :layout => 'application'
+    end
+
+    def show_delivery_follow_up_list
+    	session[:district] = params[:district] if session[:district].blank?
       district = session[:district]
       @follow_ups = FollowUp.get_anc_follow_ups(district)
       
       render :template => 'clinic/ancfollowuplist', :layout => 'application'
+    end
+    
+    def show_birth_plan_follow_up_list
+    	session[:district] = params[:district] if session[:district].blank?
+      district = session[:district]
+      @follow_ups = FollowUp.get_birth_plan_follow_ups(district)
+      
+      render :template => 'clinic/birthfollowuplist', :layout => 'application'
     end
     
     def create_followup

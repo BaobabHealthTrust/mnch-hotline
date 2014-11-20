@@ -7,7 +7,6 @@
     display: none;
   }
 </style>
-
 <% form_tag :controller => "encounters", :action => "client_response", :method => :post do |f| %>
 	<%session_date = session[:datetime] || Time.now() %>
 	<% visit_helptext = "#{@patient.person.names.first.given_name + " " + @patient.person.names.first.family_name + " # " + (@phone_number.value == "Unknown" ? " " : @phone_number.value) } answered?" %>
@@ -16,5 +15,7 @@
   <%= touch_select_tag "", @patient, options_for_select([' ', 'Yes', 'No']),
 		{:id => "client_response",
 		 :helptext => "#{visit_helptext}" } %>
+		 
+   <%= hidden_field_tag("hsa_id", (params["hsa_id"] || "")) %>		 
 	<%= submit_tag 'Finish' %>
 <% end %>

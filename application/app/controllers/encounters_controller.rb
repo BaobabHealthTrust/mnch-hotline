@@ -876,10 +876,12 @@ class EncountersController < ApplicationController
   end
   
   def client_response
+  
     if request.method.to_s == 'post'
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
         redirect_to "/encounters/new/anc_visit?patient_id=#{params[:observations].first[:patient_id]}" + "&late=true"
       else
+       redirect_to "/encounters/hsa_response?hsa_id=#{params[:hsa_id]}" + "&late=true"
       end
     else
     
@@ -902,9 +904,9 @@ class EncountersController < ApplicationController
       end
     else
     
-    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    @person = Person.find(params[:hsa_id])
     cell_phone_number_att = PersonAttributeType.find_by_name("Cell Phone Number")
-    @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@patient.id,cell_phone_number_att.id) 
+    @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@person.id,cell_phone_number_att.id) 
     
     end
   end
