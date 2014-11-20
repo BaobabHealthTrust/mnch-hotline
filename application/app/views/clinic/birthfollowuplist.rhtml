@@ -123,7 +123,7 @@
          
           <%= person[:given_name] -%> (<%= person[:family_name_prefix] -%>) <%= person[:family_name] -%>
           H. Vlg: <%= person[:address2] -%> G. Age: <%= person[:gestation_age] -%> G. HSA: <%= person[:hsa_name] -%>
-          Tel: <%= Person.find(person.patient_id).get_attribute("Cell Phone Number") -%>
+          Tel: <%= Person.find(person[:patient_id]).get_attribute("Cell Phone Number") -%>
         </option>
       <% end -%>   
     <%= hidden_field_tag("source", "HK") %>
@@ -135,41 +135,37 @@
 
 </div>
 
-<% @follow_ups.each do |x| %>
-<div id="<%= x.patient_id %>"  class="vl_lab_trail" style="display:none;">
+<% @follow_ups.each do |person| %>
+<div id="<%= person[:patient_id] %>"  class="vl_lab_trail" style="display:none;">
         <div id="vl_lab_trail_header">
-          <span style="font-size: 16pt; margin-left: 4.5%;">Birth Plan Follow Up</span>
+          <span style="font-size: 16pt; margin-left: 4.5%;">Birth Plan Follow Up Histroy</span>
         </div>
 
         <div id="vl_lab_trail_content">
           <div style="position: relative; overflow: none; height: 80%;">
           <input type="hidden" id="patientId" value="" name ="" />
           <table cellspacing='0' style="position:absolute; width:94%; top:10%; left: 3%;">
-            <tr class="vl_table_header" style="background-color: #A2CD5A; line-height: 2em; font-size: 18px;">
-              <td style="min-width: 130px;"><span><center>Date of Sample</center></span></td>
-              <td style="min-width: 120px;"><span><center>Result</center></span></td>
-              <td><span><center>Result given?</center></span></td>
-              <td><span><center>Date result given</center></span></td>
-              <td><span><center>Switched to second line?</center></span></td>
+          <% if person[:visit].blank? %>
+          <tr class="vl_table_header" style="background-color: #A2CD5A; line-height: 2em; font-size: 18px;">
+              <td style="min-width: 130px;"><span><center>No Previous Follow ups</center></span></td>
             </tr>
-          
+          <% else %>
+            <tr class="vl_table_header" style="background-color: #A2CD5A; line-height: 2em; font-size: 18px;">
+              <th style="min-width: 130px;"><span><center>Contact Date</center></span></th>
+              <th style="min-width: 120px;"><span><center>Contact</center></span></th>
+              <th><span><center>Reason</center></span></th>
+            </tr>
+            
+             <% person[:visit].each do |visit| %>
             <tr style="line-height: 3em;" class="vl_tbody">
-              <td style="border-left: 1px solid black;">
-                  <span><center><%= x.patient_id -%> </center></span>
-              </td>
-              <td><span><center>stuffff</center></span></td>
-              <td><span><center>stqquff</center></span></td>
-              <td><span><center>stuff</center></span></td>
-              <td><span><center>stuff</center></span></td>
-
-            <tr style="line-height: 3em;" class="vl_tbody">
-              <td style="border-left: 1px solid black;">
-                  <span><center><%= x.patient_id -%> </center></span>
-              </td>
-              <td><span><center>stuffff</center></span></td>
-              <td><span><center>stqquff</center></span></td>
-              <td><span><center>stuff</center></span></td>
-              <td><span><center>stuff</center></span></td>
+             
+              <td style="border-left: 1px solid black;"><span><center><%= visit.second.strftime("%d-%m-%Y") %></center></span></td>
+              <td><span><center><%= visit.fourth %>(<%= visit.first.humanize %>)</center></span></td>
+              <td><span><center><%= visit.third %></center></span></td>
+             
+            </tr>
+             <% end %>
+           <% end %>
           </table>
           </div>
         </div>
