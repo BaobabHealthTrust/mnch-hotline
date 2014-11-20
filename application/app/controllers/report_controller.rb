@@ -570,7 +570,7 @@ class ReportController < ApplicationController
     @grouping     = params[:grouping]
     @source       = params[:source] rescue nil
     district = params[:district]
-    #@report = Report.hsa_performance( @grouping, @start_date, @end_date, district)
+    @report = Report.hsa_performance( @grouping, @start_date, @end_date, district)
     render :layout => false
   end
 

@@ -2270,45 +2270,45 @@ module Report
             SELECT pa.address2 as village,
 
             (SELECT hsa_id FROM hsa_villages WHERE village_id = (
-                SELECT village_id FROM villages WHERE name = village LIMIT 1
+                SELECT village_id FROM village WHERE name = village LIMIT 1
             ) LIMIT 1) as hsa_id,
-            ,
-            (SELECT name FROM district WHERE village_id = (
-                SELECT district_id FROM hsa_villages WHERE hsa_id = hsa_id LIMIT 1
-            ) LIMIT 1) as district_name
 
-            CONCAT(pn.given_name, ' ', pn.family_name) as hsa_name,
+            (SELECT name FROM district WHERE district_id = (
+                SELECT district_id FROM hsa_villages WHERE hsa_id = hsa_id LIMIT 1
+            ) LIMIT 1) as district_name,
+
+            CONCAT(pn.given_name, ' ', pn.family_name) as hsa_name
             FROM obs o INNER JOIN call_log cl ON o.value_text = cl.call_log_id AND
             o.concept_id = #{call_id} INNER JOIN health_center h
-            ON cl.district = h.district INNER JOIN users u ON enc.provider_id = u.user_id
+            ON cl.district = h.district
             INNER JOIN person_address pa ON o.person_id = pa.person_id
             INNER JOIN person_name pn on o.person_id = pn.person_id
             WHERE cl.district = #{district_id} AND DATE(o.obs_datetime) >= '#{start_date.to_date}'
-            AND DATE(o.obs_datetime) <= '#{end_date.to_date } AND enc.voided = 0 
-            GROUP BY o.person_id
-         ")
+            AND DATE(o.obs_datetime) <= '#{end_date.to_date }' AND o.voided = 0
+       ")
 
       hash = {}
-      patients_data.each do |data|
-        district_name = data["district_name"]
-        health_center = data["health_center"]
-        village = data["village"]
-        hsa_id = data["hsa_id"]
-        hsa_name = data["hsa_name"]
-        total_clients = total_clients_enrolled_by_hsa(village, end_date)
-        new_enrollments = new_enrollments_by_hsa(village, start_date, end_date)
-        on_time = on_time_anc_rate(village, start_date, end_date)
-        facility_delivery_rate = facility_delivery_rate(hsa_id, village, start_date, end_date)
-        hash[district_name] = {} if hash[district_name].blank?
-        hash[district_name]["health_centers"] ={} if hash[district_name]["health_centers"].blank?
-        hash[district_name]["health_centers"][health_center] = {} if hash[district_name]["health_centers"][health_center].blank?
-        hash[district_name]["health_centers"][health_center]["hsa_name"] = hsa_name
-        hash[district_name]["health_centers"][health_center]["total_clients_enrolled"] = total_clients
-        hash[district_name]["health_centers"][health_center]["new_enrollments"] = new_enrollments
-        hash[district_name]["health_centers"][health_center]["on_time_anc_rate"] = on_time
-        hash[district_name]["health_centers"][health_center]["facility_delivery_rate"] = facility_delivery_rate
+      unless patients_data.blank?
+        patients_data.each do |data|
+          district_name = data["district_name"]
+          health_center = data["health_center"]
+          village = data["village"]
+          hsa_id = data["hsa_id"]
+          hsa_name = data["hsa_name"]
+          total_clients = total_clients_enrolled_by_hsa(village, end_date)
+          new_enrollments = new_enrollments_by_hsa(village, start_date, end_date)
+          on_time = on_time_anc_rate(village, start_date, end_date)
+          facility_delivery_rate = facility_delivery_rate(hsa_id, village, start_date, end_date)
+          hash[district_name] = {} if hash[district_name].blank?
+          hash[district_name]["health_centers"] ={} if hash[district_name]["health_centers"].blank?
+          hash[district_name]["health_centers"][health_center] = {} if hash[district_name]["health_centers"][health_center].blank?
+          hash[district_name]["health_centers"][health_center]["hsa_name"] = hsa_name
+          hash[district_name]["health_centers"][health_center]["total_clients_enrolled"] = total_clients
+          hash[district_name]["health_centers"][health_center]["new_enrollments"] = new_enrollments
+          hash[district_name]["health_centers"][health_center]["on_time_anc_rate"] = on_time
+          hash[district_name]["health_centers"][health_center]["facility_delivery_rate"] = facility_delivery_rate
+        end 
       end
-      
     #end
  end
 
