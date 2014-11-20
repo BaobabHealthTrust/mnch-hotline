@@ -32,7 +32,6 @@
   
   function gotoClientResponse(){
     var person_id =  document.getElementById('patientId');
-    alert(person_id.value);
     window.location = "/encounters/client_response?patient_id="+ person_id.value + "&hsa_id=" + person_id.name ;
   }
   
