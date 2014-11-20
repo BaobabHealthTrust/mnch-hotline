@@ -35,7 +35,8 @@ class FollowUp < ActiveRecord::Base
                 and o.value_text in ('REFERRED TO A HEALTH CENTRE','REFERRED TO NEAREST VILLAGE CLINIC')
                 and pat.person_attribute_type_id = #{cell_phone_attribute_type}
                 and e.encounter_datetime >= '#{start_date} 00:00' and encounter_datetime <= '#{current_date} 23:59' 
-                and e.patient_id NOT IN (SELECT patient_id FROM follow_up WHERE date_created >= '#{start_date} 00:00' AND date_created <='#{current_date} 23:59') ")
+                and e.patient_id NOT IN (SELECT patient_id FROM follow_up WHERE date_created >= '#{start_date} 00:00' AND date_created <='#{current_date} 23:59')
+                GROUP BY e.patient_id ")
     return patients
   end
 
