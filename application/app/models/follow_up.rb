@@ -31,7 +31,7 @@ class FollowUp < ActiveRecord::Base
                 inner join person p on p.person_id = e.patient_id
                 inner join person_attribute pat on e.patient_id = pat.person_id
             where e.encounter_type = #{encounter_type}
-                and o.concept_id = #{concept_id}
+                and o.concept_id = #{concept_id} and pat.voided = 0
                 and o.value_text in ('REFERRED TO A HEALTH CENTRE','REFERRED TO NEAREST VILLAGE CLINIC')
                 and pat.person_attribute_type_id = #{cell_phone_attribute_type}
                 and e.encounter_datetime >= '#{start_date} 00:00' and encounter_datetime <= '#{current_date} 23:59' 
