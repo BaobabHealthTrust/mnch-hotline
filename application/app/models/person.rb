@@ -420,8 +420,8 @@ class Person < ActiveRecord::Base
   end
 
   def get_attribute(attribute)
-    PersonAttribute.find(:first,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND person_id = ?",
-        PersonAttributeType.find_by_name(attribute).id,self.id]).value rescue nil
+    PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND person_id = ?",
+        PersonAttributeType.find_by_name(attribute).id,self.id], :order=>"date_changed ASC").value rescue nil
   end
 
   def phone_numbers

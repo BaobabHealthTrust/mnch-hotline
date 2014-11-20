@@ -2298,7 +2298,8 @@ module Report
  end
 
  def new_enrollments_by_hsa(hsa_id, start_date, end_date)
-   
+   delivery_enc = EncounterType.find_by_name('BABY DELIVERY').id
+   anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
    patients_data = Patient.find_by_sql("
       SELECT patient_id FROM encounter enc INNER JOIN encounter_type et ON
       enc.encounter_type = et.encounter_type AND encounter_type != #{delivery_enc}
@@ -2315,6 +2316,8 @@ module Report
  end
 
  def total_clients_enrolled_by_hsa(hsa_id, end_date)
+    delivery_enc = EncounterType.find_by_name('BABY DELIVERY').id
+    anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
     patients_data = Patient.find_by_sql("
       SELECT patient_id FROM encounter enc INNER JOIN encounter_type et ON
       enc.encounter_type = et.encounter_type AND encounter_type != #{delivery_enc}
@@ -2323,10 +2326,68 @@ module Report
       pp.program_id = #{anc_connect_program_id} AND
       DATE(pp.date_enrolled) <= '#{end_date.to_date} AND pp.voided=0
       GROUP BY enc.patient_id'
-   ")
+    ")
 
    patient_ids = patients_data.collect{|p|p["patient_id"]}
    return patient_ids
+ end
+
+ def facility_delivery_rate(hsa_id, start_date, end_date)
+   health_center_id = HsaVillage.find_by_hsa_id(hsa_id).health_center_id
+   health_facility = HealthCenter.find(health_center_id).name
+   concept_id = Concept.find_by_name("HEALTH FACILITY NAME").id
+   encounter_type = EncounterType.find_by_name('BABY DELIVERY').id
+   patients_data = Patient.find_by_sql("
+      SELECT enc.patient_id FROM encounter enc INNER JOIN obs o ON enc.encounter_id=o.encounter_id AND
+      o.encounter_type=#{encounter_type} AND DATE(enc.encounter_datetime) >= '#{start_date.to_date}' AND
+      DATE(enc.encounter_datetime) <= '#{end_date.to_date} AND enc.provider_id=#{hsa_id} AND
+      enc.voided=0'
+   ")
+   patient_ids = patients_data.collect{|p|p["patient_id"]}.uniq
+   total_delivered_patients = patient_ids.count
+
+   delivered_at_facility = Patient.find_by_sql("
+      SELECT o.person_id from obs o WHERE person_id IN (#{patient_ids.join(',')}) AND
+      o.concept_id = #{concept_id} AND o.value_text = #{health_facility}
+      AND DATE(o.obs_datetime) >= '#{start_date.to_date}' AND
+      DATE(o.obs_datetime) <= '#{end_date.to_date}'
+   ")
+ 
+  total_delivered_at_facility = delivered_at_facility.collect{|p|p["person_id"]}.uniq.count
+  ((total_delivered_at_facility.to_f/total_delivered_patients) * 100) rescue 0
+  
+ end
+
+ def on_time_anc_rate(hsa_id, start_date, end_date)
+   encounter_type = EncounterType.find_by_name('ANC VISIT').id
+   next_anc_visit_date_concept = Concept.find_by_name("NEXT ANC VISIT DATE").id
+   patients_data = Patient.find_by_sql("SELECT enc.patient_id, o.value_text as next_anc_visit_date,
+      enc.encounter_datetime FROM encounter enc
+      INNER JOIN obs o ON enc.encounter_id=o.encounter_id AND o.encounter_type=#{encounter_type}
+      AND o.concept_id = #{next_anc_visit_date_concept}
+      AND DATE(enc.encounter_datetime) >= '#{start_date.to_date}' AND
+      DATE(enc.encounter_datetime) <= '#{end_date.to_date}' AND enc.provider_id=#{hsa_id}
+  AND UPPER(o.value_text) != 'UNKNOWN')
+      HAVING next_anc_visit_date >= '#{start_date.to_date}' AND next_anc_visit_date <= '#{end_date.to_date}'
+    ")
+   total_visits_scheduled = patients_data.collect{|p|p["patient_id"]}.uniq.count
+   two_weeks_end_date = start_date + 14.days
+   on_time = []
+   (patients_data || []).each do |pd|
+     patient_id = pd["patient_id"]
+     encounter_datetime = pd["enc.encounter_datetime"]
+     n_visit_date = pd["next_anc_visit_date"].to_date rescue nil
+     next_anc_visit_date_concept = Concept.find_by_name("NEXT ANC VISIT DATE").id
+     next if n_visit_date.blank?
+     next if encounter_datetime.to_date > two_weeks_end_date
+
+     p_id = Patient.find_by_sql("SELECT o.person_id FROM obs o WHERE o.concept_id=#{next_anc_visit_date_concept}
+       AND o.person_id=#{patient_id} AND o.obs_datetime > '#{n_visit_date}'
+       AND o.obs_datetime <= '#{end_date}' LIMIT 1").last["patient_id"]
+     on_time << p_id unless p_id.blank?
+   end
+
+   return ((on_time.count.to_f/total_visits_scheduled) * 100) rescue 0
  end
  
 end

@@ -332,7 +332,7 @@ class ClinicController < ApplicationController
 
       elsif params[:task] == 'birth_plan'
         show_birth_plan_follow_up_list
-        
+
       elsif params[:task] == 'delivery'
         show_delivery_follow_up_list
         

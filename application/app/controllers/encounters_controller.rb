@@ -173,7 +173,7 @@ class EncountersController < ApplicationController
     @child_symptoms = @patient.child_symptoms(concept_set('health symptom'))
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
-    @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
+    @personal_phone_number = @patient.person.get_attribute("Cell Phone Number")
     @last_anc_visit_date = Encounter.get_last_anc_visit_date(@patient.id)
     @last_registration_date = Encounter.get_last_registration_date(@patient.id)
     @female_danger_signs = @patient.female_danger_signs(concept_set('danger sign'))
@@ -288,7 +288,7 @@ class EncountersController < ApplicationController
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
 
-    @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
+    @personal_phone_number = @patient.person.get_attribute("Cell Phone Number")
 
     @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
 
@@ -349,8 +349,7 @@ class EncountersController < ApplicationController
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     attribute_type_id = PersonAttributeType.find_by_name("Cell Phone Number").id rescue nil
     
-    @cellphone_number = PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND
-      person_id = ?", attribute_type_id, @patient.id]).value rescue nil
+    @cellphone_number = Person.find(@patient.id).get_attribute("Cell Phone Number")
 
     @nick_name = PersonName.find(:last, :conditions => ["person_id =?", @patient.id]).family_name_prefix rescue nil
     if (request.method == :post)

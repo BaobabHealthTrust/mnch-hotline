@@ -60,7 +60,7 @@
     <td>
       <%= link_to "Cell phone Number:", "/patients/edit_demographics?field=primary_phone&id=#{@patient.patient_id}" -%>
     </td>
-    <td class="label"><%= @patient.person.phone_numbers[:cell_phone_number] %></td>
+    <td class="label"><%= @patient.person.get_attribute("Cell Phone Number") %></td>
   </tr>
 <!--  
   <tr>
