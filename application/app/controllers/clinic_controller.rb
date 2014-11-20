@@ -397,6 +397,7 @@ class ClinicController < ApplicationController
        hsa_village = HsaVillage.find_by_village_id(village.village_id)
        person_name = PersonName.find_by_person_id(hsa_village.hsa_id)
        follow_up[:hsa_name] = person_name.given_name + " " + person_name.family_name
+       follow_up[:hsa_id] = hsa_village.hsa_id
        @follow_ups << follow_up
       end
       
