@@ -107,10 +107,10 @@
     <% end -%>
     <select name="person" id="person">
       <% @follow_ups.each do |person| -%>
-        <option value="<%= person.patient_id%>" onmousedown="changeNextButtonText('Select Patient');showPopup('<%= person.patient_id %>')">
+        <option value="<%= person[:patient_id]%>" onmousedown="changeNextButtonText('Select Patient');showPopup('<%= person[:patient_id] %>')">
          
-          <%= person.given_name -%> (<%= person.family_name_prefix -%>) <%= person.family_name -%>
-          H. Vlg: <%= person.address2 -%> G. Age: <%= person.gestation_age %>
+          <%= person[:given_name] -%> (<%= person[:family_name_prefix] -%>) <%= person[:family_name] -%>
+          H. Vlg: <%= person[:address2] -%> G. Age: <%= person[:gestation_age] %>
         </option>
       <% end -%>   
     <%= hidden_field_tag("source", "HK") %>
@@ -142,7 +142,7 @@
           <% @follow_ups.each do |person| %>
             <tr style="line-height: 3em;" class="vl_tbody">
               <td style="border-left: 1px solid black;">
-                  <span><center><%= person.family_name_prefix -%></center></span>
+                  <span><center><%= person[:family_name_prefix] -%></center></span>
               </td>
               <td><span><center>stuff</center></span></td>
               <td><span><center>stuff</center></span></td>
