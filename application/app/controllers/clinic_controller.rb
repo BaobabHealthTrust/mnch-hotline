@@ -398,10 +398,10 @@ class ClinicController < ApplicationController
           follow_up[:address2] = person.address2
           follow_up[:gestation_age] = person.gestation_age
           village = Village.find_by_name(person.address2)
-          hsa_village = HsaVillage.find_by_village_id(village.village_id)
-          person_name = PersonName.find_by_person_id(hsa_village.hsa_id)
-          follow_up[:hsa_name] = person_name.given_name + " " + person_name.family_name
-          follow_up[:hsa_id] = hsa_village.hsa_id
+          hsa_village = HsaVillage.find_by_village_id(village.village_id) rescue nil
+          person_name = PersonName.find_by_person_id(hsa_village.hsa_id) rescue nil
+          follow_up[:hsa_name] = person_name.given_name + " " + person_name.family_name rescue nil
+          follow_up[:hsa_id] = hsa_village.hsa_id rescue nil
           @built_follow_ups << follow_up
       end
       return @built_follow_ups

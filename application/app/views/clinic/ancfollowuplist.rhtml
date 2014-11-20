@@ -6,7 +6,6 @@
     $('nextButton').innerHTML = "<span>" + text + "</span>";  
   }
   
-  
   function showVlLabTrail(person_id,hsa_id){
    
     c = document.getElementById('content');
@@ -21,6 +20,7 @@
   }
   
   function showPopup(patient_id,hsa_id){
+   getLastAncEncounter(patient_id);
    showVlLabTrail(patient_id,hsa_id);
   }
   
@@ -30,10 +30,37 @@
     document.getElementById('vl_lab_trail').style.display='none';
   }
   
-  function gotoClientResponse(){
+  function gotoClientResponse(p_id){
     var person_id =  document.getElementById('patientId');
     window.location = "/encounters/client_response?patient_id="+ person_id.value + "&hsa_id=" + person_id.name ;
   }
+  
+  
+function getLastAncEncounter(p_id){
+
+  jQuery.ajax({
+     type: "POST",
+     contentType: "application/json; charset=utf-8",
+     url: "/patients/last_anc_encounter",
+     data : JSON.stringify({patient_id: p_id}),
+     dataType: "json",
+     success: function (result) {
+       
+       alert(result[0].given_name + " " + result[0].family_name);
+       document.getElementById('contactDate1').innerHTML = new Date(Date.parse(result[0].encounter_datetime));
+       document.getElementById('contact1').innerHTML = result[0].given_name + " " + result[0].family_name;  
+       document.getElementById('reason1').innerHTML = result[0].reason;
+       
+       document.getElementById('contactDate2').innerHTML = new Date(Date.parse(result[1].encounter_datetime));
+       document.getElementById('contact2').innerHTML = result[1].given_name + " " + result[1].family_name;  
+       document.getElementById('reason2').innerHTML = result[1].reason;        
+    
+     },
+     error: function (){
+        window.alert("something wrong!");
+     }
+    });
+ }
   
   
 </script>
@@ -143,23 +170,23 @@
           <input type="hidden" id="patientId" value="" name ="" />
           <table cellspacing='0' style="position:absolute; width:94%; top:10%; left: 3%;">
             <tr class="vl_table_header" style="background-color: #A2CD5A; line-height: 2em; font-size: 18px;">
-              <td style="min-width: 130px;"><span><center>Date of Sample</center></span></td>
-              <td style="min-width: 120px;"><span><center>Result</center></span></td>
-              <td><span><center>Result given?</center></span></td>
-              <td><span><center>Date result given</center></span></td>
-              <td><span><center>Switched to second line?</center></span></td>
+              <td style="min-width: 130px;"><span><center>Contact Date</center></span></td>
+              <td style="min-width: 120px;"><span><center>Contact</center></span></td>
+              <td><span><center>Reason for not Attending/Visiting</center></span></td>
             </tr>
-          <% @follow_ups.each do |person| %>
+          
             <tr style="line-height: 3em;" class="vl_tbody">
-              <td style="border-left: 1px solid black;">
-                  <span><center><%= person[:family_name_prefix] -%></center></span>
-              </td>
-              <td><span><center>stuff</center></span></td>
-              <td><span><center>stuff</center></span></td>
-              <td><span><center>stuff</center></span></td>
-              <td><span><center>stuff</center></span></td>
+              <td style="border-left: 1px solid black;"><span id="contactDate1"></span></td>
+              <td><span id="contact1"><center></center></span></td>
+              <td><span id="reason1"><center></center></span></td>
             </tr>
-          <% end %>
+            
+            <tr style="line-height: 3em;" class="vl_tbody">
+              <td style="border-left: 1px solid black;"><span id="contactDate2"></span></td>
+              <td><span id="contact2"><center></center></span></td>
+              <td><span id="reason2"><center></center></span></td>
+            </tr>
+         
           </table>
           </div>
         </div>
