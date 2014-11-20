@@ -106,7 +106,8 @@ class FollowUp < ActiveRecord::Base
 				GROUP BY e.patient_id;
     ")
 
-		data = patients.select {|p| birth_plan_encounter(patients.first.patient_id).nil? }
+
+		data = patients.select {|p| birth_plan_encounter(p.patient_id).nil? }
 
     return data
   end
