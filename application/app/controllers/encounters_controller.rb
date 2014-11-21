@@ -145,6 +145,7 @@ class EncountersController < ApplicationController
           yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
           if yes_concept == 'YES'
             if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
+             de_enroll_and_deliver(params[:observations][0]['patient_id'])
              redirect_to "/clinic/new_call?task=delivery" and return
             else
             redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
@@ -918,7 +919,7 @@ class EncountersController < ApplicationController
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
         redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
       else
-       redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true&followup=#{params[:followup]}"
+       redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
       end
     else
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
@@ -948,5 +949,27 @@ class EncountersController < ApplicationController
     end
   end
   
+  def de_enroll_and_deliver(patient_id)
+     anc_connect_programme = Program.find_by_name("ANC CONNECT PROGRAM")
+     patient_anc_connect_programme = PatientProgram.find_by_program_id_and_patient_id(anc_connect_programme.id,patient_id)
+     unless patient_anc_connect_programme.blank?
+        patient_anc_connect_programme.void("Delivered Baby")
+        pregnancy_encounter = {:provider_id => session[:user_id],
+                            :encounter_datetime => Time.now(),
+                            :patient_id => patient_id,
+                            :encounter_type_name =>  "PREGNANCY STATUS"}
+                             
+        encounter = Encounter.create(pregnancy_encounter, session[:datetime])                      
+      
+        pregnancy_observation = {:encounter_id => encounter.id,
+                              :obs_datetime =>  encounter.encounter_datetime,
+                              :person_id => encounter.patient_id,
+                              :concept_name => "PREGNANCY STATUS",
+                              :value_coded_or_text =>  "DELIVERED"}
+                                                                                    
+       Observation.create(pregnancy_observation)
+     end
+      
+  end
   
 end
