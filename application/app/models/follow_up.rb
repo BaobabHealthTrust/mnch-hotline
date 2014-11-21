@@ -37,6 +37,7 @@ class FollowUp < ActiveRecord::Base
                 and e.encounter_datetime >= '#{start_date} 00:00' and encounter_datetime <= '#{current_date} 23:59' 
                 and e.patient_id NOT IN (SELECT patient_id FROM follow_up WHERE date_created >= '#{start_date} 00:00' AND date_created <='#{current_date} 23:59')
                 GROUP BY e.patient_id ")
+                
     return patients
   end
 
@@ -54,6 +55,8 @@ class FollowUp < ActiveRecord::Base
     concept_id = ConceptName.find_by_name('Expected due date').concept_id
     anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
     
+ 
+    
     patients = Encounter.find_by_sql("SELECT e.patient_id, pn.given_name,pn.family_name,pn.family_name_prefix,
                                       pa.address2,o.concept_id,o.value_text,
                                       floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age FROM encounter e
@@ -70,10 +73,12 @@ class FollowUp < ActiveRecord::Base
                                       AND pp.program_id = #{anc_connect_program_id}
                                       AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 42 
-                                      AND floor((280 - (DATE(o.value_text) - curdate()))/7)
+                                      AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
                                       GROUP BY e.patient_id
                                       HAVING COUNT(e.patient_id) < 4;")
-    return patients
+  
+    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
+    return data
   end
   
   
@@ -90,6 +95,7 @@ class FollowUp < ActiveRecord::Base
     concept_id = ConceptName.find_by_name('Expected due date').concept_id
     
     cell_phone_attribute_type = PersonAttributeType.find_by_name('Cell Phone Number').id
+    anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
     
     patients = Encounter.find_by_sql("
 				SELECT e.patient_id, pn.given_name, p.birthdate, pn.family_name,pn.family_name_prefix,
@@ -99,10 +105,12 @@ class FollowUp < ActiveRecord::Base
 						INNER JOIN person_address pa ON e.patient_id = pa.person_id
 						INNER JOIN person p ON p.person_id = e.patient_id
 						INNER JOIN obs o ON o.encounter_id = e.encounter_id
+						INNER JOIN patient_program pp ON pp.patient_id = e.patient_id
 					WHERE e.encounter_type = #{encounter_type}
 							AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
 							AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 40 
 							AND floor((280 - (DATE(o.value_text) - curdate()))/7) >= 38
+							AND pp.program_id = #{anc_connect_program_id}
 							AND e.voided = 0
 				GROUP BY e.patient_id;
     ")
@@ -158,7 +166,9 @@ class FollowUp < ActiveRecord::Base
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) >= 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
                                       GROUP BY e.patient_id;")
-    return patients
+                                      
+    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
+    return data
   end
   
 end

@@ -15,7 +15,8 @@
 	
   <%= touch_select_tag "", @patient, options_for_select([' ', 'Yes', 'No']),
 		{:id => "client_response",
-		 :helptext => "#{visit_helptext}" } %>
-   <%= hidden_field_tag("hsa_id",  (params[:hsa_id] || "")) %>		 
+		 :helptext => "#{visit_helptext}" } %> 
+   <%= hidden_field_tag("hsa_id", (params["hsa_id"] || "")) %>
+   <%= hidden_field_tag("followup", (params["followup"] || "")) %>	
 	<%= submit_tag 'Finish' %>
 <% end %>

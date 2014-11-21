@@ -6,6 +6,8 @@ class PeopleController < ApplicationController
   def new
     @gender = {"" => "", "Male" => "M", "Female" => "F"}
     @health_facilities = [""] + ClinicSchedule.health_facilities_list
+
+
   end
   
   def identifiers
@@ -129,11 +131,25 @@ class PeopleController < ApplicationController
     end
     render :text => villages.join('') + "<li value='Other'>Other</li>" and return
   end
-  def healthcenter
-    district_id = District.find_by_name("#{session[:district]}").id
-    hc_conditions = ["name LIKE (?) AND district = ?", "%#{params[:search_string]}%", district_id]
+    
+  def village_demographics
+  
+    village_conditions = ["name LIKE (?)", "%#{params[:search_string]}%"]
 
-    health_centers = HealthCenter.find(:all,:conditions => hc_conditions, :order => 'name')
+    villages = Village.find(:all, :select => "DISTINCT name", :conditions => village_conditions, :order => 'name', :limit => 10)
+    villages = villages.map do |v|
+      '<li value=' + v.name + '>' + v.name + '</li>'
+    end
+    
+    render :text => villages.join('') + "<li value='Other'>Other</li>" and return
+  end
+  
+  def healthcenter
+
+    district_id = District.find_by_name("#{session[:district]}").id
+
+    hc_conditions = ["name LIKE (?) AND district = ?", "%#{params[:search_string]}%", district_id]
+    health_centers = HealthCenter.find(:all, :select => "DISTINCT name", :conditions => hc_conditions, :order => 'name')
     health_centers = health_centers.map do |h_c|
       "<li value='#{h_c.name.humanize}'>#{h_c.name.humanize}</li>"
     end
