@@ -8,7 +8,7 @@
     <%= javascript_include_tag("jquery.table2CSV.min") %>
     <script>
       function eportToCSV(){
-         $('#hsa_performance_report').table2CSV({header:['District','Health Center','HSA Name','Clients Enrolled(Total)','New Enrollments', 'On-Time ANC Rate', 'Facility Delivery Rate']})
+         $('#hsa_performance_report').table2CSV()
       }
     </script>
   </head>
@@ -38,28 +38,30 @@
             <td colspan ="6"><%= "Filter Info: Grouping - #{@grouping.capitalize} "%></td>
           </tr>
           <tr>
-            <td colspan="6">&nbsp;</td>
+            <td colspan="6"></td>
           </tr>
           <tr>
-            <th>District</th>
-            <th>Health Center</th>
-            <th>HSA Name</th>
-            <th>Clients Enrolled(Total)</th>
-            <th>New Enrollments</th>
-            <th>On-Time ANC Rate(%)</th>
-            <th>Facility Delivery Rate(%)</th>
+            <td><b>District</b></td>
+            <td><b>Health Center</b></td>
+            <td><b>HSA Name</b></td>
+            <td><b>Clients Enrolled(Total)</b></td>
+            <td><b>New Enrollments</b></td>
+            <td><b>On-Time ANC Rate(%)</b></td>
+            <td><b>Facility Delivery Rate(%)</b></td>
           </tr>
         </thead>
-        <%raise @report.to_yaml%>
+
         <%  (@report || []).each do |district, values|%>
         <tr>
           <% values.each do |health_center, data| %>
+              <% data.each do |k, v| %>
               <%
-                hsa_name = data["hsa_name"]
-                total_clients_enrolled = data["total_clients_enrolled"]
-                new_enrollments = data["new_enrollments"]
-                on_time_anc_rate = data["on_time_anc_rate"]
-                facility_delivery_rate = data["facility_delivery_rate"]
+                health_center = k
+                hsa_name = v["hsa_name"]
+                total_clients_enrolled = v["total_clients_enrolled"]
+                new_enrollments = v["new_enrollments"]
+                on_time_anc_rate = v["on_time_anc_rate"]
+                facility_delivery_rate = v["facility_delivery_rate"]
               %>
               <td><%= district %></td>
               <td><%= health_center %></td>
@@ -69,6 +71,7 @@
               <td><%= on_time_anc_rate %></td>
               <td><%= facility_delivery_rate %></td>
           <% end %>
+           <% end %>
         </tr>
         <% end %>
       </table>
