@@ -40,6 +40,10 @@
     <%= hidden_field_tag("encounter_id",  @encounter_id) %>
     <%= hidden_field_tag("editing",       true) %>
   <%end%>
+  
+  <%= hidden_field_tag("late_anc_call",params[:late]) if params[:late].present? %>
 
+  <%= hidden_field_tag("hsa_id",params[:hsa_id]) if params[:hsa_id].present? %>
+  
 	<%= submit_tag 'Finish' %>
 <% end %>

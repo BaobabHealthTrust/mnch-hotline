@@ -137,7 +137,26 @@ class EncountersController < ApplicationController
       session[:outcome_complete]  = true
       session[:health_facility]   = params["health_center"]
     end
-  
+    
+   
+    if params['encounter']['encounter_type_name'] == 'BABY DELIVERY'
+      if params[:observations][0]['concept_name'] == 'DELIVERED'
+        unless params[:observations][0]['value_coded'].blank?
+          yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
+          if yes_concept == 'YES'
+            if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
+             redirect_to "/clinic/new_call?task=delivery" and return
+            else
+            redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
+            end
+          else
+             redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true" 
+          end   
+        end
+      end
+    end
+    
+   
     if params['encounter']['encounter_type_name'] == 'HSA VISIT'
 
       if params[:observations][0]['concept_name'] == 'HSA VISIT'
