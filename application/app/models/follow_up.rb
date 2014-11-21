@@ -58,7 +58,7 @@ class FollowUp < ActiveRecord::Base
  
     
     patients = Encounter.find_by_sql("SELECT e.patient_id, pn.given_name,pn.family_name,pn.family_name_prefix,
-                                      pa.city_village,o.concept_id,o.value_text,
+                                      pa.address2,o.concept_id,o.value_text,
                                       floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age FROM encounter e
                                       INNER JOIN person_name pn ON e.patient_id = pn.person_id
                                       INNER JOIN person_address pa ON e.patient_id = pa.person_id
@@ -99,7 +99,7 @@ class FollowUp < ActiveRecord::Base
     
     patients = Encounter.find_by_sql("
 				SELECT e.patient_id, pn.given_name, p.birthdate, pn.family_name,pn.family_name_prefix,
-					pa.city_village,o.concept_id,o.value_text, floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age
+					pa.address2,o.concept_id,o.value_text, floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age
 					FROM encounter e
 						INNER JOIN person_name pn ON e.patient_id = pn.person_id
 						INNER JOIN person_address pa ON e.patient_id = pa.person_id
@@ -149,7 +149,7 @@ class FollowUp < ActiveRecord::Base
     anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
     
     patients = Encounter.find_by_sql("SELECT e.patient_id, pn.given_name,pn.family_name,pn.family_name_prefix,
-                                      pa.city_village,o.concept_id,o.value_text,
+                                      pa.address2,o.concept_id,o.value_text,
                                       floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age FROM encounter e
                                       INNER JOIN person_name pn ON e.patient_id = pn.person_id
                                       INNER JOIN person_address pa ON e.patient_id = pa.person_id
