@@ -402,6 +402,28 @@ class ClinicController < ApplicationController
           person_name = PersonName.find_by_person_id(hsa_village.hsa_id) rescue nil
           follow_up[:hsa_name] = person_name.given_name + " " + person_name.family_name rescue nil
           follow_up[:hsa_id] = hsa_village.hsa_id rescue nil
+          
+          last_encounters = last_anc_encounters(person.patient_id)
+          anc_visit = EncounterType.find_by_name("ANC VISIT")
+          
+          follow_up[:visit] = []
+          last_encounters.each do |e|
+            name = e.given_name + " " + e.family_name
+            if e.encounter_type == anc_visit.id
+                follow_up[:visit] << ["client",e.encounter_datetime.to_date, e.reason, name] 
+            else
+            
+                reason = e.reason
+                
+                if reason.blank?
+                    reason = "code anc visit"
+                end
+                
+                follow_up[:visit] << ["hsa",e.encounter_datetime.to_date,reason,name]
+            end
+            
+          end
+           
           @built_follow_ups << follow_up
       end
       return @built_follow_ups
@@ -413,13 +435,14 @@ class ClinicController < ApplicationController
       follow_ups = FollowUp.get_anc_delivery_follow_ups(district)
       @follow_ups = build_followups(follow_ups)
       
-      render :template => 'clinic/ancfollowuplist', :layout => 'application'
+      render :template => 'clinic/deliveryfollowuplist', :layout => 'application'
     end
-    
+        
     def show_birth_plan_follow_up_list
-    	session[:district] = params[:district] if session[:district].blank?
+      session[:district] = params[:district] if session[:district].blank?
       district = session[:district]
-      @follow_ups = FollowUp.get_birth_plan_follow_ups(district)
+      follow_ups =  FollowUp.get_birth_plan_follow_ups(district)
+      @follow_ups = build_followups(follow_ups)
       
       render :template => 'clinic/birthfollowuplist', :layout => 'application'
     end
@@ -471,4 +494,27 @@ class ClinicController < ApplicationController
         ]
       }
     end
+    
+    def last_anc_encounters(person_id)
+    anc_visit = EncounterType.find_by_name("ANC VISIT")
+    hsa_visit = EncounterType.find_by_name("HSA VISIT")
+    why_not_attend_anc_concept = ConceptName.find_by_name("Reason for not attending anc")
+    why_not_visited_anc_client_concept = ConceptName.find_by_name("Reason for not visiting anc client")
+                                                
+    last_anc_or_hsa_encounters = Encounter.find_by_sql("SELECT e.encounter_id,e.encounter_type,e.encounter_datetime, 
+                                                       pn.given_name as given_name ,
+                                                       pn.family_name as family_name,
+                                                       cn.name as reason FROM encounter e 
+                                                       INNER JOIN obs o ON o.encounter_id = e.encounter_id
+                                                       INNER JOIN concept_name cn on cn.concept_id = o.value_coded
+                                                       INNER JOIN person_name pn ON pn.person_id = e.patient_id
+                                                       WHERE (e.encounter_type = #{anc_visit.id} OR e.encounter_type = #{hsa_visit.id})
+                                                       AND e.patient_id = #{person_id}
+                                                       AND (o.concept_id = #{why_not_attend_anc_concept.concept_id} 
+                                                       OR o.concept_id = #{why_not_attend_anc_concept.concept_id})
+                                                       ORDER BY e.encounter_datetime DESC LIMIT 2") 
+                                    
+    return last_anc_or_hsa_encounters
+  end
+    
 end

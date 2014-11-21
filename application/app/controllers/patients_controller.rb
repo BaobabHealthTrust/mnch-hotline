@@ -457,26 +457,7 @@ class PatientsController < ApplicationController
     
   end
   
-  def last_anc_encounter()
-    anc_visit = EncounterType.find_by_name("ANC VISIT")
-    hsa_visit = EncounterType.find_by_name("HSA VISIT")
-    why_not_attend_anc_concept = ConceptName.find_by_name("Reason for not attending anc")
-    why_not_visited_anc_client_concept = ConceptName.find_by_name("Reason for not visiting anc client")
-                                                
-    last_anc_or_hsa_encounter = Encounter.find_by_sql("SELECT e.encounter_id,e.encounter_datetime, 
-                                                       pn.given_name as given_name ,
-                                                       pn.family_name as family_name,
-                                                       cn.name as reason FROM encounter e 
-                                                       INNER JOIN obs o ON o.encounter_id = e.encounter_id
-                                                       INNER JOIN concept_name cn on cn.concept_id = o.value_coded
-                                                       INNER JOIN person_name pn ON pn.person_id = e.patient_id
-                                                       WHERE (e.encounter_type = #{anc_visit.id} OR e.encounter_type = #{hsa_visit.id})
-                                                       AND (o.concept_id = #{why_not_attend_anc_concept.concept_id} 
-                                                       OR o.concept_id = #{why_not_attend_anc_concept.concept_id})
-                                                       ORDER BY e.encounter_datetime DESC LIMIT 2") 
-                                    
-    render :text => last_anc_or_hsa_encounter.to_json and return
-  end
+  
   
 private
   

@@ -895,15 +895,13 @@ class EncountersController < ApplicationController
   end
   
   def client_response
-  
     if request.method.to_s == 'post'
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
-        redirect_to "/encounters/new/anc_visit?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
+        redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
       else
        redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
       end
     else
-    
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     home_phone_number_att = PersonAttributeType.find_by_name("Home Phone Number")
     office_phone_number_att = PersonAttributeType.find_by_name("Office Phone Number")
@@ -915,10 +913,9 @@ class EncountersController < ApplicationController
   end
   
   def hsa_response
-  #raise params.inspect
     if request.method.to_s == 'post'
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
-        redirect_to "/encounters/new/hsa_visit?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
+        redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
       else
         redirect_to :controller => 'clinic', :action => 'district',:task => 'anc', :district => session[:district]
       end
