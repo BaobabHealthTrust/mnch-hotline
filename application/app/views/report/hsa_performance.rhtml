@@ -46,12 +46,30 @@
             <th>HSA Name</th>
             <th>Clients Enrolled(Total)</th>
             <th>New Enrollments</th>
-            <th>On-Time ANC Rate</th>
-            <th>Facility Delivery Rate</th>
+            <th>On-Time ANC Rate(%)</th>
+            <th>Facility Delivery Rate(%)</th>
           </tr>
         </thead>
-        <%  [].each do %>
-
+        <%raise @report.to_yaml%>
+        <%  (@report || []).each do |district, values|%>
+        <tr>
+          <% values.each do |health_center, data| %>
+              <%
+                hsa_name = data["hsa_name"]
+                total_clients_enrolled = data["total_clients_enrolled"]
+                new_enrollments = data["new_enrollments"]
+                on_time_anc_rate = data["on_time_anc_rate"]
+                facility_delivery_rate = data["facility_delivery_rate"]
+              %>
+              <td><%= district %></td>
+              <td><%= health_center %></td>
+              <td><%= hsa_name %></td>
+              <td><%= total_clients_enrolled %></td>
+              <td><%= new_enrollments %></td>
+              <td><%= on_time_anc_rate %></td>
+              <td><%= facility_delivery_rate %></td>
+          <% end %>
+        </tr>
         <% end %>
       </table>
 

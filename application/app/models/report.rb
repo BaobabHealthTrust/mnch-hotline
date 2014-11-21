@@ -2261,100 +2261,121 @@ module Report
   end
 
  def self.hsa_performance(grouping, start_date, end_date, district)
-    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+    #date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
     district_id = District.find_by_name(district).id
     call_id = Concept.find_by_name("CALL ID").id
     data = []
-    date_ranges.map do |date_range|
-
+    traditional_authority_id = TraditionalAuthority.find_by_name("HOTLINE PILOT").id
+    #date_ranges.map do |date_range|
       patients_data = Patient.find_by_sql("
-            SELECT d.name as district_name, h.hsa_id as hsa_id, CONCAT(pn.given_name, ' ', pn.family_name) as hsa_name,
-            h.name as health_center FROM encounter enc INNER JOIN obs o ON enc.encounter_id=o.encounter_id
-            INNER JOIN call_log cl ON o.value_text = cl.call_log_id AND
-            o.concept_id = #{call_id} INNER JOIN health_center h
-            ON cl.district = h.district INNER JOIN users u ON enc.provider_id = u.user_id
-            INNER JOIN district d ON cl.district=d.district_id
-            INNER JOIN person_name pn on u.user_id = pn.person_id
-            INNER JOIN user_role ur ON u.user_id = ur.user_id AND ur.role = 'HSA'
-            WHERE cl.district = #{district_id} AND DATE(enc.encounter_datetime) >= '#{date_range.first.to_date}'
-            AND DATE(enc.encounter_datetime) <= '#{date_range.last.to_date } AND enc.voided = 0'
-         ")
-      hash = {}
-      patients_data.each do |data|
-        district_name = data["district_name"]
-        health_center = data["health_center"]
-        hsa_id = data["hsa_id"]
-        hsa_name = data["hsa_name"]
-        total_clients = total_clients_enrolled_by_hsa(hsa_id, end_date)
-        new_enrollments = new_enrollments_by_hsa(hsa_id, start_date, end_date)
-        on_time = on_time_anc_rate(hsa_id, start_date, end_date)
-        facility_delivery_rate = facility_delivery_rate(hsa_id, start_date, end_date)
-        hash[district_name] = {} if hash[district_name].blank?
-        hash[district_name]["health_centers"] ={} if hash[district_name]["health_centers"].blank?
-        hash[district_name]["health_centers"][health_center] = {} if hash[district_name]["health_centers"][health_center].blank?
-        hash[district_name]["health_centers"][health_center]["total_clients_enrolled"] = total_clients
-        hash[district_name]["health_centers"][health_center]["new_enrollments"] = new_enrollments
-        hash[district_name]["health_centers"][health_center]["on_time_anc_rate"] = on_time
-        hash[district_name]["health_centers"][health_center]["facility_delivery_rate"] = facility_delivery_rate
-      end
+            SELECT pa.address2 as village,
+
+            (SELECT hsa_id FROM hsa_villages WHERE village_id = (
+                SELECT village_id FROM village WHERE traditional_authority_id = #{traditional_authority_id} 
+                AND name = village LIMIT 1
+            ) LIMIT 1) as hsa_id,
+
+            (SELECT name FROM health_center WHERE health_center_id = (
+                SELECT health_center_id FROM hsa_villages WHERE hsa_id = hsa_id LIMIT 1
+            ) LIMIT 1) as health_center,
+
+            (SELECT given_name FROM person_name WHERE person_id = (
+                SELECT user_id FROM users WHERE user_id = hsa_id LIMIT 1
+            ) LIMIT 1) as hsa_name,
+
+            (SELECT name FROM district WHERE district_id = (
+                SELECT district_id FROM hsa_villages WHERE hsa_id = hsa_id LIMIT 1
+            ) LIMIT 1) as district_name
+
+            FROM obs o INNER JOIN call_log cl ON o.value_text = cl.call_log_id AND
+            o.concept_id = #{call_id}
+            INNER JOIN person_address pa ON o.person_id = pa.person_id
+            INNER JOIN person_name pn on o.person_id = pn.person_id
+            WHERE cl.district = #{district_id} AND DATE(o.obs_datetime) >= '#{end_date.to_date}'
+            AND DATE(o.obs_datetime) <= '#{start_date.to_date}' AND o.voided = 0
+            GROUP BY hsa_id HAVING hsa_id != ''
+       ")
       
-    end
+      hash = {}
+      unless patients_data.blank?
+        patients_data.each do |data|
+          district_name = data["district_name"]
+          health_center = data["health_center"]#Fix here
+          village = data["village"]
+          hsa_id = data["hsa_id"]
+          hsa_name = data["hsa_name"]
+          total_clients = self.total_clients_enrolled_by_hsa(village, end_date)
+          new_enrollments = self.new_enrollments_by_hsa(village, start_date, end_date)
+          on_time = self.on_time_anc_rate(village, start_date, end_date)
+          facility_delivery_rate = self.facility_delivery_rate(hsa_id, village, start_date, end_date)
+          hash[district_name] = {} if hash[district_name].blank?
+          hash[district_name]["health_centers"] ={} if hash[district_name]["health_centers"].blank?
+          hash[district_name]["health_centers"][health_center] = {} if hash[district_name]["health_centers"][health_center].blank?
+          hash[district_name]["health_centers"][health_center]["hsa_name"] = hsa_name
+          hash[district_name]["health_centers"][health_center]["total_clients_enrolled"] = total_clients
+          hash[district_name]["health_centers"][health_center]["new_enrollments"] = new_enrollments
+          hash[district_name]["health_centers"][health_center]["on_time_anc_rate"] = on_time
+          hash[district_name]["health_centers"][health_center]["facility_delivery_rate"] = facility_delivery_rate
+        end 
+      end
+      return hash
+    #end
  end
 
- def new_enrollments_by_hsa(hsa_id, start_date, end_date)
+ def self.new_enrollments_by_hsa(village, start_date, end_date)
    delivery_enc = EncounterType.find_by_name('BABY DELIVERY').id
    anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
    patients_data = Patient.find_by_sql("
-      SELECT patient_id FROM encounter enc INNER JOIN encounter_type et ON
-      enc.encounter_type = et.encounter_type AND encounter_type != #{delivery_enc}
-      AND enc.provider_id = #{hsa_id}
+      SELECT enc.patient_id FROM encounter enc INNER JOIN encounter_type et ON
+      enc.encounter_type = et.encounter_type_id AND et.encounter_type_id != #{delivery_enc}
+      INNER JOIN person_address pa ON enc.patient_id = pa.person_id AND pa.address2 = '#{village}'
       INNER JOIN patient_program pp ON enc.patient_id = pp.patient_id AND
       pp.program_id = #{anc_connect_program_id} AND
       DATE(pp.date_enrolled) >= '#{start_date.to_date}' AND
-      DATE(pp.date_enrolled) <= '#{end_date.to_date} AND pp.voided=0
-      GROUP BY enc.patient_id'
+      DATE(pp.date_enrolled) <= '#{end_date.to_date}' AND pp.voided=0
+      GROUP BY enc.patient_id
    ")
  
    patient_ids = patients_data.collect{|p|p["patient_id"]}
-   return patient_ids
+   return patient_ids.count
  end
 
- def total_clients_enrolled_by_hsa(hsa_id, end_date)
+ def self.total_clients_enrolled_by_hsa(village, end_date)
     delivery_enc = EncounterType.find_by_name('BABY DELIVERY').id
     anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
     patients_data = Patient.find_by_sql("
-      SELECT patient_id FROM encounter enc INNER JOIN encounter_type et ON
-      enc.encounter_type = et.encounter_type AND encounter_type != #{delivery_enc}
-      AND enc.provider_id = #{hsa_id}
+      SELECT enc.patient_id FROM encounter enc INNER JOIN encounter_type et ON
+      enc.encounter_type = et.encounter_type_id AND et.encounter_type_id != #{delivery_enc}
+      INNER JOIN person_address pa ON enc.patient_id = pa.person_id AND pa.address2 = '#{village}'
       INNER JOIN patient_program pp ON enc.patient_id = pp.patient_id AND
       pp.program_id = #{anc_connect_program_id} AND
-      DATE(pp.date_enrolled) <= '#{end_date.to_date} AND pp.voided=0
-      GROUP BY enc.patient_id'
+      DATE(pp.date_enrolled) <= '#{end_date.to_date}' AND pp.voided=0
+      GROUP BY enc.patient_id
     ")
 
    patient_ids = patients_data.collect{|p|p["patient_id"]}
-   return patient_ids
+   return patient_ids.count
  end
 
- def facility_delivery_rate(hsa_id, start_date, end_date)
-   health_center_id = HsaVillage.find_by_hsa_id(hsa_id).health_center_id
-   health_facility = HealthCenter.find(health_center_id).name
+ def self.facility_delivery_rate(hsa_id, village, start_date, end_date)
+   health_center_id = HsaVillage.find_by_hsa_id(hsa_id).health_center_id rescue nil
+   health_facility = HealthCenter.find(health_center_id).name rescue nil
    concept_id = Concept.find_by_name("HEALTH FACILITY NAME").id
    encounter_type = EncounterType.find_by_name('BABY DELIVERY').id
    patients_data = Patient.find_by_sql("
-      SELECT enc.patient_id FROM encounter enc INNER JOIN obs o ON enc.encounter_id=o.encounter_id AND
-      o.encounter_type=#{encounter_type} AND DATE(enc.encounter_datetime) >= '#{start_date.to_date}' AND
-      DATE(enc.encounter_datetime) <= '#{end_date.to_date} AND enc.provider_id=#{hsa_id} AND
-      enc.voided=0'
+      SELECT enc.patient_id FROM encounter enc INNER JOIN obs o ON enc.encounter_id=o.encounter_id
+      INNER JOIN person_address pa ON enc.patient_id = pa.person_id AND pa.address2 = '#{village}'
+      AND enc.encounter_type=#{encounter_type} AND DATE(enc.encounter_datetime) >= '#{start_date.to_date}'
+      AND DATE(enc.encounter_datetime) <= '#{end_date.to_date}' AND enc.voided=0
    ")
    patient_ids = patients_data.collect{|p|p["patient_id"]}.uniq
    total_delivered_patients = patient_ids.count
 
    delivered_at_facility = Patient.find_by_sql("
-      SELECT o.person_id from obs o WHERE person_id IN (#{patient_ids.join(',')}) AND
-      o.concept_id = #{concept_id} AND o.value_text = #{health_facility}
+      SELECT o.person_id from obs o WHERE person_id IN ('#{patient_ids.join(',')}') AND
+      o.concept_id = #{concept_id} AND o.value_text = '#{health_facility}'
       AND DATE(o.obs_datetime) >= '#{start_date.to_date}' AND
-      DATE(o.obs_datetime) <= '#{end_date.to_date}'
+      DATE(o.obs_datetime) <= '#{end_date.to_date}' AND o.voided=0
    ")
  
   total_delivered_at_facility = delivered_at_facility.collect{|p|p["person_id"]}.uniq.count
@@ -2362,20 +2383,22 @@ module Report
   
  end
 
- def on_time_anc_rate(hsa_id, start_date, end_date)
+ def self.on_time_anc_rate(village, start_date, end_date)
    encounter_type = EncounterType.find_by_name('ANC VISIT').id
    next_anc_visit_date_concept = Concept.find_by_name("NEXT ANC VISIT DATE").id
-   patients_data = Patient.find_by_sql("SELECT enc.patient_id, o.value_text as next_anc_visit_date,
+   patients_data = Patient.find_by_sql("
+      SELECT enc.patient_id, o.value_text as next_anc_visit_date,
       enc.encounter_datetime FROM encounter enc
-      INNER JOIN obs o ON enc.encounter_id=o.encounter_id AND o.encounter_type=#{encounter_type}
+      INNER JOIN obs o ON enc.encounter_id=o.encounter_id AND enc.encounter_type=#{encounter_type}
       AND o.concept_id = #{next_anc_visit_date_concept}
+      INNER JOIN person_address pa ON enc.patient_id = pa.person_id AND pa.address2 = '#{village}'
       AND DATE(enc.encounter_datetime) >= '#{start_date.to_date}' AND
-      DATE(enc.encounter_datetime) <= '#{end_date.to_date}' AND enc.provider_id=#{hsa_id}
-  AND UPPER(o.value_text) != 'UNKNOWN')
+      DATE(enc.encounter_datetime) <= '#{end_date.to_date}'
+      AND UPPER(o.value_text) != 'UNKNOWN'
       HAVING next_anc_visit_date >= '#{start_date.to_date}' AND next_anc_visit_date <= '#{end_date.to_date}'
     ")
    total_visits_scheduled = patients_data.collect{|p|p["patient_id"]}.uniq.count
-   two_weeks_end_date = start_date + 14.days
+   two_weeks_end_date = start_date.to_date + 14.days
    on_time = []
    (patients_data || []).each do |pd|
      patient_id = pd["patient_id"]
@@ -2387,8 +2410,9 @@ module Report
 
      p_id = Patient.find_by_sql("SELECT o.person_id FROM obs o WHERE o.concept_id=#{next_anc_visit_date_concept}
        AND o.person_id=#{patient_id} AND o.obs_datetime > '#{n_visit_date}'
-       AND o.obs_datetime <= '#{end_date}' LIMIT 1").last["patient_id"]
+       AND o.obs_datetime <= '#{end_date}' AND o.voided= 0 LIMIT 1").last["patient_id"]
      on_time << p_id unless p_id.blank?
+     
    end
 
    return ((on_time.count.to_f/total_visits_scheduled) * 100) rescue 0
