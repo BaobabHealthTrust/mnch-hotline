@@ -166,10 +166,24 @@ class ApplicationController < ActionController::Base
     return hc_array << ["Other","Other"]
   end
   
+  def hsa_village_patient(patient_id)
+    display = false
+    patient_location = PersonAddress.find_by_person_id(patient_id).address2 rescue nil
+    
+    if patient_location.present?
+      village = Village.find_by_name(patient_location) rescue nil   
+      if village.present?
+        hsa_village = HsaVillage.find_by_village_id(village.id) rescue nil
+        display = true if hsa_village.present?
+      end  
+    end 
+    return display
+  end
+  
 private
 
   def find_patient
     @patient = Patient.find(params[:patient_id] || session[:patient_id] || params[:id]) rescue nil
   end
-  
+ 
 end
