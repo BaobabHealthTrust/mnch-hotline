@@ -150,7 +150,7 @@ class EncountersController < ApplicationController
             redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
             end
           else
-             redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true" 
+             redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"  and return
           end   
         end
       end
