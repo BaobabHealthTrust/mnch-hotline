@@ -136,7 +136,7 @@ class PeopleController < ApplicationController
   
     village_conditions = ["name LIKE (?)", "%#{params[:search_string]}%"]
 
-    villages = Village.find(:all,:conditions => village_conditions, :order => 'name', :limit => 10)
+    villages = Village.find(:all, :select => "DISTINCT name", :conditions => village_conditions, :order => 'name', :limit => 10)
     villages = villages.map do |v|
       '<li value=' + v.name + '>' + v.name + '</li>'
     end
