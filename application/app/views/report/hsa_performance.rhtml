@@ -50,11 +50,8 @@
             <th>Facility Delivery Rate(%)</th>
           </tr>
         </thead>
-        <%  @report.each do |district, values|%>
-        <%
-          health_center = district["health_centers"][0]
-          facility_delivery_rate = values["health_centers"]["facility_delivery_rate"]
-        %>
+        <%raise @report.to_yaml%>
+        <%  (@report || []).each do |district, values|%>
         <tr>
           <% values.each do |health_center, data| %>
               <%
