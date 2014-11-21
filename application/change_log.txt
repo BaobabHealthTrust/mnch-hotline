@@ -32,3 +32,8 @@ Version 3 beta
                 -Added Birth Plan Encounter
                 -Added HSA Encounter
             
+-------------------------------------------------------------------------------------------------------------
+2014-11-21
+	DN - updated the query pulling health facilities to pull distinct facility names
+	DN - updated the ANC concent number to allow 5 digits
+        DN - removed G. before HSA when listing patients in ANC followup
