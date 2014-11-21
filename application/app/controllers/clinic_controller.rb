@@ -437,7 +437,7 @@ class ClinicController < ApplicationController
       
       render :template => 'clinic/deliveryfollowuplist', :layout => 'application'
     end
-    
+        
     def show_birth_plan_follow_up_list
       session[:district] = params[:district] if session[:district].blank?
       district = session[:district]
