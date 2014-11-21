@@ -166,7 +166,7 @@ class ApplicationController < ActionController::Base
     return hc_array << ["Other","Other"]
   end
   
-  def hsa_village_patient(patient_id)
+  def show_for_anc_connect(patient_id)
     display = false
     patient_location = PersonAddress.find_by_person_id(patient_id).address2 rescue nil
     

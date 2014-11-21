@@ -129,6 +129,19 @@ class PeopleController < ApplicationController
     end
     render :text => villages.join('') + "<li value='Other'>Other</li>" and return
   end
+  
+  def village_demographics
+  
+    village_conditions = ["name LIKE (?)", "%#{params[:search_string]}%"]
+
+    villages = Village.find(:all,:conditions => village_conditions, :order => 'name', :limit => 10)
+    villages = villages.map do |v|
+      '<li value=' + v.name + '>' + v.name + '</li>'
+    end
+    
+    render :text => villages.join('') + "<li value='Other'>Other</li>" and return
+  end
+  
   def healthcenter
     district_id = District.find_by_name("#{session[:district]}").id
     hc_conditions = ["name LIKE (?) AND district = ?", "%#{params[:search_string]}%", district_id]

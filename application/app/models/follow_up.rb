@@ -37,6 +37,7 @@ class FollowUp < ActiveRecord::Base
                 and e.encounter_datetime >= '#{start_date} 00:00' and encounter_datetime <= '#{current_date} 23:59' 
                 and e.patient_id NOT IN (SELECT patient_id FROM follow_up WHERE date_created >= '#{start_date} 00:00' AND date_created <='#{current_date} 23:59')
                 GROUP BY e.patient_id ")
+                
     return patients
   end
 
@@ -73,7 +74,9 @@ class FollowUp < ActiveRecord::Base
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7)
                                       GROUP BY e.patient_id
                                       HAVING COUNT(e.patient_id) < 4;")
-    return patients
+    
+    data = patients.select{|p| show_for_anc_connect(p.patient_id)}
+    return data
   end
   
   
@@ -158,7 +161,8 @@ class FollowUp < ActiveRecord::Base
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) >= 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
                                       GROUP BY e.patient_id;")
-    return patients
+    data = patients.select{|p| show_for_anc_connect(p.patient_id)}
+    return data
   end
   
 end
