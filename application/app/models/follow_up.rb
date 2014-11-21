@@ -75,7 +75,7 @@ class FollowUp < ActiveRecord::Base
                                       GROUP BY e.patient_id
                                       HAVING COUNT(e.patient_id) < 4;")
     
-    data = patients.select{|p| show_for_anc_connect(p.patient_id)}
+    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
     return data
   end
   
@@ -164,7 +164,7 @@ class FollowUp < ActiveRecord::Base
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) >= 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
                                       GROUP BY e.patient_id;")
-    data = patients.select{|p| show_for_anc_connect(p.patient_id)}
+    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
     return data
   end
   

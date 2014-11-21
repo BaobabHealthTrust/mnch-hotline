@@ -193,17 +193,7 @@ module ApplicationHelper
   end
   
    def show_for_anc_connect(patient_id)
-    display = false
-    patient_location = PersonAddress.find_by_person_id(patient_id).address2 rescue nil
-    
-    if patient_location.present?
-      village = Village.find_by_name(patient_location) rescue nil   
-      if village.present?
-        hsa_village = HsaVillage.find_by_village_id(village.id) rescue nil
-        display = true if hsa_village.present?
-      end  
-    end 
-    return display
+    HsaVillage.is_patient_village_in_anc_connect(patient_id)
   end
   
 end
