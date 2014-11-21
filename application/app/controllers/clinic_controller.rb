@@ -435,7 +435,7 @@ class ClinicController < ApplicationController
       follow_ups = FollowUp.get_anc_delivery_follow_ups(district)
       @follow_ups = build_followups(follow_ups)
       
-      render :template => 'clinic/ancfollowuplist', :layout => 'application'
+      render :template => 'clinic/deliveryfollowuplist', :layout => 'application'
     end
     
     def show_birth_plan_follow_up_list
