@@ -1,0 +1,177 @@
+<script type="text/javascript">
+	var person_id
+  var tt_cancel_destination = "/clinic/housekeeping?task=housekeeping"
+  var tt_cancel_show = "/clinic?status=endcall";
+
+  function changeNextButtonText(text){
+    $('nextButton').innerHTML = "<span>" + text + "</span>";  
+  }
+  
+  
+  function showVlLabTrail(person_id,hsa_id){
+    c = document.getElementById('content');
+    v = document.getElementById(person_id);
+    c.appendChild(v);
+    document.getElementById('vl_lab_trail_cover').style.display='inline';
+    document.getElementById(person_id).style.display='inline';
+    patient_id = document.getElementById('patientId');
+    patient_id.setAttribute("value", person_id);
+    patient_id.setAttribute("name", hsa_id);
+    
+  }
+  
+  function showPopup(patient_id,hsa_id){
+   person_id = patient_id;
+   showVlLabTrail(patient_id,hsa_id);
+  }
+  
+  function hideVlLabTrail(){
+    v = document.getElementById(person_id);
+    document.getElementById('vl_lab_trail_cover').style.display='none';
+    document.getElementById(person_id).style.display='none';
+  }
+  
+  function gotoClientResponse(){
+    var person_id =  document.getElementById('patientId');
+    window.location = "/encounters/client_response?patient_id="+ person_id.value + "&hsa_id=" + person_id.name + "&followup=delivery";
+  }
+  
+  
+</script>
+
+
+<style>
+
+     #vl_lab_trail_cover{
+        position: absolute;
+        background-color: black;
+        width: 100%;
+        height: 102%;
+        left: 0%;
+        top: 0%;
+        z-index: 990;
+        opacity: 0.25;
+      }
+     
+      .vl_lab_trail, #new_vl_menu, .new_vl_menu{
+      position: absolute;
+      width: 95%;
+      height: 70%;
+      top: 10%;
+      z-index: 991;
+      left: 3%;
+      border: 1px solid black;
+      background-color: #FEE0C6;
+      border-radius: 15px;
+    }
+    #vl_lab_trail_header, #new_vl_menu_header, .new_vl_menu_header{
+      padding: 10px;
+      background-color: gray;
+      color: white;
+      border-radius: 15px 15px 0px 0px;
+      
+    }
+     #vl_lab_trail_footer, #new_vl_menu_footer, .new_vl_menu_footer{
+      background-color: gray;
+      height: 60px;
+      width: 100%;
+      position: absolute;
+      width: 100%;
+      position: absolute;
+      bottom: 0px;
+      border-radius: 0px 0px 15px 15px;
+     }
+     
+     .vl_tbody td{
+        border-bottom: 1px solid black;
+        border-right: 1px solid black;
+      }
+     
+     #vl_lab_trail_footer #ok {
+        border-radius: 13px;
+        background-color: #C1CDCD;
+        position: absolute;
+        padding: 12px 20%;
+        left: 5%;
+        bottom: 8px;
+        cursor: pointer;
+     }
+     
+     #vl_lab_trail_footer #cancel {
+        border-radius: 13px;
+        width: 30px;
+        background-color: #C1CDCD;
+        position: absolute;
+        padding: 12px 20%;
+        left: 50%;
+        bottom: 8px;
+        cursor: pointer;
+     }
+     
+    </style>
+<form id='confirm' action="/clinic/followup" method='post'> %>
+<% if @follow_ups.blank? %>
+      <label for="person">No patients were found:</label>
+    <% else -%>
+      <label for="person">Select the patient to follow up from the following</label>
+    <% end -%>
+    <select name="person" id="person">
+      <% @follow_ups.each do |person| -%>
+        <option value="<%= person[:patient_id]%>" onmousedown="changeNextButtonText('Select Patient');showPopup('<%= person[:patient_id] %>','<%= person[:hsa_id] %>')">
+         
+          <%= person[:given_name] -%> (<%= person[:family_name_prefix] -%>) <%= person[:family_name] -%>
+          H. Vlg: <%= person[:address2] -%> G. Age: <%= person[:gestation_age] -%> G. HSA: <%= person[:hsa_name] -%>
+          Tel: <%= Person.find(person[:patient_id]).get_attribute("Cell Phone Number") -%>
+        </option>
+      <% end -%>   
+    <%= hidden_field_tag("source", "HK") %>
+   <%= submit_tag "Finish" %>
+</form>
+
+
+<div id="vl_lab_trail_cover" style="display:none;">
+
+</div>
+
+<% @follow_ups.each do |person| %>
+<div id="<%= person[:patient_id] %>"  class="vl_lab_trail" style="display:none;">
+        <div id="vl_lab_trail_header">
+          <span style="font-size: 16pt; margin-left: 4.5%;">Delivery Follow Up History</span>
+        </div>
+
+        <div id="vl_lab_trail_content">
+          <div style="position: relative; overflow: none; height: 80%;">
+          <input type="hidden" id="patientId" value="" name ="" />
+          <table cellspacing='0' style="position:absolute; width:94%; top:10%; left: 3%;">
+          <% if person[:visit].blank? %>
+          <tr class="vl_table_header" style="background-color: #A2CD5A; line-height: 2em; font-size: 18px;">
+              <td style="min-width: 130px;"><span><center>No Previous Follow ups</center></span></td>
+            </tr>
+          <% else %>
+            <tr class="vl_table_header" style="background-color: #A2CD5A; line-height: 2em; font-size: 18px;">
+              <th style="min-width: 130px;"><span><center>Contact Date</center></span></th>
+              <th style="min-width: 120px;"><span><center>Contact</center></span></th>
+              <th><span><center>Reason</center></span></th>
+            </tr>
+            
+             <% person[:visit].each do |visit| %>
+            <tr style="line-height: 3em;" class="vl_tbody">
+             
+              <td style="border-left: 1px solid black;"><span><center><%= visit.second.strftime("%d-%b-%Y") %></center></span></td>
+              <td><span><center><%= visit.fourth %>(<%= visit.first.humanize %>)</center></span></td>
+              <td><span><center><%= visit.third %></center></span></td>
+             
+            </tr>
+             <% end %>
+           <% end %>
+          </table>
+          </div>
+        </div>
+        
+        <div id="vl_lab_trail_footer">
+          <span id="ok" onclick="gotoClientResponse();">OK</span>
+          <span id="cancel" onclick="hideVlLabTrail();">Cancel</span>
+        </div>
+        
+ </div>
+<% end %>

@@ -56,7 +56,7 @@
   <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Birth Day', :absoluteMin => 1, :absoluteMax => 31, :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value,$('person_birth_month').value)"%>
   
 <%when 'current_district'%>
-  <%= text_field_tag "person[addresses][city_village]", params[:city_village], {:id => 'address2', :field_type => 'alpha', :helpText => 'Home Village', :ajaxURL => '/people/village?search_string=', :allowFreeText => true, :condition => '$("address2").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_home_village %>
+  <%= text_field_tag "person[addresses][city_village]", params[:city_village], {:id => 'address2', :field_type => 'alpha', :helpText => 'Home Village', :ajaxURL => '/people/village_demographics?search_string=', :allowFreeText => true, :condition => '$("address2").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_home_village %>
 
 <%when 'group_village_head' %>
  <%= text_field_tag "person[addresses][subregion]",  params[:group_village_head], {:field_type => 'alpha', :helpText => 'Group Village Head', :ajaxURL => '/people/village?search_string=', :allowFreeText => true }%>

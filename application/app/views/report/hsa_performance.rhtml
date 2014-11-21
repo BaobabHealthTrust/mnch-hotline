@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <title><%=@report_name%></title>
+    <%= stylesheet_link_tag fancy_or_high_contrast_touch %>
+    <link href="/stylesheets/report.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/report_print.css" media="print" rel="stylesheet" type="text/css" />
+    <%= javascript_include_tag("jquery") %>
+    <%= javascript_include_tag("jquery.table2CSV.min") %>
+    <script>
+      function eportToCSV(){
+         $('#hsa_performance_report').table2CSV()
+      }
+    </script>
+  </head>
+  <body>
+    <div class="btn-menu">
+      <%params[:format] = 'pdf'%>
+      <%select_report_criteria = '/report/select?report_type=' +@report_type +'&query=' + @query%>
+
+      <button id="finish_button" class="button green" onclick="window.location = '/clinic'"><span>Finish</span></button>
+      <button id="export_button" class="button green" onclick="eportToCSV();"><span>Export to CSV</span></button>
+      <button id="back_button" class="button red" onclick="window.location = '<%=select_report_criteria%>'"><span>Back</span></button>
+    </div>
+
+    <form id="frmMain" action="/report/patient_analysis_report" method="post">
+      <input type="hidden" id="start_date" name="start_date" value="<%= @start_date.to_date.strftime('%d-%m-%Y') %>" />
+      <input type="hidden" id="end_date" name="end_date" value="<%= @end_date.to_date.strftime('%d-%m-%Y') %>" />
+    </form>
+
+    <div>
+    <fieldset class="main_fieldset">
+      <legend class="main_legend" style="color:white; background-color:green;">
+        HSA Performance Report
+      </legend>
+      <table cellspacing="0" width="100%" id="hsa_performance_report">
+        <thead>
+          <tr>
+            <td colspan ="6"><%= "Filter Info: Grouping - #{@grouping.capitalize} "%></td>
+          </tr>
+          <tr>
+            <td colspan="6"></td>
+          </tr>
+          <tr>
+            <td><b>District</b></td>
+            <td><b>Health Center</b></td>
+            <td><b>HSA Name</b></td>
+            <td><b>Clients Enrolled(Total)</b></td>
+            <td><b>New Enrollments</b></td>
+            <td><b>On-Time ANC Rate(%)</b></td>
+            <td><b>Facility Delivery Rate(%)</b></td>
+          </tr>
+        </thead>
+
+        <%  (@report || []).each do |district, values|%>
+        <tr>
+          <% values.each do |health_center, data| %>
+              <% data.each do |k, v| %>
+              <%
+                health_center = k
+                hsa_name = v["hsa_name"]
+                total_clients_enrolled = v["total_clients_enrolled"]
+                new_enrollments = v["new_enrollments"]
+                on_time_anc_rate = v["on_time_anc_rate"]
+                facility_delivery_rate = v["facility_delivery_rate"]
+              %>
+              <td><%= district %></td>
+              <td><%= health_center %></td>
+              <td><%= hsa_name %></td>
+              <td><%= total_clients_enrolled %></td>
+              <td><%= new_enrollments %></td>
+              <td><%= on_time_anc_rate %></td>
+              <td><%= facility_delivery_rate %></td>
+          <% end %>
+           <% end %>
+        </tr>
+        <% end %>
+      </table>
+
+    </fieldset>
+
+    </div>
+
+  </body>
+</html>

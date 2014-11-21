@@ -456,6 +456,9 @@ class PatientsController < ApplicationController
     end
     
   end
+  
+  
+  
 private
   
   

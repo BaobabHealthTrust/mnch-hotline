@@ -47,6 +47,20 @@
 
       <p><label for="user_role_role_id">User Role</label></br>
       <%= text_field 'user_role', 'role_id', :xhelpText => 'User role', :ajaxURL => '/user/role/Role?field=role&value='%></p>
+      
+      
+      
+      <%= text_field_tag "user[cell_phone_number]",  params[:cell_phone_number],
+          {
+            :field_type => 'number',
+            :helpText => 'Cell Phone Number',
+            :optional => true,
+            :validationRule => "^0\\d{7}$|Unknown|Not Available|N\/A|^0\\d{9}$",
+            :validationMessage => "Not a valid phone number",
+            :tt_pageStyleClass => "nota",
+            :id => 'cellphone'
+          }
+      %>
         
 
       <!--p><label for="user_role_admin_role">Is user a system administrator?</label><br/-->

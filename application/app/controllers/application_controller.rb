@@ -166,10 +166,14 @@ class ApplicationController < ActionController::Base
     return hc_array << ["Other","Other"]
   end
   
+  def show_for_anc_connect(patient_id)
+    HsaVillage.is_patient_village_in_anc_connect(patient_id)
+  end
+  
 private
 
   def find_patient
     @patient = Patient.find(params[:patient_id] || session[:patient_id] || params[:id]) rescue nil
   end
-  
+ 
 end

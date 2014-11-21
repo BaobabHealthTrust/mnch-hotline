@@ -191,4 +191,9 @@ module ApplicationHelper
     content << "</form>"
     content
   end
+  
+   def show_for_anc_connect(patient_id)
+    HsaVillage.is_patient_village_in_anc_connect(patient_id)
+  end
+  
 end

@@ -539,10 +539,65 @@ class ReportController < ApplicationController
                 :query        => params[:query],
                 :destination  => params[:report_destination],
                 :district     => params[:currentdistrict]
+   when 'hsa_performance_report'
+      redirect_to :action        => "hsa_performance",
+                :start_date    => params[:start_date],
+                :end_date      => params[:end_date],
+                :grouping      => params[:grouping],
+                :report_type   => params[:report_type],
+                :query        => params[:query],
+                :destination  => params[:report_destination],
+                :district     => params[:currentdistrict]
+   when 'anc_connect_clients'
+      redirect_to :action        => "anc_connect_clients",
+                :start_date    => params[:start_date],
+                :end_date      => params[:end_date],
+                :grouping      => params[:grouping],
+                :report_type   => params[:report_type],
+                :query        => params[:query],
+                :destination  => params[:report_destination],
+                :district     => params[:currentdistrict]
     end
 
   end
 
+  def hsa_performance
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @source       = params[:source] rescue nil
+    district = params[:district]
+    @report = Report.hsa_performance( @grouping, @start_date, @end_date, district)
+    render :layout => false
+  end
+
+  def anc_connect_clients
+    @start_date   = params[:start_date]
+    @end_date     = params[:end_date]
+    @patient_type = params[:patient_type]
+    @report_type  = params[:report_type]
+    @query        = params[:query]
+    @grouping     = params[:grouping]
+    @source       = params[:source] rescue nil
+    district = params[:district]
+    @report = Report.anc_connect_clients( @grouping, @start_date, @end_date, district)
+    if params[:destination] == 'csv'
+      report_header = ['Given Name', 'Family Name', 'Date of Birth', 'Cellphone', 'Home Village']
+      export_to_csv('anc_connect_clients_report', report_header, @report,
+                  @patient_type, @grouping)
+      if @source == nil
+        redirect_to "/clinic"
+      else
+        render :text => "Done"
+      end
+    else
+      render :layout => false
+    end
+  end
+  
   def patient_demographics_report
     @start_date   = params[:start_date]
     @end_date     = params[:end_date]

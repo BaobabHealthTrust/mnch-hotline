@@ -2,7 +2,7 @@ class EncountersController < ApplicationController
 
   def create
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
-    # raise params.to_yaml
+    
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
       if params[:observations][0]['concept_name'] == 'EVER RECEIVED ART' and params[:observations][0]['value_coded_or_text'] == 'NO'
         observations = []
@@ -137,19 +137,59 @@ class EncountersController < ApplicationController
       session[:outcome_complete]  = true
       session[:health_facility]   = params["health_center"]
     end
-  
+    
+   
+    if params['encounter']['encounter_type_name'] == 'BABY DELIVERY'
+      if params[:observations][0]['concept_name'] == 'DELIVERED'
+        unless params[:observations][0]['value_coded'].blank?
+          yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
+          if yes_concept == 'YES'
+            if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
+             de_enroll_and_deliver(params[:observations][0]['patient_id'])
+             redirect_to "/clinic/new_call?task=delivery" and return
+            else
+            redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
+            end
+          else
+             redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"  and return
+          end   
+        end
+      end
+    end
+    
+   
     if params['encounter']['encounter_type_name'] == 'HSA VISIT'
 
       if params[:observations][0]['concept_name'] == 'HSA VISIT'
         unless params[:observations][0]['value_coded'].blank?
           yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
           if yes_concept == 'YES'
+            if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
+             redirect_to "/clinic/new_call?task=anc" and return
+            else
             redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
+            end 
           end
         end
       end
     end
-
+     
+    if params['encounter']['encounter_type_name'] == 'ANC VISIT'
+      if params[:observations][0]['concept_name'] == 'ANC VISIT'
+        unless params[:observations][0]['value_coded'].blank?
+          yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
+          if yes_concept == 'YES'
+            if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
+             redirect_to :controller => 'clinic', :action => 'district',:task => 'anc', :district => session[:district]  and return
+            else
+             redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
+            end 
+          else
+            redirect_to :controller => 'encounters', :action => 'hsa_response', :patient_id => params['encounter']['patient_id'], :hsa_id => params['hsa_id'], :late => params[:late_anc_call] and return
+          end
+        end
+      end
+    end
     # Go to the next task in the workflow (or dashboard)
     redirect_to next_task(@patient) 
   end
@@ -161,7 +201,7 @@ class EncountersController < ApplicationController
     @child_symptoms = @patient.child_symptoms(concept_set('health symptom'))
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
-    @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
+    @personal_phone_number = @patient.person.get_attribute("Cell Phone Number")
     @last_anc_visit_date = Encounter.get_last_anc_visit_date(@patient.id)
     @last_registration_date = Encounter.get_last_registration_date(@patient.id)
     @female_danger_signs = @patient.female_danger_signs(concept_set('danger sign'))
@@ -276,7 +316,7 @@ class EncountersController < ApplicationController
     @select_options = select_options
     @phone_numbers = patient_reminders_phone_number(@patient)
 
-    @personal_phone_number = @patient.person.phone_numbers[:cell_phone_number]
+    @personal_phone_number = @patient.person.get_attribute("Cell Phone Number")
 
     @tips_and_reminders_enrolled_in = type_of_reminder_enrolled_in(@patient)
 
@@ -337,14 +377,25 @@ class EncountersController < ApplicationController
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     attribute_type_id = PersonAttributeType.find_by_name("Cell Phone Number").id rescue nil
     
-    @cellphone_number = PersonAttribute.find(:last,:conditions =>["voided = 0 AND person_attribute_type_id = ? AND
-      person_id = ?", attribute_type_id, @patient.id]).value rescue nil
+    @cellphone_number = Person.find(@patient.id).get_attribute("Cell Phone Number")
 
     @nick_name = PersonName.find(:last, :conditions => ["person_id =?", @patient.id]).family_name_prefix rescue nil
     if (request.method == :post)
       nick_name = params[:nick_name]
       phone_number = params[:phone_number]
       PersonName.create_nick_name(@patient, nick_name)
+      
+			pa = PersonAttribute.find_by_sql("
+						SELECT *
+							FROM person_attribute
+						WHERE person_id=#{@patient.patient_id} AND voided=0 AND
+									person_attribute_type_id = #{attribute_type_id} 
+						")
+
+			pa.each do |a|
+			record = PersonAttribute.find(a.person_attribute_id).void("cell phone number update")
+			end
+      
       PersonAttribute.create_attribute(@patient, phone_number, "Cell Phone Number")
 
       if (params[:anc_connect_program].match(/NO/i))
@@ -861,6 +912,64 @@ class EncountersController < ApplicationController
           Observation.create(pregnancy_observation)
           Observation.create(call_id_observation)     
       end   
+  end
+  
+  def client_response
+    if request.method.to_s == 'post'
+      if params[:observations].first[:value_coded_or_text].upcase == 'YES'
+        redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
+      else
+       redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true" + "&followup=#{params[:followup]}"
+      end
+    else
+    @patient = Patient.find(params[:patient_id] || session[:patient_id])
+    home_phone_number_att = PersonAttributeType.find_by_name("Home Phone Number")
+    office_phone_number_att = PersonAttributeType.find_by_name("Office Phone Number")
+    cell_phone_number_att = PersonAttributeType.find_by_name("Cell Phone Number")
+    @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@patient.id,cell_phone_number_att.id) 
+    @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@patient.id,home_phone_number_att.id) if @phone_number.blank?
+    @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@patient.id,office_phone_number_att.id) if @phone_number.blank?
+    end
+  end
+  
+  def hsa_response
+    if request.method.to_s == 'post'
+      if params[:observations].first[:value_coded_or_text].upcase == 'YES'
+        redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
+      else
+        redirect_to :controller => 'clinic', :action => 'district',:task => 'anc', :district => session[:district]
+      end
+    else
+    
+    @patient = Patient.find(params[:patient_id]) 
+    @person = Person.find(params[:hsa_id])
+    cell_phone_number_att = PersonAttributeType.find_by_name("Cell Phone Number")
+    @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@person.id,cell_phone_number_att.id) 
+    
+    end
+  end
+  
+  def de_enroll_and_deliver(patient_id)
+     anc_connect_programme = Program.find_by_name("ANC CONNECT PROGRAM")
+     patient_anc_connect_programme = PatientProgram.find_by_program_id_and_patient_id(anc_connect_programme.id,patient_id)
+     unless patient_anc_connect_programme.blank?
+        patient_anc_connect_programme.void("Delivered Baby")
+        pregnancy_encounter = {:provider_id => session[:user_id],
+                            :encounter_datetime => Time.now(),
+                            :patient_id => patient_id,
+                            :encounter_type_name =>  "PREGNANCY STATUS"}
+                             
+        encounter = Encounter.create(pregnancy_encounter, session[:datetime])                      
+      
+        pregnancy_observation = {:encounter_id => encounter.id,
+                              :obs_datetime =>  encounter.encounter_datetime,
+                              :person_id => encounter.patient_id,
+                              :concept_name => "PREGNANCY STATUS",
+                              :value_coded_or_text =>  "DELIVERED"}
+                                                                                    
+       Observation.create(pregnancy_observation)
+     end
+      
   end
   
 end
