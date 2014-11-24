@@ -185,7 +185,11 @@ class EncountersController < ApplicationController
              redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
             end 
           else
-            redirect_to :controller => 'encounters', :action => 'hsa_response', :patient_id => params['encounter']['patient_id'], :hsa_id => params['hsa_id'], :late => params[:late_anc_call] and return
+            if params['hsa_id'].present?
+            	redirect_to :controller => 'encounters', :action => 'hsa_response', :patient_id => params['encounter']['patient_id'], :hsa_id => params['hsa_id'], :late => params[:late_anc_call] and return
+          	else
+          		redirect_to "/patients/show/#{@patient.id}" and return
+          	end
           end
         end
       end
