@@ -1,6 +1,7 @@
 class EncountersController < ApplicationController
 
   def create
+  
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
     
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
@@ -88,9 +89,14 @@ class EncountersController < ApplicationController
     end
 =end
     #Create the observations
-#raise encounter.to_yaml
+
     encounter = create_obs(encounter, params)
 
+		if params['encounter']['encounter_type_name'] == "MATERNAL HEALTH SYMPTOMS" && encounter.blank?
+			params[:observations].first[:value_coded_or_text] = "None"
+			params[:observations].first[:concept_name] = "Current complaints or symptoms"
+			encounter = create_obs(encounter, params)
+		end
     # Program handling
     date_enrolled = params[:programs][0]['date_enrolled'].to_time rescue nil
     date_enrolled = session[:datetime] || Time.now() if date_enrolled.blank?
