@@ -139,7 +139,7 @@ class EncountersController < ApplicationController
     end
     
    
-    if params['encounter']['encounter_type_name'] == 'BABY DELIVERY'
+    if params['encounter']['encounter_type_name'] == 'BABY DELIVERY' && params[:visit]
       if params[:observations][0]['concept_name'] == 'DELIVERED'
         unless params[:observations][0]['value_coded'].blank?
           yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
@@ -158,7 +158,7 @@ class EncountersController < ApplicationController
     end
     
    
-    if params['encounter']['encounter_type_name'] == 'HSA VISIT'
+    if params['encounter']['encounter_type_name'] == 'HSA VISIT' && params[:visit]
 
       if params[:observations][0]['concept_name'] == 'HSA VISIT'
         unless params[:observations][0]['value_coded'].blank?
@@ -174,7 +174,7 @@ class EncountersController < ApplicationController
       end
     end
      
-    if params['encounter']['encounter_type_name'] == 'ANC VISIT'
+    if params['encounter']['encounter_type_name'] == 'ANC VISIT' && params[:visit]
       if params[:observations][0]['concept_name'] == 'ANC VISIT'
         unless params[:observations][0]['value_coded'].blank?
           yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
