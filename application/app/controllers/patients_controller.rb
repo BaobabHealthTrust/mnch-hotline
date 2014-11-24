@@ -438,10 +438,10 @@ class PatientsController < ApplicationController
         encounter_name = encounters_to_update.first
         encounter = "#{encounter_name.to_s + '_update'}"
         session.delete(:"#{encounter}")
-        if (params[:visit])
-          url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}&visit=hsa"
+        if params[:visit]
+            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}&visit=#{params[:visit]} "
         else
-          url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}"
+            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}" 
         end
         redirect_to(url)
     end
