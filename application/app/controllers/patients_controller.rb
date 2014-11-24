@@ -19,6 +19,8 @@ class PatientsController < ApplicationController
       @date   = ""
     end
     
+    @patient_anc_followup = FollowUp.is_patient_on_anc_follow_ups(@patient.id, session[:district]) rescue false
+    
     # Done this to get the code going. I guess that I have to review this
     if @status.nil?
       @status = ""
