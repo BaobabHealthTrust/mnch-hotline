@@ -2271,8 +2271,8 @@ module Report
             SELECT pa.address2 as village,
 
             (SELECT hsa_id FROM hsa_villages WHERE village_id = (
-                SELECT village_id FROM village WHERE traditional_authority_id = #{traditional_authority_id} 
-                AND name = village LIMIT 1
+                SELECT village_id FROM village WHERE traditional_authority_id = #{traditional_authority_id} AND
+                name = village LIMIT 1
             ) LIMIT 1) as hsa_id,
 
             (SELECT name FROM health_center WHERE health_center_id = (
@@ -2287,15 +2287,15 @@ module Report
                 SELECT district_id FROM hsa_villages WHERE hsa_id = hsa_id LIMIT 1
             ) LIMIT 1) as district_name
 
-            FROM obs o INNER JOIN call_log cl ON o.value_text = cl.call_log_id AND
+            FROM obs o INNER JOIN call_log cl ON CAST(o.value_text AS SIGNED) = cl.call_log_id AND
             o.concept_id = #{call_id}
             INNER JOIN person_address pa ON o.person_id = pa.person_id
             INNER JOIN person_name pn on o.person_id = pn.person_id
-            WHERE cl.district = #{district_id} AND DATE(o.obs_datetime) >= '#{end_date.to_date}'
-            AND DATE(o.obs_datetime) <= '#{start_date.to_date}' AND o.voided = 0
+            WHERE cl.district = #{district_id} AND DATE(o.obs_datetime) >= '#{start_date.to_date}'
+            AND DATE(o.obs_datetime) <= '#{end_date.to_date}' AND o.voided = 0
             GROUP BY hsa_id HAVING hsa_id != ''
        ")
-      
+
       hash = {}
       unless patients_data.blank?
         patients_data.each do |data|
@@ -2379,7 +2379,7 @@ module Report
    ")
  
   total_delivered_at_facility = delivered_at_facility.collect{|p|p["person_id"]}.uniq.count
-  ((total_delivered_at_facility.to_f/total_delivered_patients) * 100) rescue 0
+  ((total_delivered_at_facility/total_delivered_patients) rescue 0 * 100)
   
  end
 
@@ -2415,7 +2415,7 @@ module Report
      
    end
 
-   return ((on_time.count.to_f/total_visits_scheduled) * 100) rescue 0
+   return ((on_time.count/total_visits_scheduled) rescue 0 * 100)
  end
  
 end
