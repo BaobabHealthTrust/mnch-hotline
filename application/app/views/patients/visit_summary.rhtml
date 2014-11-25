@@ -15,6 +15,7 @@
         <table width="90%">
           <%@encounter_names.each{|encounter_name|
             header = true
+            @none = true
             i = 0
             for encounter in @encounters do
               i += 1
@@ -26,26 +27,55 @@
                   <tr> <th class="visit-summary-header" colspan="3" style="height:2px;"><%=h(header_title)%></th> </tr>
                 <%end%>
                 <% header = false%>
-                <tr>
-                  <td>
-                    <%= encounter.to_s rescue nil %>
-                  </td>
+                
+                <% if encounter.to_s.present? %>
+                	<% @none = false %>
+		              <tr>
+		                <td>
+		                  <%= encounter.to_s rescue nil %>
+		                </td>
 
-                  <td  style="width: 50px;">
-                    <%=img_button_submit_to("#{@editing_url[encounter.name]}#{@patient.patient_id}", "/images/pencil.png",
-                      {:container_id => "visit-summary", :form_id => "frm_current_encounter_"+i.to_s},
-                      {:encounter_id => encounter.encounter_id, :editing => "true"}) if encounter.name != "REGISTRATION" -%>
-                  </td>
+		                <td  style="width: 50px;">
+		                  <%=img_button_submit_to("#{@editing_url[encounter.name]}#{@patient.patient_id}", "/images/pencil.png",
+		                    {:container_id => "visit-summary", :form_id => "frm_current_encounter_"+i.to_s},
+		                    {:encounter_id => encounter.encounter_id, :editing => "true"}) if encounter.name != "REGISTRATION" -%>
+		                </td>
 
-                  <td>
-                    <%=img_button_submit_to("/patients/show/#{@patient.patient_id}", "/images/cancel_flat_small_red.png",
-                      {:confirm => "Are you sure you want to void this entry?", :container_id => "visit-summary", :form_id => "frm_current_encounter_"+i.to_s},
-                      {:encounter_id => encounter.encounter_id, :void => "true"}) -%>
-                  </td>
-                </tr>
-              <%end
-            end
-          }%>
+		                <td>
+		                  <%=img_button_submit_to("/patients/show/#{@patient.patient_id}", "/images/cancel_flat_small_red.png",
+		                    {:confirm => "Are you sure you want to void this entry?", :container_id => "visit-summary", :form_id => "frm_current_encounter_"+i.to_s},
+		                    {:encounter_id => encounter.encounter_id, :void => "true"}) -%>
+		                </td>
+		              </tr>
+		            <% end %>
+		            
+              <% end %>
+              
+              
+            <% end %>
+          	
+          	<% if @none %>
+								<tr>
+									<td>
+										<%= "None available" rescue nil %>
+									</td>
+
+									<td  style="width: 50px;">
+										<%=img_button_submit_to("#{@editing_url[encounter.name]}#{@patient.patient_id}", "/images/pencil.png",
+											{:container_id => "visit-summary", :form_id => "frm_current_encounter_"+i.to_s},
+											{:encounter_id => encounter.encounter_id, :editing => "true"}) if encounter.name != "REGISTRATION" -%>
+									</td>
+
+									<td>
+										<%=img_button_submit_to("/patients/show/#{@patient.patient_id}", "/images/cancel_flat_small_red.png",
+											{:confirm => "Are you sure you want to void this entry?", :container_id => "visit-summary", :form_id => "frm_current_encounter_"+i.to_s},
+											{:encounter_id => encounter.encounter_id, :void => "true"}) -%>
+									</td>
+								</tr>
+          	<% end %>
+          	
+          	
+          <%}%>
         </table>
       </div>
 

@@ -19,6 +19,8 @@ class PatientsController < ApplicationController
       @date   = ""
     end
     
+    @patient_anc_followup = FollowUp.is_patient_on_anc_follow_ups(@patient.id, session[:district]) rescue false
+    
     # Done this to get the code going. I guess that I have to review this
     if @status.nil?
       @status = ""
@@ -33,13 +35,16 @@ class PatientsController < ApplicationController
     @anc_connect_id = @patient.patient_identifiers.find(:last, :conditions => ["identifier_type =?",
                       anc_identifier_type.id]).identifier rescue nil
     program_id = Program.find_by_name("ANC Connect Program").program_id
+    
     @patient_anc_program = PatientProgram.find(:last, :conditions => ["patient_id =? AND
                  program_id=?", @patient.id, program_id])
+    
     session.delete(:edit_pregnancy_encounter) if (session[:edit_pregnancy_encounter])
     session.delete(:recent_anc_connect) if (session[:recent_anc_connect])
     session.delete(:anc_visit_pregnancy_encounter) if (session[:anc_visit_pregnancy_encounter])
    #added this to ensure that we are able to void the encounters
-    void_encounter if (params[:void] && params[:void] == 'true')
+    void_encounter rescue nil if (params[:void] && params[:void] == 'true')
+    
     render :layout => 'clinic'
   end
 
@@ -435,7 +440,12 @@ class PatientsController < ApplicationController
         encounter_name = encounters_to_update.first
         encounter = "#{encounter_name.to_s + '_update'}"
         session.delete(:"#{encounter}")
-        redirect_to("/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}")
+        if params[:visit]
+            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}&visit=#{params[:visit]} "
+        else
+            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}" 
+        end
+        redirect_to(url)
     end
   end
   

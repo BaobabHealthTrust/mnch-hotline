@@ -32,6 +32,11 @@ Version 3 beta
                 -Added Delivery Encounter
                 -Added Birth Plan Encounter
                 -Added HSA Encounter
+                -Added HSA role [metadata]
+                -Added migration for HSA villages
+                -Added script for loading villages
+                -Added Late for ANC Follow-up Call
+                -Added Late for Delivery Follow-Up Call
             
 -------------------------------------------------------------------------------------------------------------
 2014-11-21
