@@ -74,6 +74,11 @@ class ApplicationController < ActionController::Base
       session.delete(:delivery_update)
       return "/encounters/new/delivery_update?patient_id=#{patient.patient_id.to_s}"
     end
+
+    if (session[:clinic_dashboard])
+      session.delete(:clinic_dashboard)
+      return "/clinic/district?district=#{session[:district]}&task=anc"
+    end
     
     todays_encounter_types = patient.encounters.find_by_date(session_date).map{|e| e.type.name rescue ''}.uniq rescue []
     if (session[:mnch_protocol_required] || (!todays_encounter_types.include?"REGISTRATION"))

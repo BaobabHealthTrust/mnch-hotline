@@ -441,6 +441,7 @@ class PatientsController < ApplicationController
         encounter = "#{encounter_name.to_s + '_update'}"
         session.delete(:"#{encounter}")
         if params[:visit]
+            session[:clinic_dashboard] = true
             url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}&visit=#{params[:visit]} "
         else
             url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}" 
