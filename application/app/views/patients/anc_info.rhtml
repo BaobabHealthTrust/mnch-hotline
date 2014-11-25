@@ -12,7 +12,5 @@
     } %>
 
   <%= hidden_field_tag :patient_id, params[:patient_id] %>
-  <% if params[:visit] %>
-    <%= hidden_field_tag :visit, 'hsa' %>
-  <% end %>
+  <%= hidden_field_tag("visit",params[:visit]) if params[:visit].present? %>
 </form>

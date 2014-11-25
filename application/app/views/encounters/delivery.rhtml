@@ -45,5 +45,7 @@
 
   <%= hidden_field_tag("hsa_id",params[:hsa_id]) if params[:hsa_id].present? %>
   
+  <%= hidden_field_tag("visit",params[:visit]) if params[:visit].present? %>
+  
 	<%= submit_tag 'Finish' %>
 <% end %>

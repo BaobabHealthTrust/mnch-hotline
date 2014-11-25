@@ -1,6 +1,7 @@
 class EncountersController < ApplicationController
 
   def create
+  
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
     
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
@@ -88,9 +89,14 @@ class EncountersController < ApplicationController
     end
 =end
     #Create the observations
-#raise encounter.to_yaml
+
     encounter = create_obs(encounter, params)
 
+		if params['encounter']['encounter_type_name'] == "MATERNAL HEALTH SYMPTOMS" && encounter.blank?
+			params[:observations].first[:value_coded_or_text] = "None"
+			params[:observations].first[:concept_name] = "Current complaints or symptoms"
+			encounter = create_obs(encounter, params)
+		end
     # Program handling
     date_enrolled = params[:programs][0]['date_enrolled'].to_time rescue nil
     date_enrolled = session[:datetime] || Time.now() if date_enrolled.blank?
@@ -139,7 +145,7 @@ class EncountersController < ApplicationController
     end
     
    
-    if params['encounter']['encounter_type_name'] == 'BABY DELIVERY' && params[:visit]
+    if params['encounter']['encounter_type_name'] == 'BABY DELIVERY'
       if params[:observations][0]['concept_name'] == 'DELIVERED'
         unless params[:observations][0]['value_coded'].blank?
           yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
@@ -148,9 +154,9 @@ class EncountersController < ApplicationController
              de_enroll_and_deliver(params[:observations][0]['patient_id'])
              redirect_to "/clinic/new_call?task=delivery" and return
             else
-            redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
+            redirect_to next_task(@patient) and return
             end
-          else
+          else  
              redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"  and return
           end   
         end
@@ -158,8 +164,7 @@ class EncountersController < ApplicationController
     end
     
    
-    if params['encounter']['encounter_type_name'] == 'HSA VISIT' && params[:visit]
-
+    if params['encounter']['encounter_type_name'] == 'HSA VISIT'
       if params[:observations][0]['concept_name'] == 'HSA VISIT'
         unless params[:observations][0]['value_coded'].blank?
           yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
@@ -174,7 +179,7 @@ class EncountersController < ApplicationController
       end
     end
      
-    if params['encounter']['encounter_type_name'] == 'ANC VISIT' && params[:visit]
+    if params['encounter']['encounter_type_name'] == 'ANC VISIT'
       if params[:observations][0]['concept_name'] == 'ANC VISIT'
         unless params[:observations][0]['value_coded'].blank?
           yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
@@ -182,10 +187,14 @@ class EncountersController < ApplicationController
             if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
              redirect_to :controller => 'clinic', :action => 'district',:task => 'anc', :district => session[:district]  and return
             else
-             redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
+            redirect_to next_task(@patient) and return
             end 
           else
-            redirect_to :controller => 'encounters', :action => 'hsa_response', :patient_id => params['encounter']['patient_id'], :hsa_id => params['hsa_id'], :late => params[:late_anc_call] and return
+            if params['hsa_id'].present?
+            	redirect_to :controller => 'encounters', :action => 'hsa_response', :patient_id => params['encounter']['patient_id'], :hsa_id => params['hsa_id'], :late => params[:late_anc_call] and return
+          	else
+          		redirect_to "/patients/show/#{@patient.id}" and return
+          	end
           end
         end
       end
@@ -932,10 +941,10 @@ class EncountersController < ApplicationController
     end
   end
   
-  def hsa_response
+  def hsa_response  
     if request.method.to_s == 'post'
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
-        redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
+        redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true" + "&followup=#{params[:followup]}"
       else
         redirect_to :controller => 'clinic', :action => 'district',:task => 'anc', :district => session[:district]
       end
