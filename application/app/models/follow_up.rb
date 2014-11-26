@@ -74,6 +74,7 @@ class FollowUp < ActiveRecord::Base
                                       AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
+                                      AND e.encounter_datetime <= '#{start_date} 23:59'   
                                       GROUP BY e.patient_id
                                       HAVING COUNT(e.patient_id) < 4;")
   
@@ -115,6 +116,7 @@ class FollowUp < ActiveRecord::Base
                                       AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
+                                      AND e.encounter_datetime <= '#{start_date} 23:59'
                                       AND e.patient_id = #{followup_patient_id}
                                       GROUP BY e.patient_id
                                       HAVING COUNT(e.patient_id) < 4;")
@@ -206,6 +208,7 @@ class FollowUp < ActiveRecord::Base
                                       AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) >= 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
+                                      AND e.encounter_datetime <= '#{start_date} 23:59'
                                       GROUP BY e.patient_id;")
                                       
     data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
