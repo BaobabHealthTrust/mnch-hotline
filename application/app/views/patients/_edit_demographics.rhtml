@@ -65,7 +65,7 @@
   <%= text_field_tag "person[addresses][county_district]",  params[:county_district], {:field_type => 'alpha', :helpText => 'Current Traditional Authority (TA)', :ajaxURL => '/people/traditional_authority/TraditionalAuthority?search_string=', :allowFreeText => true }%>
 
 <%when 'home_district'%>
-  <%= text_field_tag "person[addresses][address2]",  params[:address2], {:field_type => 'alpha', :helpText => 'Home district', :ajaxURL => '/people/village_demographics?search_string=', :allowFreeText => true }%>
+  <%= text_field_tag "person[addresses][address2]",  params[:address2], {:field_type => 'alpha', :helpText => 'Home Village', :ajaxURL => '/people/village_demographics?search_string=', :allowFreeText => true }%>
 
 <%when 'primary_phone'%>
   <%= text_field_tag "person[attributes][cell_phone_number]",  params[:cell_phone_number], {:field_type => 'number',:helpText => 'Cell Phone Number', :allowFreeText => "true", :validationRule => "^0\\d{9}$|Unknown|Not Available", :validationMessage => "Not a valid phone number"}%>
