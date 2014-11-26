@@ -76,7 +76,7 @@ class FollowUp < ActiveRecord::Base
                                       AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
-                                      
+                                      AND e.voided = 0
                                       AND e.patient_id IN(SELECT ee.patient_id 
                                                           FROM encounter ee 
                                                           INNER JOIN obs oo 
@@ -88,7 +88,7 @@ class FollowUp < ActiveRecord::Base
                                                           AND oo.voided = 0 
                                                           GROUP BY ee.patient_id
                                                           HAVING COUNT(ee.patient_id) < 4)
-                                                          GROUP BY e.patient_id")
+                                      GROUP BY e.patient_id")
   
     data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
     return data
