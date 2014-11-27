@@ -137,9 +137,12 @@ class PeopleController < ApplicationController
     village_conditions = ["name LIKE (?)", "%#{params[:search_string]}%"]
 
     villages = Village.find(:all, :select => "DISTINCT name", :conditions => village_conditions, :order => 'name', :limit => 10)
+    village = villages.uniq rescue []
+    
     villages = villages.map do |v|
       '<li value=' + v.name + '>' + v.name + '</li>'
     end
+    
     
     render :text => villages.join('') + "<li value='Other'>Other</li>" and return
   end
