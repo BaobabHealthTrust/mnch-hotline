@@ -47,3 +47,5 @@ Version 3 beta
 2014-11-26
   DN - replaced '/people/villages' with '/people/villages_demographics
   DN - changed 'Home village' label to 'Current Village'
+2014-11-27
+  DN - added .uniq to distinctly list village names
