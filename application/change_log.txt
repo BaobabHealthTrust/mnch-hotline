@@ -44,3 +44,6 @@ Version 3 beta
 	DN - updated the ANC concent number to allow 5 digits
   DN - removed G. before HSA when listing patients in ANC followup
   DN - replaced anc_visit with hsa_visit in the ancfollowuplist view.
+2014-11-26
+  DN - replaced '/people/villages' with '/people/villages_demographics
+  DN - changed 'Home village' label to 'Current Village'

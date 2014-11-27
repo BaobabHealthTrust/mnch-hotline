@@ -152,7 +152,7 @@ class EncountersController < ApplicationController
           if yes_concept == 'YES'
             if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
              de_enroll_and_deliver(params[:observations][0]['patient_id'])
-             redirect_to "/clinic/new_call?task=delivery" and return
+             redirect_to "/clinic/district?task=delivery&district=#{session[:district]}" and return
             else
             redirect_to next_task(@patient) and return
             end
@@ -170,7 +170,7 @@ class EncountersController < ApplicationController
           yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
           if yes_concept == 'YES'
             if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
-             redirect_to "/clinic/new_call?task=anc" and return
+             redirect_to "/clinic/district?task=anc&district=#{session[:district]}" and return
             else
             redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
             end 
