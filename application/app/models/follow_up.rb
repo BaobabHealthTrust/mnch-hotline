@@ -33,8 +33,8 @@ class FollowUp < ActiveRecord::Base
             where e.encounter_type = #{encounter_type}
                 and o.concept_id = #{concept_id} and pat.voided = 0
                 and o.value_text in ('REFERRED TO A HEALTH CENTRE','REFERRED TO NEAREST VILLAGE CLINIC')
-                and pat.person_attribute_type_id = #{cell_phone_attribute_type}
                 and e.encounter_datetime >= '#{start_date} 00:00' and encounter_datetime <= '#{current_date} 23:59' 
+                and pat.person_attribute_type_id = #{cell_phone_attribute_type}
                 and e.patient_id NOT IN (SELECT patient_id FROM follow_up WHERE date_created >= '#{start_date} 00:00' AND date_created <='#{current_date} 23:59')
                 GROUP BY e.patient_id ")
                 
@@ -50,12 +50,14 @@ class FollowUp < ActiveRecord::Base
     
     current_date = Date.today.to_date
     start_date = (current_date - (7 * followup_threshhold)).to_date
+    last_anc_date = (current_date - (14 * followup_threshhold)).to_date
     
     encounter_type = EncounterType.find_by_name('PREGNANCY STATUS').id
     concept_id = ConceptName.find_by_name('Expected due date').concept_id
     anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
+    next_visit_date_concept_id = ConceptName.find_by_name('Next ANC Visit Date').concept_id
+    anc_encounter_type = EncounterType.find_by_name("ANC VISIT").id
     
- 
     
     patients = Encounter.find_by_sql("SELECT e.patient_id, pn.given_name,pn.family_name,pn.family_name_prefix,
                                       pa.address2,o.concept_id,o.value_text,
@@ -74,8 +76,19 @@ class FollowUp < ActiveRecord::Base
                                       AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
-                                      GROUP BY e.patient_id
-                                      HAVING COUNT(e.patient_id) < 4;")
+                                      AND e.voided = 0
+                                      AND e.patient_id IN(SELECT ee.patient_id 
+                                                          FROM encounter ee 
+                                                          INNER JOIN obs oo 
+                                                          ON ee.encounter_id = oo.encounter_id
+                                                          WHERE ee.encounter_type = #{anc_encounter_type}
+                                                          AND oo.concept_id = #{next_visit_date_concept_id}
+                                                          AND DATE(oo.value_text) <= '#{last_anc_date} 23:59'
+                                                          AND e.encounter_datetime <= '#{start_date} 23:59'
+                                                          AND oo.voided = 0 
+                                                          GROUP BY ee.patient_id
+                                                          HAVING COUNT(ee.patient_id) < 4)
+                                      GROUP BY e.patient_id")
   
     data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
     return data
@@ -115,6 +128,7 @@ class FollowUp < ActiveRecord::Base
                                       AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) < 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
+                                      AND e.encounter_datetime <= '#{start_date} 23:59'
                                       AND e.patient_id = #{followup_patient_id}
                                       GROUP BY e.patient_id
                                       HAVING COUNT(e.patient_id) < 4;")
@@ -206,6 +220,7 @@ class FollowUp < ActiveRecord::Base
                                       AND o.concept_id = #{concept_id} and o.value_text IS NOT NULL 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) >= 42 
                                       AND floor((280 - (DATE(o.value_text) - curdate()))/7) > 0
+                                      AND e.encounter_datetime <= '#{start_date} 23:59'
                                       GROUP BY e.patient_id;")
                                       
     data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
