@@ -163,7 +163,8 @@ class ApplicationController < ActionController::Base
     hc_conditions = ["name LIKE (?) AND district = ?", "%#{params[:search_string]}%", district_id]
     hc_array = []
     hc_array << [" "," "]
-    health_centers = HealthCenter.find(:all,:conditions => hc_conditions, :order => 'name')
+    health_centers = HealthCenter.find(:all,:conditions => hc_conditions, :select => "DISTINCT name", :order => 'name')
+    
     health_centers = health_centers.map do |h_c|
       hc_array << ["#{h_c.name.humanize}","#{h_c.name.humanize}"]
     end
