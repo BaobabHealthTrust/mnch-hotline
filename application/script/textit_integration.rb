@@ -4,7 +4,7 @@ require 'json'
 
 def textit_integration
   path = "#{Rails.root}/script/"
-  file_name = "#{path}AncConnectSync.example.json"
+  file_name = "#{path}anc-connect-clients.json"
   json = File.read(file_name)
   data = JSON.parse(json)
 
@@ -16,7 +16,7 @@ def textit_integration
     village = key["village"]
     health_facility = key["health_facility"]
     edd = key["edd"].to_date #pregnancy_status enc
-    phone = key["phone"]
+    phone = key["phone"].to_s
     registration_time = key["registration_time"].to_date
     next_visit_date = key["next_visit_date"] #birth_plan enc
     
@@ -24,8 +24,8 @@ def textit_integration
     delivery_date = key["delivery_date"] #delivery enc
     delivery_facility = key["delivery_facility"] #delivery enc
 
-    village_id = Village.find_by_name(village).id
-    hsa_id = HsaVillage.find_by_village_id(village_id).hsa_id
+    village_id = Village.find_by_name(village).id rescue 99999999
+    hsa_id = HsaVillage.find_by_village_id(village_id).hsa_id rescue 99999999
     ActiveRecord::Base.transaction do
       anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID") rescue nil
       anc_identifier = PatientIdentifier.find(:last,:conditions =>["voided = 0 AND identifier_type = ?
@@ -109,7 +109,8 @@ def textit_integration
 
         puts "Creating ANC visits encounter"
         puts "------------------------------"
-        key["anc_visits"].each do |key, anc_visit|
+        
+        (key["anc_visits"] || []).each do |anc_visit|
           visit_date = anc_visit["date"].to_date
           n_visit_date = anc_visit["next_visit_date"].to_date
           new_anc_visit_enc = patient.encounters.create({
