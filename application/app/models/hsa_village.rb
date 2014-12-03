@@ -6,7 +6,7 @@ class HsaVillage < ActiveRecord::Base
 
   def self.is_patient_village_in_anc_connect(patient_id)
      status = false
-        patient_location = PersonAddress.find_by_person_id(patient_id).address2 rescue nil
+        patient_location = PersonAddress.find_by_person_id(patient_id).city_village rescue nil
         
         if patient_location.present?
           village = Village.find_by_name(patient_location) rescue nil   
