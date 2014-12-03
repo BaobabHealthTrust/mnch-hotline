@@ -17,6 +17,7 @@
 	<% visit_helptext = nil
 	   unless @last_anc_visit_date.blank?
 	      visit_helptext = "Attended ANC since #{DateTime.parse(@last_anc_visit_date).strftime('%d-%b-%Y') rescue nil}?"
+	      #visit_helptext = "Attended ANC yet?"
 	   else
 	      visit_helptext = "Attended ANC yet?"
 	   end
@@ -38,7 +39,7 @@
           :condition => "$('anc_visit').value == 'Yes'",
           :max => "#{session_date.strftime('%Y-%m-%d')}"} %>
   
-  <%= touch_text_field_tag "NEXT ANC VISIT DATE", @patient,next_anc_date ,
+  <%= touch_text_field_tag "NEXT ANC VISIT DATE", @patient,'' ,
         { :id => "next_anc_visit_date",
           :field_type => "date",
           :helptext => "#{@patient.person.names.first.given_name} " + "(#{@patient.person.names.first.family_name_prefix}) " + "#{@patient.person.names.first.family_name} " + "Next ANC Visit Date?",
