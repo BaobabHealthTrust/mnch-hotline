@@ -49,3 +49,4 @@ Version 3 beta
   DN - changed 'Home village' label to 'Current Village'
 2014-11-27
   DN - added .uniq to distinctly list village names
+  DN - added ':select => "DISTINCT name"' to a query pulling health_centres in applications controller
