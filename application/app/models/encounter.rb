@@ -243,7 +243,11 @@ class Encounter < ActiveRecord::Base
           anc_obs[obs.concept.name] = obs.value_text
         end
         next_visit_date = anc_obs[last_anc_visit_concept_name]
-        return next_visit_date.blank? ? nil : next_visit_date
+        if next_visit_date.blank?
+           return nil
+        else
+          return next_visit_date.to_date == Date.today ? nil : next_visit_date   
+        end
     else
        return nil
     end

@@ -110,7 +110,7 @@
      }
      
     </style>
-<form id='confirm' action="/clinic/followup" method='post'> %>
+<form id='confirm' action="/clinic/housekeeping" method='post'> %>
 <% if @follow_ups.blank? %>
       <label for="person">No patients were found:</label>
     <% else -%>
@@ -118,7 +118,7 @@
     <% end -%>
     <select name="person" id="person">
       <% @follow_ups.each do |person| -%>
-        <option value="<%= person[:patient_id]%>" onmousedown="changeNextButtonText('Select Patient');showPopup('<%= person[:patient_id] %>','<%= person[:hsa_id] %>')">
+        <option value="<%= person[:patient_id]%>" onmousedown="showPopup('<%= person[:patient_id] %>','<%= person[:hsa_id] %>')">
          
           <%= person[:given_name] -%> (<%= person[:family_name_prefix] -%>) <%= person[:family_name] -%>
           H. Vlg: <%= person[:address2] -%> G. Age: <%= person[:gestation_age] -%> HSA: <%= person[:hsa_name] -%>
@@ -126,6 +126,7 @@
         </option>
       <% end -%>   
     <%= hidden_field_tag("source", "HK") %>
+    <%= hidden_field_tag("task", "housekeeping") %>
    <%= submit_tag "Finish" %>
 </form>
 
