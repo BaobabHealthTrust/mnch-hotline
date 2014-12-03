@@ -222,11 +222,11 @@ class EncountersController < ApplicationController
         @current_pregnancy_status = ""
         @current_pregnancy_status_details = ""
       else
-        @current_pregnancy_status = pregnancy_status_details.first.upcase rescue nil
+        @current_pregnancy_status = pregnancy_status_details.first rescue nil
         @current_pregnancy_status_details = pregnancy_status_details.last rescue nil
       end
     else
-      @current_pregnancy_status = pregnancy_status_details.first.upcase rescue nil
+      @current_pregnancy_status = pregnancy_status_details.first rescue nil
         @current_pregnancy_status_details = pregnancy_status_details.last rescue nil
     end
     #raise @child_symptoms.to_s
