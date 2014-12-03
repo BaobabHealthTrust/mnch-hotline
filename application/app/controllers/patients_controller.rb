@@ -43,8 +43,21 @@ class PatientsController < ApplicationController
     session.delete(:recent_anc_connect) if (session[:recent_anc_connect])
     session.delete(:anc_visit_pregnancy_encounter) if (session[:anc_visit_pregnancy_encounter])
    #added this to ensure that we are able to void the encounters
+   if (params[:void] && params[:void] == 'true')
+     encounter_name = Encounter.find(params[:encounter_id]).name rescue nil
+     unless encounter_name.blank?
+       if (encounter_name.match(/PREGNANCY STATUS/i))
+         anc_connect_program_id = Program.find_by_name("ANC CONNECT PROGRAM").id
+         patient_program = PatientProgram.find(:last, :conditions => ["program_id =? AND 
+          patient_id =? AND DATE(date_enrolled) =?", anc_connect_program_id, @patient.id, Date.today])
+          unless patient_program.blank?
+            patient_program.void("Removed from ANC connect program")
+          end
+          redirect_to :action => "show" and return
+       end
+     end
     void_encounter rescue nil if (params[:void] && params[:void] == 'true')
-    
+   end
     render :layout => 'clinic'
   end
 
