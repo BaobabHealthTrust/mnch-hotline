@@ -1078,7 +1078,7 @@ hsas.each do |key,value|
        if village_id.blank?
         ta_id = TraditionalAuthority.find_by_name_and_district_id(value[:ta], district_id).traditional_authority_id rescue nil
         if ta_id.blank?
-           ta_id = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",district_id)
+           ta_id = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",district_id).traditional_authority_id
         end
         new_village = Village.new
         new_village.name = village
