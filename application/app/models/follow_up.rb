@@ -90,7 +90,7 @@ class FollowUp < ActiveRecord::Base
                                                           HAVING COUNT(ee.patient_id) < 4)
                                       GROUP BY e.patient_id")
   
-    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
+    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id, district)}
     return data
   end
   
@@ -133,7 +133,7 @@ class FollowUp < ActiveRecord::Base
                                       GROUP BY e.patient_id
                                       HAVING COUNT(e.patient_id) < 4;")
   
-    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
+    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id,district)}
     return data.present?
   end
   
@@ -223,7 +223,7 @@ class FollowUp < ActiveRecord::Base
                                       AND e.encounter_datetime <= '#{start_date} 23:59'
                                       GROUP BY e.patient_id;")
                                       
-    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id)}
+    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id, district)}
     return data
   end
   
