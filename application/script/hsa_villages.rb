@@ -16,7 +16,6 @@ districts.each do |district|
     end
 end
 
-
 t_as = ["Matsatsa", "Ganya", "Kalembo", "Simbota", "Sawali", "Makwangwala", "Chamthunya"]
 
 health_centers = ["Kasinje","Kankao", "Mbera", "Nsiyaludzu", "Phalula", "Sharpvalley"]
@@ -995,7 +994,7 @@ hsas = {"John D. Mwanza" => {
                            
                             },
 
-        "Esther Nsona " => {
+        "Esther Nsona" => {
                             :district => districts[0],
                             :ta => t_as[6],
                             :health_center => health_centers[4],
@@ -1011,7 +1010,16 @@ creator = 1
 HsaVillage.delete_all
 hsas.each do |key,value|
       hsa_name = key.split(" ")
-         
+      
+      
+      user = User.find_by_sql("SELECT * FROM users u
+                               INNER JOIN user_role ur 
+                               ON ur.user_id = u.user_id WHERE 
+                               u.username = '#{key.split(" ").join.gsub(".","").squish.downcase}'
+                               AND ur.role = 'HSA';").first rescue nil
+      
+      if user.blank?
+      
       person = Person.new
       person.creator = creator
       person.date_created = Date.today()
@@ -1048,7 +1056,7 @@ hsas.each do |key,value|
          user = User.new
          user.id = person.id
          user.creator = creator
-         user.username = key.split(" ").join.gsub(".","").downcase
+         user.username = key.split(" ").join.gsub(".","").squish.downcase
          user.password = user.username
          user.date_created = Date.today
          user.save
@@ -1059,15 +1067,22 @@ hsas.each do |key,value|
          user_role.user_id = user.user_id
          user_role.save
       
-         puts "Created HSA User Role :  #{user.username}" 
+         puts "Created HSA User Role :  #{user.username}"
+     end 
              
      value[:villages].each do |village|
-       village_id = Village.find_by_name(village).id rescue nil
+       district_id = District.find_by_name(value[:district]).district_id
+       ta_id = TraditionalAuthority.find_by_name_and_district_id(value[:ta],district_id).traditional_authority_id rescue nil
+       village_id = Village.find_by_name_and_traditional_authority_id(village, ta_id).village_id rescue nil
+       
        if village_id.blank?
-        ta = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",District.find_by_name(value[:district]))
+        ta_id = TraditionalAuthority.find_by_name_and_district_id(value[:ta], district_id).traditional_authority_id rescue nil
+        if ta_id.blank?
+           ta_id = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",district_id)
+        end
         new_village = Village.new
         new_village.name = village
-        new_village.traditional_authority_id = ta.id
+        new_village.traditional_authority_id = ta_id
         new_village.creator = creator
         new_village.date_created = Date.today()
         new_village.save
@@ -1075,8 +1090,7 @@ hsas.each do |key,value|
         puts "Created Village : #{new_village.name} for #{value[:district]}"
        end
        
-       district_id = District.find_by_name(value[:district]).id
-       health_center_id = HealthCenter.find_by_name(value[:healthcenter]).id rescue nil
+       health_center_id = HealthCenter.find_by_name_and_district(value[:healthcenter], district_id).health_center_id rescue nil
        if health_center_id.blank?
         new_health_center = HealthCenter.new
         new_health_center.name = value[:health_center]
