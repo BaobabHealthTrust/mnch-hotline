@@ -1,9 +1,8 @@
 class EncountersController < ApplicationController
 
   def create
-  
+
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
-    
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
       if params[:observations][0]['concept_name'] == 'EVER RECEIVED ART' and params[:observations][0]['value_coded_or_text'] == 'NO'
         observations = []
@@ -28,7 +27,13 @@ class EncountersController < ApplicationController
     end
     
     @patient = Patient.find(params[:encounter][:patient_id])
-
+ #>>>>>>>>>>>>>WE DON'T WANT DUPLICATE ENCOUNTERS AND OBSERVATIONS ON THE SAME DAY>>>>>>>>>>
+    my_enc_name =  params['encounter']['encounter_type_name'] rescue nil
+    my_enc_type_id = EncounterType.find_by_name(my_enc_name).id rescue nil
+    my_enc = Encounter.find(:last, :conditions => ["patient_id =? AND encounter_type =? AND
+        DATE(encounter_datetime) =?", @patient.id, my_enc_type_id, Date.today]) rescue nil
+    my_enc.void("REMOVING DUPLICATE ENCOUNTERS") unless my_enc.blank?
+ #>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>
     # Go to the dashboard if this is a non-encounter
     redirect_to "/patients/show/#{@patient.id}" unless params[:encounter]
 
@@ -222,11 +227,11 @@ class EncountersController < ApplicationController
         @current_pregnancy_status = ""
         @current_pregnancy_status_details = ""
       else
-        @current_pregnancy_status = pregnancy_status_details.first.upcase rescue nil
+        @current_pregnancy_status = pregnancy_status_details.first rescue nil
         @current_pregnancy_status_details = pregnancy_status_details.last rescue nil
       end
     else
-      @current_pregnancy_status = pregnancy_status_details.first.upcase rescue nil
+      @current_pregnancy_status = pregnancy_status_details.first rescue nil
         @current_pregnancy_status_details = pregnancy_status_details.last rescue nil
     end
     #raise @child_symptoms.to_s
