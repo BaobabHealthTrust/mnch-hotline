@@ -170,7 +170,7 @@ hsas = {"John D. Mwanza" => {
         "Taona Bonya" =>  {
                             :district => districts[1],
                             :health_center => health_centers[0],
-                            :phone_numbers => [],
+                            :phone_numbers => ["0888025908"],
                             :villages => ["Kamwetsa"]
                            
                             },
