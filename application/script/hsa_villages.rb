@@ -747,7 +747,11 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0991960091"],
-                            :villages => ["Lakalaka","Chimbalanga","Nkhundira","Mkweya","Magoti"]
+                            :villages => {"Lakalaka" => t_as[7],
+                                          "Chimbalanga" => t_as[7],
+                                          "Nkhundira" => t_as[6],
+                                          "Mkweya" => t_as[6],
+                                          "Magobo" => t_as[7]}
                            
                            },
 
@@ -773,7 +777,14 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0999632943","0881559793"],
-                            :villages => ["Msakanena","Namikombe","Ngwalu 2","Phasule","Kuntenjera","Chibwana","Tembani","Kunjawa"]
+                            :villages => {"Msakanena" => t_as[6],
+                                          "Namikombe" => t_as[6],
+                                          "Ngwalu 2"  => t_as[7],
+                                          "Phasule"  => t_as[7],
+                                          "Kuntenjera"  => t_as[7],
+                                          "Chibwana"  => t_as[7],
+                                          "Tembani"  => t_as[7],
+                                          "Kunjawa"  => t_as[7]}
                            
                            },
 
@@ -1112,7 +1123,10 @@ hsas.each do |key,value|
       
          puts "Created HSA User Role :  #{user.username}"
      end 
-             
+     
+     
+     
+  if value[:villages].is_a?(Array)        
      value[:villages].each do |village|
        district_id = District.find_by_name(value[:district]).district_id
        ta_id = TraditionalAuthority.find_by_name_and_district_id(value[:ta],district_id).traditional_authority_id rescue nil
@@ -1147,7 +1161,47 @@ hsas.each do |key,value|
                                        :health_center_id => health_center_id , 
                                        :district_id => district_id })
                                        
-       puts "Created HSA village"                                  
-     
-     end     
+       puts "Created HSA village"
+                                        
+     end
+   else
+     value[:villages].each do |village,ta|
+       district_id = District.find_by_name(value[:district]).district_id
+       ta_id = TraditionalAuthority.find_by_name_and_district_id(ta,district_id).traditional_authority_id rescue nil
+       village_id = Village.find_by_name_and_traditional_authority_id(village, ta_id).village_id rescue nil
+       
+       if village_id.blank?
+        ta_id = TraditionalAuthority.find_by_name_and_district_id(ta, district_id).traditional_authority_id rescue nil
+        if ta_id.blank?
+           ta_id = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",district_id).traditional_authority_id
+        end
+        new_village = Village.new
+        new_village.name = village
+        new_village.traditional_authority_id = ta_id
+        new_village.creator = creator
+        new_village.date_created = Date.today()
+        new_village.save
+        village_id = new_village.village_id 
+        puts "Created Village : #{new_village.name} for #{value[:district]}"
+       end
+       
+       health_center_id = HealthCenter.find_by_name_and_district(value[:healthcenter], district_id).health_center_id rescue nil
+       if health_center_id.blank?
+        new_health_center = HealthCenter.new
+        new_health_center.name = value[:health_center]
+        new_health_center.district = district_id
+        new_health_center.save
+        health_center_id = new_health_center.health_center_id
+       end
+       
+       hsa_village = HsaVillage.create({:hsa_id => user.user_id,
+                                       :village_id => village_id, 
+                                       :health_center_id => health_center_id , 
+                                       :district_id => district_id })
+                                       
+       puts "Created HSA village"
+                                        
+     end
+   
+   end       
 end
