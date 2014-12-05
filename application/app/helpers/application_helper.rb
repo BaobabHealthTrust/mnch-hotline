@@ -193,7 +193,7 @@ module ApplicationHelper
   end
   
    def show_for_anc_connect(patient_id)
-    HsaVillage.is_patient_village_in_anc_connect(patient_id)
+    HsaVillage.is_patient_village_in_anc_connect(patient_id, session[:district])
   end
   
 end

@@ -186,8 +186,15 @@
             
       <option value='/clinic/call?task=next'>Next Client</option>
     <% else %>
+       
       <option value='/encounters/recent_tip_and_reminder_program?patient_id=<%=@patient.id%>'>Edit Reminders</option>
       <option value='/patients/demographics?patient_id=<%=@patient.id%>'>Edit Demograghics</option>
+      <% if @patient.female_adult? %>
+		      <% if show_for_anc_connect(@patient.patient_id) && @patient_anc_program.present? && session[:house_keeping_mode] == true %>
+		          <option value='/encounters/edit_pregnacy_encounter?patient_id=<%=@patient.id%>'>Edit ANC connect</option>
+		          <option value='/patients/anc_info?patient_id=<%=@patient.id%>'>ANC info</option>
+		      <% end %>
+      <% end %>
     <%  end %>
     <% if @patient_needs_follow_up == true %>
         <option value='/clinic/followup?person=<%=@patient.id%>&source=PD'>Follow up</option>
