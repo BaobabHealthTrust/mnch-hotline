@@ -52,8 +52,8 @@ class PatientsController < ApplicationController
           patient_id =? AND DATE(date_enrolled) =?", anc_connect_program_id, @patient.id, Date.today])
           unless patient_program.blank?
             patient_program.void("Removed from ANC connect program")
+            redirect_to :action => "show" and return
           end
-          redirect_to :action => "show" and return
        end
      end
     void_encounter rescue nil if (params[:void] && params[:void] == 'true')
