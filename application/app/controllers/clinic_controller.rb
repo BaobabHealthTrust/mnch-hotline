@@ -397,7 +397,7 @@ class ClinicController < ApplicationController
           follow_up[:family_name_prefix] = person.family_name_prefix
           follow_up[:address2] = person.address2
           follow_up[:gestation_age] = person.gestation_age
-          village = Village.find_by_name(person.address2)
+          village = Village.find_by_name_and_county_district(person.address2, person.county_district)
           hsa_village = HsaVillage.find_by_village_id(village.village_id) rescue nil
           person_name = PersonName.find_by_person_id(hsa_village.hsa_id) rescue nil
           follow_up[:hsa_name] = person_name.given_name + " " + person_name.family_name rescue nil
