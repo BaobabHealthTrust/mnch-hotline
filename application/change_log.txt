@@ -48,3 +48,5 @@ Version 3 beta
   DN - changed 'Home village' label to 'Current Village'
 2014-11-27
   DN - added .uniq to distinctly list village names
+2014-12-05
+  PB - Ensured that TA is also used when searching for villages whether they are in anc connect pilot or not

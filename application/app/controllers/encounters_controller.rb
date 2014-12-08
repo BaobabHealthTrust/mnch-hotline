@@ -1,7 +1,9 @@
 class EncountersController < ApplicationController
 
   def create
-
+    if (params[:edit_anc_connect])
+      session[:edit_anc_connect] = true
+    end
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
       if params[:observations][0]['concept_name'] == 'EVER RECEIVED ART' and params[:observations][0]['value_coded_or_text'] == 'NO'

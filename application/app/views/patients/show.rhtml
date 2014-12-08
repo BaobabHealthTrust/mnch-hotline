@@ -190,7 +190,7 @@
       <option value='/encounters/recent_tip_and_reminder_program?patient_id=<%=@patient.id%>'>Edit Reminders</option>
       <option value='/patients/demographics?patient_id=<%=@patient.id%>'>Edit Demograghics</option>
       <% if @patient.female_adult? %>
-		      <% if show_for_anc_connect(@patient.patient_id) && @patient_anc_program.present? && session[:house_keeping_mode] == true %>
+		      <% if show_for_anc_connect(@patient.patient_id) && @patient_anc_program.present? %>
 		          <option value='/encounters/edit_pregnacy_encounter?patient_id=<%=@patient.id%>'>Edit ANC connect</option>
 		          <option value='/patients/anc_info?patient_id=<%=@patient.id%>'>ANC info</option>
 		      <% end %>

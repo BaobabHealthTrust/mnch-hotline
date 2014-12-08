@@ -38,6 +38,11 @@ class ApplicationController < ActionController::Base
     session_date = session[:datetime].to_date rescue Date.today
 
     # a fix to allow for redirections from outcome to clinic schedules
+    if session[:edit_anc_connect]
+      session.delete(:edit_anc_connect)
+      return "/patients/show/#{patient.id}"
+    end
+    
     if session[:outcome_complete]
       session.delete(:outcome_complete) # delete the session variable completely to avoid endless iterations
       return "/clinic/schedules?patient_id="+ patient.patient_id.to_s + "&source_url=patient_dashboard"

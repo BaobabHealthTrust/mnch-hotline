@@ -440,7 +440,14 @@ EOF
     end
     unless current_status.nil?
       pregnancy_statuses.last.observations.each do | observation|
-        status_date     = observation.answer_string if(observation.concept.name.upcase == "EXPECTED DUE DATE" || observation.concept.name.upcase =="DELIVERY DATE")
+        next unless (observation.concept.name.upcase == "EXPECTED DUE DATE")
+        status_date     = observation.answer_string
+      end
+      if (status_date.blank?)
+        pregnancy_statuses.last.observations.each do | observation|
+          next unless (observation.concept.name.upcase =="DELIVERY DATE")
+          status_date     = observation.answer_string
+        end
       end
     end
     return [current_status, status_date]
