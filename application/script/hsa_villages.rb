@@ -16,7 +16,7 @@ districts.each do |district|
     end
 end
 
-t_as = ["Matsatsa", "Ganya", "Kalembo", "Simbota", "Sawali", "Makwangwala", "Chamthunya"]
+t_as = ["Matsatsa", "Ganya", "Kalembo", "Simbota", "Sawali", "Makwangwala", "Chamthunya", "Nsamala"]
 
 health_centers = ["Kasinje","Kankao", "Mbera", "Nsiyaludzu", "Phalula", "Sharpvalley"]
 
@@ -24,8 +24,9 @@ health_centers = ["Kasinje","Kankao", "Mbera", "Nsiyaludzu", "Phalula", "Sharpva
 
 hsas = {"John D. Mwanza" => { 
                               :district => districts[1],
+                              :ta => t_as[1],
                               :health_center => health_centers[0],
-                              :phone_numbers => ["0995141996","0881822805   "],
+                              :phone_numbers => ["0995141996","0881822805"],
                               :villages => ["Thunga 1","Kalasa","Kampheko 1","Kampheko 2"]
                             
                             },
@@ -40,6 +41,7 @@ hsas = {"John D. Mwanza" => {
 
         "Amos N. Mbewe" => {
                             :district => districts[1],
+                            :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0999287343"],
                             :villages => ["Gwaza"]      
@@ -47,6 +49,7 @@ hsas = {"John D. Mwanza" => {
 
         "Collins Kathyole" => {
                             :district => districts[1],
+                            :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0999384177"],
                             :villages => ["Fala"]
@@ -64,6 +67,7 @@ hsas = {"John D. Mwanza" => {
                             
         "Carvette Mthandi" =>  {
                             :district => districts[1],
+                            :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0993173065","0884105908"],
                             :villages => ["Manjanja"]
@@ -81,6 +85,7 @@ hsas = {"John D. Mwanza" => {
 
         "Byson Chapotela" =>  {
                             :district => districts[1],
+                            :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0998746312"],
                             :villages => ["Kachinjika","Mbonela"]
@@ -89,6 +94,7 @@ hsas = {"John D. Mwanza" => {
 
         "Stella Goma" =>  {
                             :district => districts[1],
+                            :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0993005645"],
                             :villages => ["Thunga 2","Mzalimbo", "Kambaule", "Kamowa", "Kachilomo", "Chindikano", "Thunga 3"]
@@ -97,6 +103,7 @@ hsas = {"John D. Mwanza" => {
 
         "Kenneth Mbekwani" => {
                             :district => districts[1],
+                            :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0999145341"],
                             :villages => ["Mtambalika 1", "Mtambalika 2", "Mtambalika 3"]
@@ -168,6 +175,7 @@ hsas = {"John D. Mwanza" => {
 
         "Taona Bonya" =>  {
                             :district => districts[1],
+                            :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0888025908"],
                             :villages => ["Kamwetsa"]
@@ -185,6 +193,7 @@ hsas = {"John D. Mwanza" => {
 
         "Lenson Chilaya" =>  {
                             :district => districts[1],
+                            :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0997349239"],
                             :villages => ["Kasinje 2"]
@@ -256,6 +265,7 @@ hsas = {"John D. Mwanza" => {
 
         "Tadala Kabanga" =>  {
                             :district => districts[1],
+                            :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0999692621"],
                             :villages => ["Nasala"]
@@ -264,6 +274,7 @@ hsas = {"John D. Mwanza" => {
 
         "McCharity Nyamambale" => {
                             :district => districts[1],
+                            :ta => t_as[0],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0881691835"],
                             :villages => ["Khwiya", "Folotiya"]
@@ -290,6 +301,7 @@ hsas = {"John D. Mwanza" => {
 
         "Mary Yotamu" => {
                             :district => districts[1],
+                            :ta => t_as[5],
                             :health_center => health_centers[3],
                             :phone_numbers => ["0994867949"],
                             :villages => ["Ngwangwa","Goveya", "Mpakiza 1", "Mpakiza 2"]
@@ -298,6 +310,7 @@ hsas = {"John D. Mwanza" => {
     
         "Lucy Mpaso" => {
                             :district => districts[1],
+                            :ta => t_as[5],
                             :health_center => health_centers[3],
                             :phone_numbers => ["0999119121"],
                             :villages => ["Kauwa"]
@@ -315,6 +328,7 @@ hsas = {"John D. Mwanza" => {
 
         "Cecelia Dzampita" =>  {
                             :district => districts[1],
+                            :ta => t_as[5],
                             :health_center => health_centers[3],
                             :phone_numbers => ["0999050322"],
                             :villages => ["Sabwera 1","Elia" ,"Balaka 1"]
@@ -341,6 +355,7 @@ hsas = {"John D. Mwanza" => {
 
         "Nelia Kamadyaapa" => {
                             :district => districts[1],
+                            :ta => t_as[5],
                             :health_center => health_centers[3],
                             :phone_numbers => ["0993807671"],
                             :villages => ["Siliya", "Gunde", "Muyenga"]
@@ -349,6 +364,7 @@ hsas = {"John D. Mwanza" => {
 
         "Dyna Mwabumba" =>  {
                             :district => districts[1],
+                            :ta => t_as[5],
                             :health_center => health_centers[3],
                             :phone_numbers => ["0888169139"],
                             :villages => ["Gwaza 1", "Masasa"]
@@ -366,6 +382,7 @@ hsas = {"John D. Mwanza" => {
 
         "Boston Msamanyada" => {
                             :district => districts[1],
+                            :ta => t_as[5],
                             :health_center => health_centers[3],
                             :phone_numbers => ["0992953069"],
                             :villages => ["Makokola","Dinala","Tseka"]
@@ -374,6 +391,7 @@ hsas = {"John D. Mwanza" => {
 
         "Saidi Machila" =>  {
                             :district => districts[1],
+                            :ta => t_as[5],
                             :health_center => health_centers[3],
                             :phone_numbers => ["0992536867"],
                             :villages => ["James Mazunga","Chimutu"]
@@ -400,6 +418,7 @@ hsas = {"John D. Mwanza" => {
 
         "Chrissy Lukiyo" =>  {
                             :district => districts[1],
+                            :ta => t_as[5],
                             :health_center => health_centers[3],
                             :phone_numbers => ["0884358499"],
                             :villages => ["Mberengwa", "Alasala 1", "James Ipu"]
@@ -645,6 +664,7 @@ hsas = {"John D. Mwanza" => {
 
         "Yona Nasambo" => {
                             :district => districts[0],
+                            :ta => t_as[2],
                             :health_center => health_centers[2],
                             :phone_numbers => [""],
                             :villages => ["Pyoli","Chirombo","Sikero","Kumpinda","Kachepa","Nambazo"]
@@ -727,12 +747,17 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0991960091"],
-                            :villages => ["Lakalaka","Chimbalanga","Nkhundira","Mkweya","Magoti"]
+                            :villages => {"Lakalaka" => t_as[7],
+                                          "Chimbalanga" => t_as[7],
+                                          "Nkhundira" => t_as[6],
+                                          "Mkweya" => t_as[6],
+                                          "Magobo" => t_as[7]}
                            
                            },
 
         "Veronica Magugu" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0999457733"],
                             :villages => ["Madyelatu","Malakamu","Chimphonda","Chizunguchino","kankao","Kambadya 1","Kambadya 2"]
@@ -741,6 +766,7 @@ hsas = {"John D. Mwanza" => {
 
         "James Barnet" => {
                             :district => districts[0],
+                            :ta => t_as[7],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0991799043"],
                             :villages => ["Mitochi","Kalimbuka","James","Mitchaya","Nambazo","Chitala"]
@@ -751,20 +777,29 @@ hsas = {"John D. Mwanza" => {
                             :district => districts[0],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0999632943","0881559793"],
-                            :villages => ["Msakanena","Namikombe","Ngwalu 2","Phasule","Kuntenjera","Chibwana","Tembani","Kunjawa"]
+                            :villages => {"Msakanena" => t_as[6],
+                                          "Namikombe" => t_as[6],
+                                          "Ngwalu 2"  => t_as[7],
+                                          "Phasule"  => t_as[7],
+                                          "Kuntenjera"  => t_as[7],
+                                          "Chibwana"  => t_as[7],
+                                          "Tembani"  => t_as[7],
+                                          "Kunjawa"  => t_as[7]}
                            
                            },
 
         "Mathews Kapalamula" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => [""],
                             :villages => ["Mponda","Chimpakati","Mataya","Gamwero","Ndawa","Chitati"]
                            
-        },
+                             },
 
         "Nelson Chithagala" => {
                             :district => districts[0],
+                            :ta => t_as[7],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0884864176"],
                             :villages => ["Chiyembekezo","Mzito","Manyikula","Mlero","Selemani","Chiganga"]
@@ -773,6 +808,7 @@ hsas = {"John D. Mwanza" => {
 
         "Prisca Mpuzeni" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0998080432"],
                             :villages => ["Siliya","Nsaka","Grey","Kapoloma","Kamyata","Gobede","Chin'gamba","Pilato","Zangaphee"]
@@ -781,6 +817,7 @@ hsas = {"John D. Mwanza" => {
 
         "Fasco Lungu" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0881265402"],
                             :villages => ["Namayesa","Sopera","Mmora","Chimimba","Kapuku","Kachingwe","Zimveka","Chikhwaya","Chitsulo"]
@@ -789,6 +826,7 @@ hsas = {"John D. Mwanza" => {
 
         "Fatima Renso" =>{
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0999607751","0888609353"],
                             :villages => ["Manjanja","Chaola","Jambawe","Muoza","Kwalakwata","Chaweka","Same"]
@@ -797,6 +835,7 @@ hsas = {"John D. Mwanza" => {
 
         "Lucy Sagawa" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0884329352"],
                             :villages => ["Zandeya","Njilayagoma","Chida","Kantande","Mombo","Kachomba"]
@@ -805,6 +844,7 @@ hsas = {"John D. Mwanza" => {
                            
         "Aaron Chikanga" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0991950941"],
                             :villages => ["Tsanyaoyela","Mulunguzi","Thindili","Majia"]
@@ -812,6 +852,7 @@ hsas = {"John D. Mwanza" => {
                            },
         "John Matumbo" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0888883597","0999716293"],
                             :villages => ["Namitumbo","Mphenzi","Mfulanjovu","M'mangeni","Mulanda"]
@@ -820,6 +861,7 @@ hsas = {"John D. Mwanza" => {
                            
         "Mike Kachale" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0999090840","0888607561"],
                             :villages => ["Uyele","Mbonani","Nantchengwa","Manyombe","Ngoleka","Linzie"]
@@ -828,6 +870,7 @@ hsas = {"John D. Mwanza" => {
 
         "Lawrence Muhamah" => {
                             :district => districts[0],
+                            :ta => t_as[7],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0888335399","0999120075"],
                             :villages => ["Khoswe","Chiputula","Pakamwa","Kanongwa","Sakaiko","Makalaudi","Zammimba","Kodo"]
@@ -836,6 +879,7 @@ hsas = {"John D. Mwanza" => {
                            
         "Paul Nyambalo" =>{
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0999330020","0888419960"],
                             :villages => ["Fulaye","Thom","Nakapa","John","Chizinga","Changadeya"]
@@ -844,6 +888,7 @@ hsas = {"John D. Mwanza" => {
 
         "Magret Nyambalo" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0993222084","0882104389"],
                             :villages => ["Rabson","Chingagwe","Joshua","Otala","Langwani","Kathumba","Chiondo"]
@@ -852,6 +897,7 @@ hsas = {"John D. Mwanza" => {
 
         "McDonald Mang'anda" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0881132164","0998003134"],
                             :villages => ["Ntondokera","Ngongomwa","Bwemba"]
@@ -859,6 +905,7 @@ hsas = {"John D. Mwanza" => {
                            },
         "Manfred Malenga" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[1],
                             :phone_numbers => ["0882062881","0998298254"],
                             :villages => ["Mzamani","Mdelezina","Mgoza","Masenjele"]
@@ -895,6 +942,7 @@ hsas = {"John D. Mwanza" => {
 
         "Lizzie Ngozo" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[4],
                             :phone_numbers => ["0884294970"],
                             :villages => ["Kameza","Mpambira","Chikwiri","Chikaoneka","Sungani","Mkaluluka"]
@@ -921,6 +969,7 @@ hsas = {"John D. Mwanza" => {
 
         "Grace Samanyika" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[4],
                             :phone_numbers => ["0884161588"],
                             :villages => ["Govati","Chaima","Chingodzi","Kumkwawa"]
@@ -929,6 +978,7 @@ hsas = {"John D. Mwanza" => {
 
         "Zaria Babu" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[4],
                             :phone_numbers => ["0995133060"],
                             :villages => ["Kavala 1","Kavala 2","Chikondi","Vuvuta","Chiyembekezo","Kusheto","Mwaligula"]
@@ -937,6 +987,7 @@ hsas = {"John D. Mwanza" => {
 
         "Annie Banda" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[4],
                             :phone_numbers => ["0999430778"],
                             :villages => ["Chigonamdowe Pofela","Tchona Yebele","Ndungunde","Khazibeti","Yambani"]
@@ -945,6 +996,7 @@ hsas = {"John D. Mwanza" => {
 
         "Vincent Namaombe" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[4],
                             :phone_numbers => ["0992623006"],
                             :villages => ["Mthengomwacha 1","Mthengomwacha 2","Mateyu","Kachingwe","Makokola"]
@@ -953,6 +1005,7 @@ hsas = {"John D. Mwanza" => {
 
         "Selemani Malope" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[4],
                             :phone_numbers => ["0884456122"],
                             :villages => ["Phalula","Bengo","Senjere"]
@@ -961,6 +1014,7 @@ hsas = {"John D. Mwanza" => {
                             
         "Maggie Munde" => {
                             :district => districts[0],
+                            :ta => t_as[6],
                             :health_center => health_centers[4],
                             :phone_numbers => ["0888617531"],
                             :villages => ["Ntundu","Limbani","Mundila","Chizungu","Mpitanjala"]
@@ -1001,7 +1055,7 @@ hsas = {"John D. Mwanza" => {
                             :phone_numbers => ["0881533642"],
                             :villages => ["Chandikola", "Massa"]
                            
-                            },
+                            }
  
 }  
 
@@ -1069,7 +1123,10 @@ hsas.each do |key,value|
       
          puts "Created HSA User Role :  #{user.username}"
      end 
-             
+     
+     
+     
+  if value[:villages].is_a?(Array)        
      value[:villages].each do |village|
        district_id = District.find_by_name(value[:district]).district_id
        ta_id = TraditionalAuthority.find_by_name_and_district_id(value[:ta],district_id).traditional_authority_id rescue nil
@@ -1104,7 +1161,47 @@ hsas.each do |key,value|
                                        :health_center_id => health_center_id , 
                                        :district_id => district_id })
                                        
-       puts "Created HSA village"                                  
-     
-     end     
+       puts "Created HSA village"
+                                        
+     end
+   else
+     value[:villages].each do |village,ta|
+       district_id = District.find_by_name(value[:district]).district_id
+       ta_id = TraditionalAuthority.find_by_name_and_district_id(ta,district_id).traditional_authority_id rescue nil
+       village_id = Village.find_by_name_and_traditional_authority_id(village, ta_id).village_id rescue nil
+       
+       if village_id.blank?
+        ta_id = TraditionalAuthority.find_by_name_and_district_id(ta, district_id).traditional_authority_id rescue nil
+        if ta_id.blank?
+           ta_id = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",district_id).traditional_authority_id
+        end
+        new_village = Village.new
+        new_village.name = village
+        new_village.traditional_authority_id = ta_id
+        new_village.creator = creator
+        new_village.date_created = Date.today()
+        new_village.save
+        village_id = new_village.village_id 
+        puts "Created Village : #{new_village.name} for #{value[:district]}"
+       end
+       
+       health_center_id = HealthCenter.find_by_name_and_district(value[:healthcenter], district_id).health_center_id rescue nil
+       if health_center_id.blank?
+        new_health_center = HealthCenter.new
+        new_health_center.name = value[:health_center]
+        new_health_center.district = district_id
+        new_health_center.save
+        health_center_id = new_health_center.health_center_id
+       end
+       
+       hsa_village = HsaVillage.create({:hsa_id => user.user_id,
+                                       :village_id => village_id, 
+                                       :health_center_id => health_center_id , 
+                                       :district_id => district_id })
+                                       
+       puts "Created HSA village"
+                                        
+     end
+   
+   end       
 end
