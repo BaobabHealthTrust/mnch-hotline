@@ -3,9 +3,9 @@ require 'rubygems'
 require 'json'
 
 def textit_integration
-  path = "#{Rails.root}/script/"
-  file_name = "#{path}anc-connect-clients.json"
-  json = File.read(file_name)
+  config = YAML.load_file("config/report.yml")
+  path = config["config"]["anc_connect_file"]
+  json = File.read(path)
   data = JSON.parse(json)
 
   User.current_user = User.find(1)
