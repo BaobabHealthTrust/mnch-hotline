@@ -115,7 +115,7 @@
         <option value="<%= person[:patient_id]%>" onmousedown="showPopup('<%= person[:patient_id] %>','<%= person[:hsa_id] %>')">
          
           <%= person[:given_name] -%> (<%= person[:family_name_prefix] -%>) <%= person[:family_name] -%>
-          H. Vlg: <%= person[:address2] -%> G. Age: <%= person[:gestation_age] -%> G. HSA: <%= person[:hsa_name] -%>
+          H. Vlg: <%= person[:current_residence] -%> G. Age: <%= person[:gestation_age] -%> G. HSA: <%= person[:hsa_name] -%>
           Tel: <%= Person.find(person[:patient_id]).get_attribute("Cell Phone Number") -%>
         </option>
       <% end -%>   
