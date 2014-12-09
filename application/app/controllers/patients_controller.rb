@@ -380,6 +380,13 @@ class PatientsController < ApplicationController
 
   def update_demographics
     Person.update_demographics(params)
+    if HsaVillage.is_patient_village_in_anc_connect(params[:person_id],session[:district])
+      anc_connect_program_id = Program.find_by_name("ANC CONNECT PROGRAM").program_id
+      anc_patient_program = PatientProgram.find_by_patient_id_and_program_id_and_voided(params[person_id],anc_connect_program_id,0)
+      if anc_patient_program.present?
+        anc_patient_program.void("Removed from ANC connect program")
+      end
+    end
     redirect_to :action => 'demographics', :patient_id => params['person_id'] and return
   end
 
