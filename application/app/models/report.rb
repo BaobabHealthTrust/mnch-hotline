@@ -2265,13 +2265,16 @@ module Report
     district_id = District.find_by_name(district).id
     call_id = Concept.find_by_name("CALL ID").id
     data = []
-    traditional_authority_id = TraditionalAuthority.find_by_name("HOTLINE PILOT").id
     #date_ranges.map do |date_range|
       patients_data = Patient.find_by_sql("
             SELECT pa.address2 as village,
 
+            (SELECT traditional_authority_id FROM traditional_authority WHERE name = (
+              SELECT county_district FROM person_address WHERE person_id = pa.person_id LIMIT 1
+            ) AND district_id=#{district_id} LIMIT 1) as ta_id,
+
             (SELECT hsa_id FROM hsa_villages WHERE village_id = (
-                SELECT village_id FROM village WHERE traditional_authority_id = #{traditional_authority_id} AND
+                SELECT village_id FROM village WHERE traditional_authority_id = ta_id AND
                 name = village LIMIT 1
             ) LIMIT 1) as hsa_id,
 
