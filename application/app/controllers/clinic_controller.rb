@@ -382,12 +382,12 @@ class ClinicController < ApplicationController
       session[:district] = params[:district] if session[:district].blank?
       district = session[:district]
       follow_ups = FollowUp.get_anc_follow_ups(district)
-      @follow_ups = build_followups(follow_ups)
+      @follow_ups = build_followups(follow_ups, "ANC VISIT")
       
       render :template => 'clinic/ancfollowuplist', :layout => 'application'
     end
     
-    def build_followups(follow_ups)
+    def build_followups(follow_ups,encounter_name)
       @built_follow_ups = []
       follow_ups.each do |person|
           follow_up = {}
@@ -404,12 +404,12 @@ class ClinicController < ApplicationController
           follow_up[:hsa_id] = hsa_village.hsa_id rescue nil
           
           last_encounters = last_anc_encounters(person.patient_id)
-          anc_visit = EncounterType.find_by_name("ANC VISIT")
+          encounter = EncounterType.find_by_name(encounter_name)
           
           follow_up[:visit] = []
           last_encounters.each do |e|
             name = e.given_name + " " + e.family_name
-            if e.encounter_type == anc_visit.id
+            if e.encounter_type == encounter.id
                 follow_up[:visit] << ["client",e.encounter_datetime.to_date, e.reason, name] 
             else
             
@@ -433,7 +433,7 @@ class ClinicController < ApplicationController
       session[:district] = params[:district] if session[:district].blank?
       district = session[:district]
       follow_ups = FollowUp.get_anc_delivery_follow_ups(district)
-      @follow_ups = build_followups(follow_ups)
+      @follow_ups = build_followups(follow_ups, "BABY DELIVERY")
       
       render :template => 'clinic/deliveryfollowuplist', :layout => 'application'
     end
@@ -442,7 +442,7 @@ class ClinicController < ApplicationController
       session[:district] = params[:district] if session[:district].blank?
       district = session[:district]
       follow_ups =  FollowUp.get_birth_plan_follow_ups(district)
-      @follow_ups = build_followups(follow_ups)
+      @follow_ups = build_followups(follow_ups, "BIRTH PLAN")
       
       render :template => 'clinic/birthfollowuplist', :layout => 'application'
     end
