@@ -51,3 +51,5 @@ Version 3 beta
   DN - added .uniq to distinctly list village names
 2014-12-05
   PB - Ensured that TA is also used when searching for villages whether they are in anc connect pilot or not
+2014-12-08
+  PB - Modified the hsa_village script to create T/As if they dont exist in the system. This means that we will not need the hotline pilot TA
