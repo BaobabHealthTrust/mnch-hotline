@@ -90,8 +90,9 @@ class FollowUp < ActiveRecord::Base
                                       AND e.patient_id NOT IN (SELECT ee.patient_id 
                                                                FROM encounter ee 
                                                                WHERE ee.encounter_type = #{encounter_type} 
-                                                               AND date_created >= '#{start_date} 00:00' 
-                                                               AND date_created <='#{current_date} 23:59')
+                                                               AND ee.date_created >= '#{start_date} 00:00' 
+                                                               AND ee.date_created <='#{current_date} 23:59'
+                                                               AND ee.voided = 0)
                                       GROUP BY e.patient_id
                                       ORDER BY e.encounter_datetime DESC")
   
@@ -109,8 +110,7 @@ class FollowUp < ActiveRecord::Base
     
     current_date = Date.today.to_date
     start_date = (current_date - (7 * followup_threshhold)).to_date
-    last_anc_date = (current_date - (14 * followup_threshhold)).to_date
-    
+   
     encounter_type = EncounterType.find_by_name('PREGNANCY STATUS').id
     concept_id = ConceptName.find_by_name('Expected due date').concept_id
     anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
@@ -201,6 +201,7 @@ class FollowUp < ActiveRecord::Base
     
     current_date = Date.today.to_date
     start_date = (current_date - (7 * followup_threshhold)).to_date
+    baby_delivery_date = (current_date - 280).to_date
     
     encounter_type = EncounterType.find_by_name('PREGNANCY STATUS').id
     concept_id = ConceptName.find_by_name('Expected due date').concept_id
@@ -227,8 +228,15 @@ class FollowUp < ActiveRecord::Base
                                       AND e.patient_id NOT IN (SELECT ee.patient_id 
                                                                FROM encounter ee 
                                                                WHERE ee.encounter_type = #{encounter_type} 
-                                                               AND date_created >= '#{start_date} 00:00' 
-                                                               AND date_created <='#{current_date} 23:59')
+                                                               AND ee.date_created >= '#{start_date} 00:00' 
+                                                               AND ee.date_created <='#{current_date} 23:59'
+                                                               AND ee.voided = 0)
+                                      AND e.patient_id NOT IN (SELECT eee.patient_id 
+                                                               FROM encounter eee 
+                                                               WHERE eee.encounter_type = #{baby_encounter_type} 
+                                                               AND eee.date_created >= '#{baby_delivery_date} 00:00' 
+                                                               AND eee.date_created <='#{current_date} 23:59'
+                                                               AND eee.voided = 0)                         
                                       AND e.voided = 0
                                       GROUP BY e.patient_id
                                       ORDER BY floor((280 - (DATE(o.value_text) - curdate()))/7) DESC;")
