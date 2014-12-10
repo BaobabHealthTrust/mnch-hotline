@@ -27,7 +27,7 @@
           :condition => "$('delivered').value == 'Yes'",
           :absoluteMin => "#{session_date.advance(:months => -2, :days => -1 ).strftime('%Y-%m-%d')}", 
           :absoluteMax => "#{session_date.strftime('%Y-%m-%d')}"
-          %>} %>		 
+         } %>		 
   
   <%= touch_select_tag "DELIVERY LOCATION", @patient, options_for_select([' ', 'Home', 'Facility','En route']),
 		{:id => "delivery_location",
