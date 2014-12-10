@@ -63,7 +63,7 @@ def textit_integration
         district_id = d.district_id
         ta_id = d.district_id
         ta_name = d.ta_name
-        next unless (village == village_name)
+        next unless (village.squish.downcase == village_name.squish.downcase)
         hsa_village_available = true
         hsa_ta_name = ta_name
         hsa_district = district_id
@@ -79,6 +79,7 @@ def textit_integration
       concept_id = Concept.find_by_name("PATIENT ENROLLED").id
       program_id = Program.find_by_name("ANC Connect Program").program_id
       program_workflow_state_id = ProgramWorkflowState.find_by_concept_id(concept_id).id
+      patient = ""
       
       if (anc_identifier.blank?)
         puts "creating person... ID=#{Person.last.id + 1}"
@@ -88,6 +89,7 @@ def textit_integration
             :birthdate_estimated => 1,
             :creator =>  1
         })
+      
         puts "creating patient..."
         patient = person.create_patient
         
@@ -136,13 +138,23 @@ def textit_integration
         puts "Existing patient found. ID=#{anc_identifier.patient.id}"
         puts "<<<<<<Working on patient with ID #{anc_identifier.patient.id}>>>>>>"
         patient = anc_identifier.patient
+        person = patient.person
         person_name = patient.person.names.last
 
         person_name.family_name_prefix = nickname
         person_name.family_name = lastname
         person_name.save!
         
+        person.addresses.last.update_attributes({
+          :address2 => village,
+          :city_village => village,
+          :county_district => hsa_ta_name,
+          :creator =>  1
+        })
+
         PersonAttribute.create_attribute(patient, phone, "CELL PHONE NUMBER")
+      end
+
         anc_visit_enc_type = EncounterType.find_by_name("ANC VISIT").id
         previous_anc_visits = Encounter.find(:all, :conditions => ["patient_id =?
           AND encounter_type =?", patient.id, anc_visit_enc_type])
@@ -304,7 +316,7 @@ def textit_integration
         end
         #>>>>>>>>>>>>>>>>>>>>>>>>>Enrollment done<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      end
+
      end
     else
       log.error "\t\tError: Village #{village} missing!!!"
