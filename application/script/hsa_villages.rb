@@ -1,5 +1,8 @@
 districts = ["Balaka","Ntcheu"]
 
+# removed the pilot traditional authority since the system will automatically determine 
+# whether the village is in pilot or not
+=begin
 districts.each do |district|
     district_id = District.find_by_name(district).id
     ta = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",district_id)
@@ -15,8 +18,8 @@ districts.each do |district|
        puts "Hotline Pilot TA for #{district} already exists"
     end
 end
-
-t_as = ["Matsatsa", "Ganya", "Kalembo", "Simbota", "Sawali", "Makwangwala", "Chamthunya", "Nsamala"]
+=end
+t_as = ["Masasa", "Ganya", "Kalembo", "Simbota", "Sawali", "Makwangwala", "Chamthunya", "Nsamala"]
 
 health_centers = ["Kasinje","Kankao", "Mbera", "Nsiyaludzu", "Phalula", "Sharpvalley"]
 
@@ -1135,7 +1138,16 @@ hsas.each do |key,value|
        if village_id.blank?
         ta_id = TraditionalAuthority.find_by_name_and_district_id(value[:ta], district_id).traditional_authority_id rescue nil
         if ta_id.blank?
-           ta_id = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",district_id).traditional_authority_id
+#           ta_id = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",district_id).traditional_authority_id
+#	    ensured that if the T/A is not present, we should create it
+	    new_ta = TraditionalAuthority.new
+	    new_ta.name = value[:ta]
+            new_ta.district_id = district_id
+            new_ta.creator = creator
+            new_ta.date_created = Date.today()
+            new_ta.save
+            ta_id = new_ta.traditional_authority_id
+	    puts "Created T/A : #{new_ta.name} for #{value[:district]}"
         end
         new_village = Village.new
         new_village.name = village
@@ -1173,7 +1185,16 @@ hsas.each do |key,value|
        if village_id.blank?
         ta_id = TraditionalAuthority.find_by_name_and_district_id(ta, district_id).traditional_authority_id rescue nil
         if ta_id.blank?
-           ta_id = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",district_id).traditional_authority_id
+#           ta_id = TraditionalAuthority.find_by_name_and_district_id("Hotline Pilot",district_id).traditional_authority_id
+#           ensured that if the T/A is not present, we should create it
+            new_ta = TraditionalAuthority.new
+            new_ta.name = value[:ta]
+            new_ta.district_id = district_id
+            new_ta.creator = creator
+            new_ta.date_created = Date.today()
+            new_ta.save
+            ta_id = new_ta.traditional_authority_id
+            puts "Created T/A : #{new_ta.name} for #{value[:district]}"
         end
         new_village = Village.new
         new_village.name = village
