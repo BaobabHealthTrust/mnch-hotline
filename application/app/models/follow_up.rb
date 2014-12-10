@@ -84,13 +84,13 @@ class FollowUp < ActiveRecord::Base
                                                           WHERE ee.encounter_type = #{anc_encounter_type}
                                                           AND oo.concept_id = #{next_visit_date_concept_id}
                                                           AND DATE(oo.value_text) <= '#{last_anc_date} 23:59'
-                                                          AND ee.encounter_datetime <= '#{start_date} 23:59'
                                                           AND oo.voided = 0 
                                                           GROUP BY ee.patient_id
                                                           HAVING COUNT(ee.patient_id) < 4)
-                                      AND e.patient_id NOT IN (SELECT patient_id 
-                                                               FROM follow_up 
-                                                               WHERE date_created >= '#{start_date} 00:00' 
+                                      AND e.patient_id NOT IN (SELECT ee.patient_id 
+                                                               FROM encounter ee 
+                                                               WHERE ee.encounter_type = #{encounter_type} 
+                                                               AND date_created >= '#{start_date} 00:00' 
                                                                AND date_created <='#{current_date} 23:59')
                                       GROUP BY e.patient_id
                                       ORDER BY e.encounter_datetime DESC")
