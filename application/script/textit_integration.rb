@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 require 'rubygems'
 require 'json'
+require 'logger'
 
 def textit_integration
   config = YAML.load_file("config/report.yml")
@@ -9,6 +10,11 @@ def textit_integration
   data = JSON.parse(json)
 
   User.current_user = User.find(1)
+
+  log = Logger.new( 'log/textit_integration.txt', 'monthly' ) #After a month, the old file will be deleted and a new one will be created
+  log.debug "************************************************"
+  log.debug "DATE:   #{Date.today.strftime("%d-%b-%Y")} TIME:#{Time.now.strftime("%H:%M")}"
+  log.debug "************************************************"
   data.each do |key|
     anc_conn_id = key["anc_conn_id"]
     nickname = key["nickname"]
@@ -23,9 +29,47 @@ def textit_integration
     birth_plan_facility = key["birth_plan_facility"] #birth_plan enc
     delivery_date = key["delivery_date"] #delivery enc
     delivery_facility = key["delivery_facility"] #delivery enc
+    hsa_name = key["hsa_name"]
+    #village_id = Village.find_by_name(village).id rescue 99999999
+    #hsa_id = HsaVillage.find_by_village_id(village_id).hsa_id rescue 99999999
 
-    village_id = Village.find_by_name(village).id rescue 99999999
-    hsa_id = HsaVillage.find_by_village_id(village_id).hsa_id rescue 99999999
+
+    hsa_phone = key["hsa_phone"]
+    start_pos = hsa_phone.length - 9 #Only interested with the last 9 digits
+    trimmed_hsa_phone_number = hsa_phone[start_pos, 9] #something like 999606901
+    phone_types = ["Cell Phone Number", "Office Phone Number"]
+    attribute_ids = []
+    phone_types.each do |phone_type|
+      attribute_ids << PersonAttributeType.find_by_name(phone_type).id
+    end
+
+    hsa = PersonAttribute.find(:last, :conditions => ["person_attribute_type_id IN (?) AND
+                RIGHT(value, 9) =?", attribute_ids, trimmed_hsa_phone_number])
+    hsa_ta_name = ""
+    hsa_district = ""
+    hsa_village_available = false
+    unless hsa.blank?
+      hsa_id = hsa.person_id
+      hsa_data = Person.find_by_sql("select vg.name as village_name, hsa.village_id as village_id,
+                       hsa.district_id as district_id, vg.traditional_authority_id as ta_id,
+                     ta.name as ta_name
+                  FROM hsa_villages hsa INNER JOIN village vg on hsa.village_id = vg.village_id
+              INNER JOIN traditional_authority ta ON vg.traditional_authority_id = ta.traditional_authority_id
+            WHERE hsa.hsa_id = #{hsa.person_id}")
+      
+      (hsa_data || []).each do |d|
+        village_name = d.village_name
+        village_id = d.village_id
+        district_id = d.district_id
+        ta_id = d.district_id
+        ta_name = d.ta_name
+        next unless (village.squish.downcase == village_name.squish.downcase)
+        hsa_village_available = true
+        hsa_ta_name = ta_name
+        hsa_district = district_id
+        break
+      end
+  if (hsa_village_available)
     ActiveRecord::Base.transaction do
       anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID") rescue nil
       anc_identifier = PatientIdentifier.find(:last,:conditions =>["voided = 0 AND identifier_type = ?
@@ -35,6 +79,7 @@ def textit_integration
       concept_id = Concept.find_by_name("PATIENT ENROLLED").id
       program_id = Program.find_by_name("ANC Connect Program").program_id
       program_workflow_state_id = ProgramWorkflowState.find_by_concept_id(concept_id).id
+      patient = ""
       
       if (anc_identifier.blank?)
         puts "creating person... ID=#{Person.last.id + 1}"
@@ -44,6 +89,7 @@ def textit_integration
             :birthdate_estimated => 1,
             :creator =>  1
         })
+      
         puts "creating patient..."
         patient = person.create_patient
         
@@ -71,7 +117,8 @@ def textit_integration
         puts "creating addresses..."
         person.addresses.create({
           :address2 => village,
-          :county_district => "",
+          :city_village => village,
+          :county_district => hsa_ta_name,
           :creator =>  1
         })
         #>>>>>>>>>>>>>>>>>>>>>>>>>>Enrolling ANC connect program<<<<<<<<<<<<<<<<
@@ -91,13 +138,23 @@ def textit_integration
         puts "Existing patient found. ID=#{anc_identifier.patient.id}"
         puts "<<<<<<Working on patient with ID #{anc_identifier.patient.id}>>>>>>"
         patient = anc_identifier.patient
+        person = patient.person
         person_name = patient.person.names.last
 
         person_name.family_name_prefix = nickname
         person_name.family_name = lastname
         person_name.save!
         
+        person.addresses.last.update_attributes({
+          :address2 => village,
+          :city_village => village,
+          :county_district => hsa_ta_name,
+          :creator =>  1
+        })
+
         PersonAttribute.create_attribute(patient, phone, "CELL PHONE NUMBER")
+      end
+
         anc_visit_enc_type = EncounterType.find_by_name("ANC VISIT").id
         previous_anc_visits = Encounter.find(:all, :conditions => ["patient_id =?
           AND encounter_type =?", patient.id, anc_visit_enc_type])
@@ -148,7 +205,7 @@ def textit_integration
         observation[:encounter_id] = new_pregnancy_enc.id
         observation[:obs_datetime] = registration_time
         observation[:person_id] = patient.id
-        observation[:value_coded_or_text] = "PREGNANT"
+        observation[:value_coded_or_text] = "Pregnant"
         Observation.create(observation)
 
         observation = {}
@@ -259,10 +316,21 @@ def textit_integration
         end
         #>>>>>>>>>>>>>>>>>>>>>>>>>Enrollment done<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      end
-    end
-    
+
+     end
+    else
+      log.error "\t\tError: Village #{village} missing!!!"
+      log.debug "\t\tHSA found with this phone number: #{hsa_phone}"
+      log.debug "\t\tBut records not created because this village #{village} not found"
+      log.debug "\t\t---------------------------------------------------------------"
+   end
+  else
+     log.error "\t\tError: HSA record not found"
+     log.debug "\t\t HSA not found with this phone number: #{hsa_phone}"
+     log.debug "\t\tAll associated records with this HSA (#{hsa_name}) not recorded"
+     log.debug "\t\t----------------------------------------------------------------"
   end
+end
   
 end
 textit_integration
