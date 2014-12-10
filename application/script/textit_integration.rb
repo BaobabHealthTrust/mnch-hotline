@@ -205,7 +205,7 @@ def textit_integration
         observation[:encounter_id] = new_pregnancy_enc.id
         observation[:obs_datetime] = registration_time
         observation[:person_id] = patient.id
-        observation[:value_coded_or_text] = "PREGNANT"
+        observation[:value_coded_or_text] = "Pregnant"
         Observation.create(observation)
 
         observation = {}
