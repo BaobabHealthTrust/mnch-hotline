@@ -2267,7 +2267,7 @@ module Report
     data = []
     #date_ranges.map do |date_range|
       patients_data = Patient.find_by_sql("
-            SELECT pa.address2 as village,
+            SELECT pa.city_village as village,
 
             (SELECT traditional_authority_id FROM traditional_authority WHERE name = (
               SELECT county_district FROM person_address WHERE person_id = pa.person_id LIMIT 1
@@ -2282,7 +2282,7 @@ module Report
                 SELECT health_center_id FROM hsa_villages WHERE hsa_id = hsa_id LIMIT 1
             ) LIMIT 1) as health_center,
 
-            (SELECT given_name FROM person_name WHERE person_id = (
+            (SELECT CONCAT(given_name, ' ', family_name) FROM person_name WHERE person_id = (
                 SELECT user_id FROM users WHERE user_id = hsa_id LIMIT 1
             ) LIMIT 1) as hsa_name,
 
@@ -2349,7 +2349,7 @@ module Report
     patients_data = Patient.find_by_sql("
       SELECT enc.patient_id FROM encounter enc INNER JOIN encounter_type et ON
       enc.encounter_type = et.encounter_type_id AND et.encounter_type_id != #{delivery_enc}
-      INNER JOIN person_address pa ON enc.patient_id = pa.person_id AND pa.address2 = '#{village}'
+      INNER JOIN person_address pa ON enc.patient_id = pa.person_id AND pa.city_village = '#{village}'
       INNER JOIN patient_program pp ON enc.patient_id = pp.patient_id AND
       pp.program_id = #{anc_connect_program_id} AND
       DATE(pp.date_enrolled) <= '#{end_date.to_date}' AND pp.voided=0
@@ -2367,7 +2367,7 @@ module Report
    encounter_type = EncounterType.find_by_name('BABY DELIVERY').id
    patients_data = Patient.find_by_sql("
       SELECT enc.patient_id FROM encounter enc INNER JOIN obs o ON enc.encounter_id=o.encounter_id
-      INNER JOIN person_address pa ON enc.patient_id = pa.person_id AND pa.address2 = '#{village}'
+      INNER JOIN person_address pa ON enc.patient_id = pa.person_id AND pa.city_village = '#{village}'
       AND enc.encounter_type=#{encounter_type} AND DATE(enc.encounter_datetime) >= '#{start_date.to_date}'
       AND DATE(enc.encounter_datetime) <= '#{end_date.to_date}' AND enc.voided=0
    ")
@@ -2394,26 +2394,28 @@ module Report
       enc.encounter_datetime FROM encounter enc
       INNER JOIN obs o ON enc.encounter_id=o.encounter_id AND enc.encounter_type=#{encounter_type}
       AND o.concept_id = #{next_anc_visit_date_concept}
-      INNER JOIN person_address pa ON enc.patient_id = pa.person_id AND pa.address2 = '#{village}'
+      INNER JOIN person_address pa ON enc.patient_id = pa.person_id AND pa.city_village = '#{village}'
       AND DATE(enc.encounter_datetime) >= '#{start_date.to_date}' AND
       DATE(enc.encounter_datetime) <= '#{end_date.to_date}'
       AND UPPER(o.value_text) != 'UNKNOWN'
       HAVING next_anc_visit_date >= '#{start_date.to_date}' AND next_anc_visit_date <= '#{end_date.to_date}'
     ")
+
    total_visits_scheduled = patients_data.collect{|p|p["patient_id"]}.uniq.count
    two_weeks_end_date = start_date.to_date + 14.days
    on_time = []
    (patients_data || []).each do |pd|
      patient_id = pd["patient_id"]
-     encounter_datetime = pd["enc.encounter_datetime"]
+     encounter_datetime = pd["encounter_datetime"]
      n_visit_date = pd["next_anc_visit_date"].to_date rescue nil
      next_anc_visit_date_concept = Concept.find_by_name("NEXT ANC VISIT DATE").id
      next if n_visit_date.blank?
      next if encounter_datetime.to_date > two_weeks_end_date
 
      p_id = Patient.find_by_sql("SELECT o.person_id FROM obs o WHERE o.concept_id=#{next_anc_visit_date_concept}
-       AND o.person_id=#{patient_id} AND o.obs_datetime > '#{n_visit_date}'
-       AND o.obs_datetime <= '#{end_date}' AND o.voided= 0 LIMIT 1").last["patient_id"]
+       AND o.person_id=#{patient_id} AND DATE(o.obs_datetime) >= '#{n_visit_date}'
+       AND DATE(o.obs_datetime) <= '#{end_date.to_date}' AND o.voided= 0 LIMIT 1").last.person_id rescue nil
+
      on_time << p_id unless p_id.blank?
      
    end
