@@ -10,11 +10,19 @@ def textit_integration
   data = JSON.parse(json)
 
   User.current_user = User.find(1)
+  header = "DATE:   #{Date.today.strftime("%d-%b-%Y")} TIME:#{Time.now.strftime("%H:%M")}"
+  failed = []
+  created = []
+  updated = []  
+
+
 
   log = Logger.new( 'log/textit_integration.txt', 'monthly' ) #After a month, the old file will be deleted and a new one will be created
+=begin
   log.debug "************************************************"
   log.debug "DATE:   #{Date.today.strftime("%d-%b-%Y")} TIME:#{Time.now.strftime("%H:%M")}"
   log.debug "************************************************"
+=end
   data.each do |key|
     anc_conn_id = key["anc_conn_id"]
     nickname = key["nickname"]
@@ -121,6 +129,12 @@ def textit_integration
           :county_district => hsa_ta_name,
           :creator =>  1
         })
+
+	#logger info
+        create_info = "patient_id:#{patient.id}|anc_connect_id:#{anc_conn_id}"
+	created << create_info
+	#end logger info
+
         #>>>>>>>>>>>>>>>>>>>>>>>>>>Enrolling ANC connect program<<<<<<<<<<<<<<<<
         puts "Enrolling the client in ANC connect program..."
         
@@ -144,7 +158,12 @@ def textit_integration
         person_name.family_name_prefix = nickname
         person_name.family_name = lastname
         person_name.save!
-        
+
+	#logger info
+        update_info = "patient_id:#{patient.id}|anc_connect_id:#{anc_conn_id}"
+	updated << update_info
+	#end logger info
+
         person.addresses.last.update_attributes({
           :address2 => village,
           :city_village => village,
@@ -319,19 +338,28 @@ def textit_integration
 
      end
     else
+      error_msg = "anc_connect_id:#{anc_conn_id}|village:#{village}|hsa_name:#{hsa_name}|hsa_number:#{hsa_phone}|reason:Village not found under HSA"
+      failed << error_msg
+=begin
       log.error "\t\tError: Village #{village} missing!!!"
       log.debug "\t\tHSA found with this phone number: #{hsa_phone}"
       log.debug "\t\tBut records not created because this village #{village} not found"
       log.debug "\t\t---------------------------------------------------------------"
+=end
    end
   else
+     error_msg = "anc_connect_id:#{anc_conn_id}|village:#{village}|hsa_name:#{hsa_name}|hsa_number:#{hsa_phone}|reason:HSA not found with this phone number"
+     failed << error_msg
+=begin
      log.error "\t\tError: HSA record not found"
      log.debug "\t\t HSA not found with this phone number: #{hsa_phone}"
      log.debug "\t\tAll associated records with this HSA (#{hsa_name}) not recorded"
      log.debug "\t\t----------------------------------------------------------------"
+=end
   end
 end
-  
+  #log everything [success, updates, failure]
+  log.debug "#{header} - failed:#{failed.join(',')} - created:#{created.join(',')} - updated:#{updated.join(',')}"
 end
 textit_integration
 =begin
