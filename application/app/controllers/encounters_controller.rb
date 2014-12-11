@@ -4,6 +4,19 @@ class EncountersController < ApplicationController
     if (params[:edit_anc_connect])
       session[:edit_anc_connect] = true
     end
+    
+    if session[:house_keeping_mode]
+		  if params['encounter']['encounter_type_name'].upcase == "BABY DELIVERY"
+		  	session[:report_task] = 'delivery'
+		  
+		  elsif params['encounter']['encounter_type_name'].upcase == "BIRTH PLAN"
+		  	session[:report_task] = 'birth_plan'
+		  	
+		  elsif params['encounter']['encounter_type_name'].upcase == "ANC VISIT"
+		  	session[:report_task] = 'anc_visit'
+		  end
+		end
+    
     Encounter.find(params[:encounter_id].to_i).void("Editing Tips and Reminders") if(params[:editing] && params[:encounter_id])
     if params['encounter']['encounter_type_name'] == 'ART_INITIAL'
       if params[:observations][0]['concept_name'] == 'EVER RECEIVED ART' and params[:observations][0]['value_coded_or_text'] == 'NO'
@@ -151,6 +164,10 @@ class EncountersController < ApplicationController
       session[:health_facility]   = params["health_center"]
     end
     
+    
+    if session[:birth_plan_update] || session[:anc_visit_update] || session[:anc_visit_update]
+    	redirect_to next_task(@patient) and return
+    end
    
     if params['encounter']['encounter_type_name'] == 'BABY DELIVERY'
       if params[:observations][0]['concept_name'] == 'DELIVERED'
@@ -161,25 +178,40 @@ class EncountersController < ApplicationController
              de_enroll_and_deliver(params[:observations][0]['patient_id'])
              redirect_to "/clinic/district?task=delivery&district=#{session[:district]}" and return
             else
-            redirect_to next_task(@patient) and return
+            	redirect_to next_task(@patient) and return
             end
-          else  
-             redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"  and return
+          else
+          		if session[:hsa_response].blank?  && session[:house_keeping_mode]
+             		session[:hsa_response] = "done"
+             		redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"  and return
+          		else
+          			session.delete(:hsa_response)
+								if session[:report_task].to_s.upcase == "anc_visit".upcase
+									task_report = "anc"
+								else
+									task_report = session[:report_task].to_s
+								end
+          			
+								if session[:house_keeping_mode]
+									redirect_to "/clinic/district?task=#{task_report}&district=#{session[:district]}" and return
+								else
+									redirect_to "/patients/show/#{@patient.id}" and return
+								end 
+          		end
           end   
         end
       end
     end
     
-   
     if params['encounter']['encounter_type_name'] == 'HSA VISIT'
       if params[:observations][0]['concept_name'] == 'HSA VISIT'
         unless params[:observations][0]['value_coded'].blank?
           yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
           if yes_concept == 'YES'
-            if session[:house_keeping_mode]
-             redirect_to "/clinic/district?task=delivery&district=#{session[:district]}" and return
+            if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
+             redirect_to "/clinic/district?task=anc&district=#{session[:district]}" and return
             else
-            	redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
+            	redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa', :hsa_id => params[:hsa_id] and return
             end 
           end
         end
@@ -198,7 +230,23 @@ class EncountersController < ApplicationController
             end 
           else
             if params['hsa_id'].present?
-            	redirect_to :controller => 'encounters', :action => 'hsa_response', :patient_id => params['encounter']['patient_id'], :hsa_id => params['hsa_id'], :late => params[:late_anc_call] and return
+           		if session[:hsa_response].blank?  && session[:house_keeping_mode]
+             		session[:hsa_response] = "done"
+             		redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true&fff"  and return
+          		else
+          			session.delete(:hsa_response)
+								if session[:report_task].to_s.upcase == "anc_visit".upcase
+									task_report = "anc"
+								else
+									task_report = session[:report_task].to_s
+								end
+          			
+								if session[:house_keeping_mode]
+									redirect_to "/clinic/district?task=#{task_report}&district=#{session[:district]}" and return
+								else
+									redirect_to "/patients/show/#{@patient.id}" and return
+								end
+          		end
           	else
           		redirect_to "/patients/show/#{@patient.id}" and return
           	end
@@ -210,7 +258,8 @@ class EncountersController < ApplicationController
     redirect_to next_task(@patient) 
   end
 
-  def new  
+  def new
+  
     @selected_value = []
     @patient = Patient.find(params[:patient_id] || session[:patient_id])
     @child_danger_signs = @patient.child_danger_signs(concept_set('danger sign'))
@@ -280,7 +329,7 @@ class EncountersController < ApplicationController
     redirect_to next_task(@patient) and return unless params[:encounter_type]
 
     redirect_to :action => :create, 'encounter[encounter_type_name]' => params[:encounter_type].upcase, 'encounter[patient_id]' => @patient.id and return if ['registration'].include?(params[:encounter_type])
-
+ 
     render :action => params[:encounter_type] if params[:encounter_type]
   end
 
@@ -932,10 +981,13 @@ class EncountersController < ApplicationController
   end
   
   def client_response
+  	session[:current_hsa_id] = params[:hsa_id] if params[:hsa_id].present?
+  	
     if request.method.to_s == 'post'
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
-        redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
+        redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true" +"&followup=#{params[:followup]}"
       else
+       session[:hsa_response] = "done"
        redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true" + "&followup=#{params[:followup]}"
       end
     else
@@ -956,16 +1008,25 @@ class EncountersController < ApplicationController
         params[:followup] = "hsa_visit"
         redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true" + "&followup=#{params[:followup]}"
       else
-				if params[:followup].blank?
+				if session[:report_task].blank?
         	redirect_to :controller => 'clinic', :action => 'district',:task => 'anc', :district => session[:district]
       	else
-      		        redirect_to :controller => 'clinic', :action => 'district',:task => params[:followup], :district => session[:district]
+					if session[:report_task].to_s.upcase == "anc_visit".upcase
+						task_report = "anc"
+					else
+						task_report = session[:report_task].to_s
+					end
+      		 
+      		 redirect_to :controller => 'clinic', :action => 'district',:task => task_report, :district => session[:district]
       	end
       end
     else
     
     @patient = Patient.find(params[:patient_id]) 
+    
+    params[:hsa_id] = session[:current_hsa_id] if params[:hsa_id].blank? 
     @person = Person.find(params[:hsa_id])
+    
     cell_phone_number_att = PersonAttributeType.find_by_name("Cell Phone Number")
     @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@person.id,cell_phone_number_att.id) 
     

@@ -447,11 +447,17 @@ class PatientsController < ApplicationController
   end
 
   def anc_info
+  
     @options = [
                   ["ANC", "anc_visit"],
                   ["Birth Plan", "birth_plan"],
                   ["Delivery"]
               ]
+          
+		if session[:house_keeping_mode] && session[:report_task].to_s.upcase == "delivery".upcase
+    		@options = [["Delivery"]]	
+		end
+		
     if (request.method == :post)
         anc_update_encs = params[:anc_update_encs].sort
         encounters_to_update = []
@@ -461,16 +467,18 @@ class PatientsController < ApplicationController
           session[:"#{enc_to_update}"] = true
           encounters_to_update << [enc_name]
         end
-        encounter_name = encounters_to_update.first
+        encounter_name = encounters_to_update.sort.first
         encounter = "#{encounter_name.to_s + '_update'}"
         session.delete(:"#{encounter}")
         if params[:visit]
             session[:clinic_dashboard] = true
-            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}&visit=#{params[:visit]} "
+            url = "/encounters/new/#{encounter_name}/#{params[:patient_id]}/#{params[:visit]}/#{params[:hsa_id]}"
         else
             url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}" 
         end
-        redirect_to(url)
+        
+        redirect_to(url) and return
+        
     end
   end
   

@@ -1,8 +1,16 @@
 <script type="text/javascript" language="javascript">
 
 	<% if session[:house_keeping_mode] %>
-		var tt_cancel_destination = "/clinic/housekeeping?task=housekeeping"
-		var tt_cancel_show = "/clinic?status=endcall";
+			<%
+			if session[:report_task].to_s.upcase == "anc_visit".upcase
+			 		task = "anc"
+			 else
+			 		task = session[:report_task].to_s
+			 end
+			%>
+			var tt_cancel_show = "/clinic/district?task=<%=task%>&district=<%=session[:district]%>";
+			var tt_cancel_destination = "/clinic/district?task=<%=task%>&district=<%=session[:district]%>";
+
 	<% else %>
 		var tt_cancel_show = "/patients/show/<%= params[:patient_id] %>";
 		var tt_cancel_destination = "/patients/show/<%= params[:patient_id] %>";		

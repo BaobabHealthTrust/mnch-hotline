@@ -77,9 +77,10 @@ class ApplicationController < ActionController::Base
 
     if (session[:delivery_update])
       session.delete(:delivery_update)
-      return "/encounters/new/delivery_update?patient_id=#{patient.patient_id.to_s}"
+      return "/encounters/new/delivery?patient_id=#{patient.patient_id.to_s}"
     end
 
+		#raise session[:clinic_dashboard].to_s 
     if (session[:clinic_dashboard])
       session.delete(:clinic_dashboard)
       return "/clinic/district?district=#{session[:district]}&task=anc"
@@ -92,7 +93,17 @@ class ApplicationController < ActionController::Base
     end
 
 		if session[:house_keeping_mode]
-			return "/clinic/housekeeping?task=housekeeping"
+		
+			if session[:report_task].to_s.upcase == "anc_visit".upcase
+				task_report = "anc"
+			else
+				task_report = session[:report_task].to_s
+			end
+			
+			if session[:house_keeping_mode]
+				return "/clinic/district?task=#{task_report}&district=#{session[:district]}"
+			end
+			
 		else
 			return "/patients/show/#{patient.id}"
 		end 

@@ -318,6 +318,7 @@ class ClinicController < ApplicationController
     def district
       
       session[:district] = params[:district]
+      session[:report_task] = params[:task]
       
       if !params[:call_mode].nil? && !['anc','birth_plan','delivery'].include?(params[:task])
         session[:call_mode] = params[:call_mode]

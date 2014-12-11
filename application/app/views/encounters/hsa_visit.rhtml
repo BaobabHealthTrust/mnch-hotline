@@ -1,7 +1,14 @@
 <script type="text/javascript" language="javascript">
 	<% if session[:house_keeping_mode] %>
-		var tt_cancel_destination = "/clinic/housekeeping?task=housekeeping"
-		var tt_cancel_show = "/clinic?status=endcall";
+			<%
+			if session[:report_task].to_s.upcase == "anc_visit".upcase
+			 		task = "anc"
+			 else
+			 		task = session[:report_task].to_s
+			 end
+			%>
+			var tt_cancel_show = "/clinic/district?task=<%=task%>&district=<%=session[:district]%>";
+			var tt_cancel_destination = "/clinic/district?task=<%=task%>&district=<%=session[:district]%>";
 	<% else %>
 		var tt_cancel_show = "/patients/show/<%= @patient.id %>";
 		var tt_cancel_destination = "/patients/show/<%= @patient.id %>";		
@@ -16,6 +23,7 @@
 	<%= hidden_field_tag "encounter[patient_id]", @patient.id %>
 	<%= hidden_field_tag "encounter[encounter_datetime]", DateTime.now() %>
 	<%= hidden_field_tag "encounter[provider_id]", params[:hsa_id] %>
+	<%= hidden_field_tag "hsa_id", params[:hsa_id] %>
 	<%session_date = session[:datetime] || Time.now() %>
 	
   <%= touch_select_tag "HSA VISIT", @patient, options_for_select([' ', 'Yes', 'No']),
