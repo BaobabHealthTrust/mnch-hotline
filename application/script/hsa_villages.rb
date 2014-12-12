@@ -55,7 +55,7 @@ hsas = {"John D. Mwanza" => {
                             :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0999384177"],
-                            :villages => ["Fala"]
+                            :villages => ["Namale"]
                            
                             },
 
@@ -91,7 +91,7 @@ hsas = {"John D. Mwanza" => {
                             :ta => t_as[1],
                             :health_center => health_centers[0],
                             :phone_numbers => ["0998746312"],
-                            :villages => ["Kachinjika","Mbonela"]
+                            :villages => ["Kachinjika","Njelema"]
                            
                             },
 
@@ -406,7 +406,7 @@ hsas = {"John D. Mwanza" => {
                             :ta => t_as[5],
                             :health_center => health_centers[3],
                             :phone_numbers => ["0888353789"],
-                            :villages => ["Makokola","Dinala", "Tseka"]
+                            :villages => ["Malanda","Chogawana", "Chimutu 1"]
                            
                           },
 
@@ -679,7 +679,7 @@ hsas = {"John D. Mwanza" => {
                             :ta => t_as[4],
                             :health_center => health_centers[2],
                             :phone_numbers => ["0999794774","0884344550"],
-                            :villages => ["Matemba","Anderson""Chongolera","Maliko","Kukada"]
+                            :villages => ["Matemba","Anderson","Chongolera","Maliko","Kukada"]
                            
                            },
 
