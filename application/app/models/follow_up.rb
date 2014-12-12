@@ -193,7 +193,7 @@ class FollowUp < ActiveRecord::Base
     
     cell_phone_attribute_type = PersonAttributeType.find_by_name('Cell Phone Number').id
     anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
-    
+=begin    
     patients = Encounter.find_by_sql("
 				SELECT e.patient_id, pn.given_name, p.birthdate, pn.family_name,pn.family_name_prefix,
 					pa.city_village,pa.county_district,o.concept_id,o.value_text, floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age
@@ -211,8 +211,15 @@ class FollowUp < ActiveRecord::Base
 							AND e.voided = 0
 				GROUP BY e.patient_id;
     ")
-
-
+=end
+        patients = Encounter.find_by_sql("SELECT 
+                                                  *
+                                              FROM
+                                                  anc_connect_program_clients
+                                              WHERE
+                                                  gestation_age < 42 and gestation_age >= 38
+                                              AND district = #{district_id}")
+                                                     
 		data = patients.select {|p| birth_plan_encounter(p.patient_id).nil? }
 
     return data

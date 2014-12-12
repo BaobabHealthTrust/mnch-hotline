@@ -63,6 +63,7 @@ Version 3 beta
   DN - Added a view to get the clients' max_edd in hotline_schema_additions
   DN - Updated the query pulling clients on ANC followup report from number_of_days_after_reg >= 7 to >= 21
   DN - Added a condition to pull only programs that are not voided when pulling clients who are in ANC connect
+  DN - Updated get birth plan query in follow_up.rb
 2014-12-16
   PB - added rdoc and rcov gems to Gemfile
   PB - added rdoc and rcov gems to gem cache
