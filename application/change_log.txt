@@ -70,4 +70,5 @@ Version 3 beta
 2014-12-17
   DN - Added a view to get hsa_districts in hotline_schema_additions script
   DN - Updated the birth plan and delivery queries in followup model
-
+  DN - Updated anc_connect_program_clients view in hotline_schema_additions
+  DN - Added some fields in ANC connect report view

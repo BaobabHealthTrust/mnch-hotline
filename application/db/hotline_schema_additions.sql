@@ -53,6 +53,10 @@ CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
     `pn`.`family_name_prefix`,
     `pa`.`city_village`,
     `pa`.`county_district`,
+    `pa`.`address2` AS `home_village`,
+    `p`.`birthdate`,
+    `pat`.`value` AS `cell_phone_number`,
+    `pi`.`identifier` AS `anc_connect_id`,
     `e`.`encounter_id`,
     `o`.`concept_id`,
     `edd`.`value_text` AS `edd`,
@@ -61,10 +65,8 @@ CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
     `pp`.`date_enrolled`,
     `nvd`.`value_text` as `next_visit_date`,
     IFNULL(`cl`.`district`,`hsa`.`district_id`) AS `district`,
-    `pp`.`voided`,
-    `e`.`encounter_type`,
     `hsa`.`hsa_id`, 
-    `hsa`.`district_id` AS `textIT_district`
+    `hsa`.`district_id` AS textIT_district`
     
    FROM
     `encounter` `e`
@@ -87,6 +89,8 @@ CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
         LEFT JOIN
     `max_next_visit_date` `nvd` ON `nvd`.`person_id` = `e`.`patient_id`
        LEFT JOIN `hsa_district` `hsa` ON `hsa`.`hsa_id` = `e`.`provider_id` AND `pa`.`city_village` = `hsa`.`name`
+     LEFT JOIN `person_attribute`  `pat` ON `pat`.`person_id` = `e`.`patient_id` AND `pat`.`person_attribute_type_id` = 12 AND `pat`.`voided` = 0
+     LEFT JOIN `patient_identifier` `pi` ON `pi`.`patient_id` = `e`.`patient_id` AND `pi`.`identifier_type` = 25 AND `pi`.`voided` = 0
        
   WHERE `o`.`concept_id` = 6188;
     
