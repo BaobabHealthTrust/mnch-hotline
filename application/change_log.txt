@@ -57,3 +57,5 @@ Version 3 beta
   PB - Added extra logging details to TextIt integration file
 2014-12-15
   DN - Fix queries for ANC followup and added a views to retrieve clients on folloup
+2014-12-16
+  DN - Added ANC followup views--in hotline_schema_additions 
