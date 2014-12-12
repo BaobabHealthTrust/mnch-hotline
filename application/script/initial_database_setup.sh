@@ -52,7 +52,11 @@ mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/data/${SITE}/tasks.sq
 
 #rake openmrs:bootstrap:load:defaults RAILS_ENV=$ENV
 #rake openmrs:bootstrap:load:site SITE=$SITE RAILS_ENV=production#
+rake db:migrate db:seed RAILS_ENV=$ENV
 
+mysql --user=$USERNAME --password=$PASSWORD $DATABASE < db/hotline_schema_additions.sql
+
+script/runner script/hsa_villages.sql RAILS_ENV=$ENV
 echo "After completing database setup, you are advised to run the following:"
 echo "rake test"
 echo "rake cucumber"
