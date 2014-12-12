@@ -59,7 +59,7 @@ CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
         INNER JOIN
     `person` `p` ON `p`.`person_id` = `e`.`patient_id`
         INNER JOIN
-    `patient_program` `pp` ON `pp`.`patient_id` = `e`.`patient_id`
+    `patient_program` `pp` ON `pp`.`patient_id` = `e`.`patient_id` and `pp`.`voided` = 0
         INNER JOIN
     `obs` `o` ON `o`.`encounter_id` = `e`.`encounter_id`
         INNER JOIN
