@@ -384,7 +384,7 @@ class PatientsController < ApplicationController
     patient_anc_program = PatientProgram.find(:last, :conditions => ["patient_id =? AND
                  program_id=?", params[:person_id], anc_connect_program_id])
     
-    if HsaVillage.is_patient_village_in_anc_connect(params[:person_id],session[:district]) && patient_anc_program.present?
+    if !HsaVillage.is_patient_village_in_anc_connect(params[:person_id],session[:district]) && patient_anc_program.present?
       anc_patient_program = PatientProgram.find_by_patient_id_and_program_id_and_voided(params[person_id],anc_connect_program_id,0)
       if anc_patient_program.present?
         anc_patient_program.void("Removed from ANC connect program")
