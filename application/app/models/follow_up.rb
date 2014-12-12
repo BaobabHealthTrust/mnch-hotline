@@ -253,7 +253,7 @@ class FollowUp < ActiveRecord::Base
     concept_id = ConceptName.find_by_name('Expected due date').concept_id
     anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
     baby_encounter_type = EncounterType.find_by_name('BABY DELIVERY').id
-    
+=begin    
     patients = Encounter.find_by_sql("SELECT e.patient_id, pn.given_name,pn.family_name,pn.family_name_prefix,
                                       pa.city_village,pa.county_district,o.concept_id,o.value_text,
                                       floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age FROM encounter e
@@ -286,9 +286,31 @@ class FollowUp < ActiveRecord::Base
                                       AND e.voided = 0
                                       GROUP BY e.patient_id
                                       ORDER BY floor((280 - (DATE(o.value_text) - curdate()))/7) DESC;")
-                                      
-    data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id, district)}
+=end                                      
+           patients = Encounter.find_by_sql("SELECT 
+                                                  *
+                                              FROM
+                                                  anc_connect_program_clients
+                                              WHERE
+                                                  gestation_age <= 46 and gestation_age >= 42
+                                              AND district = #{district_id}")
+
+   
+		data = patients.select {|p| delivery_encounter(p.patient_id).nil? }
+
     return data
+  end
+  
+  def self.delivery_encounter(patient_id)
+  	encounter_type = EncounterType.find_by_name('BABY DELIVERY').id
+  	Encounter.find_by_sql("
+			SELECT encounter_datetime
+				FROM encounter
+			WHERE encounter_type = #{encounter_type} and patient_id = #{patient_id}
+						and voided=0	
+			ORDER BY encounter_datetime DESC
+			LIMIT 1
+		").first.encounter_datetime.to_date rescue nil
   end
   
 end
