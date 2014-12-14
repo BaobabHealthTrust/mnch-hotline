@@ -17,6 +17,7 @@ Version 3 beta
 		Added registered for tips and reminders to the list of outcomes
 		Added an option for a secondary outcome
          --Cut off from the previous version
+
          Tasks added by Ernest
             Inbound calls:
                 -Added ANC connect Registration Flow (for new clients)
@@ -50,5 +51,7 @@ Version 3 beta
   DN - added .uniq to distinctly list village names
 2014-12-05
   PB - Ensured that TA is also used when searching for villages whether they are in anc connect pilot or not
+2014-12-08
+  PB - Modified the hsa_village script to create T/As if they dont exist in the system. This means that we will not need the hotline pilot TA
 2014-12-11
   PB - Added extra logging details to TextIt integration file
