@@ -416,6 +416,7 @@ class EncountersController < ApplicationController
 
       if (params[:anc_connect_program].match(/NO/i))
         patient_program = @patient.patient_programs.last
+      	patient_program.date_completed = Date.today
         patient_program.void("Removed from ANC connect program")
       end
       
@@ -951,6 +952,7 @@ class EncountersController < ApplicationController
   def hsa_response  
     if request.method.to_s == 'post'
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
+        params[:followup] = "hsa_visit"
         redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true" + "&followup=#{params[:followup]}"
       else
         redirect_to :controller => 'clinic', :action => 'district',:task => 'anc', :district => session[:district]

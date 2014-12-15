@@ -22,7 +22,7 @@
 		{	:id => "reason_for_not_visiting_anc_client",
 		    :condition => "$('hsa_visit').value == 'No'",
 		 	:helpText => "Why not visited client?",
-		 	:multiple => 'false'} %>
+		 	:multiple => false} %>
 		 		 	  
   <%unless @encounter_id.nil?%>
     <%= hidden_field_tag("encounter_id",  @encounter_id) %>
