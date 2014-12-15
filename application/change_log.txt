@@ -58,4 +58,8 @@ Version 3 beta
 2014-12-15
   DN - Fix queries for ANC followup and added a views to retrieve clients on folloup
 2014-12-16
-  DN - Added ANC followup views--in hotline_schema_additions 
+  DN - Added ANC followup views--in hotline_schema_additions
+  DN - Updated database initial_script_setup to include hotline_schema_additions and run hsa_villages.sql script 
+2014-12-16
+  PB - added rdoc and rcov gems to Gemfile
+  PB - added rdoc and rcov gems to gem cache

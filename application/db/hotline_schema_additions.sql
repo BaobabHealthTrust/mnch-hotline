@@ -36,7 +36,7 @@ CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
     `o`.`concept_id`,
     `o`.`value_text` as `edd`,
     floor((280 - DATEDIFF(DATE(`o`.`value_text`), CURDATE())) / 7) as `gestation_age`,
-    DATEDIFF(`pp`.`date_enrolled`, CURDATE()) as `number_of_days_after_reg`,
+    DATEDIFF(CURDATE(),`pp`.`date_enrolled`) as `number_of_days_after_reg`,
     `pp`.`date_enrolled`,
     `nvd`.`value_text` as `next_visit_date`,
     `cl`.`district`
@@ -57,7 +57,7 @@ CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
         AND `obs_call`.`concept_id` = 8304
         INNER JOIN
     `call_log` `cl` ON `obs_call`.`value_text` = `cl`.`call_log_id`
-        INNER JOIN
+        LEFT JOIN
     `max_next_visit_date` `nvd` ON `nvd`.`person_id` = `e`.`patient_id`
    WHERE `o`.`concept_id` = 6188;
 
