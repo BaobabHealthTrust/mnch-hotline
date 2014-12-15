@@ -13,7 +13,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- retrieving the max patient's date
+-- retrieving the max patient's next visit date
 CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
   VIEW `max_next_visit_date` AS
   SELECT `obs`.`obs_id`, `obs`.`person_id`, `obs`.`value_text` FROM `obs` `obs` 
@@ -21,6 +21,16 @@ CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
                            FROM `obs` `ob`
                            WHERE `ob`.`person_id` = `obs`.`person_id`
 			                     AND `ob`.`concept_id` = 9459
+                           AND `ob`.`voided` = 0);
+
+-- retrieving the max patient's EDD
+CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
+  VIEW `max_edd` AS
+  SELECT `obs`.`obs_id`, `obs`.`person_id`, `obs`.`value_text` FROM `obs` `obs` 
+  WHERE  `obs`.`obs_id` = (SELECT max(`ob`.`obs_id`) 
+                           FROM `obs` `ob`
+                           WHERE `ob`.`person_id` = `obs`.`person_id`
+			                     AND `ob`.`concept_id` = 6188
                            AND `ob`.`voided` = 0);
 
 -- retrieving all clients on ANC Connect program
@@ -59,7 +69,7 @@ CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
     `call_log` `cl` ON `obs_call`.`value_text` = `cl`.`call_log_id`
         LEFT JOIN
     `max_next_visit_date` `nvd` ON `nvd`.`person_id` = `e`.`patient_id`
-   WHERE `o`.`concept_id` = 6188;
+        INNER JOIN `max_edd` `edd` ON `edd`.`person_id` = `e`.`patient_id`;
 
 --
 -- Dumping routines for database 'bart2'

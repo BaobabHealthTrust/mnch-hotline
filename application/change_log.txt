@@ -60,6 +60,7 @@ Version 3 beta
 2014-12-16
   DN - Added ANC followup views--in hotline_schema_additions
   DN - Updated database initial_script_setup to include hotline_schema_additions and run hsa_villages.sql script 
+  DN - Added a view to get the clients' max_edd in hotline_schema_additions
 2014-12-16
   PB - added rdoc and rcov gems to Gemfile
   PB - added rdoc and rcov gems to gem cache
