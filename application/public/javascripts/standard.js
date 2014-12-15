@@ -1298,7 +1298,11 @@ function cancelEntry() {
 
     var inputElements = document.getElementsByTagName("input");
     for (i in inputElements) {
-        inputElements[i].value = "";
+				try {
+					inputElements[i].value = "";
+				}
+				catch(exception){
+				}
     }
 
     window.location.href = window.tt_cancel_destination || "/people";       // "/patient/menu?no_auto_load_forms=true";/*
