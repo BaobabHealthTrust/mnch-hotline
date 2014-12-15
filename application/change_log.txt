@@ -55,3 +55,5 @@ Version 3 beta
   PB - Modified the hsa_village script to create T/As if they dont exist in the system. This means that we will not need the hotline pilot TA
 2014-12-11
   PB - Added extra logging details to TextIt integration file
+2014-12-15
+  DN - Fix queries for ANC followup and added a views to retrieve clients on folloup

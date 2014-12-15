@@ -58,9 +58,9 @@ class FollowUp < ActiveRecord::Base
     next_visit_date_concept_id = ConceptName.find_by_name('Next ANC Visit Date').concept_id
     anc_encounter_type = EncounterType.find_by_name("ANC VISIT").id
     
-    
+=begin   
     patients = Encounter.find_by_sql("SELECT e.patient_id, pn.given_name,pn.family_name,pn.family_name_prefix,
-                                      pa.city_village,o.concept_id,o.value_text,
+                                      pa.city_village,pa.county_district,o.concept_id,o.value_text,
                                       floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age FROM encounter e
                                       INNER JOIN person_name pn ON e.patient_id = pn.person_id
                                       INNER JOIN person_address pa ON e.patient_id = pa.person_id
@@ -95,7 +95,25 @@ class FollowUp < ActiveRecord::Base
                                                                AND ee.voided = 0)
                                       GROUP BY e.patient_id
                                       ORDER BY e.encounter_datetime DESC")
-  
+=end
+    patients = Encounter.find_by_sql("SELECT 
+                                          *
+                                      FROM
+                                          anc_connect_program_clients
+                                      WHERE
+                                          gestation_age < 42 and gestation_age > 0
+                                              AND DATE(next_visit_date) <= '#{last_anc_date} 23:59'
+                                              AND district = #{district_id} 
+                                      UNION SELECT 
+                                          *
+                                      FROM
+                                          anc_connect_program_clients
+                                      WHERE
+                                          gestation_age < 42 and gestation_age > 0
+                                              AND next_visit_date IS NULL
+                                              AND number_of_days_after_reg >= 7
+                                              AND district = #{district_id}")
+
     data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id, district)}
     return data
   end
@@ -110,13 +128,14 @@ class FollowUp < ActiveRecord::Base
     
     current_date = Date.today.to_date
     start_date = (current_date - (7 * followup_threshhold)).to_date
+    last_anc_date = (current_date - (14 * followup_threshhold)).to_date
    
     encounter_type = EncounterType.find_by_name('PREGNANCY STATUS').id
     concept_id = ConceptName.find_by_name('Expected due date').concept_id
     anc_connect_program_id = Program.find_by_name('ANC CONNECT PROGRAM').program_id
-    
+=begin    
     patients = Encounter.find_by_sql("SELECT e.patient_id, pn.given_name,pn.family_name,pn.family_name_prefix,
-                                      pa.city_village,o.concept_id,o.value_text,
+                                      pa.city_village,pa.county_district,o.concept_id,o.value_text,
                                       floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age FROM encounter e
                                       INNER JOIN person_name pn ON e.patient_id = pn.person_id
                                       INNER JOIN person_address pa ON e.patient_id = pa.person_id
@@ -135,7 +154,27 @@ class FollowUp < ActiveRecord::Base
                                       AND e.voided = 0
                                       GROUP BY e.patient_id
                                       ORDER BY e.encounter_datetime DESC")
-  
+=end
+        patients = Encounter.find_by_sql("SELECT 
+                                                  *
+                                              FROM
+                                                  anc_connect_program_clients
+                                              WHERE
+                                                  gestation_age < 42 and gestation_age > 0
+                                                      AND DATE(next_visit_date) <= '#{last_anc_date} 23:59'
+                                                      AND patient_id =  #{followup_patient_id}
+                                              AND district = #{district_id}                                                       
+                                              UNION SELECT 
+                                                  *
+                                              FROM
+                                                  anc_connect_program_clients
+                                              WHERE
+                                                  gestation_age < 42 and gestation_age > 0
+                                              AND next_visit_date IS NULL
+                                              AND number_of_days_after_reg >= 7
+                                                      AND patient_id =  #{followup_patient_id}
+                                                     AND district = #{district_id}")
+                                                
     data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id,district)}
     return data.present?
   end
@@ -157,7 +196,7 @@ class FollowUp < ActiveRecord::Base
     
     patients = Encounter.find_by_sql("
 				SELECT e.patient_id, pn.given_name, p.birthdate, pn.family_name,pn.family_name_prefix,
-					pa.city_village,o.concept_id,o.value_text, floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age
+					pa.city_village,pa.county_district,o.concept_id,o.value_text, floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age
 					FROM encounter e
 						INNER JOIN person_name pn ON e.patient_id = pn.person_id
 						INNER JOIN person_address pa ON e.patient_id = pa.person_id
@@ -209,7 +248,7 @@ class FollowUp < ActiveRecord::Base
     baby_encounter_type = EncounterType.find_by_name('BABY DELIVERY').id
     
     patients = Encounter.find_by_sql("SELECT e.patient_id, pn.given_name,pn.family_name,pn.family_name_prefix,
-                                      pa.city_village,o.concept_id,o.value_text,
+                                      pa.city_village,pa.county_district,o.concept_id,o.value_text,
                                       floor((280 - (DATE(o.value_text) - curdate()))/7) as gestation_age FROM encounter e
                                       INNER JOIN person_name pn ON e.patient_id = pn.person_id
                                       INNER JOIN person_address pa ON e.patient_id = pa.person_id
