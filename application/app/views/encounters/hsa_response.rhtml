@@ -7,7 +7,6 @@
     display: none;
   }
 </style>
-
 <% form_tag :controller => "encounters", :action => "hsa_response", :method => :post do |f| %>
 	<%session_date = session[:datetime] || Time.now() %>
 	<% visit_helptext = "HSA #{@person.names.first.given_name + " " + @person.names.first.family_name + " # " + (@phone_number.value == "Unknown" ? " " : @phone_number.value) } answered?" %>

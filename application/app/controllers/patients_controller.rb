@@ -447,6 +447,11 @@ class PatientsController < ApplicationController
   end
 
   def anc_info
+    pa = PersonAddress.find_by_person_id_and_voided(params[:patient_id],0) rescue nil
+    traditional_authority_id = TraditionalAuthority.find_by_name(pa.county_district).traditional_authority_id rescue nil
+    village = Village.find_by_name_and_traditional_authority_id(pa.city_village, traditional_authority_id) rescue nil
+    @hsa_id = HsaVillage.find_by_village_id(village.village_id).hsa_id rescue nil
+    
     @options = [
                   ["ANC", "anc_visit"],
                   ["Birth Plan", "birth_plan"],
@@ -466,9 +471,9 @@ class PatientsController < ApplicationController
         session.delete(:"#{encounter}")
         if params[:visit]
             session[:clinic_dashboard] = true
-            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}&visit=#{params[:visit]} "
+            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}&hsa_id=#{@hsa_id}&visit=#{params[:visit]} "
         else
-            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}" 
+            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}&hsa_id=#{@hsa_id}" 
         end
         redirect_to(url)
     end
