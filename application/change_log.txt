@@ -57,3 +57,12 @@ Version 3 beta
   PB - Added extra logging details to TextIt integration file
 2014-12-15
   DN - Fix queries for ANC followup and added a views to retrieve clients on folloup
+2014-12-16
+  DN - Added ANC followup views--in hotline_schema_additions
+  DN - Updated database initial_script_setup to include hotline_schema_additions and run hsa_villages.sql script 
+  DN - Added a view to get the clients' max_edd in hotline_schema_additions
+  DN - Updated the query pulling clients on ANC followup report from number_of_days_after_reg >= 7 to >= 21
+  DN - Added a condition to pull only programs that are not voided when pulling clients who are in ANC connect
+2014-12-16
+  PB - added rdoc and rcov gems to Gemfile
+  PB - added rdoc and rcov gems to gem cache

@@ -111,7 +111,7 @@ class FollowUp < ActiveRecord::Base
                                       WHERE
                                           gestation_age < 42 and gestation_age > 0
                                               AND next_visit_date IS NULL
-                                              AND number_of_days_after_reg >= 7
+                                              AND number_of_days_after_reg >= 21
                                               AND district = #{district_id}")
 
     data = patients.select{|p| HsaVillage.is_patient_village_in_anc_connect(p.patient_id, district)}
@@ -171,7 +171,7 @@ class FollowUp < ActiveRecord::Base
                                               WHERE
                                                   gestation_age < 42 and gestation_age > 0
                                               AND next_visit_date IS NULL
-                                              AND number_of_days_after_reg >= 7
+                                              AND number_of_days_after_reg >= 21
                                                       AND patient_id =  #{followup_patient_id}
                                                      AND district = #{district_id}")
                                                 
