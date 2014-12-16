@@ -66,7 +66,7 @@ CREATE OR REPLACE ALGORITHM=UNDEFINED  SQL SECURITY INVOKER
     `nvd`.`value_text` as `next_visit_date`,
     IFNULL(`cl`.`district`,`hsa`.`district_id`) AS `district`,
     `hsa`.`hsa_id`, 
-    `hsa`.`district_id` AS textIT_district`
+    `hsa`.`district_id` AS `textIT_district`
     
    FROM
     `encounter` `e`
