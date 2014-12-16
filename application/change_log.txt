@@ -62,3 +62,4 @@ Version 3 beta
   DN - Updated database initial_script_setup to include hotline_schema_additions and run hsa_villages.sql script 
 2014-12-16
   PB - added rdoc and rcov gems to Gemfile
+  PB - added rdoc and rcov gems to gem cache
