@@ -1,6 +1,11 @@
 <script type="text/javascript" language="javascript">
-		tt_cancel_show = "/patients/show/<%= @patient.id %>";
-		tt_cancel_destination = "/patients/show/<%= @patient.id %>";
+	<% if session[:house_keeping_mode] %>
+		var tt_cancel_destination = "/clinic/housekeeping?task=housekeeping"
+		var tt_cancel_show = "/clinic?status=endcall";
+	<% else %>
+		var tt_cancel_show = "/patients/show/<%= @patient.id %>";
+		var tt_cancel_destination = "/patients/show/<%= @patient.id %>";		
+	<% end %>
 </script>
 <style>
  #num{

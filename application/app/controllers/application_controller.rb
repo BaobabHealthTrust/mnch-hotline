@@ -91,7 +91,11 @@ class ApplicationController < ActionController::Base
       return task.url if task.present? && task.url.present?
     end
 
-    return "/patients/show/#{patient.id}" 
+		if session[:house_keeping_mode]
+			return "/clinic/housekeeping?task=housekeeping"
+		else
+			return "/patients/show/#{patient.id}"
+		end 
   end
 
   def print_and_redirect(print_url, redirect_url, message = "Printing, please wait...")

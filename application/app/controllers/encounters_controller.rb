@@ -899,7 +899,7 @@ class EncountersController < ApplicationController
       
       pregnancy_statuses = Hash[*select_options['pregnancy_status'].flatten]
       
-      case pregnancy_status.upcase
+      case pregnancy_status.to_s.upcase
           when "CLIENT MISCARRIED"
             current_pregnancy_status = pregnancy_statuses["Miscarried"]
           when "CLIENT DELIVERED"
@@ -949,13 +949,18 @@ class EncountersController < ApplicationController
     end
   end
   
-  def hsa_response  
+  def hsa_response
+  
     if request.method.to_s == 'post'
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
         params[:followup] = "hsa_visit"
         redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true" + "&followup=#{params[:followup]}"
       else
-        redirect_to :controller => 'clinic', :action => 'district',:task => 'anc', :district => session[:district]
+				if params[:followup].blank?
+        	redirect_to :controller => 'clinic', :action => 'district',:task => 'anc', :district => session[:district]
+      	else
+      		        redirect_to :controller => 'clinic', :action => 'district',:task => params[:followup], :district => session[:district]
+      	end
       end
     else
     
