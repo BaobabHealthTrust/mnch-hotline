@@ -932,8 +932,8 @@ class EncountersController < ApplicationController
   
   def client_response
     if request.method.to_s == 'post'
-      if params[:observations].first[:value_coded_or_text].upcase == 'YES'     
-        redirect_to "/patients/anc_info?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
+      if params[:observations].first[:value_coded_or_text].upcase == 'YES'
+        redirect_to "/encounters/new/#{params[:followup]}?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
       else
        redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true" + "&followup=#{params[:followup]}"
       end
