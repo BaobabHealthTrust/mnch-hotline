@@ -37,23 +37,29 @@
           <td colspan = 5><%= "Filter Info: Grouping - #{@grouping.capitalize} "%></td>
         </tr>
         <tr>
-          <td><b>First Name</b></td>
-          <td><b>Last Name</b></td>
+          <td><b>ANC Connect ID</b></td>
+          <td><b>Clients' Name</b></td>
+          <td><b>Nick Name</b></td>
           <td><b>Date of Birth</b></td>
           <td><b>Cell phone number</b></td>
+          <td><b>EDD</b></td>
           <td><b>Home Village</b></td>
+          <td><b>Current Village</b></td>
         </tr>
         <%@report.reverse.map do |dates, values|%>
           <tr>
-            <td width="25%" colspan = 5 class="cellleft cellbottom main-table-cell" style="background-color:ddd; text-align:center;font-weight: bold; font-size: large; font-style: italic;"><%= @grouping.humanize + " beginning "+ dates[:start_date].to_date.strftime("%d-%b-%Y") + " ending " + dates[:end_date].to_date.strftime("%d-%b-%Y")%></td>
+            <td width="25%" colspan = 8 class="cellleft cellbottom main-table-cell" style="background-color:ddd; text-align:center;font-weight: bold; font-size: large; font-style: italic;"><%= @grouping.humanize + " beginning "+ dates[:start_date].to_date.strftime("%d-%b-%Y") + " ending " + dates[:end_date].to_date.strftime("%d-%b-%Y")%></td>
           </tr>
           <% values.each do |v| %>
           <tr>
-            <td><%= v["given_name"] %></td>
-            <td><%= v["family_name"] %></td>
+            <td><%= v["anc_connect_id"] %></td>
+            <td><%= v["given_name"]%> <%= v["family_name"] %></td>
+            <td><%= v["family_name_prefix"] %></td>
             <td><%= v["birthdate"] %></td>
             <td><%= v["cell_phone_number"] %></td>
+            <td><%= v["edd"] %></td>
             <td><%= v["home_village"] %></td>
+            <td><%= v["city_village"] %></td>
           </tr>
           <% end %>
         <% end %>

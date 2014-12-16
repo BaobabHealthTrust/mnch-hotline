@@ -178,9 +178,14 @@ class ReportController < ApplicationController
     @report_type        = params[:report_type]
     @query              = params[:query].gsub(" ", "_")
 
-    start_date          = Encounter.initial_encounter.encounter_datetime
-    end_date            = session[:datetime].to_date rescue Date.today
-
+    if @report_type = "anc_connect"
+      start_date          = PatientProgram.find_by_sql("SELECT MIN(date_enrolled) AS date_enrolled FROM patient_program WHERE voided = 0").map(&:date_enrolled).first.to_date rescue Date.today
+      end_date            = session[:datetime].to_date rescue Date.today    
+    else
+      start_date          = Encounter.initial_encounter.encounter_datetime
+      end_date            = session[:datetime].to_date rescue Date.today
+    end
+    
     report_date_ranges  = Report.generate_report_date_range(start_date, end_date)
     @date_range_values  = [["",""]]
     @report_date_range  = report_date_ranges.inject({}){|date_range, report_date_range|

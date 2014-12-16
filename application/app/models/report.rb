@@ -2232,6 +2232,7 @@ module Report
  end
 
  def self.anc_connect_clients( grouping, start_date, end_date, district)
+ 
     district_id = District.find_by_name(district).id
     call_id = Concept.find_by_name("CALL ID").id
     cell_phone_attribute_type = PersonAttributeType.find_by_name('Cell Phone Number').id
@@ -2240,6 +2241,8 @@ module Report
     program_id = Program.find_by_name('ANC CONNECT PROGRAM').id
     
     date_ranges.map do |date_range|
+    
+=begin    
         patients = Patient.find_by_sql("
             select pp.patient_id, pn.given_name,
             (select value from person_attribute where person_id=pp.patient_id AND person_attribute_type_id = #{cell_phone_attribute_type}
@@ -2254,6 +2257,14 @@ module Report
             and DATE(pp.date_enrolled) >= '#{date_range.first.to_date}' and DATE(pp.date_enrolled) <= '#{date_range.last.to_date }'
             and pp.voided=0 GROUP BY pp.patient_id"
          )
+=end
+           patients = Encounter.find_by_sql("SELECT 
+                                                  *
+                                              FROM
+                                                  anc_connect_program_clients
+                                              WHERE
+                                                  DATE(date_enrolled) >= '#{date_range.first.to_date}' and DATE(date_enrolled) <= '#{date_range.last.to_date }'
+                                              AND district = #{district_id}")         
          dates = {:start_date => date_range.first, :end_date => date_range.last}
         patients_data.push([dates, patients]) unless patients.blank?
     end
