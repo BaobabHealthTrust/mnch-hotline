@@ -176,10 +176,10 @@ class EncountersController < ApplicationController
         unless params[:observations][0]['value_coded'].blank?
           yes_concept = ConceptName.find_by_concept_id(params[:observations][0]['value_coded']).name.upcase
           if yes_concept == 'YES'
-            if params[:late_anc_call].present? && params[:late_anc_call].to_s == "true"
-             redirect_to "/clinic/district?task=anc&district=#{session[:district]}" and return
+            if session[:house_keeping_mode]
+             redirect_to "/clinic/district?task=delivery&district=#{session[:district]}" and return
             else
-            redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
+            	redirect_to :controller => 'patients', :action => 'anc_info', :patient_id => params['encounter']['patient_id'], :visit => 'hsa' and return
             end 
           end
         end
