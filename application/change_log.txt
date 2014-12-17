@@ -72,3 +72,6 @@ Version 3 beta
   DN - Updated the birth plan and delivery queries in followup model
   DN - Updated anc_connect_program_clients view in hotline_schema_additions
   DN - Added some fields in ANC connect report view
+  
+2014-12-18
+	CL - Update application workflow links and buttons while in House keeping mode
