@@ -178,7 +178,7 @@ class ReportController < ApplicationController
     @report_type        = params[:report_type]
     @query              = params[:query].gsub(" ", "_")
 
-    if @report_type = "anc_connect"
+    if @report_type == "anc_connect"
       start_date          = PatientProgram.find_by_sql("SELECT MIN(date_enrolled) AS date_enrolled FROM patient_program WHERE voided = 0").map(&:date_enrolled).first.to_date rescue Date.today
       end_date            = session[:datetime].to_date rescue Date.today    
     else
