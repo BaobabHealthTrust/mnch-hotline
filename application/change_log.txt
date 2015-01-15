@@ -75,3 +75,5 @@ Version 3 beta
   
 2014-12-18
 	CL - Update application workflow links and buttons while in House keeping mode
+2015-01-15
+  PB - Fixed hsa_performance report queries including the view. Also added extra views in db/hotline_schema_additions.sql for the reports 

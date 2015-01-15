@@ -2270,8 +2270,123 @@ module Report
     end
     return patients_data
   end
-
  def self.hsa_performance(grouping, start_date, end_date, district)
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+    district_id = District.find_by_name(district).id
+    call_id = Concept.find_by_name("CALL ID").id
+    #getting a list of
+    hsas = {}
+    hsa_static = Patient.find_by_sql("SELECT * FROM hsa_names")
+    hsa_static.each do |hs|
+      hsas[:"#{hs.hsa_id}"] = "#{hs.given_name} #{hs.family_name}"
+    end
+ 
+    data = []
+    date_ranges.map do |date_range|
+      all_clients_data = {}
+      delivery_by_hsa = {}
+      on_time_by_hsa = {}
+      
+      all_clients = Patient.find_by_sql("SELECT 
+                                                  *
+                                              FROM
+                                                  anc_connect_program_clients
+                                              WHERE
+                                                  DATE(date_enrolled) <= '#{date_range.last.to_date }'
+                                              AND district = #{district_id}")
+                                              
+      all_clients.group_by(&:hsa_id).each do |hsa, hsa_records|
+          all_clients_data[:"#{hsa}"] = hsa_records.count
+      end
+                                           
+      clients_for_period = Patient.find_by_sql("SELECT 
+                                                  *
+                                              FROM
+                                                  anc_connect_program_clients
+                                              WHERE
+                                                  DATE(date_enrolled) >= '#{date_range.first.to_date}' and DATE(date_enrolled) <= '#{date_range.last.to_date }' 
+                                              AND district = #{district_id}")
+         
+      deliveries = Patient.find_by_sql("SELECT 
+                                                  *
+                                              FROM
+                                                  baby_deliveries
+                                              WHERE
+                                                  DATE(delivery_date) >= '#{date_range.first.to_date}' and DATE(delivery_date) <= '#{date_range.last.to_date }'   
+                                              AND district = #{district_id}") 
+      
+      deliveries.group_by(&:hsa_id).each do |hsa_id, hsa_list_details|
+        
+        hsa_list_details.group_by(&:delivery_location).each  do |location, location_details|
+          
+          if location.downcase == 'facility'
+            facility_deliveries = location_details.count
+            next
+          end
+        end  
+        delivery_by_hsa[:"#{hsa_id}"] = [hsa_list_details.count, facility_deliveries] 
+      end 
+      
+      anc_visits = Patient.find_by_sql("SELECT 
+                                                  *
+                                              FROM
+                                                  anc_visits
+                                              WHERE
+                                                  DATE(encounter_datetime) >= '#{date_range.first.to_date}' and DATE(encounter_datetime) <= '#{date_range.last.to_date }' 
+                                              AND district = #{district_id}")
+                                              
+      anc_visits.group_by(&:hsa_id).each do |hsa_id, patient_list|
+        good_list = 0 #number of visits that fall within the too weeeks  
+        patient_list.group_by(&:patient_id).each do |patient_id, visit_list|
+          if visit_list.count > 1
+            last_visit = '' 
+            next_visit =  ''
+            
+            visit_list.each do |visit|
+              if next_visit == ''
+                last_visit = visit.last_visit_date
+                next_visit = visit.next_visit_date
+              else
+                dif = (visit.last_visit_date - next_visit.to_date).to_i
+                if dif <= 14
+                  good_list += 1 
+                end
+              end 
+              
+            end
+          end
+          on_time_by_hsa[:"#{hsa_id}"] = [patient_list.count, good_list]
+        end
+      end      
+                                  
+      row_data = {:start_date => date_range.first,
+                :end_date => date_range.last,
+                :hc_details => []}
+                          
+      clients_for_period.group_by(&:health_center).each do |hc, hc_records|
+        hc_data = {:health_center => "#{hc}",
+                   :hsa_details => []}
+                  
+        hc_records.group_by(&:hsa_id).each do |hsa, hsa_details|
+          facility_rate = ((delivery_by_hsa[:"#{hsa}"].last / delivery_by_hsa[:"#{hsa}"].first) * 100) rescue 0
+          on_time_rate = ((on_time_by_hsa[:"#{hsa}"].last / on_time_by_hsa[:"#{hsa}"].first) * 100) rescue 0
+
+            hsa_data = {:name => hsas[:"#{hsa}"], :total => all_clients_data[:"#{hsa}"], 
+                        :new => hsa_details.count, 
+                        :on_time => on_time_rate, :facility_rate => facility_rate }
+            hc_data[:hsa_details] << hsa_data
+
+        
+        end
+        row_data[:hc_details] << hc_data
+      end
+    data << row_data
+    end
+   # raise data.first[:hc_details].first[:hsa_details].first[:name].to_yaml
+    return data
+ end
+
+ def self.performance(grouping, start_date, end_date, district)
     #date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
     district_id = District.find_by_name(district).id
     call_id = Concept.find_by_name("CALL ID").id
