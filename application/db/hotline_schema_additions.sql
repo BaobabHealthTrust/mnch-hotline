@@ -1,5 +1,4 @@
 
--- Host: localhost    Database: bart2
 -- ------------------------------------------------------
 -- Server version	5.1.54-1ubuntu4-log
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -13,26 +12,27 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
+-- Retrieving all last anc visit
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
     SQL SECURITY INVOKER
 VIEW `last_anc_visits` AS
-    select 
+    SELECT 
         `e`.`encounter_id` AS `encounter_id`,
         `e`.`patient_id` AS `patient_id`,
         `e`.`encounter_datetime` AS `encounter_datetime`,
         `o`.`obs_id` AS `obs_id`,
         `o`.`value_text` AS `last_visit_date`
-    from
+    FROM
         (`encounter` `e`
-        join `obs` `o` ON (((`o`.`encounter_id` = `e`.`encounter_id`)
-            and (`o`.`concept_id` = 9457)
-            and (`o`.`voided` = 0))))
-    where
+        JOIN `obs` `o` ON (((`o`.`encounter_id` = `e`.`encounter_id`)
+            AND (`o`.`concept_id` = 9457)
+            AND (`o`.`voided` = 0))))
+    WHERE
         ((`e`.`encounter_type` = 151)
-            and (`e`.`voided` = 0));
+            AND (`e`.`voided` = 0));
 
+-- retrieving anc connect maximum dates
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
     SQL SECURITY INVOKER
@@ -52,6 +52,8 @@ VIEW `anc_connect_max_edd_dates` AS
     WHERE
         `pp`.`program_id` = 19 AND `voided` = 0;
 
+-- Retrieving registered hsa_names
+
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
     SQL SECURITY INVOKER
@@ -64,6 +66,7 @@ VIEW `hsa_names` AS
         (`hsa_villages` `hsa`
         JOIN `person_name` `pn` ON ((`pn`.`person_id` = `hsa`.`hsa_id`)));
 
+-- Retrieving max cell number for clients
 
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
@@ -84,63 +87,70 @@ VIEW `max_cell_number` AS
     WHERE
         `pp`.`program_id` = 19 AND `voided` = 0;
 
+-- Retrieving next anc visits for clients
+
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
     SQL SECURITY INVOKER
 VIEW `next_anc_visits` AS
-    select 
+    SELECT 
         `e`.`encounter_id` AS `encounter_id`,
         `e`.`patient_id` AS `patient_id`,
         `e`.`encounter_datetime` AS `encounter_datetime`,
         `o`.`obs_id` AS `obs_id`,
         `o`.`value_text` AS `next_visit_date`
-    from
+    FROM
         (`encounter` `e`
-        join `obs` `o` ON (((`o`.`encounter_id` = `e`.`encounter_id`)
-            and (`o`.`concept_id` = 9459)
-            and (`o`.`voided` = 0))))
-    where
+        JOIN `obs` `o` ON (((`o`.`encounter_id` = `e`.`encounter_id`)
+            AND (`o`.`concept_id` = 9459)
+            AND (`o`.`voided` = 0))))
+    WHERE
         ((`e`.`encounter_type` = 151)
-            and (`e`.`voided` = 0));
+            AND (`e`.`voided` = 0));
+
+-- Retrieving Locations where Delivery took place
 
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
     SQL SECURITY INVOKER
 VIEW `delivery_locations` AS
-    select 
+    SELECT 
         `e`.`encounter_id` AS `encounter_id`,
         `e`.`patient_id` AS `patient_id`,
         `e`.`encounter_datetime` AS `encounter_datetime`,
         `o`.`obs_id` AS `obs_id`,
         `o`.`value_text` AS `delivery_location`
-    from
+    FROM
         (`encounter` `e`
-        join `obs` `o` ON (((`o`.`encounter_id` = `e`.`encounter_id`)
-            and (`o`.`concept_id` = 9455)
-            and (`o`.`voided` = 0))))
-    where
+        JOIN `obs` `o` ON (((`o`.`encounter_id` = `e`.`encounter_id`)
+            AND (`o`.`concept_id` = 9455)
+            AND (`o`.`voided` = 0))))
+    WHERE
         ((`e`.`encounter_type` = 90)
-            and (`e`.`voided` = 0));
+            AND (`e`.`voided` = 0));
 
+-- Retrieving Delivery Dates
 
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
     SQL SECURITY INVOKER
 VIEW `delivery_dates` AS
-    select 
+    SELECT 
         `e`.`encounter_id` AS `encounter_id`,
         `e`.`patient_id` AS `patient_id`,
         `e`.`encounter_datetime` AS `encounter_datetime`,
         `o`.`obs_id` AS `obs_id`,
         `o`.`value_text` AS `delivery_date`
-    from
+    FROM
         (`encounter` `e`
-        join `obs` `o` ON (((`o`.`encounter_id` = `e`.`encounter_id`)
-            and (`o`.`concept_id` = 8342)
-            and (`o`.`voided` = 0))))
-    where
+        JOIN `obs` `o` ON (((`o`.`encounter_id` = `e`.`encounter_id`)
+            AND (`o`.`concept_id` = 8342)
+            AND (`o`.`voided` = 0))))
+    WHERE
         ((`e`.`encounter_type` = 90)
-            and (`e`.`voided` = 0));
+            AND (`e`.`voided` = 0));
+
+-- Retrieving next visit date list
 
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
@@ -161,6 +171,8 @@ VIEW `anc_connect_next_visit_date_list` AS
     WHERE
         `pp`.`program_id` = 19 AND `voided` = 0;
 
+-- Retrieving max expected due date
+
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
     SQL SECURITY INVOKER
@@ -171,6 +183,8 @@ VIEW `anc_connect_max_edd` AS
         `anc_connect_max_edd_dates` `pp`
             LEFT JOIN
         `obs` `o` ON `pp`.`obs_id` = `o`.`obs_id`;
+
+-- retrieving next visit dates
 
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
@@ -183,6 +197,8 @@ VIEW `anc_connect_next_visit_date` AS
             LEFT JOIN
         `obs` `o` ON `pp`.`obs_id` = `o`.`obs_id`;
 
+-- Retriving current client cell number
+
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
     SQL SECURITY INVOKER
@@ -194,11 +210,13 @@ VIEW `patient_cell_number` AS
             LEFT JOIN
         `person_attribute` `pa` ON `mcn`.`pa_id` = `pa`.`person_attribute_id`;
 
+-- Retriving ANC Connect Clients 
+
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
     SQL SECURITY INVOKER
 VIEW `anc_connect_program_clients` AS
-    select 
+    SELECT 
         `pa`.`person_id`,
         `pa`.`city_village`,
         `pa`.`county_district`,
@@ -206,11 +224,13 @@ VIEW `anc_connect_program_clients` AS
         `hsa`.`hsa_id`,
         `hsa`.`district_id` AS district,
         `pp`.`date_enrolled`,
+		`pp`.`patient_id`,
         `pn`.`given_name`,
         `pn`.`family_name`,
         `pn`.`family_name_prefix`,
         `p`.`birthdate`,
         `pi`.`identifier` AS `anc_connect_id`,
+		FLOOR((280 - DATEDIFF(DATE(`max_edd`.`max_edd`), CURDATE())) / 7) AS `gestation_age`,
         DATEDIFF(CURDATE(), `pp`.`date_enrolled`) AS `number_of_days_after_reg`,
         `hc`.`name` AS health_center,
         `max_edd`.`max_edd` AS edd,
@@ -218,45 +238,46 @@ VIEW `anc_connect_program_clients` AS
         `pcn`.`cell_phone_number`
     FROM
         `person_address` `pa`
-            left join
+            LEFT JOIN
         `traditional_authority` `ta` ON `pa`.`county_district` = `ta`.`name`
-            left join
+            LEFT JOIN
         `village` `vg` ON `ta`.`traditional_authority_id` = `vg`.`traditional_authority_id`
             AND `pa`.`city_village` = `vg`.`name`
-            left join
+            LEFT JOIN
         `hsa_villages` `hsa` ON `hsa`.`village_id` = `vg`.`village_id`
-            and `ta`.`district_id` = `hsa`.`district_id`
+            AND `ta`.`district_id` = `hsa`.`district_id`
             LEFT JOIN
         `health_center` `hc` ON `hsa`.`health_center_id` = `hc`.`health_center_id`
-            and `ta`.`district_id` = `hsa`.`district_id`
-            left join
+            AND `ta`.`district_id` = `hsa`.`district_id`
+            LEFT JOIN
         `patient_program` `pp` ON `pa`.`person_id` = `pp`.`patient_id`
-            and `pp`.`voided` = 0
-            left join
+            AND `pp`.`voided` = 0
+            LEFT JOIN
         `person_name` `pn` ON `pa`.`person_id` = `pn`.`person_id`
-            and `pn`.`voided` = 0
-            left join
+            AND `pn`.`voided` = 0
+            LEFT JOIN
         `person` `p` ON `p`.`person_id` = `pa`.`person_id`
-            and `p`.`voided` = 0
-            left join
+            AND `p`.`voided` = 0
+            LEFT JOIN
         `patient_identifier` `pi` ON `pi`.`patient_id` = `pa`.`person_id`
-            and `pi`.`voided` = 0
-            and `pi`.`identifier_type` = 25
-            left join
+            AND `pi`.`voided` = 0
+            AND `pi`.`identifier_type` = 25
+            LEFT JOIN
         `anc_connect_max_edd` `max_edd` ON `pa`.`person_id` = `max_edd`.`patient_id`
-            left join
+            LEFT JOIN
         `anc_connect_next_visit_date` `next_visit_date` ON `pa`.`person_id` = `next_visit_date`.`patient_id`
-            left join
+            LEFT JOIN
         `patient_cell_number` `pcn` ON `pa`.`person_id` = `pcn`.`patient_id`
-    where
-        `pa`.`person_id` IN (select 
+    WHERE
+        `pa`.`person_id` IN (SELECT 
                 `patient_id`
-            from
+            FROM
                 `patient_program`
-            where
-                `program_id` = 19 and `voided` = 0)
-    group by `pa`.`person_id`;
+            WHERE
+                `program_id` = 19 AND `voided` = 0)
+    GROUP BY `pa`.`person_id`;
 
+-- Retrieving ANC VISITS
 
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
@@ -278,6 +299,8 @@ VIEW `anc_visits` AS
         left join `anc_connect_program_clients` `p_clients` ON ((`lvd`.`patient_id` = `p_clients`.`person_id`)))
     order by `lvd`.`patient_id` , `lvd`.`obs_id`;
 
+-- Retrieving Baby Deliveries
+
 CREATE OR REPLACE 
     ALGORITHM = UNDEFINED 
     SQL SECURITY INVOKER
@@ -297,10 +320,7 @@ VIEW `baby_deliveries` AS
         join `delivery_locations` `d_location` ON ((`d_dates`.`encounter_id` = `d_location`.`encounter_id`)))
         left join `anc_connect_program_clients` `p_clients` ON ((`d_dates`.`patient_id` = `p_clients`.`person_id`)));
 
-
-    
 --
--- Dumping routines for database 'bart2'
 --
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;

@@ -77,3 +77,5 @@ Version 3 beta
 	CL - Update application workflow links and buttons while in House keeping mode
 2015-01-15
   PB - Fixed hsa_performance report queries including the view. Also added extra views in db/hotline_schema_additions.sql for the reports 
+2015-01-16
+  PB - Added patient_id and gestation age to anc_connect_program_clients view within db/hotline_schema_additions.sql
