@@ -41,33 +41,33 @@
             <td colspan="6"></td>
           </tr>
           <tr>
-            <td><b>Health Center</b></td>
-            <td><b>HSA Name</b></td>
-            <td><b>Clients Enrolled(Total)</b></td>
-            <td><b>New Enrollments</b></td>
-            <td><b>On-Time ANC Rate(%)</b></td>
-            <td><b>Facility Delivery Rate(%)</b></td>
+            <td class="cellleft cellbottom celltop main-table-cell" style="font-weight: bold;">Health Center</td>
+            <td class="cellleft cellbottom celltop main-table-cell" style="font-weight: bold;">HSA Name</td>
+            <td class="cellleft cellbottom celltop main-table-cell" style="font-weight: bold; text-align: center;">Clients Enrolled(Total)</td>
+            <td class="cellleft cellbottom celltop main-table-cell" style="font-weight: bold; text-align: center;">New Enrollments</td>
+            <td class="cellleft cellbottom celltop main-table-cell" style="font-weight: bold; text-align: center;">On-Time ANC Rate(%)</td>
+            <td class="cellleft cellbottom cellright celltop main-table-cell" style="font-weight: bold; text-align: center;">Facility Delivery Rate(%)</td>
           </tr>
         </thead>
 
-        <%  (@report || []).each do |data_values|%>
-	<tr>
+        <%  (@report.reverse.map || []).each do |data_values|%>
+		<tr>
             <td width="25%" colspan = 6 class="cellleft cellbottom main-table-cell" style="background-color:ddd; text-align:center;font-weight: bold; font-size: large; font-style: italic;">
 		<%= @grouping.humanize + " beginning "+ data_values[:start_date].to_date.strftime("%d-%b-%Y") + " ending " + data_values[:end_date].to_date.strftime("%d-%b-%Y")%></td>
-          </tr>
+        </tr>
         
           <% data_values[:hc_details].each do |health_center_details| %>
 	      <tr> 
-		<td><%= health_center_details[:health_center] %></td>
+		<td colspan = 6 class="cellleft cellbottom celltop cellright main-table-cell" style="text-align:left;"><%= health_center_details[:health_center] %></td>
 	      </tr>
               <% health_center_details[:hsa_details].each do |details| %>
 		      <tr>
-		      <td></td>
-		      <td><%= details[:name] %></td>
-		      <td><%= details[:total] %></td>
-		      <td><%= details[:new] %></td>
-		      <td><%= details[:on_time] %></td>
-		      <td><%= details[:facility_rate] %></td>
+		      <td class="cellleft  main-table-cell"> &nbsp;</td>
+		      <td class="cellleft cellbottom main-table-cell" style="text-align:left;"><%= details[:name] %></td>
+		      <td class="cellleft cellbottom main-table-cell" style="text-align:center;"><%= details[:total] %></td>
+		      <td class="cellleft cellbottom main-table-cell" style="text-align:center;"><%= details[:new] %></td>
+		      <td class="cellleft cellbottom main-table-cell" style="text-align:center;"><%= details[:on_time] %></td>
+		      <td class="cellleft cellbottom cellright main-table-cell" style="text-align:center;"><%= details[:facility_rate] %></td>
 		      </tr>
               <% end %>
            <% end %>
