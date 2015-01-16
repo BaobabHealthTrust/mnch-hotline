@@ -101,7 +101,12 @@ class ApplicationController < ActionController::Base
 			end
 			
 			if session[:house_keeping_mode]
-				return "/clinic/district?task=#{task_report}&district=#{session[:district]}"
+			
+				if task_report.blank?
+					return "/patients/show/#{patient.id}"
+				else
+					return "/clinic/district?task=#{task_report}&district=#{session[:district]}"
+				end
 			end
 			
 		else
