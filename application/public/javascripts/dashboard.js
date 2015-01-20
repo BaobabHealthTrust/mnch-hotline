@@ -333,7 +333,23 @@ function generateHomepage(){
                     window.location = this.getAttribute("link");
                 }
             }
+            
+            if (childlinks[j].getAttribute("ttID")) {
+                button.id = childlinks[j].getAttribute("ttID");
+            }
+            
+            if (childlinks[j].getAttribute("ttFloat")) {
+                button.style.cssFloat = childlinks[j].getAttribute("ttFloat");
+            }
+                        
+           if (childlinks[j].getAttribute("ttMleft")) {
+                button.style.marginLeft = childlinks[j].getAttribute("ttMleft");
+            }
 
+           if (childlinks[j].getAttribute("ttMright")) {
+                button.style.marginRight = childlinks[j].getAttribute("ttMright");
+            }
+            
             if (childlinks[j].getAttribute("ttSize")) {
                 button.style.minWidth = childlinks[j].getAttribute("ttSize");
             }
@@ -668,8 +684,25 @@ function generateDashboard(){
             if (childlinks[j].getAttribute("ttSize")) {
                 button.style.minWidth = childlinks[j].getAttribute("ttSize");
             }
+            
             if (childlinks[j].getAttribute("ttSize")) {
                 button.style.minWidth = childlinks[j].getAttribute("ttSize");
+            }  
+
+            if (childlinks[j].getAttribute("ttID")) {
+                button.id = childlinks[j].getAttribute("ttID");
+            }
+            
+           if (childlinks[j].getAttribute("ttMleft")) {
+                button.style.marginLeft = childlinks[j].getAttribute("ttMleft");
+            }
+
+           if (childlinks[j].getAttribute("ttMright")) {
+                button.style.marginRight = childlinks[j].getAttribute("ttMright");
+            }
+
+            if (childlinks[j].getAttribute("ttFloat")) {
+                button.style.cssFloat = childlinks[j].getAttribute("ttFloat");
             }
             
             nav.appendChild(button);
