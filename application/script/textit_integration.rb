@@ -24,7 +24,8 @@ def textit_integration
     delivery_date = key["delivery_date"] #delivery enc
     delivery_facility = key["delivery_facility"] #delivery enc
 
-
+    village_id = Village.find_by_name(village).id
+    hsa_id = HsaVillage.find_by_village_id(village_id).hsa_id
     ActiveRecord::Base.transaction do
       anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID") rescue nil
       anc_identifier = PatientIdentifier.find(:last,:conditions =>["voided = 0 AND identifier_type = ?
@@ -114,7 +115,7 @@ def textit_integration
           new_anc_visit_enc = patient.encounters.create({
             :encounter_type => anc_visit_enc_type,
             :encounter_datetime => visit_date,
-            :provider_id => 1,
+            :provider_id => hsa_id,
             :creator =>  1
           })
           observation = {}
@@ -137,7 +138,7 @@ def textit_integration
         new_pregnancy_enc = patient.encounters.create({
             :encounter_type => pregnacy_enc_type,
             :encounter_datetime => registration_time,
-            :provider_id => 1,
+            :provider_id => hsa_id,
             :creator =>  1
           })
         puts "Creating pregnancy encounter observations..."
@@ -167,7 +168,7 @@ def textit_integration
         new_birth_plan_enc = patient.encounters.create({
             :encounter_type => birth_plan_enc_type,
             :encounter_datetime => registration_time,
-            :provider_id => 1,
+            :provider_id => hsa_id,
             :creator =>  1
         })
          puts "Creating birthplan observations ..."
@@ -205,7 +206,7 @@ def textit_integration
         new_baby_delivery_enc = patient.encounters.create({
             :encounter_type => baby_delivery_enc_type,
             :encounter_datetime => registration_time,
-            :provider_id => 1,
+            :provider_id => hsa_id,
             :creator =>  1
         })
         puts "Creating baby delivery observations ..."

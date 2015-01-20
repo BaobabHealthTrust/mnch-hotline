@@ -2259,4 +2259,74 @@ module Report
     end
     return patients_data
   end
+
+ def self.hsa_performance(grouping, start_date, end_date, district)
+    date_ranges   = Report.generate_grouping_date_ranges(grouping, start_date, end_date)[:date_ranges]
+    district_id = District.find_by_name(district).id
+    call_id = Concept.find_by_name("CALL ID").id
+    data = []
+    date_ranges.map do |date_range|
+
+      patients_data = Patient.find_by_sql("
+            SELECT d.name as district_name, h.hsa_id as hsa_id, CONCAT(pn.given_name, ' ', pn.family_name) as hsa_name,
+            h.name as health_center FROM encounter enc INNER JOIN obs o ON enc.encounter_id=o.encounter_id
+            INNER JOIN call_log cl ON o.value_text = cl.call_log_id AND
+            o.concept_id = #{call_id} INNER JOIN health_center h
+            ON cl.district = h.district INNER JOIN users u ON enc.provider_id = u.user_id
+            INNER JOIN district d ON cl.district=d.district_id
+            INNER JOIN person_name pn on u.user_id = pn.person_id
+            INNER JOIN user_role ur ON u.user_id = ur.user_id AND ur.role = 'HSA'
+            WHERE cl.district = #{district_id} AND DATE(enc.encounter_datetime) >= '#{date_range.first.to_date}'
+            AND DATE(enc.encounter_datetime) <= '#{date_range.last.to_date } AND enc.voided = 0'
+         ")
+      hash = {}
+      patients_data.each do |data|
+        district_name = data["district_name"]
+        health_center = data["health_center"]
+        hsa_id = data["hsa_id"]
+        hsa_name = data["hsa_name"]
+        hash[district_name] = {} if hash[district_name].blank?
+        hash[district_name]["health_centers"] ={} if hash[district_name]["health_centers"].blank?
+        hash[district_name]["health_centers"][health_center] = {} if hash[district_name]["health_centers"][health_center].blank?
+        hash[district_name]["health_centers"][health_center]["total_clients_enrolled"] = total_clients_enrolled_by_hsa(hsa_id, end_date)
+        hash[district_name]["health_centers"][health_center]["new_enrollments"] = new_enrollments_by_hsa(hsa_id, start_date, end_date)
+        hash[district_name]["health_centers"][health_center]["on_time_anc_rate"] = something
+        hash[district_name]["health_centers"][health_center]["facility_delivery_rate"] = something
+      end
+      
+    end
+ end
+
+ def new_enrollments_by_hsa(hsa_id, start_date, end_date)
+   
+   patients_data = Patient.find_by_sql("
+      SELECT patient_id FROM encounter enc INNER JOIN encounter_type et ON
+      enc.encounter_type = et.encounter_type AND encounter_type != #{delivery_enc}
+      AND enc.provider_id = #{hsa_id}
+      INNER JOIN patient_program pp ON enc.patient_id = pp.patient_id AND
+      pp.program_id = #{anc_connect_program_id} AND
+      DATE(pp.date_enrolled) >= '#{start_date.to_date}' AND
+      DATE(pp.date_enrolled) <= '#{end_date.to_date} AND pp.voided=0
+      GROUP BY enc.patient_id'
+   ")
+ 
+   patient_ids = patients_data.collect{|p|p["patient_id"]}
+   return patient_ids
+ end
+
+ def total_clients_enrolled_by_hsa(hsa_id, end_date)
+    patients_data = Patient.find_by_sql("
+      SELECT patient_id FROM encounter enc INNER JOIN encounter_type et ON
+      enc.encounter_type = et.encounter_type AND encounter_type != #{delivery_enc}
+      AND enc.provider_id = #{hsa_id}
+      INNER JOIN patient_program pp ON enc.patient_id = pp.patient_id AND
+      pp.program_id = #{anc_connect_program_id} AND
+      DATE(pp.date_enrolled) <= '#{end_date.to_date} AND pp.voided=0
+      GROUP BY enc.patient_id'
+   ")
+
+   patient_ids = patients_data.collect{|p|p["patient_id"]}
+   return patient_ids
+ end
+ 
 end
