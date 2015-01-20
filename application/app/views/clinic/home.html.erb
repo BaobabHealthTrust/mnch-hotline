@@ -1,3 +1,21 @@
+<style>
+	#tabPageContainer {
+		height: 71%;
+	}
+	
+	#footer {
+		height: 134px;
+	}
+	
+	#bplan {
+		float:right;
+	}
+	
+	#bdel {
+		margin-left:100px;
+	}
+</style>
+
 <script language="javascript">
   tt_cancel_destination = "/clinic/irrelevantcall";
   tt_cancel_show = "/people/search";
@@ -32,6 +50,8 @@
     <% if ! session[:house_keeping_mode] == false  %>
         <option value="/clinic/new_call?task=followup" ttSize="130px">Follow up</option>
     <%end%>
-    <option value="/clinic/new_call?task=anc" ttSize="170px">ANC follow up</option>
+    <option value="/clinic/new_call?task=anc"  ttID="anc_follow" ttSize="170px">ANC Follow up</option>
+    <option ttID="bplan" value="/clinic/new_call?task=birth_plan" ttMleft="211px" ttFloat="left" ttSize="170px">Birth Plan</option>
+    <option ttID="bdel" value="/clinic/new_call?task=delivery" ttFloat="left" ttSize="130px">Delivery</option>
   </select>
 </div>
