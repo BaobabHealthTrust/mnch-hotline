@@ -80,3 +80,6 @@ Version 3 beta
 2015-01-16
   PB - Added patient_id and gestation age to anc_connect_program_clients view within db/hotline_schema_additions.sql
   PB - Formatted the HSA Performance report to look more readable
+2015-01-29
+  PB - TextIt patients do not have first names, therefore, I have added a check to ensure that these patients dont crash the system during followup
+
