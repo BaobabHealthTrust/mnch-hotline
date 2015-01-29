@@ -72,8 +72,7 @@ module Report
 
   def self.patient_demographics_query_builder(patient_type, date_range, district_id)
     # Get a list of health centers for the particular district
-    health_centers = '"' + get_nearest_health_centers(district_id).map(&:name).join('","') + '"'
-
+    health_centers = '"' + get_nearest_health_centers(district_id).map(&:name).uniq.join('","') + '"'
     child_maximum_age     = 9 # see definition of a female adult above
     nearest_health_center = PersonAttributeType.find_by_name("NEAREST HEALTH FACILITY").id
 
@@ -170,14 +169,19 @@ module Report
 
     patients_data
   end
-
+  
+  def self.make_health_centers_uniq(health_center_list)
+    return health_center_list.map(&:name).uniq
+  end
+  
   def self.all_patients_demographics(patients_data, date_range, district)
     nearest_health_centers  = []
     
-    mnch_health_facilities_list = get_nearest_health_centers(district)
+    mnch_health_facilities_list = self.make_health_centers_uniq(get_nearest_health_centers(district))
     mnch_health_facilities_list.map do |facility|
-      nearest_health_centers.push([facility["name"].humanize, 0])
+      nearest_health_centers.push([facility.humanize, 0])
     end
+ 
     new_patients_data  = {:new_registrations  => 0,
                           :catchment          => nearest_health_centers.sort,
                           :start_date         => date_range.first,
@@ -210,12 +214,12 @@ module Report
 
   def self.children_demographics(patients_data, date_range, district)
     nearest_health_centers  = []
-
-    mnch_health_facilities_list = get_nearest_health_centers(district)
+    
+    mnch_health_facilities_list = self.make_health_centers_uniq(get_nearest_health_centers(district))
     mnch_health_facilities_list.map do |facility|
-      nearest_health_centers.push([facility["name"].humanize, 0])
+      nearest_health_centers.push([facility.humanize, 0])
     end
-
+     
     new_patients_data  = {:new_registrations  => 0,
                           :catchment          => nearest_health_centers.sort,
                           :start_date         => date_range.first,
@@ -248,12 +252,12 @@ module Report
 
   def self.women_demographics(patients_data, date_range, district)
     nearest_health_centers  = []
-
-    mnch_health_facilities_list = get_nearest_health_centers(district)
+    
+    mnch_health_facilities_list = self.make_health_centers_uniq(get_nearest_health_centers(district))
     mnch_health_facilities_list.map do |facility|
-      nearest_health_centers.push([facility["name"].humanize, 0])
+      nearest_health_centers.push([facility.humanize, 0])
     end
-
+     
     new_patients_data  = {:new_registrations  => 0,
                           :catchment          => nearest_health_centers.sort,
                           :start_date         => date_range.first,

@@ -82,4 +82,4 @@ Version 3 beta
   PB - Formatted the HSA Performance report to look more readable
 2015-01-29
   PB - TextIt patients do not have first names, therefore, I have added a check to ensure that these patients dont crash the system during followup
-
+  PB - Ensured that the patient demographics report doesnt show repeated health centers
