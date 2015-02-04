@@ -90,7 +90,7 @@ function setConceptNamesAndValues(symptoms, observations, obs_type){
      :tt_onUnLoad => "setConceptNamesAndValues(danger_signs_values, 'second_danger_signs_id', 'danger_sign'); setSelectedItems('first_danger_signs_id', selectedValue('second_danger_signs_id'));",
 		 :helptext    => "Select additional danger signs if any" } %>
 
-    <% if @current_pregnancy_status == 'NOT PREGNANT' %>
+    <% if (@current_pregnancy_status == 'NOT PREGNANT' || @current_pregnancy_status == 'NOT pregnant' || @current_pregnancy_status == 'not pregnant') %>
     	<%@family_planning = ["","Yes", "No", "Dont Know","Didnt Ask"]%>
     	
     	<% options = {

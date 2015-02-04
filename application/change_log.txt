@@ -83,3 +83,4 @@ Version 3 beta
 2015-01-29
   PB - TextIt patients do not have first names, therefore, I have added a check to ensure that these patients dont crash the system during followup
   PB - Ensured that the patient demographics report doesnt show repeated health centers
+  PB - Ensured that the family planning details are captured for WCBA that are not pregnant
