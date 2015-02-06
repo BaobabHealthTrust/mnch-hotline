@@ -144,6 +144,10 @@ class Observation < ActiveRecord::Base
     formatted_name ||= self.concept_name.name rescue nil
     formatted_name ||= self.concept.concept_names.tagged(tags).first.name rescue nil
     formatted_name ||= self.concept.concept_names.first.name rescue 'Unknown concept name'
-    "<B>#{formatted_name.capitalize}</B>: #{self.answer_string(tags).capitalize}"
+    if formatted_name.nil?
+      obs_concept = ConceptName.find_by_sql("SELECT name from concept_name WHERE concept_id = #{self.concept_id} limit 1").map(&:name) rescue nil
+      formatted_name = (obs_concept.first == "Who is present as guardian?" ? "Guardian Present" : obs_concept.first) rescue nil
+    end
+    "<B>#{(formatted_name.nil? ? " " : formatted_name.capitalize)}</B>: #{self.answer_string(tags).capitalize}"
   end
 end
