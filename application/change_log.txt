@@ -87,3 +87,4 @@ Version 3 beta
 2015-02-07
   PB - Ensured that the system doesnt crash on dashboard if it is a child being registered
   PB - Fixed an error on a fix done on 2015-01-29 for TextIt patients
+  PB - Fixed the patient dashboard to show the right date when a client has delivered 
