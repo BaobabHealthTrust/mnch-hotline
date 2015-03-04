@@ -4,7 +4,7 @@ require 'json'
 require 'logger'
 
 def textit_integration
-  config = YAML.load_file("config/report.yml")
+  config = YAML.load_file(RAILS_ROOT + "/config/report.yml")
   path = config["config"]["anc_connect_file"]
   json = File.read(path)
   data = JSON.parse(json)
