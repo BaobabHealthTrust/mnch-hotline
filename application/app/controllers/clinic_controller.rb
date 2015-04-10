@@ -373,7 +373,12 @@ class ClinicController < ApplicationController
     end
     
     def showfollowuplist
-      district = session[:district]
+      if !session[:district].blank?
+        district = District.find_by_name("#{session[:district]}").name
+      else
+        district = Location.find_by_location_id("#{session[:location_id]}").state_province
+      end
+
       @follow_ups = FollowUp.get_follow_ups(district)
       
       render :template => 'clinic/followuplist', :layout => 'application'

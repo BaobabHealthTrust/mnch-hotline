@@ -184,7 +184,8 @@ class ApplicationController < ActionController::Base
   end
   
   def healthcenter
-    if session[:district]
+
+    if ! session[:district].blank?
       district_id = District.find_by_name("#{session[:district]}").id
     else
       district_name = Location.find_by_location_id("#{session[:location_id]}").state_province
