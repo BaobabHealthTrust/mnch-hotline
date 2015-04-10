@@ -19,7 +19,13 @@ class PatientsController < ApplicationController
       @date   = ""
     end
     
-    @patient_anc_followup = FollowUp.is_patient_on_anc_follow_ups(@patient.id, session[:district]) rescue false
+    if session[:district]
+      district_name = session[:district]
+    else
+      district_name = Location.find_by_location_id("#{session[:location_id]}").state_province
+    end
+
+    @patient_anc_followup = FollowUp.is_patient_on_anc_follow_ups(@patient.id, district_name) rescue false
     
     # Done this to get the code going. I guess that I have to review this
     if @status.nil?
@@ -27,7 +33,8 @@ class PatientsController < ApplicationController
       @date   = ""
     end
     #raise require_follow_up.map(&:patient_id).to_yaml
-    @patient_needs_follow_up = FollowUp.get_follow_ups(session[:district]).map(&:patient_id).include? @patient.id
+    
+    @patient_needs_follow_up = FollowUp.get_follow_ups(district_name).map(&:patient_id).include? @patient.id
     #raise FollowUp.get_follow_ups.to_yaml
     session[:mnch_protocol_required] = false
     session[:anc_connect_workflow_start] = false

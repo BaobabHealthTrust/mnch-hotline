@@ -184,7 +184,13 @@ class ApplicationController < ActionController::Base
   end
   
   def healthcenter
-    district_id = District.find_by_name("#{session[:district]}").id
+    if session[:district]
+      district_id = District.find_by_name("#{session[:district]}").id
+    else
+      district_name = Location.find_by_location_id("#{session[:location_id]}").state_province
+      district_id = District.find_by_name("#{district_name}").id
+    end
+    
     hc_conditions = ["name LIKE (?) AND district = ?", "%#{params[:search_string]}%", district_id]
     hc_array = []
     hc_array << [" "," "]

@@ -390,6 +390,7 @@ class ClinicController < ApplicationController
     
     def build_followups(follow_ups,encounter_name)
       @built_follow_ups = []
+
       follow_ups.each do |person|
           follow_up = {}
           follow_up[:patient_id] = person.patient_id
@@ -407,10 +408,11 @@ class ClinicController < ApplicationController
           
           last_encounters = last_anc_encounters(person.patient_id)
           encounter = EncounterType.find_by_name(encounter_name)
-          
+
           follow_up[:visit] = []
+
           last_encounters.each do |e|
-            name = e.given_name + " " + e.family_name
+            name = e.given_name + " " + e.family_name rescue nil
             if e.encounter_type == encounter.id
                 follow_up[:visit] << ["client",e.encounter_datetime.to_date, e.reason, name] 
             else
@@ -432,6 +434,7 @@ class ClinicController < ApplicationController
     end
 
     def show_delivery_follow_up_list
+
       session[:district] = params[:district] if session[:district].blank?
       district = session[:district]
       follow_ups = FollowUp.get_anc_delivery_follow_ups(district)
