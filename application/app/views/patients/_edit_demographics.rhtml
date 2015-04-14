@@ -31,6 +31,11 @@
       skipped[i] = 1;
     }
   }
+  
+  function set_ajaxURL_for_suggestions(url, filter_value) {
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', url + filter_value + "&search_string=");
+    listSuggestions(tstCurrentPage);
+  }
 </script>
 
 <% form_for :person, @person, :url => { :action => "update_demographics" } do |f| %>
@@ -56,16 +61,79 @@
   <%= text_field_tag "person[birth_day]",  nil, :field_type => 'number', :helpText => 'Birth Day', :absoluteMin => 1, :absoluteMax => 31, :condition => '($("person_birth_year").value != "Unknown") && ($("person_birth_month").value != "Unknown")', :tt_onLoad => "getDayOfMonthPicker($('person_birth_year').value,$('person_birth_month').value)"%>
   
 <%when 'current_district'%>
-  <%= text_field_tag "person[addresses][city_village]", params[:city_village], {:id => 'address2', :field_type => 'alpha', :helpText => 'Current Village', :ajaxURL => '/people/village_demographics?search_string=', :allowFreeText => true, :condition => '$("address2").value == "" || skipped[tstCurrentPage] == 1', :tt_onLoad => 'seen(tstCurrentPage);' } if ask_home_village %>
+ <%= text_field_tag "person[addresses][state_province]", params[:state_province], {
+    :id => 'state_province',
+    :field_type => 'alpha',
+    :helpText => 'Current District',
+    :tt_requireNextClick => false, 
+    :ajaxURL => '/people/district/District?search_string=',
+    :allowFreeText => false,
+    :tt_onLoad => "seen(tstCurrentPage)" } %>
+
+ <%= text_field_tag "person[addresses][county_district]",  params[:county_district], {
+      :id => 'ta',
+      :field_type => 'alpha', 
+      :helpText => 'Current Traditional Authority (TA)', 
+      :ajaxURL => '/people/traditional_authority_demographics/TraditionalAuthority?search_string=', 
+      :tt_onLoad => 'set_ajaxURL_for_suggestions("/people/traditional_authority_demographics/TraditionalAuthority?filter_value=" ,document.getElementById("state_province").value)',
+  :allowFreeText => false }%>
+
+  <%= text_field_tag "person[addresses][city_village]", params[:city_village], {
+       :id => 'address2', 
+       :field_type => 'alpha', 
+       :helpText => 'Current Village', 
+       :ajaxURL => '/people/village_demographics?search_string=', 
+       :allowFreeText => true, 
+       :condition => '$("address2").value == "" || skipped[tstCurrentPage] == 1', 
+       :tt_onLoad => 'set_ajaxURL_for_suggestions("/people/village_demographics?filter_value=" ,document.getElementById("ta").value);seen(tstCurrentPage);' } if ask_home_village %>
 
 <%when 'group_village_head' %>
  <%= text_field_tag "person[addresses][subregion]",  params[:group_village_head], {:field_type => 'alpha', :helpText => 'Group Village Head', :ajaxURL => '/people/village_demographics?search_string=', :allowFreeText => true }%>
 
 <%when 'current_ta'%>
-  <%= text_field_tag "person[addresses][county_district]",  params[:county_district], {:field_type => 'alpha', :helpText => 'Current Traditional Authority (TA)', :ajaxURL => '/people/traditional_authority/TraditionalAuthority?search_string=', :allowFreeText => true }%>
+  <%= text_field_tag "person[addresses][state_province]", params[:state_province], {
+    :id => 'state_province',
+    :field_type => 'alpha',
+    :helpText => 'Current District',
+    :tt_requireNextClick => false, 
+    :ajaxURL => '/people/district/District?search_string=',
+    :allowFreeText => false,
+    :tt_onLoad => "seen(tstCurrentPage)" } %>
+
+ <%= text_field_tag "person[addresses][county_district]",  params[:county_district], {
+      :id => 'ta',
+      :field_type => 'alpha', 
+      :helpText => 'Current Traditional Authority (TA)', 
+      :ajaxURL => '/people/traditional_authority_demographics/TraditionalAuthority?search_string=', 
+      :tt_onLoad => 'set_ajaxURL_for_suggestions("/people/traditional_authority_demographics/TraditionalAuthority?filter_value=" ,document.getElementById("state_province").value)',
+  :allowFreeText => false }%>
 
 <%when 'home_district'%>
-  <%= text_field_tag "person[addresses][address2]",  params[:address2], {:field_type => 'alpha', :helpText => 'Home Village', :ajaxURL => '/people/village_demographics?search_string=', :allowFreeText => true }%>
+  <%= text_field_tag "p['state_province_a']" , nil, {
+    :id => 'state_province_a',
+    :field_type => 'alpha',
+    :helpText => 'Home District',
+    :tt_requireNextClick => false, 
+    :ajaxURL => '/people/district/District?search_string=',
+    :allowFreeText => false,
+    :tt_onLoad => "seen(tstCurrentPage)" } %>
+
+ <%= text_field_tag "p['taa']" , nil, {
+      :id => 'taa',
+      :field_type => 'alpha', 
+      :helpText => 'Current Traditional Authority (TA)', 
+      :ajaxURL => '/people/traditional_authority_demographics/TraditionalAuthority?search_string=', 
+      :tt_onLoad => 'set_ajaxURL_for_suggestions("/people/traditional_authority_demographics/TraditionalAuthority?filter_value=" ,document.getElementById("state_province_a").value)',
+      :allowFreeText => false }%>
+
+  <%= text_field_tag "person[addresses][address2]",  params[:address2], {
+       :id => 'address2', 
+       :field_type => 'alpha', 
+       :helpText => 'Home Village', 
+       :ajaxURL => '/people/village_demographics?search_string=', 
+       :allowFreeText => true, 
+       :condition => '$("address2").value == "" || skipped[tstCurrentPage] == 1', 
+       :tt_onLoad => 'set_ajaxURL_for_suggestions("/people/village_demographics?filter_value=" ,document.getElementById("taa").value);seen(tstCurrentPage);' } if ask_home_village %>
 
 <%when 'primary_phone'%>
   <%= text_field_tag "person[attributes][cell_phone_number]",  params[:cell_phone_number], {:field_type => 'number',:helpText => 'Cell Phone Number', :allowFreeText => "true", :validationRule => "^0\\d{9}$|Unknown|Not Available", :validationMessage => "Not a valid phone number"}%>

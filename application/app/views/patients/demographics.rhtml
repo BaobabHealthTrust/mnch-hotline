@@ -48,7 +48,7 @@
     </td>
     <td class="label"><%= @patient.person.addresses.first.address2 %></td>
     <td>
-      <%= link_to "Current Village:", "/patients/edit_demographics?field=current_district&id=#{@patient.patient_id}" -%>
+      <%= link_to "Current Village/ residence:", "/patients/edit_demographics?field=current_district&id=#{@patient.patient_id}" -%>
     </td>
     <td class="label"><%= @patient.person.addresses.first.city_village %></td>
   </tr>
