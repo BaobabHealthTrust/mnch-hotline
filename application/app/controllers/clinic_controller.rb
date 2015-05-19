@@ -188,10 +188,18 @@ class ClinicController < ApplicationController
     end
 
     def clinichome
-       @tt_active_tab = params[:active_tab]
-       render :template => 'clinic/clinicadministration', :layout => 'clinic'
+      @tt_active_tab = params[:active_tab]
+      if params[:dashboard] = 'clinic_hsa_management'
+        render :template => 'clinic/clinic_hsa_management', :layout => 'clinic'
+      else
+        render :template => 'clinic/clinicadministration', :layout => 'clinic'
+      end
     end
 
+    def clinic_hsa_management
+      render :template => 'clinic/clinic_hsa_management', :layout => 'clinic'      
+    end
+    
     def clinicadministration
       render  :template => 'clinic/clinicadministration', :layout => 'clinic'
     end

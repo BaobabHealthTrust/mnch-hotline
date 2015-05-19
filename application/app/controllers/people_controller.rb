@@ -136,6 +136,19 @@ class PeopleController < ApplicationController
     render :text => traditional_authorities.join('') + "<li value='Other'>Other</li>" and return
   end
 
+  def health_center
+
+    district_id = District.find_by_name("#{params[:filter_value]}").id
+
+    health_center_conditions = ["name LIKE (?) AND district = ?", "%#{params[:search_string]}%", district_id]
+
+    health_centers = HealthCenter.find(:all,:conditions => health_center_conditions, :order => 'name')
+    health_centers = health_centers.map do |h_center|
+      "<li value='#{h_center.name}'>#{h_center.name}</li>"
+    end
+    render :text => health_centers.join('') + "<li value='Other'>Other</li>" and return
+  end
+
   def traditional_authority_demographics
 
     district_id = District.find_by_name("#{params[:filter_value]}").id
@@ -146,28 +159,40 @@ class PeopleController < ApplicationController
     traditional_authorities = traditional_authorities.map do |t_a|
       "<li value='#{t_a.name}'>#{t_a.name}</li>"
     end
+
     render :text => traditional_authorities.join('') + "<li value='Other'>Other</li>" and return
   end
   
   def village
     traditional_authority_id = TraditionalAuthority.find_by_name("#{params[:filter_value]}").id
     village_conditions = ["name LIKE (?) AND traditional_authority_id = ?", "%#{params[:search_string]}%", traditional_authority_id]
+    #generate a list for the hsa village list
+    
+    @villages = Village.find(:all, :conditions => village_conditions, :order => 'name')    
+    @villages_for_select = []
+    @villages.each do |v|
+      @villages_for_select << ['#{v.name}','#{v.name}']
+    end
 
-    villages = Village.find(:all,:conditions => village_conditions, :order => 'name')
-    villages = villages.map do |v|
+    #end generate
+    
+    @villages = @villages.map do |v|
       '<li value=' + v.name + '>' + v.name + '</li>'
     end
-    render :text => villages.join('') + "<li value='Other'>Other</li>" and return
+    
+
+    
+    render :text => @villages.join('') + "<li value='Other'>Other</li>" and return
   end
     
   def village_demographics
-    
+
     traditional_authority_id = TraditionalAuthority.find_by_name("#{params[:filter_value]}").id
-   
+
     village_conditions = ["name LIKE (?) AND traditional_authority_id = ?", "%#{params[:search_string]}%", traditional_authority_id]
-    #village_conditions = ["name LIKE (?)", "%#{params[:search_string]}%"]
 
     villages = Village.find(:all, :select => "DISTINCT name", :conditions => village_conditions, :order => 'name', :limit => 10)
+
     village = villages.uniq rescue []
     
     villages = villages.map do |v|
@@ -176,6 +201,31 @@ class PeopleController < ApplicationController
     
     
     render :text => villages.join('') + "<li value='Other'>Other</li>" and return
+  end
+  
+  def village_demographics1
+    
+    traditional_authority_id = TraditionalAuthority.find_by_name("#{params[:filter_value]}").id
+   
+    village_conditions = ["name LIKE (?) AND traditional_authority_id = ?", "%#{params[:search_string]}%", traditional_authority_id]
+    #village_conditions = ["name LIKE (?)", "%#{params[:search_string]}%"]
+
+    villages = Village.find(:all, :select => "DISTINCT name", :conditions => village_conditions, :order => 'name', :limit => 10)
+
+=begin
+    villages.each do |v|
+    
+      @villages_for_select << ["#{v.name}","#{v.name}"]
+    end
+=end
+    village = villages.uniq rescue []
+    
+    villages = villages.map do |v|
+      '<li value=' + v.name + '>' + v.name + '</li>'
+    end
+    
+    
+    villages = villages.join('') + "<li value='Other'>Other</li>" 
   end
   
   def healthcenter

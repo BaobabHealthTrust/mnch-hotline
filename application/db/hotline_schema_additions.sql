@@ -66,6 +66,20 @@ VIEW `hsa_names` AS
         (`hsa_villages` `hsa`
         JOIN `person_name` `pn` ON ((`pn`.`person_id` = `hsa`.`hsa_id`)));
 
+-- Retrieving registered list_hsa_names
+
+CREATE OR REPLACE 
+    ALGORITHM = UNDEFINED 
+    SQL SECURITY INVOKER
+VIEW `list_hsa_names` AS
+    SELECT DISTINCT
+        `hsa`.`hsa_id` AS `hsa_id`,
+        `hsa`.`given_name` AS `given_name`,
+        `hsa`.`family_name` AS `family_name`,
+        concat(`hsa`.`family_name`, ' ', `hsa`.`given_name`) AS `hsa_full_name`
+    FROM
+        `hsa_names` `hsa`;
+
 -- Retrieving max cell number for clients
 
 CREATE OR REPLACE 
