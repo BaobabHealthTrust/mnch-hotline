@@ -1,0 +1,97 @@
+<script>
+  var tt_cancel_destination = "/clinic?active_tab=tab3"
+</script>
+<style>
+  #table_one {
+    border-style: solid;
+    border-width: 1px 0px 1px 0px;
+    width: 100%;
+  }
+
+  #table_one td {
+    background-color: #CCCCCC;
+    padding-left: 10px;
+    border: medium none;
+    color: #000000;
+    font-family: Arial,sans-serif;
+    font-size: 13px;
+    padding-right: 2px;
+    text-align: left;
+    -moz-user-select: none;
+    height: auto;
+  }
+
+  .color_white {width:15%;}
+
+  .color_blue {
+    width: 15%;
+    background-color: #E6E6FF;
+  }
+
+  #table_one_header td{
+    background-color:lightgrey;
+  }
+<style type="text/css">
+  table { margin: 15px;}
+  td {
+    background: #F0F0F0;
+    font-size: 1.4em;
+    width: 250px;
+  }
+   a {text-decoration: none;}
+   a:visited{color:green;}
+  .label {
+    font-weight: bold;
+    padding: 25px;
+  }
+
+</style>
+
+<script type="text/javascript">
+
+  tt_cancel_destination = '<%=  "/hsa_management/show/#{@hsa.id}" %>';
+  tt_cancel_show = '<%=  "/hsa_management/show/#{@hsa.id}" %>';
+</script>
+<center><h2><%= "Demographics for #{@hsa_details[:name]} "%></h2></center>
+<h3> (You can update/change any detail by touching on the indicator and going through the update process)</h3>
+<table>
+  <tr>
+    <td>
+    <%= link_to "HSA Name:", "/hsa_management/edit_demographics?field=name&id=#{@hsa.person_id}" -%>
+    </td>
+    <td colspan = 3 class="label"><%=  @hsa_details[:name]  %></td>
+  </tr>
+  <tr>
+    <td>
+      <%= link_to "District:", "/hsa_management/edit_demographics?field=district&id=#{@hsa.person_id}" -%>
+    </td>
+    <td class="label"><%= @hsa_details[:district] rescue nil %></td>
+    <td>
+      <%= link_to "Health Centre:", "/hsa_management/edit_demographics?field=health_centre&id=#{@hsa.person_id}" -%>
+    </td>
+    <td class="label"><%= @hsa_details[:health_center].join("\n") rescue nil %></td>
+  </tr>
+  <tr>
+   <td>
+      <%= link_to "Current T/A:", "/hsa_management/edit_demographics?field=current_ta&id=#{@hsa.person_id}" -%>
+    </td>
+    <td class="label"><%#= @hsa.addresses.first.county_district %></td>
+    <td>
+      <%= link_to "Villages:", "/hsa_management/edit_demographics?field=villages&id=#{@hsa.person_id}" -%>
+    </td>
+    <td class="label"><%= @hsa_details[:villages].join("\n") rescue nil %></td>
+    <%#= raise @hsa_details[:villages].join("\n").to_yaml %>
+  </tr>
+  <tr>
+    <td>
+      <%= link_to "Cell phone number:", "/hsa_management/edit_demographics?field=primary_phone&id=#{@hsa.person_id}" -%>
+    </td>
+    <td class="label"><%= @hsa_details[:cell_phone] %></td>
+    <td>
+      <%= link_to "Home phone number:", "/hsa_management/edit_demographics?field=secondary_phone&id=#{@hsa.person_id}" -%>
+    </td>
+    <td class="label"><%= @hsa_details[:office_phone] %></td>
+  </tr>
+
+</table>
+

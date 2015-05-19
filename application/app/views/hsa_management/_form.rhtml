@@ -1,0 +1,204 @@
+<style>
+
+  .tt_controls_month_of_birth #num , #apostrophe { display:none; }
+
+  .tt_controls_home_village #space , #apostrophe { display:inline; }
+
+  .tt_controls_current_traditional_authority_ta #space { display:inline; }
+
+  .tt_controls_current_village_residence #space { display:inline; }
+
+  .tt_controls_year_of_birth #char { display:none }
+
+  .tt_controls_year_of_birth #Unknown { display:inline }
+
+  .tt_controls_age_estimate #char, #Unknown { display:none }
+
+  .tt_controls_month_of_birth .keyboard{display:none;}
+  #tt_page_month_of_birth .options{height:560px;}
+  #tt_page_month_of_birth .options li{font-size:30px;}
+
+  .tt_controls_occupation .keyboard{display:none;}
+    #tt_page_occupation .options{height:500px;}
+    #tt_page_occupation .options li{font-size:30px;}
+    #space {display:inline;}
+
+  .tt_controls_cell_phone_number #num , #plus, #char, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+
+  .tt_controls_cell_phone_number #Unknown { display:inline }
+
+  .tt_controls_home_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+
+  .tt_controls_home_phone_number #Unknown { display:inline }
+
+  .tt_controls_office_phone_number #num , #plus, #apostrophe, #star, #abc, #date, #slash, #minus, #comma, #percent, #decimal { display:none; }
+  .tt_controls_office_phone_number #Unknown { display:inline }
+</style>
+
+<script>
+  var tt_cancel_destination = "/clinic?active_tab=tab3"
+
+  var skipped = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  
+  function seen(page) {
+    for (var i = page; i >= 0; i--) {
+      skipped[i] = 1;
+    }
+  }
+
+
+  function validateAge(){
+    var today = new Date();
+    var dob = new Date($('person_birth_year').value,$('person_birth_month').value -1,$('person_birth_day').value);
+    
+    if (dob > today) {
+      alert("I am here")
+      return false
+    }
+    else if (($('gender').value == 'M') && ((today.getFullYear()-dob.getFullYear()) > 6)) {
+      return false
+    }
+    else {
+      return true
+    }
+  }
+  
+  function validPhoneNum(type){
+    text = document.getElementById('tt_page_' + type).getElementsByTagName("input")[0]
+    if (text.value == 'Unknown')
+      return true
+
+    if (text.value.match("^0\\d{10}$"))
+      return false
+
+    if (text.value.length == 10){
+      return true
+    }else if (text.value.length == 8){
+      return true
+    }else if (text.value.length == 7){
+      return true
+    }
+
+    return false
+  }
+  
+  function set_ajaxURL_for_suggestions(url, filter_value) {
+    $('touchscreenInput'+tstCurrentPage).setAttribute('ajaxURL', url + filter_value + "&search_string=");
+    listSuggestions(tstCurrentPage);
+  }
+  
+  function getHsaVillages(){
+    var district = $('state_province').value;
+    var trad_authority = $('ta').value;
+
+    var myDistrictsArray = "<%= @all_districts.to_a %>";    
+    alert(myDistrictsArray);
+  }
+</script>
+
+<% form_for :person, @person, :url => { :action => "create" } do |f| %>
+
+    <p><label for="person_name_given_name">First name</label><br/>
+    <%= text_field 'person_name', 'given_name', 
+        :ajaxURL => '/person_names/given_names?search_string=', 
+        :value => @hsa_first_name ,
+        :allowFreeText => true%></p>
+
+    <p><label for="person_name_middle_name">Middle name</label><br/>
+    <%= text_field 'person_name', 'middle_name', 
+        :xhelpText => 'Middle name', 
+        :ajaxURL => '/search/User?field=middle_name&value=' ,
+        :value => @hsa_middle_name, 
+        :allowFreeText => true %></p>
+
+    <p><label for="person_name_family_name">Last name</label><br/>
+    <%= text_field 'person_name', 'family_name', 
+        :ajaxURL => '/person_names/family_names?search_string=', 
+        :value => @hsa_last_name, 
+        :allowFreeText => true%></p>  
+
+    <%= text_field_tag "hsa[cell_phone_number]",  params[:cell_phone_number],
+          {
+            :field_type => 'number',
+            :helpText => 'Cell Phone Number',
+            :validationRule => "^0\\d{7}$|Unknown|Not Available|N\/A|^0\\d{9}$",
+            :validationMessage => "Not a valid phone number",
+            :tt_pageStyleClass => "nota",
+            :id => 'cell_phone_number'
+          }%>
+
+    <%= text_field_tag "hsa[home_phone_number]",  params[:home_phone_number],
+          {
+            :field_type => 'number',
+            :helpText => 'Home Phone Number',
+            :validationRule => "^0\\d{7}$|Unknown|Not Available|N\/A|^0\\d{9}$",
+            :validationMessage => "Not a valid phone number",
+            :tt_pageStyleClass => "nota",
+            :id => 'home_phone_number'
+          }%>
+
+   <%= text_field_tag "hsa[office_phone_number]",  params[:office_phone_number],
+          {
+            :field_type => 'number',
+            :helpText => 'Office Phone Number',
+            :validationRule => "^0\\d{7}$|Unknown|Not Available|N\/A|^0\\d{9}$",
+            :validationMessage => "Not a valid phone number",
+            :tt_pageStyleClass => "nota",
+            :id => 'office_phone_number'
+          }
+      %>
+
+     <%= text_field_tag "person[addresses][state_province]", params[:state_province], {
+        :id => 'state_province',
+        :field_type => 'alpha',
+        :helpText => 'Current District',
+        :tt_requireNextClick => false, 
+        :ajaxURL => '/people/district/District?search_string=',
+        :allowFreeText => false,
+        :tt_onLoad => "seen(tstCurrentPage)" } %>
+
+     <%= text_field_tag "hsa[health_center]",  params[:health_center], {
+          :id => 'health_center',
+          :field_type => 'alpha', 
+          :helpText => 'Health Center', 
+          :ajaxURL => '/people/health_center/HealthCenter?search_string=', 
+          :tt_onLoad => 'set_ajaxURL_for_suggestions("/people/health_center/HealthCenter?filter_value=" ,document.getElementById("state_province").value)',
+      :allowFreeText => false }%>
+
+     <%= text_field_tag "person[addresses][county_district]",  params[:county_district], {
+          :id => 'ta',
+          :field_type => 'alpha', 
+          :helpText => 'Current Traditional Authority (TA)', 
+          :ajaxURL => '/people/traditional_authority_demographics/TraditionalAuthority?search_string=', 
+          :tt_onLoad => 'set_ajaxURL_for_suggestions("/people/traditional_authority_demographics/TraditionalAuthority?filter_value=" ,document.getElementById("state_province").value)',
+      :allowFreeText => false }%>
+
+      <%= text_field_tag "person[addresses][city_village]", params[:city_village], {
+           :id => 'address2', 
+           :field_type => 'alpha', 
+           :helpText => 'Current Village',
+           :ajaxURL => '/people/village_demographics?search_string=', 
+           :allowFreeText => true, 
+           :condition => '$("address2").value == "" || skipped[tstCurrentPage] == 1', 
+           :tt_onLoad => 'set_ajaxURL_for_suggestions("/people/village_demographics?filter_value=" ,document.getElementById("ta").value);seen(tstCurrentPage);' } if ask_home_village %>
+
+       <%#= select_tag :currentdistrict, options_for_select(@districts.sort), 
+        {:multiple     => true, 
+         :helpText => 'Select the district to base the report on',
+         :tt_onLoad => "getHsaVillages();"
+         }%>
+  <!-- Make sure "new" patient is created -->
+
+  <%= hidden_field_tag "person[patient][new]", "" %>
+
+  <%= hidden_field_tag "relation", params[:relation] %>
+  
+  <%= hidden_field_tag "person[update_info][update_information]", params[:update_information] %>
+  
+  <%= hidden_field_tag "person[update_info][update_id]", params[:update_id] %>
+  
+  <%= hidden_field_tag :identifier, params[:identifier] %>
+
+  <%= submit_tag "Create person" %>
+  
+<% end %>

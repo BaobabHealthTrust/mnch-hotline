@@ -1,0 +1,77 @@
+<script>
+   var tt_cancel_destination = "/clinic?active_tab=tab3"
+   var tt_cancel_show = "/clinic?active_tab=tab3"
+</script>
+<style>
+  h1 { padding-left:10px; }
+
+  .user_info {
+    background-color: #DDDDDD;
+    height: 461px;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    margin-top: 1px;
+    font-size:25px;
+  }
+
+  .userdata {
+    background: none repeat scroll 0 0 white;
+    border: 1px solid black;
+    margin: 10px;
+    width: 98%;
+  }
+
+  .userdata td, .userdata th {
+    border-width: 0px;
+    border-style:solid;
+  }
+  
+  th { text-align:left; }
+
+  .blue { background-color:#E6E6FF; }
+
+  .user_info button {
+    margin-top: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 0 4px;
+    float:right;
+  }
+</style>
+
+<br />
+<h1>User information</h1>
+<br />
+<div class = 'user_info'>
+<table class = 'userdata'>
+  <tr>
+    <th class='blue'>HSA Name:&nbsp;</th>
+    <td class='blue'>&nbsp;<%=@person.name%></td>
+  </tr>
+  <tr>
+    <th>Phone numbers:&nbsp;</th>
+    <td>&nbsp;<%=@phone_numbers.join('/ ') rescue '&nbsp;'%></td>
+  </tr>
+  <tr>
+    <th class='blue'>District:&nbsp;</th>
+    <td class='blue'>&nbsp;<%=@user.first_name%></td>
+  </tr>
+  <tr>
+    <th>Health centres:&nbsp;</th>
+    <td>&nbsp;<%=@user.last_name%></td>
+  </tr>
+  <tr>
+    <th>Villages:&nbsp;</th>
+    <td>&nbsp;<%=@user.last_name%></td>
+  </tr>
+  <tr>
+    <th class='blue'>Date created:&nbsp;</th>
+    <td class='blue'>&nbsp;<%=@user.date_created.strftime('%A  %d, %B, %Y') rescue '&nbsp;'%></td>
+  </tr>
+</table>
+<br />
+  <button id="edit" class="silver" style="margin-top:10px;"
+        onmousedown="document.location = '/hsa_management/edit/<%= @user.id -%>'"><span>Edit HSA</span>
+  </button>
+</div>
+

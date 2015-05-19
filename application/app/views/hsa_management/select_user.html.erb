@@ -1,0 +1,17 @@
+<script type="text/javascript">
+  var tt_cancel_destination = "/clinic?active_tab=tab3"
+</script>
+ 
+  <% form_tag "search_user", :method => :post do %>
+    <%
+          @hsa_names =  []
+
+          HsaName.find_by_sql("select hsa_id, hsa_full_name from list_hsa_names").each do |hsa|
+                @hsa_names << [hsa.hsa_full_name, hsa.hsa_id]
+          end
+    %>
+  
+    <%= select_tag "hsa_name", options_for_select(@hsa_names.sort), {:helpText => 'Select HSA name', :id => "hsa_name"}%>
+    
+    <%= submit_tag "Find HSA" %>
+  <% end %>

@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <%= javascript_include_tag "jquery-1.3.2.min" %>
+    <%= stylesheet_link_tag "dashboard" %>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+      })
+    </script>
+    <style type="text/css">
+      #stats {
+        width:98%;
+        border:1px solid black;
+        margin:10px;
+        background:white;
+      }
+      #stats td, #stats th {
+        text-align:center;
+      }
+    </style>
+  </head>
+<!--<div id="tab" style="height: 461px;">-->
+<body style="background-color: #ffffff">
+      <!--div style=""-->
+      <div id="buttons" style="height: 304px;margin-top: 200px;margin-left: 20px;">
+        <h2>Select administrative task</h2>
+        <base target="_parent">
+
+            <% if User.current_user.admin? %>
+              <button style="margin: 5px 0px 0px; min-width: 250px;"
+                      onMouseDown="window.parent.location= '/hsa_management/new'"
+                      target="_parent "class="blue"><span>Create HSA</span></button><br/>
+                      
+              <button style="margin: 5px 0px 0px; min-width: 250px;"
+                      onMouseDown="window.parent.location = '/hsa_management/select_user'"
+                      target="_parent" class="blue"><span>Edit HSA</span></button><br/>
+            <%end%>
+
+        </base>
+      </div>
+      <!--/div-->
+    
+  </body>
+</html>
+
