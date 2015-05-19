@@ -301,36 +301,55 @@ class HsaManagementController < ApplicationController
 
   def update_demographics
     #find_by_person_id(params[:id])
-    @hsa = User.find(params[:person_id])
+    @hsa = Person.find(params[:person_id])
+    @user = User.find(params[:person_id])
 
-    #update person_names
-    
-    #update username
-=begin    
-    if params[:user]['username']
-      @user.update_attributes(:username => params[:user]['username'])
+    case params[:field]
+      when "name"
+        @hsa_first_name = params[:person][:names][:given_name]
+        @hsa_middle_name = params[:person][:names][:middle_name]
+        @hsa_last_name = params[:person][:names][:family_name]
+        @hsa_name = @hsa_first_name + @hsa_last_name
+        
+        names_params =  {"given_name" => params[:person][:names][:given_name].to_s,"family_name" => params[:person][:names][:family_name].to_s, "middle_name" => params[:person][:names][:middle_name]}
+        @hsa.names.first.update_attributes(names_params) if names_params
+        
+        #update the username
+        @user.update_attributes(:username => "#{@hsa_name.downcase}")
+        
+        #update the hsa_name
+        update_hsa = AllHsaName.find_by_sql("UPDATE all_hsa_name SET given_name = #{params[:person][:names][:given_name]}, family_name = #{params[:person][:names][:family_name]} WHERE hsa_id = #{@hsa.id}")
+
+      when "primary_phone"
+
+        attribute_type = PersonAttributeType.find_by_name("Cell Phone Number").id
+        person_attribute = @hsa.person_attributes.find_by_person_attribute_type_id(attribute_type)
+        if person_attribute.blank?
+          attribute = {'value' => params[:person][:attributes][:cell_phone_number],
+                       'person_attribute_type_id' => attribute_type,
+                       'person_id' => @hsa.id}
+          PersonAttribute.create(attribute)
+        else
+          person_attribute.update_attributes({'value' => params[:person][:attributes][:cell_phone_number]})
+        end
+
+      when "secondary_phone"
+        attribute_type = PersonAttributeType.find_by_name("Office Phone Number").id
+        person_attribute = @hsa.person_attributes.find_by_person_attribute_type_id(attribute_type)
+        if person_attribute.blank?
+          attribute = {'value' => params[:person][:attributes][:home_phone_number],
+                       'person_attribute_type_id' => attribute_type,
+                       'person_id' => @hsa.id}
+          PersonAttribute.create(attribute)
+        else
+          person_attribute.update_attributes({'value' => params[:person][:attributes][:home_phone_number]})
+        end
+
+      when "current_district"
+        #raise params.to_yaml        
     end
 
-    PersonName.find(:all,:conditions =>["voided = 0 AND person_id = ?",@user.id]).each do | person_name |
-      person_name.voided = 1
-      person_name.voided_by = User.current_user.id
-      person_name.date_voided = Time.now()
-      person_name.void_reason = 'Edited name'
-      person_name.save
-    end rescue nil
-
-    person_name = PersonName.new()
-    person_name.family_name = params[:person_name]["family_name"]
-    person_name.given_name = params[:person_name]["given_name"]
-    person_name.person_id = @user.id
-    person_name
-    if person_name.save
-      flash[:notice] = 'User was successfully updated.'
-      redirect_to :action => 'show', :id => @user.id and return
-    end rescue nil
-=end
-    flash[:notice] = "OOps! User was not updated!."
-    render :action => 'edit_demographics', :id => @hsa.id
+      redirect_to :action => 'edit', :id => @hsa.id and return
   end
 
   def destroy
