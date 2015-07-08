@@ -18,34 +18,42 @@ class PatientsController < ApplicationController
       @status = ""
       @date   = ""
     end
-    
+
     if session[:district]
       district_name = session[:district]
     else
       district_name = Location.find_by_location_id("#{session[:location_id]}").state_province
     end
 
-    @patient_anc_followup = FollowUp.is_patient_on_anc_follow_ups(@patient.id, district_name) rescue false
-    
+		#@patient_anc_followup = FollowUp.is_patient_on_anc_follow_ups(@patient.id, session[:district]) rescue false
+
+    patient_program = PatientProgram.find_by_patient_id_and_program_id_and_voided(@patient.id, 19, 0)
+
+    if patient_program.nil?
+      @patient_anc_followup = false
+    else
+      @patient_anc_followup = FollowUp.client_needs_followup(@patient.id, session[:district])
+    end
+
     # Done this to get the code going. I guess that I have to review this
     if @status.nil?
       @status = ""
       @date   = ""
     end
-    #raise require_follow_up.map(&:patient_id).to_yaml
-    
-    @patient_needs_follow_up = FollowUp.get_follow_ups(district_name).map(&:patient_id).include? @patient.id
-    #raise FollowUp.get_follow_ups.to_yaml
+
+    #@patient_needs_follow_up = FollowUp.get_follow_ups(session[:district]).map(&:patient_id).include? @patient.id
+    @patient_needs_follow_up = FollowUp.get_client_follow_ups(@patient.id, session[:district]).include? @patient.id
+
     session[:mnch_protocol_required] = false
     session[:anc_connect_workflow_start] = false
     anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
     @anc_connect_id = @patient.patient_identifiers.find(:last, :conditions => ["identifier_type =?",
                       anc_identifier_type.id]).identifier rescue nil
     program_id = Program.find_by_name("ANC Connect Program").program_id
-    
+
     @patient_anc_program = PatientProgram.find(:last, :conditions => ["patient_id =? AND
                  program_id=?", @patient.id, program_id])
-    
+
     session.delete(:edit_pregnancy_encounter) if (session[:edit_pregnancy_encounter])
     session.delete(:recent_anc_connect) if (session[:recent_anc_connect])
     session.delete(:anc_visit_pregnancy_encounter) if (session[:anc_visit_pregnancy_encounter])
@@ -56,7 +64,7 @@ class PatientsController < ApplicationController
      unless encounter_name.blank?
        if (encounter_name.match(/PREGNANCY STATUS/i))
          anc_connect_program_id = Program.find_by_name("ANC CONNECT PROGRAM").id
-         patient_program = PatientProgram.find(:last, :conditions => ["program_id =? AND 
+         patient_program = PatientProgram.find(:last, :conditions => ["program_id =? AND
           patient_id =? AND DATE(date_enrolled) =?", anc_connect_program_id, @patient.id, Date.today])
           unless patient_program.blank?
             patient_program.void("Removed from ANC connect program")
@@ -116,7 +124,7 @@ class PatientsController < ApplicationController
       @prescriptions = restriction.filter_orders(@prescriptions)
       @historical = restriction.filter_orders(@historical)
     end
-    render :template => 'dashboards/treatment', :layout => 'dashboard' 
+    render :template => 'dashboards/treatment', :layout => 'dashboard'
   end
 
   def guardians
@@ -129,7 +137,7 @@ class PatientsController < ApplicationController
 		  @restricted.each do |restriction|
 		    @relationships = restriction.filter_relationships(@relationships)
 		  end
-    	render :template => 'dashboards/relationships', :layout => 'dashboard' 
+    	render :template => 'dashboards/relationships', :layout => 'dashboard'
   	end
   end
 
@@ -145,20 +153,20 @@ class PatientsController < ApplicationController
 		  @restricted.each do |restriction|
 		    @relationships = restriction.filter_relationships(@relationships)
 		  end
-    	render :template => 'dashboards/relationships', :layout => 'dashboard' 
+    	render :template => 'dashboards/relationships', :layout => 'dashboard'
   	end
   end
 
   def problems
-    render :template => 'dashboards/problems', :layout => 'dashboard' 
+    render :template => 'dashboards/problems', :layout => 'dashboard'
   end
 
   def personal
-    render :template => 'dashboards/personal', :layout => 'dashboard' 
+    render :template => 'dashboards/personal', :layout => 'dashboard'
   end
 
   def history
-    render :template => 'dashboards/history', :layout => 'dashboard' 
+    render :template => 'dashboards/history', :layout => 'dashboard'
   end
 
   def programs
@@ -168,43 +176,43 @@ class PatientsController < ApplicationController
       @programs = restriction.filter_programs(@programs)
     end
     flash.now[:error] = params[:error] unless params[:error].blank?
-    render :template => 'dashboards/programs', :layout => 'dashboard' 
+    render :template => 'dashboards/programs', :layout => 'dashboard'
   end
 
   def graph
-    render :template => "graphs/#{params[:data]}", :layout => false 
+    render :template => "graphs/#{params[:data]}", :layout => false
   end
 
-  def void 
+  def void
     @encounter = Encounter.find(params[:encounter_id])
     @encounter.void
     show and return
   end
-  
+
   def print_registration
-    print_and_redirect("/patients/national_id_label/?patient_id=#{@patient.id}", next_task(@patient))  
+    print_and_redirect("/patients/national_id_label/?patient_id=#{@patient.id}", next_task(@patient))
   end
-  
+
   def print_visit
-    print_and_redirect("/patients/visit_label/?patient_id=#{@patient.id}", next_task(@patient))  
+    print_and_redirect("/patients/visit_label/?patient_id=#{@patient.id}", next_task(@patient))
   end
-  
+
   def print_mastercard_record
-    print_and_redirect("/patients/mastercard_record_label/?patient_id=#{@patient.id}&date=#{params[:date]}", "/patients/visit?date=#{params[:date]}&patient_id=#{params[:patient_id]}")  
+    print_and_redirect("/patients/mastercard_record_label/?patient_id=#{@patient.id}&date=#{params[:date]}", "/patients/visit?date=#{params[:date]}&patient_id=#{params[:patient_id]}")
   end
-  
+
   def national_id_label
     print_string = @patient.national_id_label rescue (raise "Unable to find patient (#{params[:patient_id]}) or generate a national id label for that patient")
     send_data(print_string,:type=>"application/label; charset=utf-8", :stream=> false, :filename=>"#{params[:patient_id]}#{rand(10000)}.lbl", :disposition => "inline")
   end
-  
+
   def visit_label
     print_string = @patient.visit_label rescue (raise "Unable to find patient (#{params[:patient_id]}) or generate a visit label for that patient")
     send_data(print_string,:type=>"application/label; charset=utf-8", :stream=> false, :filename=>"#{params[:patient_id]}#{rand(10000)}.lbl", :disposition => "inline")
   end
 
   def mastercard_record_label
-    print_string = @patient.visit_label(params[:date].to_date) 
+    print_string = @patient.visit_label(params[:date].to_date)
     send_data(print_string,:type=>"application/label; charset=utf-8", :stream=> false, :filename=>"#{params[:patient_id]}#{rand(10000)}.lbl", :disposition => "inline")
   end
 
@@ -214,7 +222,7 @@ class PatientsController < ApplicationController
     @arv_start_number = params[:arv_start_number]
     @arv_end_number = params[:arv_end_number]
     @show_mastercard_counter = false
-    
+
     if params[:patient_id].blank?
 
        @show_mastercard_counter = true
@@ -246,9 +254,9 @@ class PatientsController < ApplicationController
     end
     render :layout => "menu"
   end
-  
+
   def visit
-    @patient_id = params[:patient_id] 
+    @patient_id = params[:patient_id]
     @date = params[:date].to_date
     @patient = Patient.find(@patient_id)
     @visits = Mastercard.visits(@patient,@date)
@@ -259,13 +267,13 @@ class PatientsController < ApplicationController
     next_available_arv_number = PatientIdentifier.next_available_arv_number
     render :text => next_available_arv_number.gsub(Location.current_arv_code,'').strip rescue nil
   end
-  
+
   def assigned_arv_number
     assigned_arv_number = PatientIdentifier.find(:all,:conditions => ["voided = 0 AND identifier_type = ?",
     PatientIdentifierType.find_by_name("ARV Number").id]).collect{|i|
       i.identifier.gsub(Location.current_arv_code,'').strip.to_i
     } rescue nil
-    render :text => assigned_arv_number.sort.to_json rescue nil 
+    render :text => assigned_arv_number.sort.to_json rescue nil
   end
 
   def mastercard_modify
@@ -285,14 +293,14 @@ class PatientsController < ApplicationController
           patient_identifiers = PatientIdentifier.find(:all,
                                 :conditions => ["voided = 0 AND identifier_type = ? AND patient_id = ?",type.to_i,patient.id])
 
-          patient_identifiers.map{|identifier|  
+          patient_identifiers.map{|identifier|
             identifier.voided = 1
             identifier.void_reason = "given another number"
             identifier.date_voided  = Time.now()
-            identifier.voided_by = User.current_user.id  
+            identifier.voided_by = User.current_user.id
             identifier.save
           }
-              
+
           identifier = params['identifiers'][0][:identifier].strip
           if identifier.match(/(.*)[A-Z]/i).blank?
             params['identifiers'][0][:identifier] = "#{Location.current_arv_code} #{identifier}"
@@ -332,7 +340,7 @@ class PatientsController < ApplicationController
   def previous_symptoms
     @previous_symptoms  = Encounter.get_previous_symptoms(params[:patient_id])
     @encounter_dates = @previous_symptoms.map{|encounter| encounter.encounter_datetime.strftime("%d-%b-%Y")}.uniq.reverse.first(5) rescue []
-    
+
     render :layout => false
   end
 
@@ -341,7 +349,7 @@ class PatientsController < ApplicationController
     @recent_calls = Encounter.get_recent_calls(params[:patient_id]).uniq.sort.reverse.first(5)
     @call_times =[]
     @recent_calls.each{|call|
-      
+
       if call.to_s == session[:call_id].to_s
           @call_times << "Start: " + session[:call_start_timestamp].strftime("%d-%b-%Y:%H:%M").to_s + " End: Still Active"
       else
@@ -352,7 +360,7 @@ class PatientsController < ApplicationController
           @call_times << "Time not Logged"
         end
       end
-      
+
     }
     render :layout => false
   end
@@ -390,7 +398,7 @@ class PatientsController < ApplicationController
     anc_connect_program_id = Program.find_by_name("ANC CONNECT PROGRAM").program_id
     patient_anc_program = PatientProgram.find(:last, :conditions => ["patient_id =? AND
                  program_id=?", params[:person_id], anc_connect_program_id])
-    
+
     if !HsaVillage.is_patient_village_in_anc_connect(params[:person_id],session[:district]) && patient_anc_program.present?
       anc_patient_program = PatientProgram.find_by_patient_id_and_program_id_and_voided(params[person_id],anc_connect_program_id,0)
       if anc_patient_program.present?
@@ -424,7 +432,7 @@ class PatientsController < ApplicationController
           unless program[:states].blank?
             program[:states][0]['start_date'] = date_enrolled
           end
-          
+
           (program[:states] || []).each {|state| patient_program.transition(state) }
         end
       end
@@ -454,17 +462,17 @@ class PatientsController < ApplicationController
   end
 
   def anc_info
-  
+
     @options = [
                   ["ANC", "anc_visit"],
                   ["Birth Plan", "birth_plan"],
                   ["Delivery"]
               ]
-          
+
 		if session[:house_keeping_mode] && session[:report_task].to_s.upcase == "delivery".upcase
-    		@options = [["Delivery"]]	
+    		@options = [["Delivery"]]
 		end
-		
+
     if (request.method == :post)
         anc_update_encs = params[:anc_update_encs].sort
         encounters_to_update = []
@@ -481,14 +489,14 @@ class PatientsController < ApplicationController
             session[:clinic_dashboard] = true
             url = "/encounters/new/#{encounter_name}/#{params[:patient_id]}/#{params[:visit]}/#{params[:hsa_id]}"
         else
-            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}" 
+            url = "/encounters/new/#{encounter_name}?patient_id=#{params[:patient_id]}"
         end
-        
+
         redirect_to(url) and return
-        
+
     end
   end
-  
+
   def check_if_number_exists
     anc_identifier_type = PatientIdentifierType.find_by_name("ANC Connect ID")
     anc_number = params[:anc_number]
@@ -504,12 +512,12 @@ class PatientsController < ApplicationController
           render :text => "cancel" and return #Do not continue saving. Someone is owning it.
         end
     end
-    
+
   end
-  
-  
-  
+
+
+
 private
-  
-  
+
+
 end

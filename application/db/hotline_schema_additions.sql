@@ -13,11 +13,11 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 -- Retrieving all last anc visit
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `last_anc_visits` AS
-    SELECT 
+    SELECT
         `e`.`encounter_id` AS `encounter_id`,
         `e`.`patient_id` AS `patient_id`,
         `e`.`encounter_datetime` AS `encounter_datetime`,
@@ -33,13 +33,13 @@ VIEW `last_anc_visits` AS
             AND (`e`.`voided` = 0));
 
 -- retrieving anc connect maximum dates
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `anc_connect_max_edd_dates` AS
-    SELECT 
+    SELECT
         `pp`.`patient_id`,
-        (SELECT 
+        (SELECT
                 max(`ob`.`obs_id`)
             FROM
                 `obs` `ob`
@@ -54,8 +54,8 @@ VIEW `anc_connect_max_edd_dates` AS
 
 -- Retrieving registered hsa_names
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `hsa_names` AS
     SELECT DISTINCT
@@ -68,8 +68,8 @@ VIEW `hsa_names` AS
 
 -- Retrieving registered list_hsa_names
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `list_hsa_names` AS
     SELECT DISTINCT
@@ -82,13 +82,13 @@ VIEW `list_hsa_names` AS
 
 -- Retrieving max cell number for clients
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `max_cell_number` AS
-    SELECT 
+    SELECT
         `pp`.`patient_id`,
-        (SELECT 
+        (SELECT
                 max(`pa`.`person_attribute_id`)
             FROM
                 `person_attribute` `pa`
@@ -103,11 +103,11 @@ VIEW `max_cell_number` AS
 
 -- Retrieving next anc visits for clients
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `next_anc_visits` AS
-    SELECT 
+    SELECT
         `e`.`encounter_id` AS `encounter_id`,
         `e`.`patient_id` AS `patient_id`,
         `e`.`encounter_datetime` AS `encounter_datetime`,
@@ -124,11 +124,11 @@ VIEW `next_anc_visits` AS
 
 -- Retrieving Locations where Delivery took place
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `delivery_locations` AS
-    SELECT 
+    SELECT
         `e`.`encounter_id` AS `encounter_id`,
         `e`.`patient_id` AS `patient_id`,
         `e`.`encounter_datetime` AS `encounter_datetime`,
@@ -145,11 +145,11 @@ VIEW `delivery_locations` AS
 
 -- Retrieving Delivery Dates
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `delivery_dates` AS
-    SELECT 
+    SELECT
         `e`.`encounter_id` AS `encounter_id`,
         `e`.`patient_id` AS `patient_id`,
         `e`.`encounter_datetime` AS `encounter_datetime`,
@@ -166,13 +166,13 @@ VIEW `delivery_dates` AS
 
 -- Retrieving next visit date list
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `anc_connect_next_visit_date_list` AS
-    SELECT 
+    SELECT
         `pp`.`patient_id`,
-        (SELECT 
+        (SELECT
                 max(`ob`.`obs_id`)
             FROM
                 `obs` `ob`
@@ -187,11 +187,11 @@ VIEW `anc_connect_next_visit_date_list` AS
 
 -- Retrieving max expected due date
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `anc_connect_max_edd` AS
-    SELECT 
+    SELECT
         `pp`.`patient_id`, `o`.`value_text` as `max_edd`
     FROM
         `anc_connect_max_edd_dates` `pp`
@@ -200,11 +200,11 @@ VIEW `anc_connect_max_edd` AS
 
 -- retrieving next visit dates
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `anc_connect_next_visit_date` AS
-    SELECT 
+    SELECT
         `pp`.`patient_id`, `o`.`value_text` as `next_visit_date`
     FROM
         `anc_connect_next_visit_date_list` `pp`
@@ -213,24 +213,24 @@ VIEW `anc_connect_next_visit_date` AS
 
 -- Retriving current client cell number
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `patient_cell_number` AS
-    SELECT 
+    SELECT
         `mcn`.`patient_id`, `pa`.`value` as `cell_phone_number`
     FROM
         `max_cell_number` `mcn`
             LEFT JOIN
         `person_attribute` `pa` ON `mcn`.`pa_id` = `pa`.`person_attribute_id`;
 
--- Retriving ANC Connect Clients 
+-- Retriving ANC Connect Clients
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `anc_connect_program_clients` AS
-    SELECT 
+    SELECT
         `pa`.`person_id`,
         `pa`.`city_village`,
         `pa`.`county_district`,
@@ -283,7 +283,7 @@ VIEW `anc_connect_program_clients` AS
             LEFT JOIN
         `patient_cell_number` `pcn` ON `pa`.`person_id` = `pcn`.`patient_id`
     WHERE
-        `pa`.`person_id` IN (SELECT 
+        `pa`.`person_id` IN (SELECT
                 `patient_id`
             FROM
                 `patient_program`
@@ -293,11 +293,11 @@ VIEW `anc_connect_program_clients` AS
 
 -- Retrieving ANC VISITS
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `anc_visits` AS
-    select 
+    select
         `lvd`.`encounter_id` AS `encounter_id`,
         `lvd`.`patient_id` AS `patient_id`,
         `lvd`.`encounter_datetime` AS `encounter_datetime`,
@@ -315,11 +315,11 @@ VIEW `anc_visits` AS
 
 -- Retrieving Baby Deliveries
 
-CREATE OR REPLACE 
-    ALGORITHM = UNDEFINED 
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED
     SQL SECURITY INVOKER
 VIEW `baby_deliveries` AS
-    select 
+    select
         `d_dates`.`encounter_id` AS `encounter_id`,
         `d_dates`.`patient_id` AS `patient_id`,
         `d_dates`.`encounter_datetime` AS `encounter_datetime`,
@@ -333,6 +333,167 @@ VIEW `baby_deliveries` AS
         ((`delivery_dates` `d_dates`
         join `delivery_locations` `d_location` ON ((`d_dates`.`encounter_id` = `d_location`.`encounter_id`)))
         left join `anc_connect_program_clients` `p_clients` ON ((`d_dates`.`patient_id` = `p_clients`.`person_id`)));
+
+-- Added these to fix the system slowness
+
+DROP FUNCTION IF EXISTS `client_needs_followup`;
+
+DELIMITER $$
+CREATE FUNCTION `client_needs_followup`(my_patient_id INT, district_id INT, start_date DATETIME) RETURNS int(1)
+BEGIN
+	DECLARE gestation_age, registration_age INT;
+	DECLARE next_visit_date DATETIME;
+	DECLARE return_value INT;
+
+	SET return_value = 0;
+
+	SET gestation_age = (SELECT client_gestation_age(my_patient_id));
+	SET next_visit_date = (SELECT client_next_anc_visit(my_patient_id));
+	SET registration_age = (SELECT client_gestation_age(my_patient_id));
+
+	IF (gestation_age < 42) AND (gestation_age > 0) AND (next_visit_date <= start_date) THEN
+		SET return_value = 1;
+	END IF;
+
+	IF (return_value = 0) THEN
+		IF (next_visit_date IS NULL) AND (gestation_age >= 21) THEN
+			SET return_value = 1;
+		END IF;
+	END IF;
+
+	RETURN return_value;
+END$$
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS `client_last_anc_visit`;
+
+DELIMITER $$
+CREATE FUNCTION `client_last_anc_visit`(my_patient_id INT) RETURNS DATE
+BEGIN
+	DECLARE last_visit_date DATE;
+
+	SET last_visit_date = (SELECT
+        DATE(`o`.`value_text`)
+    FROM
+        `encounter` `e`
+        JOIN `obs` `o` ON `o`.`encounter_id` = `e`.`encounter_id`
+            AND `o`.`concept_id` = 9457
+            AND `o`.`voided` = 0
+			AND `o`.`person_id` = my_patient_id
+    WHERE
+        `e`.`encounter_type` = 151
+		AND `e`.`voided` = 0
+		AND `e`.`patient_id` = my_patient_id
+		AND `e`.`encounter_id` = (SELECT max(`encounter_id`)
+					FROM `encounter`
+					WHERE
+						`encounter_type` = 151
+					AND `voided` = 0
+					AND `patient_id` = my_patient_id ));
+
+	RETURN last_visit_date;
+END$$
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS `client_next_anc_visit`;
+
+DELIMITER $$
+CREATE FUNCTION `client_next_anc_visit`(my_patient_id INT) RETURNS DATETIME
+BEGIN
+	DECLARE next_visit_date DATETIME;
+	SET next_visit_date = (SELECT
+        DATE(`o`.`value_text`)
+    FROM
+        `encounter` `e`
+        JOIN `obs` `o` ON `o`.`encounter_id` = `e`.`encounter_id`
+            AND `o`.`concept_id` = 9459
+            AND `o`.`voided` = 0
+			AND `o`.`person_id` = my_patient_id
+    WHERE
+        `e`.`encounter_type` = 151
+		AND `e`.`voided` = 0
+		AND `e`.`patient_id` = my_patient_id
+		AND `e`.`encounter_id` = (SELECT max(`encounter_id`)
+					FROM `encounter`
+					WHERE
+						`encounter_type` = 151
+					AND `voided` = 0
+					AND `patient_id` = my_patient_id ));
+
+	RETURN next_visit_date;
+END$$
+DELIMITER ;
+DROP FUNCTION IF EXISTS `client_edd`;
+
+DELIMITER $$
+CREATE FUNCTION `client_edd`(my_patient_id INT) RETURNS DATE
+BEGIN
+	DECLARE edd DATE;
+	SET edd = (SELECT `value_text`
+				FROM `obs`
+				WHERE `obs_id` = (SELECT
+										max(`obs_id`)
+									FROM
+										`obs`
+									WHERE
+										`person_id` = my_patient_id
+										AND `concept_id` = 6188
+										AND `voided` = 0)
+					AND `person_id` = my_patient_id
+				);
+	RETURN edd;
+END$$
+DELIMITER ;
+DROP FUNCTION IF EXISTS `client_gestation_age`;
+
+DELIMITER $$
+CREATE FUNCTION `client_gestation_age`(my_patient_id INT) RETURNS INT
+BEGIN
+	DECLARE gestation_age INT;
+
+	SET gestation_age = (SELECT FLOOR((280 - DATEDIFF(DATE(client_edd(my_patient_id)), CURDATE())) / 7));
+	RETURN gestation_age;
+END$$
+
+DELIMITER ;
+DROP FUNCTION IF EXISTS `client_age_of_registration`;
+
+DELIMITER $$
+CREATE FUNCTION `client_age_of_registration`(my_patient_id INT) RETURNS INT
+BEGIN
+	DECLARE age_of_reg INT;
+
+	SET age_of_reg = (SELECT DATEDIFF(CURDATE(), `date_enrolled`)
+						FROM `patient_program`
+						WHERE
+							`patient_id` = my_patient_id
+							AND `voided` = 0
+							AND `program_id` = 19
+					);
+	RETURN age_of_reg;
+END$$
+DELIMITER ;
+DROP FUNCTION IF EXISTS `client_next_visit_date`;
+
+DELIMITER $$
+CREATE FUNCTION `client_next_visit_date`(my_patient_id INT) RETURNS DATE
+BEGIN
+	DECLARE nvd DATE;
+	SET nvd = (SELECT `value_text`
+				FROM `obs`
+				WHERE `obs_id` = (SELECT
+										max(`obs_id`)
+									FROM
+										`obs`
+									WHERE
+										`person_id` = my_patient_id
+										AND `concept_id` = 9459
+										AND `voided` = 0)
+					AND `person_id` = my_patient_id
+				);
+	RETURN nvd;
+END$$
+DELIMITER ;
 
 --
 --
