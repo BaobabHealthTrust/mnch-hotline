@@ -880,7 +880,7 @@ class EncountersController < ApplicationController
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
         redirect_to "/encounters/new/anc_visit?patient_id=#{params[:observations].first[:patient_id]}" + "&late=true"
       else
-       redirect_to "/encounters/hsa_response?hsa_id=#{params[:hsa_id]}" + "&late=true"
+       redirect_to "/encounters/hsa_response?patient_id=#{params[:observations].first[:patient_id]}&hsa_id=#{params[:hsa_id]}" + "&late=true"
       end
     else
     
@@ -900,9 +900,11 @@ class EncountersController < ApplicationController
       if params[:observations].first[:value_coded_or_text].upcase == 'YES'
         redirect_to "/encounters/new/hsa_visit?patient_id=#{params[:observations].first[:patient_id]}" + "&late=true"
       else
+        redirect_to "/clinic/"
       end
     else
     
+    @patient = Patient.find(params[:patient_id]) 
     @person = Person.find(params[:hsa_id])
     cell_phone_number_att = PersonAttributeType.find_by_name("Cell Phone Number")
     @phone_number = PersonAttribute.find_by_person_id_and_person_attribute_type_id(@person.id,cell_phone_number_att.id) 

@@ -32,7 +32,6 @@
   
   function gotoClientResponse(){
     var person_id =  document.getElementById('patientId');
-    alert(person_id.value);
     window.location = "/encounters/client_response?patient_id="+ person_id.value + "&hsa_id=" + person_id.name ;
   }
   
@@ -42,6 +41,17 @@
 
 <style>
 
+     #vl_lab_trail_cover{
+        position: absolute;
+        background-color: black;
+        width: 100%;
+        height: 102%;
+        left: 0%;
+        top: 0%;
+        z-index: 990;
+        opacity: 0.25;
+      }
+     
       #vl_lab_trail, #new_vl_menu, .new_vl_menu{
       position: absolute;
       width: 95%;

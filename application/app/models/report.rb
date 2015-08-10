@@ -2285,13 +2285,17 @@ module Report
         health_center = data["health_center"]
         hsa_id = data["hsa_id"]
         hsa_name = data["hsa_name"]
+        total_clients = total_clients_enrolled_by_hsa(hsa_id, end_date)
+        new_enrollments = new_enrollments_by_hsa(hsa_id, start_date, end_date)
+        on_time = on_time_anc_rate(hsa_id, start_date, end_date)
+        facility_delivery_rate = facility_delivery_rate(hsa_id, start_date, end_date)
         hash[district_name] = {} if hash[district_name].blank?
         hash[district_name]["health_centers"] ={} if hash[district_name]["health_centers"].blank?
         hash[district_name]["health_centers"][health_center] = {} if hash[district_name]["health_centers"][health_center].blank?
-        hash[district_name]["health_centers"][health_center]["total_clients_enrolled"] = total_clients_enrolled_by_hsa(hsa_id, end_date)
-        hash[district_name]["health_centers"][health_center]["new_enrollments"] = new_enrollments_by_hsa(hsa_id, start_date, end_date)
-        hash[district_name]["health_centers"][health_center]["on_time_anc_rate"] = something
-        hash[district_name]["health_centers"][health_center]["facility_delivery_rate"] = something
+        hash[district_name]["health_centers"][health_center]["total_clients_enrolled"] = total_clients
+        hash[district_name]["health_centers"][health_center]["new_enrollments"] = new_enrollments
+        hash[district_name]["health_centers"][health_center]["on_time_anc_rate"] = on_time
+        hash[district_name]["health_centers"][health_center]["facility_delivery_rate"] = facility_delivery_rate
       end
       
     end
